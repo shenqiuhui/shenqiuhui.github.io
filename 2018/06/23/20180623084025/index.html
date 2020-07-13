@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+<!-- Baidu Tongji -->
+<script>var _hmt = _hmt || []</script>
+<script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script>
+<!-- End Baidu Tongji -->
+
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>高阶函数应用 —— 柯里化与反柯里化 | Shen&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="JavaScript,高阶函数,柯里化">
+    <meta name="description" content="前言在 JavaScript 中，柯里化和反柯里化是高阶函数的一种应用，在这之前我们应该清楚什么是高阶函数，通俗的说，函数可以作为参数传递到函数中，这个作为参数的函数叫回调函数，而拥有这个参数的函数就是高阶函数，回调函数在高阶函数中调用并传递相应的参数，在高阶函数执行时，由于回调函数的内部逻辑不同，高阶函数的执行结果也不同，非常灵活，也被叫做函数式编程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高阶函数应用 —— 柯里化与反柯里化">
+<meta property="og:url" content="https://www.overtaking.top/2018/06/23/20180623084025/index.html">
+<meta property="og:site_name" content="Shen&#39;s Blog">
+<meta property="og:description" content="前言在 JavaScript 中，柯里化和反柯里化是高阶函数的一种应用，在这之前我们应该清楚什么是高阶函数，通俗的说，函数可以作为参数传递到函数中，这个作为参数的函数叫回调函数，而拥有这个参数的函数就是高阶函数，回调函数在高阶函数中调用并传递相应的参数，在高阶函数执行时，由于回调函数的内部逻辑不同，高阶函数的执行结果也不同，非常灵活，也被叫做函数式编程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.overtaking.top/2018/06/23/20180623084025/curring.png">
+<meta property="article:published_time" content="2018-06-23T00:40:25.000Z">
+<meta property="article:modified_time" content="2020-07-11T20:23:29.073Z">
+<meta property="article:author" content="Panda Shen">
+<meta property="article:tag" content="JavaScript">
+<meta property="article:tag" content="高阶函数">
+<meta property="article:tag" content="柯里化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.overtaking.top/2018/06/23/20180623084025/curring.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml">
+    
+
+    
+    
+<link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon-next.png">
+
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32-next.png">
+
+
+
+<link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16-next.png">
+
+
+
+<link rel="mask-icon" href="/img/logo.svg" color="">
+
+
+
+
+
+
+    
+
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpeg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Panda Shen</h5>
+          <a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                Home
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/link"  >
+                <i class="icon icon-lg icon-link"></i>
+                Links
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about"  >
+                <i class="icon icon-lg icon-user"></i>
+                About
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/shenqiuhui" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">高阶函数应用 —— 柯里化与反柯里化</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">高阶函数应用 —— 柯里化与反柯里化</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-06-23T00:40:25.000Z" itemprop="datePublished" class="page-time">
+  2018-06-23
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/JavaScript/">JavaScript</a></li></ul>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <!-- <h4>TOC</h4> -->
+            <h4>文章目录</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#柯里化"><span class="post-toc-number">2.</span> <span class="post-toc-text">柯里化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#最基本的柯里化拆分"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">最基本的柯里化拆分</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#柯里化通用式"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">柯里化通用式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#柯里化与-bind"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">柯里化与 bind</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#反柯里化"><span class="post-toc-number">3.</span> <span class="post-toc-text">反柯里化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#反柯里化通用式"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">反柯里化通用式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#通过函数调用生成反柯里化函数"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">通过函数调用生成反柯里化函数</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-20180623084025"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">高阶函数应用 —— 柯里化与反柯里化</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-06-23 08:40:25" datetime="2018-06-23T00:40:25.000Z"  itemprop="datePublished">2018-06-23</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/JavaScript/">JavaScript</a></li></ul>
+
+
+
+            
+
+            
+<span id="/2018/06/23/20180623084025/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="高阶函数应用 —— 柯里化与反柯里化">
+    <i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <img src="/2018/06/23/20180623084025/curring.png" title="函数柯里化与反柯里化">
+<p><br></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote warning"><p>在 JavaScript 中，柯里化和反柯里化是高阶函数的一种应用，在这之前我们应该清楚什么是高阶函数，通俗的说，函数可以作为参数传递到函数中，这个作为参数的函数叫回调函数，而拥有这个参数的函数就是高阶函数，回调函数在高阶函数中调用并传递相应的参数，在高阶函数执行时，由于回调函数的内部逻辑不同，高阶函数的执行结果也不同，非常灵活，也被叫做函数式编程。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="柯里化"><a href="#柯里化" class="headerlink" title="柯里化"></a>柯里化</h2><p>在 JavaScript 中，函数柯里化是函数式编程的重要思想，也是高阶函数中一个重要的应用，其含义是给函数分步传递参数，每次传递部分参数，并返回一个更具体的函数接收剩下的参数，这中间可嵌套多层这样的接收部分参数的函数，直至返回最后结果。</p>
+<h3 id="最基本的柯里化拆分"><a href="#最基本的柯里化拆分" class="headerlink" title="最基本的柯里化拆分"></a>最基本的柯里化拆分</h3><figure class="highlight js"><figcaption><span>柯里化拆分</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">add</span>(<span class="params">a, b, c</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> a + b + c;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 柯里化函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addCurrying</span>(<span class="params">a</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">b</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">c</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> a + b + c;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用原函数</span></span><br><span class="line">add(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>); <span class="comment">// 6</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用柯里化函数</span></span><br><span class="line">addCurrying(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>) <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
+<p>被柯里化的函数 <code>addCurrying</code> 每次的返回值都为一个函数，并使用下一个参数作为形参，直到三个参数都被传入后，返回的最后一个函数内部执行求和操作，其实是充分的利用了闭包的特性来实现的。</p>
+<h3 id="柯里化通用式"><a href="#柯里化通用式" class="headerlink" title="柯里化通用式"></a>柯里化通用式</h3><p>上面的柯里化函数没涉及到高阶函数，也不具备通用性，无法转换形参个数任意或未知的函数，我们接下来封装一个通用的柯里化转换函数，可以将任意函数转换成柯里化。</p>
+<figure class="highlight js"><figcaption><span>柯里化通用式 ES5</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">currying</span>(<span class="params">func, args</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 形参个数</span></span><br><span class="line">  <span class="keyword">var</span> arity = func.length;</span><br><span class="line">  <span class="comment">// 上一次传入的参数</span></span><br><span class="line">  <span class="keyword">var</span> args = args || [];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 将参数转化为数组</span></span><br><span class="line">    <span class="keyword">var</span> _args = [].slice.call(<span class="built_in">arguments</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将上次的参数与当前参数进行组合并修正传参顺序</span></span><br><span class="line">    <span class="built_in">Array</span>.prototype.unshift.apply(_args, args);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果参数不够，返回闭包函数继续收集参数</span></span><br><span class="line">    <span class="keyword">if</span> (_args.length &lt; arity) &#123;</span><br><span class="line">      <span class="keyword">return</span> currying.call(<span class="literal">null</span>, func, _args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 参数够了则直接执行被转化的函数</span></span><br><span class="line">    <span class="keyword">return</span> func.apply(<span class="literal">null</span>, _args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面主要使用的是 ES5 的语法来实现，大量的使用了 <code>call</code> 和 <code>apply</code>，下面我们通过 ES6 的方式实现功能完全相同的柯里化转换通用式。</p>
+<figure class="highlight js"><figcaption><span>柯里化通用式 ES6</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">currying</span>(<span class="params">func, args = []</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> arity = func.length;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">..._args</span>) </span>&#123;</span><br><span class="line">    _args.unshift(...args);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (_args.length &lt; arity) &#123;</span><br><span class="line">      <span class="keyword">return</span> currying(func, _args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> func(..._args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>函数 <code>currying</code> 算是比较高级的转换柯里化的通用式，可以随意拆分参数，假设一个被转换的函数有多个形参，我们可以在任意环节传入任意个数的参数进行拆分，举一个例子，假如 <code>5</code> 个参数，第一次可以传入 <code>2</code> 个，第二次可以传入 <code>1</code> 个, 第三次可以传入剩下的，也有其他的多种传参和拆分方案，因为在 <code>currying</code> 内部收集参数的同时按照被转换函数的形参顺序进行了更正。</p>
+<p>柯里化的一个很大的好处是可以帮助我们基于一个被转换函数，通过对参数的拆分实现不同功能的函数，如下面的例子。</p>
+<figure class="highlight js"><figcaption><span>柯里化通用式应用 —— 普通函数</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 被转换函数，用于检测传入的字符串是否符合正则表达式</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkFun</span>(<span class="params">reg, str</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> reg.test(str);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 转换柯里化</span></span><br><span class="line"><span class="keyword">const</span> check = currying(checkFun);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 产生新的功能函数</span></span><br><span class="line"><span class="keyword">const</span> checkPhone = check(<span class="regexp">/^1[34578]\d&#123;9&#125;$/</span>);</span><br><span class="line"><span class="keyword">const</span> checkEmail = check(<span class="regexp">/^(\w)+(\.\w+)*@(\w)+((\.\w+)+)$/</span>);</span><br></pre></td></tr></table></figure>
+<p>上面的例子根据一个被转换的函数通过转换变成柯里化函数，并用 <code>check</code> 变量接收，以后每次调用 <code>check</code> 传递不同的正则就会产生一个检测不同类型字符串的功能函数。</p>
+<p>这种使用方式同样适用于被转换函数是高阶函数的情况，比如下面的例子。</p>
+<figure class="highlight js"><figcaption><span>柯里化通用式应用 —— 高阶函数</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 被转换函数，按照传入的回调函数对传入的数组进行映射</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">mapFun</span>(<span class="params">func, array</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> array.map(func);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 转换柯里化</span></span><br><span class="line"><span class="keyword">const</span> getNewArray = currying(mapFun);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 产生新的功能函数</span></span><br><span class="line"><span class="keyword">const</span> createPercentArr = getNewArray(<span class="function"><span class="params">item</span> =&gt;</span> <span class="string">`<span class="subst">$&#123;item * <span class="number">100</span>&#125;</span>%`</span>);</span><br><span class="line"><span class="keyword">const</span> createDoubleArr = getNewArray(<span class="function"><span class="params">item</span> =&gt;</span> item * <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用新的功能函数</span></span><br><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> percentArr = createPercentArr(arr);</span><br><span class="line"><span class="comment">// ['100%', '200%', '300%', '400%', '500%',]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> doubleArr = createDoubleArr(arr);</span><br><span class="line"><span class="comment">// [2, 4, 6, 8, 10]</span></span><br></pre></td></tr></table></figure>
+<h3 id="柯里化与-bind"><a href="#柯里化与-bind" class="headerlink" title="柯里化与 bind"></a>柯里化与 bind</h3><p><code>bind</code> 方法是经常使用的一个方法，它的作用是帮我们将调用 <code>bind</code> 函数内部的上下文对象 <code>this</code> 替换成我们传递的第一个参数，并将后面其他的参数作为调用 <code>bind</code> 函数的参数。</p>
+<figure class="highlight js"><figcaption><span>bind 方法原理模拟</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bind 方法的模拟</span></span><br><span class="line"><span class="built_in">Function</span>.prototype.bind = <span class="function"><span class="keyword">function</span>(<span class="params">context</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">var</span> args = [].slice.call(<span class="built_in">arguments</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> self.apply(context, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过上面代码可以看出，其实 <code>bind</code> 方法就是一个柯里化转换函数，将调用 <code>bind</code> 方法的函数进行转换，即通过闭包返回一个柯里化函数，执行该柯里化函数的时候，借用 <code>apply</code> 将调用 <code>bind</code> 的函数的执行上下文转换成了 <code>context</code> 并执行，只是这个转换函数没有那么复杂，没有进行参数拆分，而是函数在调用的时候传入了所有的参数。</p>
+<h2 id="反柯里化"><a href="#反柯里化" class="headerlink" title="反柯里化"></a>反柯里化</h2><p>反柯里化的思想与柯里化正好相反，如果说柯里化的过程是将函数拆分成功能更具体化的函数，那反柯里化的作用则在于扩大函数的适用性，使本来作为特定对象所拥有的功能函数可以被任意对象所使用。</p>
+<h3 id="反柯里化通用式"><a href="#反柯里化通用式" class="headerlink" title="反柯里化通用式"></a>反柯里化通用式</h3><p>反柯里化通用式的参数为一个希望可以被其他对象调用的方法或函数，通过调用通用式返回一个函数，这个函数的第一个参数为要执行方法的对象，后面的参数为执行这个方法时需要传递的参数。</p>
+<figure class="highlight js"><figcaption><span>反柯里化通用式 ES5</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">uncurring</span>(<span class="params">fn</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 取出要执行 fn 方法的对象，同时从 arguments 中删除</span></span><br><span class="line">    <span class="keyword">var</span> obj = [].shift.call(<span class="built_in">arguments</span>);</span><br><span class="line">    <span class="keyword">return</span> fn.apply(obj, <span class="built_in">arguments</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><figcaption><span>反柯里化通用式 ES6</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">uncurring</span>(<span class="params">fn</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">...args</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> fn.call(...args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面我们通过一个例子来感受一下反柯里化的应用。</p>
+<figure class="highlight js"><figcaption><span>反柯里化通用式应用</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 构造函数 F</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">F</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 拼接属性值的方法</span></span><br><span class="line">F.prototype.concatProps = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> args = <span class="built_in">Array</span>.from(<span class="built_in">arguments</span>);</span><br><span class="line">  <span class="keyword">return</span> args.reduce(<span class="function">(<span class="params">prev, next</span>) =&gt;</span> <span class="string">`<span class="subst">$&#123;<span class="keyword">this</span>[prev]&#125;</span>&amp;<span class="subst">$&#123;<span class="keyword">this</span>[next]&#125;</span>`</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用 concatProps 的对象</span></span><br><span class="line"><span class="keyword">const</span> obj = &#123;</span><br><span class="line">  name: <span class="string">'Panda'</span>,</span><br><span class="line">  age: <span class="number">16</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用反柯里化进行转化</span></span><br><span class="line"><span class="keyword">const</span> concatProps = uncurring(F.prototype.concatProps);</span><br><span class="line"></span><br><span class="line">concatProps(obj, <span class="string">'name'</span>, <span class="string">'age'</span>); <span class="comment">// Panda&amp;16</span></span><br></pre></td></tr></table></figure>
+<p>反柯里化还有另外一个应用，用来代替直接使用 <code>call</code> 和 <code>apply</code>，比如检测数据类型的 <code>Object.prototype.toString</code> 等方法，以往我们使用时是在这个方法后面直接调用 <code>call</code> 更改上下文并传参，如果项目中多处需要对不同的数据类型进行验证是很麻的，常规的解决方案是封装成一个检测数据类型的模块。</p>
+<figure class="highlight js"><figcaption><span>检测数据类型常规方案</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkType</span>(<span class="params">val</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">Object</span>.prototype.toString.call(val);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果需要这样封装的功能很多就麻烦了，代码量也会随之增大，其实我们也可以使用另一种解决方案，就是利用反柯里化通用式将这个函数转换并将返回的函数用变量接收，这样我们只需要封装一个 <code>uncurring</code> 通用式就可以了。</p>
+<figure class="highlight js"><figcaption><span>反柯里化创建检测类型函数</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> checkType = uncurring(<span class="built_in">Object</span>.prototype.toString);</span><br><span class="line"></span><br><span class="line">checkType(<span class="number">1</span>); <span class="comment">// [object Number]</span></span><br><span class="line">checkType(<span class="string">'hello'</span>); <span class="comment">// [object String]</span></span><br><span class="line">checkType(<span class="literal">true</span>); <span class="comment">// [object Boolean]</span></span><br></pre></td></tr></table></figure>
+<h3 id="通过函数调用生成反柯里化函数"><a href="#通过函数调用生成反柯里化函数" class="headerlink" title="通过函数调用生成反柯里化函数"></a>通过函数调用生成反柯里化函数</h3><p>在 JavaScript 我们经常使用面向对象的编程方式，在两个类或构造函数之间建立联系实现继承，如果我们对继承的需求仅仅是希望一个构造函数的实例能够使用另一个构造函数原型上的方法，那进行繁琐的继承很浪费，简单的继承父子类的关系又不那么的优雅，还不如之间不存在联系。</p>
+<figure class="highlight js"><figcaption><span>将反柯里化方法扩展到函数原型</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Function</span>.prototype.uncurring = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> self = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Function</span>.prototype.call.apply(self, <span class="built_in">arguments</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>之前的问题通过上面给函数扩展的 <code>uncurring</code> 方法完全得到了解决，比如下面的例子。</p>
+<figure class="highlight js"><figcaption><span>函数应用反柯里化原型方法</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 构造函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">F</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">F.prototype.sayHi = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">"I'm "</span> + <span class="keyword">this</span>.name + <span class="string">", "</span> + <span class="keyword">this</span>.age + <span class="string">" years old."</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 希望 sayHi 方法被任何对象使用</span></span><br><span class="line">sayHi = F.prototype.sayHi.uncurring();</span><br><span class="line"></span><br><span class="line">sayHi(&#123; <span class="attr">name</span>: <span class="string">'Panda'</span>, <span class="attr">age</span>: <span class="number">20</span>&#125;); <span class="comment">// I'm Panda, 20 years old.</span></span><br></pre></td></tr></table></figure>
+<p>在 <code>Function</code> 的原型对象上扩展的 <code>uncurring</code> 中，难点是理解 <code>Function.prototype.call.apply</code>，我们知道在 <code>call</code> 的源码逻辑中 <code>this</code> 指的是调用它的函数，在 <code>call</code> 内部用第一个参数替换了这个函数中的 <code>this</code>，其余作为形参执行了函数。</p>
+<p>而在 <code>Function.prototype.call.apply</code> 中 <code>apply</code> 的第一个参数更换了 <code>call</code> 中的 <code>this</code>，这个用于更换 <code>this</code> 的就是例子中调用 <code>uncurring</code> 的方法 <code>F.prototype.sayHi</code>，所以等同于 <code>F.prototype.sayHi.call</code>，<code>arguments</code> 内的参数会传入 <code>call</code> 中，而 <code>arguments</code> 的第一项正是用于修改 <code>F.prototype.sayHi</code> 中 <code>this</code> 的对象。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p>看到这里你应该对柯里化和反柯里化有了一个初步的认识了，但要熟练的运用在开发中，还需要我们更深入的去了解它们内在的含义。</p>
+</blockquote>
+
+        </div>
+
+        
+<div class="read-end">
+    <span class="read-end-lg">--------------------</span>
+    <span class="read-end-md">---------------</span>
+    <span class="read-end-sm">----------</span>
+    本文结束
+    <i class="icon icon-paw"></i>
+    感谢您的阅读
+    <span class="read-end-sm">----------</span>
+    <span class="read-end-md">---------------</span>
+    <span class="read-end-lg">--------------------</span>
+</div>
+
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    更新时间：<time datetime="2020-07-11T20:23:29.073Z" itemprop="dateUpdated">2020-07-12 04:23:29</time>
+</span><br>
+
+
+        
+<span class="permalink">
+    本文链接：<a href="/2018/06/23/20180623084025/" target="_blank" rel="external">https://www.overtaking.top/2018/06/23/20180623084025/</a>
+</span><br>
+
+
+        
+<span class="post-message">
+    版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a> 许可协议，转载请注明出处！
+</span>
+
+
+    </div>
+    
+    <footer>
+        <a href="https://www.overtaking.top">
+            <img src="/img/avatar.jpeg" alt="Panda Shen">
+            Panda Shen
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9F%AF%E9%87%8C%E5%8C%96/" rel="tag">柯里化</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0/" rel="tag">高阶函数</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/2018/06/23/20180623084025/&title=《高阶函数应用 —— 柯里化与反柯里化》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/2018/06/23/20180623084025/&title=《高阶函数应用 —— 柯里化与反柯里化》 — Shen's Blog&source=
+
+前言在 JavaScript 中，柯里化和反柯里化是高阶函数的一种应用，在这之前我们应该清楚什么是高阶函数，通俗的说，函数可以作为参数传递到函数中，这..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/2018/06/23/20180623084025/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《高阶函数应用 —— 柯里化与反柯里化》 — Shen's Blog&url=https://www.overtaking.top/2018/06/23/20180623084025/&via=https://www.overtaking.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/2018/06/23/20180623084025/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/06/26/20180626142825/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">CommonJS 模块化简易实现</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/06/21/20180621113025/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Canvas + WebSocket + Redis 实现一个视频弹幕</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="comments vcomment" id="comments"></div>
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        大爷，赏口饭吃吧~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>Panda Shen &copy; 2017 - 2020</span>
+            <span>
+                
+                
+                
+                    Hosted by <a href="https://pages.coding.me" target="_blank">Coding Pages</a>
+                
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom"" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/2018/06/23/20180623084025/&title=《高阶函数应用 —— 柯里化与反柯里化》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/2018/06/23/20180623084025/&title=《高阶函数应用 —— 柯里化与反柯里化》 — Shen's Blog&source=
+
+前言在 JavaScript 中，柯里化和反柯里化是高阶函数的一种应用，在这之前我们应该清楚什么是高阶函数，通俗的说，函数可以作为参数传递到函数中，这..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/2018/06/23/20180623084025/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《高阶函数应用 —— 柯里化与反柯里化》 — Shen's Blog&url=https://www.overtaking.top/2018/06/23/20180623084025/&via=https://www.overtaking.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/2018/06/23/20180623084025/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACKklEQVR42u3aQZLiMBAEQP7/aeYBhE1VCyYCKX3ag0dWcqhVd+vxiJ/ny3P1zuv7s688vvFgYGD8LON5+1x94PVj9+88yyffGwYGxjmMJEDbIF6P6eSvMDAwMGbReX/UW4l1DAwMjDZwk+LzinG/GgYGBsasiL2PxZUyeBbuGBgY5zDyrvv///sr8w0MDIyfYsya9W2bbLZOsSsMDIytGXnAtQe7dpDQBi4GBsY5jHasmJeReamZDxKiJTAwMLZmtFuclb7JF+uWHwYGxmGMlU3nJWtycEx2hYGBcQKjPZx9anPtKDTaCQYGxtaM9qCWNPe/EeJLeY+BgfGzjJUrDiut/LyhFg1KMTAwtmbMojZph7WN/pzxpojFwMDYjjFrb61EZ/sTFFU4BgbGAYx2oLjeOPtwEYuBgXEMI9lWHqNJuTuL8sujIQYGxnaMfLmk9d/+KPkKdTZjYGBsx1gZOuYl68oPFx0TMTAwDmDkk4RirFg29fIsfXMoxMDAOICRHB/XD5pJyVqUxBgYGMcwomgblaZtI6++tIGBgXEMo126vU6x3hcs/t/AwMDYgjE7urUjyfYKRf1dDAyMrRmzAWcSu3mbrF2hLacxMDD2YLQh2w4p2yFBO/7EwMA4hzG7hJGHclLWrkQ/BgYGRv7Opy6Z1Vc0MDAwMJbr45WRQHRFAwMD4wBGPoDMD2359a98CPqBWhwDA+MHGbMrDnmjv93iLO4xMDA2ZfwBchCyUCJDdj0AAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<script src="/js/cursor.js" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+
+
+
+
+
+    <!-- Valine Comments -->
+    <!-- <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script> -->
+    <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+    <!-- Valine Comments script -->
+    <script>
+        var META = ['nick','mail','link'];
+        var meta = 'nick,mail'.split(',').filter(function(item){
+          return META.indexOf(item) > -1
+        });
+
+        new Valine({
+            el: '#comments',
+            notify: 'false' === 'true',
+            verify: 'false' === 'true',
+            appId: "RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",
+            appKey: "Mvo4cTDcS9hw0l03mINzvdNk",
+            avatar: "mm",
+            placeholder: "欢迎交流，一定记得留下邮箱哦！",
+            visitor: "true" === 'true',
+            highlight: "true" === 'true',
+            meta: meta.length === 0 ? META : meta,
+            pageSize: "10"
+        })
+    </script>
+    <!-- Valine Comments end -->
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '愿风指引你前进的道路！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '真正重要的，只是当下！';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

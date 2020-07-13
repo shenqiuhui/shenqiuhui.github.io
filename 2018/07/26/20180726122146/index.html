@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+<!-- Baidu Tongji -->
+<script>var _hmt = _hmt || []</script>
+<script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script>
+<!-- End Baidu Tongji -->
+
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Webpack —— tree-staking 解析 | Shen&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="源码分析,Babel,Webpack,AST,tree-staking,Node.js">
+    <meta name="description" content="tree-shaking 简介tree-shaking 是 Webpack 2 后续版本的优化功能，顾名思义，就是将多余的代码给 “摇晃” 掉，在开发中我们经常使用一些第三方库，而这些第三方库只使用了这个库的一部门功能或代码，未使用的代码也要被打包进来，这样出口文件会非常大，tree-shaking 帮我们解决了这个问题，它可以将各个模块中没有使用的方法过滤掉，只对有效代码进行打包。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Webpack —— tree-staking 解析">
+<meta property="og:url" content="https://www.overtaking.top/2018/07/26/20180726122146/index.html">
+<meta property="og:site_name" content="Shen&#39;s Blog">
+<meta property="og:description" content="tree-shaking 简介tree-shaking 是 Webpack 2 后续版本的优化功能，顾名思义，就是将多余的代码给 “摇晃” 掉，在开发中我们经常使用一些第三方库，而这些第三方库只使用了这个库的一部门功能或代码，未使用的代码也要被打包进来，这样出口文件会非常大，tree-shaking 帮我们解决了这个问题，它可以将各个模块中没有使用的方法过滤掉，只对有效代码进行打包。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.overtaking.top/2018/07/26/20180726122146/ast-tree-shaking.png">
+<meta property="og:image" content="https://www.overtaking.top/2018/07/26/20180726122146/before-babel-plugin.jpg">
+<meta property="og:image" content="https://www.overtaking.top/2018/07/26/20180726122146/after-babel-plugin.jpg">
+<meta property="article:published_time" content="2018-07-26T04:21:46.000Z">
+<meta property="article:modified_time" content="2020-07-12T19:24:02.321Z">
+<meta property="article:author" content="Panda Shen">
+<meta property="article:tag" content="源码分析">
+<meta property="article:tag" content="Babel">
+<meta property="article:tag" content="Webpack">
+<meta property="article:tag" content="AST">
+<meta property="article:tag" content="tree-staking">
+<meta property="article:tag" content="Node.js">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.overtaking.top/2018/07/26/20180726122146/ast-tree-shaking.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml">
+    
+
+    
+    
+<link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon-next.png">
+
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32-next.png">
+
+
+
+<link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16-next.png">
+
+
+
+<link rel="mask-icon" href="/img/logo.svg" color="">
+
+
+
+
+
+
+    
+
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpeg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Panda Shen</h5>
+          <a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                Home
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/link"  >
+                <i class="icon icon-lg icon-link"></i>
+                Links
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about"  >
+                <i class="icon icon-lg icon-user"></i>
+                About
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/shenqiuhui" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Webpack —— tree-staking 解析</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Webpack —— tree-staking 解析</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-07-26T04:21:46.000Z" itemprop="datePublished" class="page-time">
+  2018-07-26
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Webpack/">Webpack</a></li></ul>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <!-- <h4>TOC</h4> -->
+            <h4>文章目录</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#tree-shaking-简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">tree-shaking 简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#AST-语法树分析"><span class="post-toc-number">2.</span> <span class="post-toc-text">AST 语法树分析</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#模拟-tree-staking"><span class="post-toc-number">3.</span> <span class="post-toc-text">模拟 tree-staking</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#结合-Webpack-使用插件"><span class="post-toc-number">4.</span> <span class="post-toc-text">结合 Webpack 使用插件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#对比使用插件前后的出口文件"><span class="post-toc-number">5.</span> <span class="post-toc-text">对比使用插件前后的出口文件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">6.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-20180726122146"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Webpack —— tree-staking 解析</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-07-26 12:21:46" datetime="2018-07-26T04:21:46.000Z"  itemprop="datePublished">2018-07-26</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Webpack/">Webpack</a></li></ul>
+
+
+
+            
+
+            
+<span id="/2018/07/26/20180726122146/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Webpack —— tree-staking 解析">
+    <i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <img src="/2018/07/26/20180726122146/ast-tree-shaking.png" class title="tree-staking">
+<p><br></p>
+<h2 id="tree-shaking-简介"><a href="#tree-shaking-简介" class="headerlink" title="tree-shaking 简介"></a>tree-shaking 简介</h2><blockquote class="pullquote info"><p><code>tree-shaking</code> 是 <code>Webpack 2</code> 后续版本的优化功能，顾名思义，就是将多余的代码给 “摇晃” 掉，在开发中我们经常使用一些第三方库，而这些第三方库只使用了这个库的一部门功能或代码，未使用的代码也要被打包进来，这样出口文件会非常大，<code>tree-shaking</code> 帮我们解决了这个问题，它可以将各个模块中没有使用的方法过滤掉，只对有效代码进行打包。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="AST-语法树分析"><a href="#AST-语法树分析" class="headerlink" title="AST 语法树分析"></a>AST 语法树分析</h2><p>假设我们现在使用了 ElementUI 库的两个组件，通常会使用解构赋值来引入。</p>
+<figure class="highlight js"><figcaption><span>优化前</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Button, Alert &#125; <span class="keyword">from</span> <span class="string">'element-ui'</span>;</span><br></pre></td></tr></table></figure>
+<p>这样引用资源， Webpack 在打包的时候会找到 <code>element-ui</code> 并把里面所有的代码全部打包到出口文件，我们只使用了两个组件，全部打包不是我们所希望的，<code>tree-shaking</code> 是通过在 Webpack 中配置 <code>babel-plugin-import</code> 插件来实现的，它可以将解构的代码转换成下面的形式。</p>
+<figure class="highlight js"><figcaption><span>优化后</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Button <span class="keyword">from</span> <span class="string">'element-ui/lib/button'</span>;</span><br><span class="line"><span class="keyword">import</span> Alert <span class="keyword">from</span> <span class="string">'element-ui/lib/Alert'</span>;</span><br></pre></td></tr></table></figure>
+<p>转化后会去 <code>node_modules</code> 中的 <code>element-ui</code> 模块找到 <code>Button</code> 和 <code>Alert</code> 两个组件对应的文件，并打包到出口文件中。</p>
+<p>通过上面的转换可以看出，其实 <code>tree-shaking</code> 的实现原理是通过改变 AST 语法树的结构来实现的，如果不了解抽象语法树可以参考 <a href="https://www.overtaking.top/2018/07/25/20180725130233/" target="_blank">AST 抽象语法树</a>，我们可以通过在线转换网站 <a href="http://esprima.org/demo/parse.html" target="_blank">http://esprima.org/demo/parse.html</a> 将 JS 代码装换成 AST 语法树。</p>
+<figure class="highlight json"><figcaption><span>优化前的 AST 语法树</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"type"</span>: <span class="string">"Program"</span>,</span><br><span class="line">  <span class="attr">"body"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"ImportDeclaration"</span>,</span><br><span class="line">      <span class="attr">"specifiers"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"ImportSpecifier"</span>,</span><br><span class="line">          <span class="attr">"local"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"Identifier"</span>,</span><br><span class="line">            <span class="attr">"name"</span>: <span class="string">"Button"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"imported"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"Identifier"</span>,</span><br><span class="line">            <span class="attr">"name"</span>: <span class="string">"Button"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"ImportSpecifier"</span>,</span><br><span class="line">          <span class="attr">"local"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"Identifier"</span>,</span><br><span class="line">            <span class="attr">"name"</span>: <span class="string">"Alert"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"imported"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"Identifier"</span>,</span><br><span class="line">            <span class="attr">"name"</span>: <span class="string">"Alert"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"source"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"Literal"</span>,</span><br><span class="line">        <span class="attr">"value"</span>: <span class="string">"element-ui"</span>,</span><br><span class="line">        <span class="attr">"raw"</span>: <span class="string">"\"element-ui\""</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"sourceType"</span>: <span class="string">"module"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><figcaption><span>优化后的 AST 语法树</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"type"</span>: <span class="string">"Program"</span>,</span><br><span class="line">  <span class="attr">"body"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"ImportDeclaration"</span>,</span><br><span class="line">      <span class="attr">"specifiers"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"ImportDefaultSpecifier"</span>,</span><br><span class="line">          <span class="attr">"local"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"Identifier"</span>,</span><br><span class="line">            <span class="attr">"name"</span>: <span class="string">"Button"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"source"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"Literal"</span>,</span><br><span class="line">        <span class="attr">"value"</span>: <span class="string">"element-ui/lib/button"</span>,</span><br><span class="line">        <span class="attr">"raw"</span>: <span class="string">"\"element-ui/lib/button\""</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"ImportDeclaration"</span>,</span><br><span class="line">      <span class="attr">"specifiers"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"ImportDefaultSpecifier"</span>,</span><br><span class="line">          <span class="attr">"local"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"Identifier"</span>,</span><br><span class="line">            <span class="attr">"name"</span>: <span class="string">"Alert"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"source"</span>: &#123;</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"Literal"</span>,</span><br><span class="line">        <span class="attr">"value"</span>: <span class="string">"element-ui/lib/Alert"</span>,</span><br><span class="line">        <span class="attr">"raw"</span>: <span class="string">"\"element-ui/lib/Alert\""</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"sourceType"</span>: <span class="string">"module"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上面的语法树对比，可以看出在优化前 <code>body</code> 里面只有一个对象，使用的组件信息存在 <code>specifiers</code> 里，<code>source</code> 指向了 <code>element-ui</code>，而在优化后，将两个组件分别拆成了两个对象存在 <code>body</code> 中，每个对象的的 <code>specifiers</code> 只存储一个组件，并在 <code>source</code> 里面指向了当前组件对应的路径。</p>
+<h2 id="模拟-tree-staking"><a href="#模拟-tree-staking" class="headerlink" title="模拟 tree-staking"></a>模拟 tree-staking</h2><p>既然我们已经清楚要修改语法树的位置，下面就使用 AST 来模拟 <code>tree-shaking</code> 功能，对语法树的操作是依赖于 <code>babel-core</code> 和 <code>babel-types</code> 两个核心模块的，下面先安装依赖。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install babel-core babel-types</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><figcaption><span>文件：babel-plugin-my-import.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> babel = <span class="built_in">require</span>(<span class="string">'babel-core'</span>);</span><br><span class="line"><span class="keyword">const</span> types = <span class="built_in">require</span>(<span class="string">'babel-types'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> code = <span class="string">`import &#123; Button, Alert &#125; from 'element-ui'`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> importPlugin = &#123;</span><br><span class="line">  visitor: &#123;</span><br><span class="line">    ImportDeclaration(path) &#123;</span><br><span class="line">      <span class="keyword">let</span> node = path.node;</span><br><span class="line">      <span class="keyword">let</span> source = node.source.value;</span><br><span class="line">      <span class="keyword">let</span> specifiers = node.specifiers;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 判断是否是默认导出，其中一个不是默认导出，则都不是默认导出</span></span><br><span class="line">      <span class="keyword">if</span> (!types.isImportDefaultSpecifier(specifiers[<span class="number">0</span>])) &#123;</span><br><span class="line">        <span class="comment">// 如果不是默认导出，则需要转换</span></span><br><span class="line">        specifiers = specifiers.map(<span class="function"><span class="params">specifier</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="comment">// 数组内容：当前默认导出的标识、从哪里导入</span></span><br><span class="line">          <span class="keyword">return</span> types.importDeclaration(</span><br><span class="line">            [types.importDefaultSpecifier(specifier.local)],</span><br><span class="line">            types.stringLiteral(</span><br><span class="line">              <span class="string">`<span class="subst">$&#123;source&#125;</span>/lib/<span class="subst">$&#123;specifier.local.name.toLowerCase()&#125;</span>`</span></span><br><span class="line">            )</span><br><span class="line">          );</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 替换树结构</span></span><br><span class="line">        path.replaceWithMultiple(specifiers);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> result = babel.transform(code, &#123;</span><br><span class="line">  plugins: [importPlugin]</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(result.code);</span><br><span class="line"></span><br><span class="line"><span class="comment">// import Button from 'element-ui/lib/button';</span></span><br><span class="line"><span class="comment">// import Alert from 'element-ui/lib/alert';</span></span><br></pre></td></tr></table></figure>
+<p>通过上面的代码可以发现我们使用 <code>babel-core</code> 和 <code>babel-types</code> 两个模块的核心方法对语法书进行了遍历、修改和替换，更详细的 API 可以查看 <a href="https://github.com/babel/babel/tree/6.x/packages/babel-types" target="_blank">https://github.com/babel/babel/tree/6.x/packages/babel-types</a>。</p>
+<h2 id="结合-Webpack-使用插件"><a href="#结合-Webpack-使用插件" class="headerlink" title="结合 Webpack 使用插件"></a>结合 Webpack 使用插件</h2><p>前面只是验证了 <code>tree-shaking</code> 中 JS 语法的转换过程，接下来将上面的代码转换成插件配合 Webpack 使用，来彻底感受 <code>tree-shaking</code> 的工作过程。</p>
+<figure class="highlight js"><figcaption><span>文件：&#126;node_modules/babel-plugin-my-import.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> babel = <span class="built_in">require</span>(<span class="string">'babel-core'</span>);</span><br><span class="line"><span class="keyword">const</span> types = <span class="built_in">require</span>(<span class="string">'babel-types'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> importPlugin = &#123;</span><br><span class="line">  visitor: &#123;</span><br><span class="line">    ImportDeclaration(path) &#123;</span><br><span class="line">      <span class="keyword">let</span> node = path.node;</span><br><span class="line">      <span class="keyword">let</span> source = node.source.value;</span><br><span class="line">      <span class="keyword">let</span> specifiers = node.specifiers;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 判断是否是默认导出，其中一个不是默认导出，则都不是默认导出</span></span><br><span class="line">      <span class="keyword">if</span> (!types.isImportDefaultSpecifier(specifiers[<span class="number">0</span>])) &#123;</span><br><span class="line">        <span class="comment">// 如果不是默认导出，则需要转换</span></span><br><span class="line">        specifiers = specifiers.map(<span class="function"><span class="params">specifier</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="comment">// 数组内容：当前默认导出的标识、从哪里导入</span></span><br><span class="line">          <span class="keyword">return</span> types.importDeclaration(</span><br><span class="line">            [types.importDefaultSpecifier(specifier.local)],</span><br><span class="line">            types.stringLiteral(</span><br><span class="line">              <span class="string">`<span class="subst">$&#123;source&#125;</span>/lib/<span class="subst">$&#123;specifier.local.name.toLowerCase()&#125;</span>`</span></span><br><span class="line">            )</span><br><span class="line">          );</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 替换树解构</span></span><br><span class="line">        path.replaceWithMultiple(specifiers);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = importPlugin;</span><br></pre></td></tr></table></figure>
+<p>上面删掉了多余的测试代码，将模块中的 <code>importPlugin</code> 插件导出，并把 <code>babel-plugin-my-import.js</code> 移入了 <code>node_modules</code> 当中。</p>
+<p><strong>接下来安装需要的依赖：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm install webpack webpack-cli babel-loader babel-presets-env</span><br><span class="line">npm install vue element-ui --save</span><br></pre></td></tr></table></figure>
+<p>安装完依赖，写一个要编译的文件，使用 Webpack 进行打包，查看使用插件前和使用插件后出口文件的大小。</p>
+<figure class="highlight js"><figcaption><span>文件：import.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Vue <span class="keyword">from</span> <span class="string">'vue'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; Button, Alert &#125; <span class="keyword">from</span> <span class="string">'element-ui'</span>;</span><br></pre></td></tr></table></figure>
+<p>下面来写一个简单的 Webpack 配置文件。</p>
+<figure class="highlight js"><figcaption><span>文件：webpcak.config.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  mode: <span class="string">'development'</span>,</span><br><span class="line">  entry: <span class="string">'import.js'</span>,</span><br><span class="line">  output: &#123;</span><br><span class="line">    filename: <span class="string">'bundle.js'</span>,</span><br><span class="line">    path: __dirname</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    rules: [&#123;</span><br><span class="line">      test: <span class="regexp">/\.js$/</span>,</span><br><span class="line">      use: &#123;</span><br><span class="line">        loader: <span class="string">'babel-loader'</span>,</span><br><span class="line">        options: &#123;</span><br><span class="line">          presets: [</span><br><span class="line">            <span class="string">'env'</span>,</span><br><span class="line">          ],</span><br><span class="line">          plugins: [</span><br><span class="line">            <span class="comment">// 插件：不使用插件打包注释掉该行即可</span></span><br><span class="line">            [<span class="string">'my-import'</span>, &#123; <span class="attr">libararyName</span>: <span class="string">'element-ui'</span> &#125;]</span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      exclude: <span class="regexp">/node_modules/</span></span><br><span class="line">    &#125;]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>为了防止 <code>babel</code> 相关的依赖升级 <code>7.0</code> 后出现一些问题导致 Webpack 无法启动，再此贴出 <code>package.json</code> 文件，按照对应版本下载依赖保证上面 Webpack 配置生效。</p>
+<figure class="highlight json"><figcaption><span>文件：package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"ast-lesson"</span>,</span><br><span class="line">  <span class="attr">"version"</span>: <span class="string">"1.0.0"</span>,</span><br><span class="line">  <span class="attr">"description"</span>: <span class="string">"tree-staking"</span>,</span><br><span class="line">  <span class="attr">"main"</span>: <span class="string">"index.js"</span>,</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"test"</span>: <span class="string">"echo \"Error: no test specified\" &amp;&amp; exit 1"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"keywords"</span>: [],</span><br><span class="line">  <span class="attr">"author"</span>: <span class="string">""</span>,</span><br><span class="line">  <span class="attr">"license"</span>: <span class="string">"ISC"</span>,</span><br><span class="line">  <span class="attr">"dependencies"</span>: &#123;</span><br><span class="line">    <span class="attr">"babel-core"</span>: <span class="string">"^6.26.3"</span>,</span><br><span class="line">    <span class="attr">"babel-loader"</span>: <span class="string">"^7.1.5"</span>,</span><br><span class="line">    <span class="attr">"babel-preset-env"</span>: <span class="string">"^1.7.0"</span>,</span><br><span class="line">    <span class="attr">"babel-types"</span>: <span class="string">"^6.26.0"</span>,</span><br><span class="line">    <span class="attr">"escodegen"</span>: <span class="string">"^1.10.0"</span>,</span><br><span class="line">    <span class="attr">"esprima"</span>: <span class="string">"^4.0.0"</span>,</span><br><span class="line">    <span class="attr">"estraverse"</span>: <span class="string">"^4.2.0"</span>,</span><br><span class="line">    <span class="attr">"webpack"</span>: <span class="string">"^4.16.0"</span>,</span><br><span class="line">    <span class="attr">"webpack-cli"</span>: <span class="string">"^3.0.8"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"devDependencies"</span>: &#123;</span><br><span class="line">    <span class="attr">"vue"</span>: <span class="string">"^2.5.17"</span>,</span><br><span class="line">    <span class="attr">"element-ui"</span>: <span class="string">"^2.4.6"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="对比使用插件前后的出口文件"><a href="#对比使用插件前后的出口文件" class="headerlink" title="对比使用插件前后的出口文件"></a>对比使用插件前后的出口文件</h2><p>接下来分别在使用插件和不使用插件时执行打包命令，查看出口文件 <code>bondle.js</code> 的大小。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx webpack</span><br></pre></td></tr></table></figure>
+<p>使用 <code>babel-plugin-my-import</code> 前：</p>
+<p><br></p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="/2018/07/26/20180726122146/before-babel-plugin.jpg" alt="使用 tree-staking 之前" title>
+                </div>
+                <div class="image-caption">使用 tree-staking 之前</div>
+            </figure>
+<p><br></p>
+<p>使用 <code>babel-plugin-my-import</code> 后：</p>
+<p><br></p>
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="/2018/07/26/20180726122146/after-babel-plugin.jpg" alt="使用 tree-staking 之后" title>
+                </div>
+                <div class="image-caption">使用 tree-staking 之后</div>
+            </figure>
+<p><br></p>
+<blockquote class="pullquote success"><p>通过对比，可以看到使用 <code>tree-shaking</code> 即我们自己实现的 <code>babel-plugin-my-import</code> 插件后，打包的出口文件大大减小，其原因是将引入第三方库没有使用的代码全都过滤掉了，只打包了有效代码。</p>
+</blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote default"><p>上面对 Webpack 的 <code>tree-shaking</code> 进行了分析，并模拟 <code>babel-plugin-import</code> 简易的实现了一版 <code>tree-shaking</code> 的优化插件，这个过程中相信大家已经了解了 <code>tree-shaking</code> 的原理以及实现类似插件的思路，并已经具备了开发类似插件的基本条件，最后还有一点需要补充，<code>tree-shaking</code> 优化的方式是根据 ES6 语法 <code>import</code> “静态” 引入的特性实现的，如果要说 <code>tree-shaking</code> 很强大，还不如说 ES6 模块化规范 “静态” 引入的特性强大，正由于是基于 “静态” 引入，所以目前 <code>tree-shaking</code> 只支持遍历一层 <code>import</code> 关键字。</p>
+</blockquote>
+
+        </div>
+
+        
+<div class="read-end">
+    <span class="read-end-lg">--------------------</span>
+    <span class="read-end-md">---------------</span>
+    <span class="read-end-sm">----------</span>
+    本文结束
+    <i class="icon icon-paw"></i>
+    感谢您的阅读
+    <span class="read-end-sm">----------</span>
+    <span class="read-end-md">---------------</span>
+    <span class="read-end-lg">--------------------</span>
+</div>
+
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    更新时间：<time datetime="2020-07-12T19:24:02.321Z" itemprop="dateUpdated">2020-07-13 03:24:02</time>
+</span><br>
+
+
+        
+<span class="permalink">
+    本文链接：<a href="/2018/07/26/20180726122146/" target="_blank" rel="external">https://www.overtaking.top/2018/07/26/20180726122146/</a>
+</span><br>
+
+
+        
+<span class="post-message">
+    版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a> 许可协议，转载请注明出处！
+</span>
+
+
+    </div>
+    
+    <footer>
+        <a href="https://www.overtaking.top">
+            <img src="/img/avatar.jpeg" alt="Panda Shen">
+            Panda Shen
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AST/" rel="tag">AST</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Babel/" rel="tag">Babel</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Webpack/" rel="tag">Webpack</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tree-staking/" rel="tag">tree-staking</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/2018/07/26/20180726122146/&title=《Webpack —— tree-staking 解析》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/2018/07/26/20180726122146/&title=《Webpack —— tree-staking 解析》 — Shen's Blog&source=
+
+tree-shaking 简介tree-shaking 是 Webpack 2 后续版本的优化功能，顾名思义，就是将多余的代码给 “摇晃” 掉，在开发..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/2018/07/26/20180726122146/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Webpack —— tree-staking 解析》 — Shen's Blog&url=https://www.overtaking.top/2018/07/26/20180726122146/&via=https://www.overtaking.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/2018/07/26/20180726122146/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/07/27/20180727140233/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Node.js 多进程和集群</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/07/25/20180725130233/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">AST 抽象语法树</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="comments vcomment" id="comments"></div>
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        大爷，赏口饭吃吧~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>Panda Shen &copy; 2017 - 2020</span>
+            <span>
+                
+                
+                
+                    Hosted by <a href="https://pages.coding.me" target="_blank">Coding Pages</a>
+                
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom"" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/2018/07/26/20180726122146/&title=《Webpack —— tree-staking 解析》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/2018/07/26/20180726122146/&title=《Webpack —— tree-staking 解析》 — Shen's Blog&source=
+
+tree-shaking 简介tree-shaking 是 Webpack 2 后续版本的优化功能，顾名思义，就是将多余的代码给 “摇晃” 掉，在开发..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/2018/07/26/20180726122146/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Webpack —— tree-staking 解析》 — Shen's Blog&url=https://www.overtaking.top/2018/07/26/20180726122146/&via=https://www.overtaking.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/2018/07/26/20180726122146/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACK0lEQVR42u3awY7CMAxF0f7/TwdpViwg3OeUkbBvVmhoG04XHsf2deG1/ha/Zj2tdJf0rkuGDBkDGGu73jHI9fw55HW8e6YMGTLmMGoBlN+7/0zu/bCvDBkyZGwDLv8LCccyZMiQcR5w99fz0FxLJWXIkDGZwQ+l/MfVCnNfP4vLkCHjBxlpY+A/P3+xvyFDhowfYaxw8btq+xZ/lQwZMloz0vSOH2LT8HpegJMhQ0ZvRq3Qtn9cGnxrjVIZMmTMYZD2ZMpLy3YcH4yFyZAhowWDj0rwR58MmRWLfTJkyBjAqBXITg63/MWhkTIZMmQMYJwER74ZTzTTERAZMmT0ZvDGAHlQDZ+C0VFWhgwZAxjpZmnyR6r68WuSIUPGAAZJ3c6/JWW74tiHDBkymjLSUJgmcGnQJAEatTBlyJAxjJGOVnAGL6t9eAUyZMhozeCJHS+08cXLdigcy5AhozWDF79qzYA0KJ+koTJkyOjKqDUAamllLUCj5qgMGTKaMoKhK1z8SotlJ+0HGTJkzGHcXPYKi3Rp+vjiShkyZLRmBG1CnPDxtPLeIp0MGTK6Mla4Toa3eImfhPsX/zdkyJDRlFELcyQ014LpzS1MGTJkNGKkQTa9Mm0SpAdaGTJkzGGk9XY+znVXOxM1MmXIkDGewTcmYZQcU4NSnQwZMmTcmszVxsLiFqYMGTLaMdIGZFoaS9sGvHUqQ4aMCYyTxkCa9vHiXVxukyFDRk/GAzFhslC5ahxBAAAAAElFTkSuQmCC" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<script src="/js/cursor.js" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+
+
+
+
+
+    <!-- Valine Comments -->
+    <!-- <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script> -->
+    <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+    <!-- Valine Comments script -->
+    <script>
+        var META = ['nick','mail','link'];
+        var meta = 'nick,mail'.split(',').filter(function(item){
+          return META.indexOf(item) > -1
+        });
+
+        new Valine({
+            el: '#comments',
+            notify: 'false' === 'true',
+            verify: 'false' === 'true',
+            appId: "RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",
+            appKey: "Mvo4cTDcS9hw0l03mINzvdNk",
+            avatar: "mm",
+            placeholder: "欢迎交流，一定记得留下邮箱哦！",
+            visitor: "true" === 'true',
+            highlight: "true" === 'true',
+            meta: meta.length === 0 ? META : meta,
+            pageSize: "10"
+        })
+    </script>
+    <!-- Valine Comments end -->
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '愿风指引你前进的道路！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '真正重要的，只是当下！';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

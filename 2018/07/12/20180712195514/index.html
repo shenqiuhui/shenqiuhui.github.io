@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+<!-- Baidu Tongji -->
+<script>var _hmt = _hmt || []</script>
+<script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script>
+<!-- End Baidu Tongji -->
+
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Node.js 搭建 HTTP 服务器 | Shen&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="HTTP,Node.js">
+    <meta name="description" content="前言在 Node.js 中用来创建服务的模块是 http 核心模块，本篇就来介绍关于使用 http 模块搭建 HTTP 服务器和客户端的方法，以及模块的基本 API。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js 搭建 HTTP 服务器">
+<meta property="og:url" content="https://www.overtaking.top/2018/07/12/20180712195514/index.html">
+<meta property="og:site_name" content="Shen&#39;s Blog">
+<meta property="og:description" content="前言在 Node.js 中用来创建服务的模块是 http 核心模块，本篇就来介绍关于使用 http 模块搭建 HTTP 服务器和客户端的方法，以及模块的基本 API。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.overtaking.top/2018/07/12/20180712195514/your-first-node-server.png">
+<meta property="article:published_time" content="2018-07-12T11:55:14.000Z">
+<meta property="article:modified_time" content="2020-07-12T19:22:58.542Z">
+<meta property="article:author" content="Panda Shen">
+<meta property="article:tag" content="HTTP">
+<meta property="article:tag" content="Node.js">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.overtaking.top/2018/07/12/20180712195514/your-first-node-server.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml">
+    
+
+    
+    
+<link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon-next.png">
+
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32-next.png">
+
+
+
+<link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16-next.png">
+
+
+
+<link rel="mask-icon" href="/img/logo.svg" color="">
+
+
+
+
+
+
+    
+
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpeg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Panda Shen</h5>
+          <a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                Home
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/link"  >
+                <i class="icon icon-lg icon-link"></i>
+                Links
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about"  >
+                <i class="icon icon-lg icon-user"></i>
+                About
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/shenqiuhui" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Node.js 搭建 HTTP 服务器</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Node.js 搭建 HTTP 服务器</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2018-07-12T11:55:14.000Z" itemprop="datePublished" class="page-time">
+  2018-07-12
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/HTTP/">HTTP</a></li></ul>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <!-- <h4>TOC</h4> -->
+            <h4>文章目录</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#HTTP-服务器"><span class="post-toc-number">2.</span> <span class="post-toc-text">HTTP 服务器</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建-HTTP-服务器"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">创建 HTTP 服务器</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#获取请求信息"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">获取请求信息</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#设置响应信息"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">设置响应信息</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#HTTP-客户端"><span class="post-toc-number">3.</span> <span class="post-toc-text">HTTP 客户端</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#同时使用-HTTP-客户端和服务器"><span class="post-toc-number">4.</span> <span class="post-toc-text">同时使用 HTTP 客户端和服务器</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#简易爬虫"><span class="post-toc-number">5.</span> <span class="post-toc-text">简易爬虫</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">6.</span> <span class="post-toc-text">总结</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-20180712195514"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Node.js 搭建 HTTP 服务器</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2018-07-12 19:55:14" datetime="2018-07-12T11:55:14.000Z"  itemprop="datePublished">2018-07-12</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/HTTP/">HTTP</a></li></ul>
+
+
+
+            
+
+            
+<span id="/2018/07/12/20180712195514/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js 搭建 HTTP 服务器">
+    <i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <img src="/2018/07/12/20180712195514/your-first-node-server.png" class title="HTTP 服务器">
+<p><br></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote success"><p>在 Node.js 中用来创建服务的模块是 <code>http</code> 核心模块，本篇就来介绍关于使用 <code>http</code> 模块搭建 HTTP 服务器和客户端的方法，以及模块的基本 API。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="HTTP-服务器"><a href="#HTTP-服务器" class="headerlink" title="HTTP 服务器"></a>HTTP 服务器</h2><h3 id="创建-HTTP-服务器"><a href="#创建-HTTP-服务器" class="headerlink" title="创建 HTTP 服务器"></a>创建 HTTP 服务器</h3><p>在 Node.js 中，创建 HTTP 服务器可以与 <code>net</code> 模块创建 TCP 服务器对比，创建服务器有也两种方式。</p>
+<p><strong>方式 1：</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = http.createServer(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ......</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">server.listen(<span class="number">3000</span>);</span><br></pre></td></tr></table></figure>
+<p><strong>方式 2：</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = http.createServer();</span><br><span class="line"></span><br><span class="line">server.on(<span class="string">'request'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ......</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">server.listen(<span class="number">3000</span>);</span><br></pre></td></tr></table></figure>
+<p>在 <code>createServer</code> 的回调和 <code>request</code> 事件的回调函数中有两个参数，<code>req</code>（请求）、<code>res</code>（响应），基于 <code>socket</code>，这两个对象都是 Duplex 类型的可读可写流。</p>
+<p><code>http</code> 模块是基于 <code>net</code> 模块实现的，所以 <code>net</code> 模块原有的事件在 <code>http</code> 中依然存在。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = http.createServer();</span><br><span class="line"></span><br><span class="line"><span class="comment">// net 模块事件</span></span><br><span class="line">server.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">socket</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'连接成功'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">server.listen(<span class="number">3000</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="获取请求信息"><a href="#获取请求信息" class="headerlink" title="获取请求信息"></a>获取请求信息</h3><p>在请求对象 <code>req</code> 中存在请求的方法、请求的 <code>url</code>（包含参数，即查询字符串）、当前的 HTTP 协议版本和请求头等信息。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = http.createServer();</span><br><span class="line"></span><br><span class="line">server.on(<span class="string">'request'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(req.method); <span class="comment">// 获取请求方法</span></span><br><span class="line">  <span class="built_in">console</span>.log(req.url); <span class="comment">// 获取请求路径（包含查询字符串）</span></span><br><span class="line">  <span class="built_in">console</span>.log(req.httpVersion); <span class="comment">// 获取 HTTP 协议版本</span></span><br><span class="line">  <span class="built_in">console</span>.log(req.headers); <span class="comment">// 获取请求头（对象）</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取请求体的内容</span></span><br><span class="line">  <span class="keyword">const</span> arr = [];</span><br><span class="line"></span><br><span class="line">  req.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">data</span>) </span>&#123;</span><br><span class="line">    arr.push(data);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  req.on(<span class="string">'end'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(Buffer.concat(arr).toString());</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">server.listen(<span class="number">3000</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'server start 3000'</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>通过 <code>req</code> 对应的属性可以拿到请求行和请求首部的信息，请求体内的内容通过流操作来获取，其中 <code>url</code> 中存在多个有用的参数，我们自己处理会很麻烦，可以通过 Node.js 的核心模块 <code>url</code> 进行解析。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> url = <span class="built_in">require</span>(<span class="string">'url'</span>);</span><br><span class="line"><span class="keyword">let</span> str =</span><br><span class="line">  <span class="string">'http://user:pass@www.pandashen.com:8080/src/index.html?a=1&amp;b=2#hash'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// parse 方法帮助我们解析 url 路径</span></span><br><span class="line"><span class="keyword">let</span> obj = url.parse(str, <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(obj);</span><br><span class="line"></span><br><span class="line"><span class="comment">// &#123;</span></span><br><span class="line"><span class="comment">//   protocol: 'http:',</span></span><br><span class="line"><span class="comment">//   slashes: true,</span></span><br><span class="line"><span class="comment">//   auth: 'user:pas',</span></span><br><span class="line"><span class="comment">//   host: 'www.pandashen.com:8080',</span></span><br><span class="line"><span class="comment">//   port: '8080',</span></span><br><span class="line"><span class="comment">//   hostname: 'www.pandashen.com',</span></span><br><span class="line"><span class="comment">//   hash: '#hash',</span></span><br><span class="line"><span class="comment">//   search: '?a=1&amp;b=2',</span></span><br><span class="line"><span class="comment">//   query: '&#123; a: '1', b: '2' &#125;',</span></span><br><span class="line"><span class="comment">//   pathname: '/src/index.html'</span></span><br><span class="line"><span class="comment">//   path: '/src/index.html?a=1&amp;b=2',</span></span><br><span class="line"><span class="comment">//   href: `http://user:pass@www.pandashen.com:8080</span></span><br><span class="line"><span class="comment">//     /src/index.html?a=1&amp;b=2#hash`</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br></pre></td></tr></table></figure>
+<p><strong>在被解析路径返回的对象中有几个属性被经常使用：</strong></p>
+<ul>
+<li>host：主机（域名 + 端口号）；</li>
+<li>hostname：主机名；</li>
+<li>query：请求参数（查询字符串或参数对象）；</li>
+<li>pathname：资源路径（根据不同的路径返回不同的资源）。</li>
+</ul>
+<p>我们使用 <code>url</code> 的 <code>parse</code> 方法来帮我们解析请求路径，在真实的服务器中传入的第一个参数为 <code>req.url</code>，第二个参数不传时，<code>query</code> 会被解析成 <code>a=1&amp;b=2</code> 的形式，第二个参数传入 <code>true</code>，<code>query</code> 属性的查询字符串会被解析成对象的形式。</p>
+<p><code>url</code> 模块中，将查询字符串 <code>a=1&amp;b=2</code> 转换为对象 <code>{ a: &#39;1&#39;, b: &#39;2&#39; }</code> 的实现方式其实是使用正则替换实现的。</p>
+<p><strong>模拟查询字符串转换对象的核心逻辑：</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> str = <span class="string">'a=1&amp;b=2&amp;c=3'</span>;</span><br><span class="line"><span class="keyword">const</span> obj = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">str.replace(<span class="regexp">/([^=&amp;]+)=([^=&amp;]+)/g</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  obj[<span class="built_in">arguments</span>[<span class="number">1</span>]] = <span class="built_in">arguments</span>[<span class="number">2</span>];</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(obj); <span class="comment">// &#123; a: '1', b: '2', c: '3' &#125;</span></span><br></pre></td></tr></table></figure>
+<blockquote class="pullquote primary"><p>在上面代码的 <code>replace</code> 方法的回调函数中参数集合的第一项为匹配到的字符串，第二项为第一个分组的值，第三项为第二个分组的值，依次类推，倒数第二项为分组匹配的索引，最后一项为原字符串。</p>
+</blockquote>
+<h3 id="设置响应信息"><a href="#设置响应信息" class="headerlink" title="设置响应信息"></a>设置响应信息</h3><p>我们可以通过 <code>req</code> 来获取请求信息，自然也可以通过 <code>res</code> 来设置响应信息返回给客户端。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = http.createServer();</span><br><span class="line"></span><br><span class="line">server.on(<span class="string">'request'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 设置响应头（过去的用法），不能多次调用，见到要认识</span></span><br><span class="line">  res.writeHead(<span class="number">200</span>, &#123; <span class="string">'Content-Type'</span>: <span class="string">'text'</span>, <span class="attr">a</span>: <span class="string">'hello world'</span> &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 设置响应头（现在的用法，常用），可以多次调用，每次设置一个响应头</span></span><br><span class="line">  res.setHeader(<span class="string">'Content-Type'</span>, <span class="string">'text'</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 设置状态码，不设置默认为 200</span></span><br><span class="line">  res.statusCode = <span class="number">200</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 不发送 Date（日期）响应头</span></span><br><span class="line">  res.sendDate = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 返回内容</span></span><br><span class="line">  res.write(<span class="string">'hello world'</span>); <span class="comment">// 不会关闭连接</span></span><br><span class="line">  res.end(<span class="string">'hello world'</span>); <span class="comment">// 将内容返回后关闭连接</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">server.listen(<span class="number">3000</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'server start 3000'</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>返回给客户端的信息主要分为两部分，分别为响应头和返回给浏览器的内容，在不设置响应头的情况下，默认会设置响应头 <code>Content-Length</code> 和 <code>Date</code> ，代表当前返回给客户端的内容长度和日期。</p>
+<p>返回给浏览器的内容可以通过 <code>res</code> 的 <code>write</code> 方法和 <code>end</code> 方法进行发送，<code>write</code> 方法不会断开连接（通常在响应后需要断开与客户端的连接），<code>end</code> 方法会断开连接，在 <code>end</code> 方法存在参数时，会在内部调用 <code>write</code> 将参数内容返回给客户端，并断开连接。</p>
+<h2 id="HTTP-客户端"><a href="#HTTP-客户端" class="headerlink" title="HTTP 客户端"></a>HTTP 客户端</h2><p>在 <code>net</code> 模块中可以通过 <code>net.createConnection</code> 来创建客户端，并发送请求到服务端，在 <code>http</code> 模块同样可以创建客户端，并向 <code>http</code> 服务器发送请求。</p>
+<figure class="highlight js"><figcaption><span>客户端：client.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 发送请求的配置</span></span><br><span class="line"><span class="keyword">const</span> config = &#123;</span><br><span class="line">  host: <span class="string">'localhost'</span>,</span><br><span class="line">  port: <span class="number">3000</span>,</span><br><span class="line">  method: <span class="string">'get'</span>,</span><br><span class="line">  headers: &#123;</span><br><span class="line">    a: <span class="number">1</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建客户端</span></span><br><span class="line"><span class="keyword">const</span> client = http.request(config, <span class="function"><span class="keyword">function</span>(<span class="params">res</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 接收服务端返回的数据</span></span><br><span class="line">  <span class="keyword">const</span> arr = [];</span><br><span class="line"></span><br><span class="line">  res.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">data</span>) </span>&#123;</span><br><span class="line">    arr.push(data);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  res.on(<span class="string">'end'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(Buffer.concat(arr).toString());</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 发送请求</span></span><br><span class="line">client.end();</span><br></pre></td></tr></table></figure>
+<p>在 <code>http</code> 模块中通过 <code>request</code> 方法创建客户端，该方法第一个参数为发送请求的配置，包含请求地址、端口号、请求方法以及请求头等，第二个参数为回调函数，在请求被响应后执行，回调函数的参数为服务器的响应对象 <code>res</code>，创建的客户端通过 <code>end</code> 方法将请求发出与服务端进行通信。</p>
+<blockquote class="pullquote info"><p>使用 Node.js 实现的 “爬虫” 其实就可以通过 <code>http</code> 模块创建的客户端来实现，客户端帮我们向我们要抓取数据的地址发送请求，并拿到响应的数据进行解析。</p>
+</blockquote>
+<h2 id="同时使用-HTTP-客户端和服务器"><a href="#同时使用-HTTP-客户端和服务器" class="headerlink" title="同时使用 HTTP 客户端和服务器"></a>同时使用 HTTP 客户端和服务器</h2><p>我们使用自己创建的客户端访问自己的服务端，并体会请求响应的过程，就是用上面 <code>client.js</code> 作为客户端，启动 <code>server.js</code> 后再启动 <code>client.js</code> 查看效果。</p>
+<figure class="highlight js"><figcaption><span>服务器：server.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line">http.createServer(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'The request came'</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取客户端请求信息</span></span><br><span class="line">  <span class="built_in">console</span>.log(req.method);</span><br><span class="line">  <span class="built_in">console</span>.log(req.headers);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 返回数据</span></span><br><span class="line">  res.write(<span class="string">'hello world'</span>);</span><br><span class="line">&#125;).listen(<span class="number">3000</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'server start 3000'</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="简易爬虫"><a href="#简易爬虫" class="headerlink" title="简易爬虫"></a>简易爬虫</h2><p>我们结合 <code>http</code> 模块创建的服务端和客户端实现一个简易版的 “爬虫” 去抓取百度新闻页所有 <code>li</code> 标签内的文章标题。</p>
+<figure class="highlight js"><figcaption><span>简易爬虫：crawl.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建服务器</span></span><br><span class="line"><span class="keyword">const</span> server = http.createServer();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听请求</span></span><br><span class="line">server.on(<span class="string">'request'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> client = http.request(</span><br><span class="line">    &#123;</span><br><span class="line">      host: <span class="string">'news.baidu.com'</span>,</span><br><span class="line">      method: <span class="string">'get'</span>,</span><br><span class="line">      port: <span class="number">80</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="function"><span class="keyword">function</span>(<span class="params">r</span>) </span>&#123;</span><br><span class="line">      <span class="comment">// 接收百度新闻返回的数据</span></span><br><span class="line">      <span class="keyword">const</span> arr = [];</span><br><span class="line"></span><br><span class="line">      r.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">data</span>) </span>&#123;</span><br><span class="line">        arr.push(data);</span><br><span class="line">      &#125;);</span><br><span class="line"></span><br><span class="line">      r.on(<span class="string">'end'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="comment">// 处理数据</span></span><br><span class="line">        <span class="keyword">let</span> result = Buffer.concat(arr).toString();</span><br><span class="line">        <span class="keyword">let</span> matches = result.match(<span class="regexp">/&lt;li class='bold-item'&gt;([\s\S*?])&lt;\/li&gt;/gm</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置返回给浏览器的文档类型和编码格式</span></span><br><span class="line">        res.setHeader(<span class="string">'Content-Type'</span>, <span class="string">'text/html;charset=utf8'</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 响应浏览器</span></span><br><span class="line">        res.end(matches.join(<span class="string">''</span>));</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  client.end();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">server.listen(<span class="number">3000</span>);</span><br></pre></td></tr></table></figure>
+<p>上面的正则匹配中 <code>([\s\S*?])</code> 代表匹配 <code>&lt;li class=&#39;bold-item&#39;&gt;</code> 到 <code>&lt;\/li&gt;</code> 之间所有内容（多个字符、非贪婪模式），<code>gm</code> 代表全局并多行匹配。</p>
+<p>上面爬取百度新闻数据的过程中，我们自己的 Node 服务器扮演了一个 “中间层” 的角色，我们通过浏览器访问自己的服务器 <a href="javascript:;">localhost:3000</a> 触发 <code>request</code> 事件，执行了回调，在回调中创建客户端向 <a href="javascript:;">news.baidu.com</a> 发送了请求，并在客户端的回调中处理了响应（百度新闻页返回的数据），将处理后的内容通过我们自己 Node 服务器的 <code>res</code> 对象返回给了浏览器。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote warning"><p>相信在读过本篇文章之后对搭建一个 Node 服务应该已经有了思路，为未来通过 Node 服务实现复杂的业务场景及数据的处理打下了一个基础，希望初学 Node 的小伙伴在看了这篇文章后能有所收获。</p>
+</blockquote>
+
+        </div>
+
+        
+<div class="read-end">
+    <span class="read-end-lg">--------------------</span>
+    <span class="read-end-md">---------------</span>
+    <span class="read-end-sm">----------</span>
+    本文结束
+    <i class="icon icon-paw"></i>
+    感谢您的阅读
+    <span class="read-end-sm">----------</span>
+    <span class="read-end-md">---------------</span>
+    <span class="read-end-lg">--------------------</span>
+</div>
+
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    更新时间：<time datetime="2020-07-12T19:22:58.542Z" itemprop="dateUpdated">2020-07-13 03:22:58</time>
+</span><br>
+
+
+        
+<span class="permalink">
+    本文链接：<a href="/2018/07/12/20180712195514/" target="_blank" rel="external">https://www.overtaking.top/2018/07/12/20180712195514/</a>
+</span><br>
+
+
+        
+<span class="post-message">
+    版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a> 许可协议，转载请注明出处！
+</span>
+
+
+    </div>
+    
+    <footer>
+        <a href="https://www.overtaking.top">
+            <img src="/img/avatar.jpeg" alt="Panda Shen">
+            Panda Shen
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/2018/07/12/20180712195514/&title=《Node.js 搭建 HTTP 服务器》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/2018/07/12/20180712195514/&title=《Node.js 搭建 HTTP 服务器》 — Shen's Blog&source=
+
+前言在 Node.js 中用来创建服务的模块是 http 核心模块，本篇就来介绍关于使用 http 模块搭建 HTTP 服务器和客户端的方法，以及模块..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/2018/07/12/20180712195514/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 搭建 HTTP 服务器》 — Shen's Blog&url=https://www.overtaking.top/2018/07/12/20180712195514/&via=https://www.overtaking.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/2018/07/12/20180712195514/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2018/07/13/20180713130808/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Node.js 使用 Range 请求实现下载功能</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2018/07/09/20180709185149/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">HTTP 基础</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="comments vcomment" id="comments"></div>
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        大爷，赏口饭吃吧~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>Panda Shen &copy; 2017 - 2020</span>
+            <span>
+                
+                
+                
+                    Hosted by <a href="https://pages.coding.me" target="_blank">Coding Pages</a>
+                
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom"" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/2018/07/12/20180712195514/&title=《Node.js 搭建 HTTP 服务器》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/2018/07/12/20180712195514/&title=《Node.js 搭建 HTTP 服务器》 — Shen's Blog&source=
+
+前言在 Node.js 中用来创建服务的模块是 http 核心模块，本篇就来介绍关于使用 http 模块搭建 HTTP 服务器和客户端的方法，以及模块..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/2018/07/12/20180712195514/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 搭建 HTTP 服务器》 — Shen's Blog&url=https://www.overtaking.top/2018/07/12/20180712195514/&via=https://www.overtaking.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/2018/07/12/20180712195514/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLUlEQVR42u3ay4rDMBBEUf//T3sg2yBRVS2FUet6FYhj5XjR9Ot55Ov9XN+f5/eM7pyf4v7qgQEDxgWMd3rNGfP7led8/+n5c4ZUGDBgXMDQA2gWfCuM+fNhwIABY3SPHqaV347uhwEDBox6wJ2T5qesCugwYMC4h5GFTukAszG3vRaHAQPGgYzKYGD35x/NN2DAgPGPGa956b+qzxmNfwUDBozWDKW81Jch3MGnUgDrZS0MGDB6M+rbVpUFL3eoWcptYcCAcSxj3ujPWvlZAC29IBgwYDRlZCMBfXnCDaxhsw8GDBitGXrArSRwyoqGu7RhtNtgwIBxOMNth2WtNzfRdPM9GDBg9GbUo/WqclQH26UsDBgw2jHc1M09LEsrpdcEAwaMixlZi01qkK1d+4ABA0ZrhrvClR3pFq7ueBUGDBhdGW4orBysB267PQcDBozWDGXFQV+k0JcnKiFef/UwYMDoxHALTmOsGC2NZa09GDBg9GboYU5P4/Qlsyw0w4AB4x7GjqLRbZZVCmAYMGDcw9CTP7dYzV6TG/phwIDRm5GFRWUA6X5bb9LBgAGjK+M1L+XR+uDTDb7Db2HAgNGakYW5bDzg4pdNYmHAgNGCoQTZLMlTEkq39DXGAzBgwGjHcAeHSpm6dpwpDTJhwIBxPaOS9unlcdiqgwEDBoxFaWJ9GLAl4MKAAeMQhjuAtFO3qGA2XgcMGDBaM7KQl6V9esjeEr5hwIBxHuMPXG3RP7B9h1AAAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<script src="/js/cursor.js" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+
+
+
+
+
+    <!-- Valine Comments -->
+    <!-- <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script> -->
+    <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+    <!-- Valine Comments script -->
+    <script>
+        var META = ['nick','mail','link'];
+        var meta = 'nick,mail'.split(',').filter(function(item){
+          return META.indexOf(item) > -1
+        });
+
+        new Valine({
+            el: '#comments',
+            notify: 'false' === 'true',
+            verify: 'false' === 'true',
+            appId: "RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",
+            appKey: "Mvo4cTDcS9hw0l03mINzvdNk",
+            avatar: "mm",
+            placeholder: "欢迎交流，一定记得留下邮箱哦！",
+            visitor: "true" === 'true',
+            highlight: "true" === 'true',
+            meta: meta.length === 0 ? META : meta,
+            pageSize: "10"
+        })
+    </script>
+    <!-- Valine Comments end -->
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '愿风指引你前进的道路！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '真正重要的，只是当下！';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>

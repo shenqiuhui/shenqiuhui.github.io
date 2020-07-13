@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+<!-- Baidu Tongji -->
+<script>var _hmt = _hmt || []</script>
+<script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script>
+<!-- End Baidu Tongji -->
+
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>封装一个 cookie 功能 | Shen&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="JavaScript,HTTP,cookie/session">
+    <meta name="description" content="cookie 概述由于浏览器无状态的特性，cookie 技术应运而生，cookie 是一个会话级的存储，用于某些网站为了辨别用户身份、进行 session 跟踪而储存在用户本地终端上的数据（通常经过加密），通过访问某些服务器而特定携带的存储信息，不支持跨域，在浏览器清空缓存或超过有效期后失效。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="封装一个 cookie 功能">
+<meta property="og:url" content="https://www.overtaking.top/2017/07/02/20170702182645/index.html">
+<meta property="og:site_name" content="Shen&#39;s Blog">
+<meta property="og:description" content="cookie 概述由于浏览器无状态的特性，cookie 技术应运而生，cookie 是一个会话级的存储，用于某些网站为了辨别用户身份、进行 session 跟踪而储存在用户本地终端上的数据（通常经过加密），通过访问某些服务器而特定携带的存储信息，不支持跨域，在浏览器清空缓存或超过有效期后失效。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.overtaking.top/2017/07/02/20170702182645/cookie.png">
+<meta property="article:published_time" content="2017-07-02T10:26:45.000Z">
+<meta property="article:modified_time" content="2020-07-11T20:23:29.066Z">
+<meta property="article:author" content="Panda Shen">
+<meta property="article:tag" content="JavaScript">
+<meta property="article:tag" content="HTTP">
+<meta property="article:tag" content="cookie&#x2F;session">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.overtaking.top/2017/07/02/20170702182645/cookie.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml">
+    
+
+    
+    
+<link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon-next.png">
+
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32-next.png">
+
+
+
+<link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16-next.png">
+
+
+
+<link rel="mask-icon" href="/img/logo.svg" color="">
+
+
+
+
+
+
+    
+
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpeg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Panda Shen</h5>
+          <a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                Home
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/link"  >
+                <i class="icon icon-lg icon-link"></i>
+                Links
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/about"  >
+                <i class="icon icon-lg icon-user"></i>
+                About
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/shenqiuhui" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">封装一个 cookie 功能</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">封装一个 cookie 功能</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2017-07-02T10:26:45.000Z" itemprop="datePublished" class="page-time">
+  2017-07-02
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/HTTP/">HTTP</a></li></ul>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <!-- <h4>TOC</h4> -->
+            <h4>文章目录</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#cookie-概述"><span class="post-toc-number">1.</span> <span class="post-toc-text">cookie 概述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#JavaScript-中的-cookie"><span class="post-toc-number">2.</span> <span class="post-toc-text">JavaScript 中的 cookie</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#封装一个-cookie-模块"><span class="post-toc-number">3.</span> <span class="post-toc-text">封装一个 cookie 模块</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#整体思路设计"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">整体思路设计</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#setCookie-方法的实现"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">setCookie 方法的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#getCookie-方法的实现"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">getCookie 方法的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#cookieUtil-方法的实现"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">cookieUtil 方法的实现</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-20170702182645"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">封装一个 cookie 功能</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2017-07-02 18:26:45" datetime="2017-07-02T10:26:45.000Z"  itemprop="datePublished">2017-07-02</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/HTTP/">HTTP</a></li></ul>
+
+
+
+            
+
+            
+<span id="/2017/07/02/20170702182645/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="封装一个 cookie 功能">
+    <i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <img src="/2017/07/02/20170702182645/cookie.png" title="cookie">
+<p><br></p>
+<h2 id="cookie-概述"><a href="#cookie-概述" class="headerlink" title="cookie 概述"></a>cookie 概述</h2><blockquote class="pullquote info"><p>由于浏览器无状态的特性，cookie 技术应运而生，cookie 是一个会话级的存储，用于某些网站为了辨别用户身份、进行 session 跟踪而储存在用户本地终端上的数据（通常经过加密），通过访问某些服务器而特定携带的存储信息，不支持跨域，在浏览器清空缓存或超过有效期后失效。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="JavaScript-中的-cookie"><a href="#JavaScript-中的-cookie" class="headerlink" title="JavaScript 中的 cookie"></a>JavaScript 中的 cookie</h2><p>在 JavaScript 中操作 <code>cookie</code> 通过 <code>document.cookie</code> 来实现：</p>
+<figure class="highlight js"><figcaption><span>操作 cookie</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">document</span>.cookie = <span class="string">'key1=value1; key2=value2; path=/; domain=pandashen.com'</span>;</span><br></pre></td></tr></table></figure>
+<p>在传递 <code>cookie</code> 过程中，使用上面这样的方式对于参数的传递和拼接都是不太方便的，下面我们来封装一个自己的 <code>cookie</code> 功能。</p>
+<h2 id="封装一个-cookie-模块"><a href="#封装一个-cookie-模块" class="headerlink" title="封装一个 cookie 模块"></a>封装一个 cookie 模块</h2><h3 id="整体思路设计"><a href="#整体思路设计" class="headerlink" title="整体思路设计"></a>整体思路设计</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> kvTool = &#123;</span><br><span class="line">    maxage: <span class="string">'max-age'</span>,</span><br><span class="line">    path: <span class="string">'path'</span>,</span><br><span class="line">    domain: <span class="string">'domain'</span>,</span><br><span class="line">    secure: <span class="string">'secure'</span></span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">setCookie</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">getCookie</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> cookieUtil = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">window</span>.cookieUtil = cookieUtil;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p>我们封装了一个自执行函数，在内部将 <code>cookie</code> 基本参数的键名存入 <code>kvTool</code> 对象当中设计的 <code>options</code> 参数的键名一一对应，并单独声明一个设置 <code>cookie</code> 的方法 <code>setCookie</code> 和获取 <code>cookie</code> 的方法 <code>getCookie</code>，最后用函数表达式的形式声明一个 <code>cookieUtil</code> 暴露给全局作用域。</p>
+<h3 id="setCookie-方法的实现"><a href="#setCookie-方法的实现" class="headerlink" title="setCookie 方法的实现"></a>setCookie 方法的实现</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> kvTool = &#123;</span><br><span class="line">    maxage: <span class="string">'max-age'</span>,</span><br><span class="line">    path: <span class="string">'path'</span>,</span><br><span class="line">    domain: <span class="string">'domain'</span>,</span><br><span class="line">    secure: <span class="string">'secure'</span></span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">setCookie</span>(<span class="params">k, v, options</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!options) &#123;</span><br><span class="line">      <span class="built_in">document</span>.cookie = k + <span class="string">'='</span> + v;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">var</span> tmp = [];</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> options) &#123;</span><br><span class="line">        <span class="comment">// &#123; path='/', domain='pandashen.com' &#125;</span></span><br><span class="line">        tmp.push(kvTool[key] + <span class="string">'='</span> + options[key]);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">document</span>.cookie = k + <span class="string">'='</span> + v + <span class="string">'; '</span> + tmp.join(<span class="string">'; '</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">getCookie</span>(<span class="params"></span>) </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> cookieUtil = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">window</span>.cookieUtil = cookieUtil;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p><strong>setCookie 方法的有三个参数：</strong></p>
+<ul>
+<li>k：cookie 发送信息的键</li>
+<li>v：cookie 发送信息的值</li>
+<li>options：cookie 的基本参数</li>
+</ul>
+<p>当没有传入基本参数 <code>options</code> 的时候直接将 <code>cookie</code> 发送信息的键值拼接赋值给 <code>document.cookie</code>。</p>
+<p>传入基本参数 <code>options</code> 的时候取出 <code>kvTool</code> 真正的键名，并和 <code>cookie</code> 发送的信息的键值拼接成 <code>k=v; k=v</code> 形式的字符串赋值给 <code>document.cookie</code>。</p>
+<h3 id="getCookie-方法的实现"><a href="#getCookie-方法的实现" class="headerlink" title="getCookie 方法的实现"></a>getCookie 方法的实现</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> kvTool = &#123;</span><br><span class="line">    maxage: <span class="string">'max-age'</span>,</span><br><span class="line">    path: <span class="string">'path'</span>,</span><br><span class="line">    domain: <span class="string">'domain'</span>,</span><br><span class="line">    secure: <span class="string">'secure'</span></span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">setCookie</span>(<span class="params">k, v, options</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!options) &#123;</span><br><span class="line">      <span class="built_in">document</span>.cookie = k + <span class="string">'='</span> + v;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">var</span> tmp = [];</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> options) &#123;</span><br><span class="line">        <span class="comment">// &#123; path='/', domain='pandashen.com' &#125;</span></span><br><span class="line">        tmp.push(kvTool[key] + <span class="string">'='</span> + options[key]);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">document</span>.cookie = k + <span class="string">'='</span> + v + <span class="string">'; '</span> + tmp.join(<span class="string">'; '</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">getCookie</span>(<span class="params">k</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> strCookie = <span class="built_in">document</span>.cookie;</span><br><span class="line">    <span class="comment">// 形如: 'k=v; k=v; k=v; k=v'</span></span><br><span class="line">    <span class="keyword">var</span> kvs = strCookie.split(<span class="string">';'</span>).map(<span class="function"><span class="params">v</span> =&gt;</span> v.trim());</span><br><span class="line">    <span class="keyword">var</span> objCookie = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">    kvs.forEach(<span class="function"><span class="params">v</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">var</span> kv = v.split(<span class="string">'='</span>);</span><br><span class="line">      objCookie[kv[<span class="number">0</span>]] = kv[<span class="number">1</span>];</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> objCookie[k];</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> cookieUtil = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">window</span>.cookieUtil = cookieUtil;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p><code>getCookie</code> 方法只有一个参数，即我们要获取的 <code>cookie</code> 的某一个属性的键，函数会将对应的值返回。</p>
+<p>其实对外暴露的方法只有 <code>cookieUtil</code>，所以 <code>setCookie</code> 和 <code>getCookie</code> 都是在 <code>cookieUtil</code> 内部调用的。</p>
+<h3 id="cookieUtil-方法的实现"><a href="#cookieUtil-方法的实现" class="headerlink" title="cookieUtil 方法的实现"></a>cookieUtil 方法的实现</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> kvTool = &#123;</span><br><span class="line">    maxage: <span class="string">'max-age'</span>,</span><br><span class="line">    path: <span class="string">'path'</span>,</span><br><span class="line">    domain: <span class="string">'domain'</span>,</span><br><span class="line">    secure: <span class="string">'secure'</span></span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">setCookie</span>(<span class="params">k, v, options</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (!options) &#123;</span><br><span class="line">        <span class="built_in">document</span>.cookie = k + <span class="string">'='</span> + v;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> tmp = [];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> options) &#123;</span><br><span class="line">          <span class="comment">// &#123; path='/', domain='pandashen.com' &#125;</span></span><br><span class="line">          tmp.push(kvTool[key] + <span class="string">'='</span> + options[key]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">document</span>.cookie = k + <span class="string">'='</span> + v + <span class="string">'; '</span> + tmp.join(<span class="string">'; '</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">getCookie</span>(<span class="params">k</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">var</span> strCookie = <span class="built_in">document</span>.cookie;</span><br><span class="line">      <span class="comment">// 形如: 'k=v; k=v; k=v; k=v'</span></span><br><span class="line">      <span class="keyword">var</span> kvs = strCookie.split(<span class="string">';'</span>).map(<span class="function"><span class="params">v</span> =&gt;</span> v.trim());</span><br><span class="line">      <span class="keyword">var</span> objCookie = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">      kvs.forEach(<span class="function"><span class="params">v</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> kv = v.split(<span class="string">'='</span>);</span><br><span class="line">        objCookie[kv[<span class="number">0</span>]] = kv[<span class="number">1</span>];</span><br><span class="line">      &#125;);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> objCookie[k];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> cookieUtil = <span class="function"><span class="keyword">function</span>(<span class="params">key, value, options</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (!value) &#123;</span><br><span class="line">        <span class="comment">// 没有传参, 得到数据</span></span><br><span class="line">        <span class="keyword">return</span> getCookie(key);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        setCookie(key, value, options);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">window</span>.cookieUtil = cookieUtil;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p><code>cookieUtil</code> 的逻辑为当 <code>key</code> 和 <code>value</code> 两个参数都传入时，调用 <code>setCookie</code> 来设置 <code>cookie</code>，只传入 <code>key</code> 时，调用 <code>getCookie</code> 获取 <code>cookie</code> 对应参数的值。</p>
+<blockquote class="pullquote success"><p>上面就是我们封装的 <code>cookie</code> 功能模块来帮主我们设置和获取 <code>cookie</code>，之所以封装这个功能最终的目的就是让我们更方便的通过 <code>JavaScript</code> 来操作 <code>cookie</code>。</p>
+</blockquote>
+
+        </div>
+
+        
+<div class="read-end">
+    <span class="read-end-lg">--------------------</span>
+    <span class="read-end-md">---------------</span>
+    <span class="read-end-sm">----------</span>
+    本文结束
+    <i class="icon icon-paw"></i>
+    感谢您的阅读
+    <span class="read-end-sm">----------</span>
+    <span class="read-end-md">---------------</span>
+    <span class="read-end-lg">--------------------</span>
+</div>
+
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    更新时间：<time datetime="2020-07-11T20:23:29.066Z" itemprop="dateUpdated">2020-07-12 04:23:29</time>
+</span><br>
+
+
+        
+<span class="permalink">
+    本文链接：<a href="/2017/07/02/20170702182645/" target="_blank" rel="external">https://www.overtaking.top/2017/07/02/20170702182645/</a>
+</span><br>
+
+
+        
+<span class="post-message">
+    版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a> 许可协议，转载请注明出处！
+</span>
+
+
+    </div>
+    
+    <footer>
+        <a href="https://www.overtaking.top">
+            <img src="/img/avatar.jpeg" alt="Panda Shen">
+            Panda Shen
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cookie-session/" rel="tag">cookie/session</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/2017/07/02/20170702182645/&title=《封装一个 cookie 功能》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/2017/07/02/20170702182645/&title=《封装一个 cookie 功能》 — Shen's Blog&source=
+
+cookie 概述由于浏览器无状态的特性，cookie 技术应运而生，cookie 是一个会话级的存储，用于某些网站为了辨别用户身份、进行 sessi..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/2017/07/02/20170702182645/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《封装一个 cookie 功能》 — Shen's Blog&url=https://www.overtaking.top/2017/07/02/20170702182645/&via=https://www.overtaking.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/2017/07/02/20170702182645/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2017/07/04/20170704154632/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">正则表达式基础知识总结</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2017/06/30/20170630162209/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">简单封装一个靠谱的检测数据类型模块</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="comments vcomment" id="comments"></div>
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        大爷，赏口饭吃吧~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-item switch">切换</span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>Panda Shen &copy; 2017 - 2020</span>
+            <span>
+                
+                
+                
+                    Hosted by <a href="https://pages.coding.me" target="_blank">Coding Pages</a>
+                
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+<a href="javascript:;" id="gobottom"" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-comments"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/2017/07/02/20170702182645/&title=《封装一个 cookie 功能》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/2017/07/02/20170702182645/&title=《封装一个 cookie 功能》 — Shen's Blog&source=
+
+cookie 概述由于浏览器无状态的特性，cookie 技术应运而生，cookie 是一个会话级的存储，用于某些网站为了辨别用户身份、进行 sessi..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/2017/07/02/20170702182645/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《封装一个 cookie 功能》 — Shen's Blog&url=https://www.overtaking.top/2017/07/02/20170702182645/&via=https://www.overtaking.top" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/2017/07/02/20170702182645/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACL0lEQVR42u3aUa7CMAwEQO5/6b4DIMpuAk/CmXwhaGmmH5Zj+/GI1/W0Xl3zfP3aUx7fWBgYGD/LuG5X/oBXd92/iPy5b14lBgbGAYwkgLaBeD9MJ3dhYGBgJKGzDdP59RgYGBg7ATf5pr2yDfQYGBinMZLQeR8W2+C7c8TFwMA4jZFX3f//81f6GxgYGD/FuMq1ViZb+59iVxgYGKMZeYBLkrak2ZmnnvVYBgYGxlBG21bMj5H5UTNvJER/gYGBMY6xttFPbTEvsUVgDAyM0Yz7RmP+fTsotj8WhoGBcRpjf/CifWTesMxfEwYGxmzG2pDEx4a64hSzPspiYGD8OCMvbLVBdi1lbHf4sjGAgYExiHH/Q14Iy6ltCK6rhhgYGOMYa+WtndCZFP2Tl/Kys4GBgTGO0Zby1xLHNolcPPRiYGCMZuRFtLWjbN5UyEN50YnFwMD4ccZVrvyAuj9CsdXTwMDAGMTIE692qLQdhG3vwsDAOI2x325sh8Z2hi2KcIyBgTGI0SZkawG6TUDrUVoMDIwDGPsNg+RA2xbjkmIfBgbGOYw2i0yGxtpf19JEDAyM2YydxkDekmxTzDqIY2BgjGa0Ba+8MZCXyfLi3WLtEAMDYwRjv/jVbrEdFPvA5AgGBsYIRlsIS7aYBOt2u4uNAQwMjIMZLbV9YnFwxcDAwCiHVtskMk9e3xxiMTAwRjPyBuROU3PnpWBgYJzMWDs65iW2tWGLnI2BgTGa8QcO7gPxtq4JJwAAAABJRU5ErkJggg==" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="/js/main.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<script src="/js/cursor.js" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+
+
+
+
+
+    <!-- Valine Comments -->
+    <!-- <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script> -->
+    <script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script>
+    <!-- Valine Comments script -->
+    <script>
+        var META = ['nick','mail','link'];
+        var meta = 'nick,mail'.split(',').filter(function(item){
+          return META.indexOf(item) > -1
+        });
+
+        new Valine({
+            el: '#comments',
+            notify: 'false' === 'true',
+            verify: 'false' === 'true',
+            appId: "RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",
+            appKey: "Mvo4cTDcS9hw0l03mINzvdNk",
+            avatar: "mm",
+            placeholder: "欢迎交流，一定记得留下邮箱哦！",
+            visitor: "true" === 'true',
+            highlight: "true" === 'true',
+            meta: meta.length === 0 ? META : meta,
+            pageSize: "10"
+        })
+    </script>
+    <!-- Valine Comments end -->
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<script>
+(function() {
+    var OriginTitile = document.title, titleTime;
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            document.title = '愿风指引你前进的道路！';
+            clearTimeout(titleTime);
+        } else {
+            document.title = '真正重要的，只是当下！';
+            titleTime = setTimeout(function() {
+                document.title = OriginTitile;
+            },2000);
+        }
+    });
+})();
+</script>
+
+
+
+</body>
+</html>
