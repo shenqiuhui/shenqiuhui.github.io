@@ -237,7 +237,7 @@
 
         </div>
         <div class="post-content" id="post-content" itemprop="postContent">
-            <img src="/2017/12/14/20171214024101/git-image.png" title="Git">
+            <img src="/2017/12/14/20171214024101/git-image.png" class title="Git">
 <p><br></p>
 <h2 id="什么是-Git？"><a href="#什么是-Git？" class="headerlink" title="什么是 Git？"></a>什么是 Git？</h2><blockquote class="pullquote warning"><p><code>Git</code> 是一个免费的开源分布式版本控制系统，它的设计目的是为了速度和效率的处理从小型到大型的项目；Git 可以帮我们管理我们的代码，记录历史，只要代码提交到 Git 上就永久不会丢失，可以随时 “穿越”（回到之前的某一个版本）；可以多端共享，团队协作中，多个人操作了同一个文件时，可以实现自动合并（模块化，组件化）、标记冲突，拥有强大的分支管理系统。</p>
 </blockquote>
@@ -415,7 +415,7 @@
 </blockquote>
 <h3 id="解决冲突"><a href="#解决冲突" class="headerlink" title="解决冲突"></a>解决冲突</h3><blockquote class="pullquote success"><p>当创建分支后，分支和 <code>master</code> 主分支分别提交代码到版本库，此时切换回 <code>master</code> 主分支，合并分支会出现冲突，需手动处理后，重新提交到暂存区并提交到版本库。</p>
 </blockquote>
-<figure class="highlight plain"><figcaption><span>代码冲突</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD (当前更改)</span><br><span class="line">master 分支代码</span><br><span class="line">=======</span><br><span class="line">开发分支的代码</span><br><span class="line">&gt;&gt;&gt;&gt;&gt;&gt;&gt; 开发的分支 (传入的更改)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><figcaption><span>代码冲突</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD (当前更改)</span><br><span class="line">master 分支代码</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">开发分支的代码</span><br><span class="line">&gt;&gt;&gt;&gt;&gt;&gt;&gt; 开发的分支 (传入的更改)</span><br></pre></td></tr></table></figure>
 <h2 id="Git-操作远程仓库"><a href="#Git-操作远程仓库" class="headerlink" title="Git 操作远程仓库"></a>Git 操作远程仓库</h2><blockquote class="pullquote default"><p>远程仓库可以是 <code>Github</code>、<code>Gitee</code>（码云）、<code>Coding</code> 或者中央服务器等等。</p>
 </blockquote>
 <p><strong>以下是常用免费仓库的地址，可以在首页注册账号：</strong></p>

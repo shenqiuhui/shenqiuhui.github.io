@@ -5,6 +5,7 @@
         $$ = d.querySelectorAll.bind(d),
         root = $('html'),
         gotop = $('#gotop'),
+        gobottom = $('#gobottom'),
         menu = $('#menu'),
         header = $('#header'),
         mask = $('#mask'),
@@ -51,11 +52,32 @@
                 this.toc.actived(end);
             }
         },
+        goBottom: function (end) {
+            var top = rootScollTop();
+            var interval = arguments.length > 2 ? arguments[1] : Math.abs(top - end) / scrollSpeed;
+
+            if (top && top > end) {
+                w.scrollTo(0, Math.max(top - interval, 0));
+                animate(arguments.callee.bind(this, end, interval));
+            } else if (end && top < end - 1) {
+                w.scrollTo(0, Math.min(top + interval, end));
+                animate(arguments.callee.bind(this, end, interval));
+            } else {
+                this.toc.actived(end);
+            }
+        },
         toggleGotop: function (top) {
             if (top > w.innerHeight / 2) {
                 gotop.classList.add('in');
             } else {
                 gotop.classList.remove('in');
+            }
+        },
+        toggleGoBottom: function (top) {
+            if (top < getScrollHeight(d) - getWindowHeight(d) - w.innerHeight / 2) {
+              gobottom.classList.add('in');
+            } else {
+              gobottom.classList.remove('in');
             }
         },
         toggleMenu: function (flag) {
@@ -490,6 +512,14 @@
         animate(Blog.goTop.bind(Blog, 0));
     }, false);
 
+    gobottom.addEventListener(even, function () {
+        if (d.getElementById("comments")) {
+          animate(Blog.goBottom.bind(Blog, Math.min(getScrollHeight(d) - getWindowHeight(d), d.getElementById("comments").offsetTop)));
+        } else {
+          animate(Blog.goBottom.bind(Blog, getScrollHeight(d) - getWindowHeight(d)));
+        }
+    }, false);
+
     menuToggle.addEventListener(even, function (e) {
         Blog.toggleMenu(true);
         e.preventDefault();
@@ -510,6 +540,7 @@
     d.addEventListener('scroll', function () {
         var top = rootScollTop();
         Blog.toggleGotop(top);
+        Blog.toggleGoBottom(top);
         Blog.fixedHeader(top);
         Blog.toc.fixed(top);
         Blog.toc.actived(top);
@@ -528,6 +559,11 @@
     Blog.$ = $;
     Blog.$$ = $$;
 
+    var initTop = rootScollTop();
+
+    Blog.toggleGotop(initTop);
+    Blog.toggleGoBottom(initTop);
+
     Object.keys(Blog).reduce(function (g, e) {
         g[e] = Blog[e];
         return g
@@ -541,3 +577,27 @@
         console.error('Waves loading failed.')
     }
 })(window, document);
+
+function getScrollHeight(document) {
+    var scrollHeight = 0,
+      bodyScrollHeight = 0,
+      documentScrollHeight = 0;
+    if (document.body) {
+      bodyScrollHeight = document.body.scrollHeight;
+    }
+    if (document.documentElement) {
+      documentScrollHeight = document.documentElement.scrollHeight;
+    }
+    scrollHeight = (bodyScrollHeight - documentScrollHeight > 0) ? bodyScrollHeight : documentScrollHeight;
+    return scrollHeight;
+  }
+
+  function getWindowHeight(document) {
+    var windowHeight = 0;
+    if (document.compatMode == "CSS1Compat") {
+      windowHeight = document.documentElement.clientHeight;
+    } else {
+      windowHeight = document.body.clientHeight;
+    }
+    return windowHeight;
+  }
