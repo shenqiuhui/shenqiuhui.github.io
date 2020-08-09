@@ -426,11 +426,11 @@
                 }
 
                 this.zoomOut = function () {
-                    this.isZoom = false;
                     element.classList.remove('active');
                     this.$img.classList.add('zoom-in');
                     this.setFrom();
                     setTimeout(function () {
+                        _this.isZoom = false;
                         _this.$img.classList.remove('zoom-in');
                         _this.$img.style.cssText = '';
                         _this.removeTitle();
