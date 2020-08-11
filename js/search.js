@@ -61,18 +61,29 @@
         }
     };
 
-    function render(data) {
+    function render(data, regExp) {
+        this.key
         var html = '';
         if (data.length) {
 
             html = data.map(function (post) {
 
                 return tpl(searchTpl, {
-                    title: post.title,
+                    tip: post.title,
+                    title: post.title.replace(regExp, function (match) {
+                        return '<span class="search-key-highlight">' + match + '</span>';
+                    }),
                     path: (G.BLOG.ROOT + '/' + post.path).replace(/\/{2,}/g, '/'),
                     date: new Date(post.date).toLocaleDateString(),
                     tags: post.tags.map(function (tag) {
-                        return '<span>#' + tag.name + '</span>';
+                        var classHighlight = ' class="search-key-highlight"'
+                        var matchResult = tag.name.match(regExp) || []
+                        var className = matchResult[0] === tag.name ? classHighlight : '';
+                        var matchTag = tag.name.replace(regExp, function (match) {
+                            return match ? '<span' + classHighlight + '>' + match + '</span>' : match;
+                        }).trim();
+
+                        return '<span ' + className + '>#' + matchTag + '</span>';
                     }).join('')
                 });
 
@@ -93,12 +104,12 @@
     function matcher(post, regExp) {
         return regtest(post.title, regExp) || post.tags.some(function (tag) {
             return regtest(tag.name, regExp);
-        }) || regtest(post.text, regExp);
+        });
     }
 
     function search(e) {
         var key = this.value.trim();
-        if (!key) {
+        if (!key && key !== '') {
             return;
         }
 
@@ -110,7 +121,7 @@
                 return matcher(post, regExp);
             });
 
-            render(result);
+            render(result, regExp);
             Control.show();
         });
 
