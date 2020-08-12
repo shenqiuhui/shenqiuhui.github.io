@@ -120,13 +120,14 @@
         var regExp = new RegExp(key.replace(/[ ]/g, '|'), 'gmi');
 
         loadData(key, function (data) {
+            if (data) {
+                var result = data.filter(function (post) {
+                    return matcher(post, regExp);
+                });
 
-            var result = data.filter(function (post) {
-                return matcher(post, regExp);
-            });
-
-            render(result, regExp);
-            Control.show();
+                render(result, regExp);
+                Control.show();
+            }
         });
 
         e.preventDefault();
