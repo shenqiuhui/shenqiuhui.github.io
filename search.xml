@@ -4690,8 +4690,8 @@ console.log(c3.pay(&#39;vip&#39;, 100)); // 80
         <category>设计模式</category>
       </categories>
       <tags>
-        <tag>JavaScript</tag>
         <tag>设计模式</tag>
+        <tag>JavaScript</tag>
         <tag>行为型模式</tag>
       </tags>
   </entry>
@@ -4905,8 +4905,8 @@ console.log(fsm.transitions()); // [ &#39;freeze&#39;, &#39;vaporize&#39; ]
         <category>设计模式</category>
       </categories>
       <tags>
-        <tag>JavaScript</tag>
         <tag>设计模式</tag>
+        <tag>JavaScript</tag>
         <tag>行为型模式</tag>
       </tags>
   </entry>
@@ -5057,8 +5057,8 @@ star.setState(&#39;绿色&#39;);
         <category>设计模式</category>
       </categories>
       <tags>
-        <tag>JavaScript</tag>
         <tag>设计模式</tag>
+        <tag>JavaScript</tag>
         <tag>行为型模式</tag>
       </tags>
   </entry>
@@ -5570,9 +5570,9 @@ computer.start();
         <category>设计模式</category>
       </categories>
       <tags>
-        <tag>JavaScript</tag>
         <tag>设计模式</tag>
         <tag>结构型模式</tag>
+        <tag>JavaScript</tag>
       </tags>
   </entry>
   <entry>
@@ -5783,9 +5783,9 @@ menu.addEventListener(&#39;click&#39;, function (event) {
         <category>设计模式</category>
       </categories>
       <tags>
-        <tag>JavaScript</tag>
         <tag>设计模式</tag>
         <tag>结构型模式</tag>
+        <tag>JavaScript</tag>
       </tags>
   </entry>
   <entry>
@@ -6119,9 +6119,9 @@ app.listen(3000, function () {
         <category>设计模式</category>
       </categories>
       <tags>
-        <tag>JavaScript</tag>
         <tag>设计模式</tag>
         <tag>结构型模式</tag>
+        <tag>JavaScript</tag>
       </tags>
   </entry>
   <entry>
@@ -6231,9 +6231,9 @@ $.ajax({
         <category>设计模式</category>
       </categories>
       <tags>
-        <tag>JavaScript</tag>
         <tag>设计模式</tag>
         <tag>结构型模式</tag>
+        <tag>JavaScript</tag>
       </tags>
   </entry>
   <entry>
@@ -6486,8 +6486,8 @@ console.log(cache.members);
         <category>设计模式</category>
       </categories>
       <tags>
-        <tag>JavaScript</tag>
         <tag>设计模式</tag>
+        <tag>JavaScript</tag>
         <tag>创建型模式</tag>
       </tags>
   </entry>
@@ -6815,8 +6815,8 @@ wondowsFactory.createButton().render(); // 绘制 Windows 的按钮
         <category>设计模式</category>
       </categories>
       <tags>
-        <tag>JavaScript</tag>
         <tag>设计模式</tag>
+        <tag>JavaScript</tag>
         <tag>创建型模式</tag>
       </tags>
   </entry>
@@ -13288,8 +13288,8 @@ class AsyncSeriesHook {
       <tags>
         <tag>Node.js</tag>
         <tag>源码分析</tag>
-        <tag>Hooks</tag>
         <tag>Webpack</tag>
+        <tag>Hooks</tag>
         <tag>tapable</tag>
       </tags>
   </entry>
@@ -14614,8 +14614,8 @@ server.listen(3000, () =&gt; {
         <category>HTTP</category>
       </categories>
       <tags>
-        <tag>性能优化</tag>
         <tag>HTTP</tag>
+        <tag>性能优化</tag>
         <tag>Node.js</tag>
       </tags>
   </entry>
@@ -17236,8 +17236,8 @@ rmDirBreAsync(&#39;a&#39;).then(() =&gt; {
       <tags>
         <tag>ES6</tag>
         <tag>Node.js</tag>
-        <tag>异步</tag>
         <tag>Promise</tag>
+        <tag>异步</tag>
         <tag>ES7</tag>
         <tag>async/await</tag>
         <tag>数据结构</tag>
@@ -19501,8 +19501,8 @@ fn([p1, p2, p3]); // 正常执行
       <tags>
         <tag>JavaScript</tag>
         <tag>Node.js</tag>
-        <tag>异步</tag>
         <tag>Promise</tag>
+        <tag>异步</tag>
         <tag>ES7</tag>
         <tag>async/await</tag>
       </tags>
@@ -19772,8 +19772,8 @@ myCo(gen()).then(data =&gt; {
         <tag>JavaScript</tag>
         <tag>ES6</tag>
         <tag>Node.js</tag>
-        <tag>异步</tag>
         <tag>Promise</tag>
+        <tag>异步</tag>
         <tag>Generators</tag>
       </tags>
   </entry>
@@ -20290,8 +20290,8 @@ Promise.derfer = Promise.deferred = function () {
         <tag>JavaScript</tag>
         <tag>ES6</tag>
         <tag>源码分析</tag>
-        <tag>异步</tag>
         <tag>Promise</tag>
+        <tag>异步</tag>
       </tags>
   </entry>
   <entry>
@@ -20570,8 +20570,8 @@ Promise.reject(&#39;出错了&#39;).then(null, err =&gt; {
       <tags>
         <tag>JavaScript</tag>
         <tag>ES6</tag>
-        <tag>异步</tag>
         <tag>Promise</tag>
+        <tag>异步</tag>
       </tags>
   </entry>
   <entry>
@@ -21700,8 +21700,8 @@ process.nextTick(() =&gt; console.log(&#39;nextTick&#39;));
       <tags>
         <tag>JavaScript</tag>
         <tag>Node.js</tag>
-        <tag>异步</tag>
         <tag>Promise</tag>
+        <tag>异步</tag>
       </tags>
   </entry>
   <entry>
