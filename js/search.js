@@ -14,30 +14,33 @@
         searchTimer = null,
         searchData;
 
+    function getPostData(success) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', JSON_DATA, true);
+
+        xhr.onload = function () {
+            if (this.status >= 200 && this.status < 300) {
+                var res = JSON.parse(this.response);
+                searchData = res instanceof Array ? res : res.posts;
+                success && success(searchData);
+            } else {
+                console.error(this.statusText);
+            }
+        };
+
+        xhr.onerror = function () {
+            console.error(this.statusText);
+        };
+
+        xhr.send();
+    }
+
     function loadData(keyword, success) {
         if (!searchData && keyword !== '') {
             clearInterval(searchTimer)
 
             searchTimer = setTimeout(function () {
-
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', JSON_DATA, true);
-
-                xhr.onload = function () {
-                    if (this.status >= 200 && this.status < 300) {
-                        var res = JSON.parse(this.response);
-                        searchData = res instanceof Array ? res : res.posts;
-                        success(searchData);
-                    } else {
-                        console.error(this.statusText);
-                    }
-                };
-
-                xhr.onerror = function () {
-                    console.error(this.statusText);
-                };
-
-                xhr.send();
+                getPostData(success)
             }, 500);
         } else {
             success(searchData);
@@ -133,6 +136,7 @@
         e.preventDefault();
     }
 
+    getPostData()
 
     searchIco.addEventListener(even, function () {
         searchWrap.classList.toggle('in');
