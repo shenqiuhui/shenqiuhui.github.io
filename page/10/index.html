@@ -25,4 +25,16 @@ MathJax.Hub.Queue(function() {
         });
 
         Prism.highlightAll();
-    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script></body></html>
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>
