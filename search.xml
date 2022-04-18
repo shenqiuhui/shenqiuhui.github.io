@@ -522,8 +522,8 @@ const Koa = require(&#39;./koa&#39;);
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>Node.js</tag>
         <tag>源码分析</tag>
+        <tag>Node.js</tag>
         <tag>async/await</tag>
         <tag>Koa</tag>
       </tags>
@@ -1896,8 +1896,8 @@ app.compose = function() {
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>Node.js</tag>
         <tag>源码分析</tag>
+        <tag>Node.js</tag>
         <tag>async/await</tag>
         <tag>Koa</tag>
       </tags>
@@ -3442,8 +3442,8 @@ commitChecker.checkStart();
         <tag>Node.js</tag>
         <tag>Hooks</tag>
         <tag>Git</tag>
-        <tag>代码管理/版本控制</tag>
         <tag>命令行</tag>
+        <tag>代码管理/版本控制</tag>
       </tags>
   </entry>
   <entry>
@@ -3665,8 +3665,8 @@ $ git rebase 地址别名/分支名
       </categories>
       <tags>
         <tag>Git</tag>
-        <tag>代码管理/版本控制</tag>
         <tag>命令行</tag>
+        <tag>代码管理/版本控制</tag>
       </tags>
   </entry>
   <entry>
@@ -3724,8 +3724,8 @@ pre-rebase.sample # 变基前执行
       </categories>
       <tags>
         <tag>Git</tag>
-        <tag>代码管理/版本控制</tag>
         <tag>命令行</tag>
+        <tag>代码管理/版本控制</tag>
       </tags>
   </entry>
   <entry>
@@ -9870,8 +9870,8 @@ function json() {
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>Node.js</tag>
         <tag>源码分析</tag>
+        <tag>Node.js</tag>
         <tag>中间件</tag>
         <tag>Express</tag>
       </tags>
@@ -11407,8 +11407,8 @@ module.exports = createApplication;
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>Node.js</tag>
         <tag>源码分析</tag>
+        <tag>Node.js</tag>
         <tag>中间件</tag>
         <tag>Express</tag>
       </tags>
@@ -13380,8 +13380,8 @@ class AsyncSeriesHook {
         <category>Webpack</category>
       </categories>
       <tags>
-        <tag>Node.js</tag>
         <tag>源码分析</tag>
+        <tag>Node.js</tag>
         <tag>Webpack</tag>
         <tag>tapable</tag>
         <tag>Hooks</tag>
@@ -13922,8 +13922,8 @@ module.exports = {
         <category>Webpack</category>
       </categories>
       <tags>
-        <tag>Node.js</tag>
         <tag>源码分析</tag>
+        <tag>Node.js</tag>
         <tag>Babel</tag>
         <tag>Webpack</tag>
         <tag>AST</tag>
@@ -16697,8 +16697,8 @@ rs.pipe(ws);
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>Node.js</tag>
         <tag>源码分析</tag>
+        <tag>Node.js</tag>
         <tag>Stream</tag>
       </tags>
   </entry>
@@ -17328,14 +17328,14 @@ rmDirBreAsync(&#39;a&#39;).then(() =&gt; {
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>异步</tag>
-        <tag>Promise</tag>
-        <tag>Node.js</tag>
         <tag>ES6</tag>
+        <tag>Promise</tag>
+        <tag>异步</tag>
+        <tag>Node.js</tag>
         <tag>ES7</tag>
         <tag>async/await</tag>
-        <tag>数据结构</tag>
         <tag>fs</tag>
+        <tag>数据结构</tag>
       </tags>
   </entry>
   <entry>
@@ -18275,8 +18275,8 @@ console.log(girl._events);
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>Node.js</tag>
         <tag>源码分析</tag>
+        <tag>Node.js</tag>
         <tag>EventEmitter</tag>
       </tags>
   </entry>
@@ -18473,8 +18473,8 @@ console.log(a); // Hello world
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>Node.js</tag>
         <tag>源码分析</tag>
+        <tag>Node.js</tag>
         <tag>CommonJS</tag>
       </tags>
   </entry>
@@ -19595,8 +19595,8 @@ fn([p1, p2, p3]); // 正常执行
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>异步</tag>
         <tag>Promise</tag>
+        <tag>异步</tag>
         <tag>Node.js</tag>
         <tag>ES7</tag>
         <tag>async/await</tag>
@@ -19865,10 +19865,10 @@ myCo(gen()).then(data =&gt; {
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>异步</tag>
-        <tag>Promise</tag>
-        <tag>Node.js</tag>
         <tag>ES6</tag>
+        <tag>Promise</tag>
+        <tag>异步</tag>
+        <tag>Node.js</tag>
         <tag>Generators</tag>
       </tags>
   </entry>
@@ -20383,9 +20383,9 @@ Promise.derfer = Promise.deferred = function () {
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>异步</tag>
-        <tag>Promise</tag>
         <tag>ES6</tag>
+        <tag>Promise</tag>
+        <tag>异步</tag>
         <tag>源码分析</tag>
       </tags>
   </entry>
@@ -20664,9 +20664,9 @@ Promise.reject(&#39;出错了&#39;).then(null, err =&gt; {
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>异步</tag>
-        <tag>Promise</tag>
         <tag>ES6</tag>
+        <tag>Promise</tag>
+        <tag>异步</tag>
       </tags>
   </entry>
   <entry>
@@ -21794,8 +21794,8 @@ process.nextTick(() =&gt; console.log(&#39;nextTick&#39;));
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>异步</tag>
         <tag>Promise</tag>
+        <tag>异步</tag>
         <tag>Node.js</tag>
       </tags>
   </entry>
@@ -22004,8 +22004,8 @@ $ git push origin gh-pages
       </categories>
       <tags>
         <tag>Git</tag>
-        <tag>代码管理/版本控制</tag>
         <tag>命令行</tag>
+        <tag>代码管理/版本控制</tag>
         <tag>Linux</tag>
       </tags>
   </entry>
