@@ -1,0 +1,670 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>React 基础篇 —— 生命周期详解 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="React,生命周期"><meta name="description" content="前言本篇文章主要内容针对 React 类组件的生命周期展开，会详细介绍生命周期 “钩子” 的执行和用法，如果一点也不了解 React 的同学建议先学习一下 React 比较基础的内容 React 基础篇 —— 带你走进 React 世界。"><meta property="og:type" content="article"><meta property="og:title" content="React 基础篇 —— 生命周期详解"><meta property="og:url" content="https://www.overtaking.top/20180915194439/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言本篇文章主要内容针对 React 类组件的生命周期展开，会详细介绍生命周期 “钩子” 的执行和用法，如果一点也不了解 React 的同学建议先学习一下 React 比较基础的内容 React 基础篇 —— 带你走进 React 世界。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/React/20180915194439/react-life-cycle.png"><meta property="og:image" content="https://static.overtaking.top/images/React/20180915194439/react-lifecycle-raw.png"><meta property="article:published_time" content="2018-09-15T11:44:39.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="React"><meta property="article:tag" content="生命周期"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/React/20180915194439/react-life-cycle.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">React 基础篇 —— 生命周期详解</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">React 基础篇 —— 生命周期详解</h1><h5 class="subtitle"><time datetime="2018-09-15T11:44:39.000Z" itemprop="datePublished" class="page-time">2018-09-15</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/React/">React</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#创建项目"><span class="post-toc-number">2.</span> <span class="post-toc-text">创建项目</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#类组件的生命周期"><span class="post-toc-number">3.</span> <span class="post-toc-text">类组件的生命周期</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#静态属性-defaultProps"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">静态属性 defaultProps</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#constructor-方法"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">constructor 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#状态对象-state"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">状态对象 state</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#componentWillMount-钩子"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">componentWillMount 钩子</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#render-钩子"><span class="post-toc-number">3.5.</span> <span class="post-toc-text">render 钩子</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#componentDidMount-钩子"><span class="post-toc-number">3.6.</span> <span class="post-toc-text">componentDidMount 钩子</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#componentWillUpdate-钩子"><span class="post-toc-number">3.7.</span> <span class="post-toc-text">componentWillUpdate 钩子</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#componentDidUpdate-钩子"><span class="post-toc-number">3.8.</span> <span class="post-toc-text">componentDidUpdate 钩子</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#shouldComponentUpdate-钩子"><span class="post-toc-number">3.9.</span> <span class="post-toc-text">shouldComponentUpdate 钩子</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#componentWillUnmount-钩子"><span class="post-toc-number">3.10.</span> <span class="post-toc-text">componentWillUnmount 钩子</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#复合组件的生命周期"><span class="post-toc-number">4.</span> <span class="post-toc-text">复合组件的生命周期</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#复合组件渲染生命周期的执行顺序"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">复合组件渲染生命周期的执行顺序</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#componentWillReceiveProps-钩子"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">componentWillReceiveProps 钩子</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#关于-setState-在生命周期中的使用"><span class="post-toc-number">5.</span> <span class="post-toc-text">关于 setState 在生命周期中的使用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#React-生命周期流程图"><span class="post-toc-number">6.</span> <span class="post-toc-text">React 生命周期流程图</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#React-16-3-新增生命周期"><span class="post-toc-number">7.</span> <span class="post-toc-text">React 16.3 新增生命周期</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#getDerivedStateFromProps-静态方法"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">getDerivedStateFromProps 静态方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#getSnapshotBeforeUpdate-钩子"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">getSnapshotBeforeUpdate 钩子</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">8.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-React/20180915194439" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">React 基础篇 —— 生命周期详解</h1><div class="post-meta"><time class="post-time" title="2018-09-15 19:44:39" datetime="2018-09-15T11:44:39.000Z" itemprop="datePublished">2018-09-15</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/React/">React</a></li></ul><span id="/20180915194439/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="React 基础篇 —— 生命周期详解"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/React/20180915194439/react-life-cycle.png" title="React 生命周期"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote default"><p><strong>本篇文章主要内容针对 <code>React</code> 类组件的生命周期展开，会详细介绍生命周期 “钩子” 的执行和用法，如果一点也不了解 <code>React</code> 的同学建议先学习一下 <code>React</code> 比较基础的内容</strong> <a href="/20180910025959/" target="_blank">React 基础篇 —— 带你走进 React 世界</a><strong>。</strong></p></blockquote><a id="more"></a><h2 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h2><p>首先使用 <code>create-react-app</code> 脚手架创建一个 <code>React</code> 项目，脚手架工具的安装和项目创建命令如下：</p><pre><code class="lang-bash"># 安装脚手架
+$ npm install -g create-react-app
+# 创建项目
+$ create-react-app life-cycle
+</code></pre><p>创建项目后删除 <code>src</code> 目录中的无用文件，只留下 <code>index.js</code> 入口文件即可。</p><h2 id="类组件的生命周期"><a href="#类组件的生命周期" class="headerlink" title="类组件的生命周期"></a>类组件的生命周期</h2><h3 id="静态属性-defaultProps"><a href="#静态属性-defaultProps" class="headerlink" title="静态属性 defaultProps"></a>静态属性 defaultProps</h3><p><code>defaultProps</code> 是用来给 <code>React</code> 类组件设置参数初始值的，也是最早执行的，算不算生命周期说法不一，但是觉得有必要说一下，因为在 <code>React 15.x</code> 版本的时候可以用 <code>React.createClass</code> 创建类组件，组件中有与 <code>defaultProps</code> 静态属性作用相同的生命周期 “钩子” <code>getDefaultProps</code>，随着 <code>React 16.x</code> 版本废弃了 <code>React.createClass</code>，也就使用 <code>defaultProps</code> 属性替代了 <code>getDefaultProps</code>。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  static defaultProps = {
+    num: 0
+  }
+
+  render() {
+    return &lt;div&gt;{this.props.num}&lt;/div&gt;
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+</code></pre><p>启动项目后，发现页面上成功的渲染了节点中的数字，这说明设置初始值生效了。</p><h3 id="constructor-方法"><a href="#constructor-方法" class="headerlink" title="constructor 方法"></a>constructor 方法</h3><p><code>constructor</code> 是 <code>ES6</code> 中类的写法中给实例设置属性的钩子，在类的实例被创建时执行，下面是对比 <code>defaultProps</code> 静态属性执行顺序的代码。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  constructor(props) {
+    super();
+    console.log(props.number); // 0
+  }
+  static defaultProps = {
+    num: 0
+  }
+
+  render() {
+    return &lt;div&gt;{this.props.num}&lt;/div&gt;
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+</code></pre><p>从上面案例中可以看到当执行 <code>constructor</code> 时，<code>props</code> 对象中的 <code>num</code> 属性已经有值了，这也充分说明了说明 <code>constructor</code> 是晚于 <code>defaultProps</code> 执行的。</p><h3 id="状态对象-state"><a href="#状态对象-state" class="headerlink" title="状态对象 state"></a>状态对象 state</h3><p>在 <code>React</code> 中，每一个类组件都有一个属于自己的状态，可以使用 <code>setState</code> 方法更新状态，在 <code>React 15.x</code> 中，通过 <code>React.createClass</code> 创建类组件，使用对应的生命周期 “钩子” <code>getInitialState</code> 来创建，同样的，<code>React 16.x</code> 废弃了 <code>React.createClass</code>，创建 <code>state</code> 的过程自然由新的方式代替。</p><p>创建 <code>state</code> 的方式大概有两种，分别是在 <code>constructor</code> 中创建或者直接创建 <code>state</code> 属性，代码如下：</p><pre><code class="lang-jsx">/* 第一种创建 state 的方式 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  constructor(props) {
+    super();
+    this.state = { num: 0 };
+  }
+
+  render() {
+    return &lt;div&gt;{this.state.num}&lt;/div&gt;
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+</code></pre><pre><code class="lang-jsx">/* 第二种创建 state 的方式 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  constructor(props) {
+    super();
+    console.log(this.state.num); // 0
+  }
+
+  // 创建 state
+  state = { num: 0 }
+
+  render() {
+    return &lt;div&gt;{this.state.num}&lt;/div&gt;
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+</code></pre><p>从上面可以看出直接创建 <code>state</code> 属性的方式与创建静态属性 <code>defaultProps</code> 类似，执行要早于 <code>constructor</code>。</p><h3 id="componentWillMount-钩子"><a href="#componentWillMount-钩子" class="headerlink" title="componentWillMount 钩子"></a>componentWillMount 钩子</h3><p><code>componentWillMount</code> 生命周期 “钩子” 在组件将要挂载时执行，也就是说在组件挂载前会调用 <code>componentWillMount</code>，整个组件的生命周期中只执行一次，一般用于发送当前组件需要的 <code>Ajax</code> 请求获取数据。</p><p>在 <code>React 16.3</code> 版本中标识了该 “钩子” 会被在未来版本中废弃，目前仍然可以使用，在 <code>componentWillMount</code> 的可以迁移到 <code>constructor</code>，但不能包含 <code>setState</code> 操作，因为 <code>constructor</code> 中无法调用 <code>setState</code>。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  constructor(props) {
+    super();
+    console.log(&#39;constructor&#39;);
+  }
+
+  state = { num: 0 }
+
+  componentWillMount() {
+    console.log(&#39;componentWillMount&#39;);
+    this.setState({ num: 3 });
+  }
+
+  render() {
+    return &lt;div&gt;{this.state.num}&lt;/div&gt;
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// constructor
+// componentWillMount
+</code></pre><p>从上面的打印结果可以看出 <code>componentWillMount</code> “钩子” 的执行是晚于 <code>constructor</code> 的，从页面渲染 <code>3</code> 的结果来看，在 <code>componentWillMount</code> “钩子” 中已经可以使用 <code>setState</code> 更改状态了。</p><h3 id="render-钩子"><a href="#render-钩子" class="headerlink" title="render 钩子"></a>render 钩子</h3><p><code>render</code> 钩子的主要作用是返回组件内部要被渲染的 <code>JSX</code>，即所谓的挂载过程，将上面例子简单修改一下。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  constructor(props) {
+    super();
+    console.log(&#39;constructor&#39;);
+  }
+
+  state = { num: 0 }
+
+  componentWillMount() {
+    console.log(&#39;componentWillMount&#39;);
+  }
+
+  render() {
+    console.log(&#39;render&#39;);
+    return &lt;div&gt;{this.state.num}&lt;/div&gt;;
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// constructor
+// componentWillMount
+// render
+</code></pre><p>从打印结果可以看出 <code>constructor</code> 最先执行，其次是 <code>componentWillMount</code>，最后是 <code>render</code>，由于状态或属性的更新可能导致组件重新渲染，所以 <code>render</code> 可能会被执行多次。</p><h3 id="componentDidMount-钩子"><a href="#componentDidMount-钩子" class="headerlink" title="componentDidMount 钩子"></a>componentDidMount 钩子</h3><p><code>componentDidMount</code> 生命周期 “钩子” 在组件挂载后执行，一般会将一些依赖于 <code>DOM</code> 的操作放在该 “钩子” 内执行，整个生命周期只执行一次。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  constructor(props) {
+    super();
+    console.log(&#39;constructor&#39;);
+  }
+
+  state = { num: 0 }
+
+  componentWillMount() {
+    console.log(&#39;componentWillMount&#39;);
+  }
+
+  componentDidMount() {
+    console.log(&#39;componentDidMount&#39;);
+  }
+
+  render() {
+    console.log(&#39;render&#39;);
+    return &lt;div&gt;{this.state.num}&lt;/div&gt;
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// constructor
+// componentWillMount
+// render
+// componentDidMount
+</code></pre><p>执行顺序：<code>constructor</code> → <code>componentWillMount</code> → <code>render</code> → <code>componentDidMount</code>。</p><h3 id="componentWillUpdate-钩子"><a href="#componentWillUpdate-钩子" class="headerlink" title="componentWillUpdate 钩子"></a>componentWillUpdate 钩子</h3><p>在调用 <code>setState</code> 更新数据后会触发 <code>render</code> 钩子对组件重新渲染，在执行 <code>render</code> 前会调用 <code>componentWillUpdate</code> 钩子，即将要更新时执行（此时状态和页面都没更新），钩子默认有三个参数，分别为 <code>nextProps</code>、<code>nextState</code> 和 <code>nextContext</code>，即更新后的属性对象、状态对象和上下文对象。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  state = { num: 0 }
+
+  // 点击事件
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num + 1 });
+  }
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;componentWillUpdate&#39;);
+    console.log(&#39;nowState&#39;, this.state);
+    console.log(&#39;nextProps&#39;, nextProps);
+    console.log(&#39;nextState&#39;, nextState);
+    console.log(&#39;nextContext&#39;, nextContext);
+  }
+
+  render() {
+    console.log(&#39;render&#39;);
+    return (
+      &lt;div&gt;
+        {this.state.num}
+        &lt;button onClick={this.handleClick}&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// componentWillUpdate
+// nowState { num: 0 }
+// nextProps {}
+// nextState { num: 1 }
+// nextContext {}
+// render
+</code></pre><p>从执行点击事件后的结果来看，在重新渲染之前 <code>componentWillUpdate</code> 早于 <code>render</code> 执行，而在 <code>componentWillUpdate</code> 执行时 <code>state</code> 的状态还未更新。</p><h3 id="componentDidUpdate-钩子"><a href="#componentDidUpdate-钩子" class="headerlink" title="componentDidUpdate 钩子"></a>componentDidUpdate 钩子</h3><p>在调用 <code>setState</code> 更新数据后执行 <code>render</code> 钩子对组件重新渲染，渲染后会立即调用 <code>componentDidUpdate</code> 钩子，此时 <code>state</code> 状态和页面都已经更新，钩子默认有三个参数，分别为 <code>prevProps</code>、<code>prevState</code> 和 <code>prevContext</code>，即更新前的属性对象、状态对象和上下文对象。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  state = { num: 0 }
+
+  // 点击事件
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num + 1 });
+  }
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;componentWillUpdate&#39;);
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    console.log(&#39;componentDidUpdate&#39;);
+    console.log(&#39;nowState&#39;, this.state);
+    console.log(&#39;prevProps&#39;, prevProps);
+    console.log(&#39;prevState&#39;, prevState);
+    console.log(&#39;prevContext&#39;, prevContext);
+  }
+
+  render() {
+    console.log(&#39;render&#39;);
+    return (
+      &lt;div&gt;
+        {this.state.num}
+        &lt;button onClick={this.handleClick}&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// componentWillUpdate
+// render
+// componentDidUpdate
+// nowState { num: 1 }
+// prevProps {}
+// prevState { num: 0 }
+// prevContext {}
+</code></pre><p>触发点击事件后的执行顺序为：<code>componentWillUpdate</code> → <code>render</code> → <code>componentDidUpdate</code>。</p><h3 id="shouldComponentUpdate-钩子"><a href="#shouldComponentUpdate-钩子" class="headerlink" title="shouldComponentUpdate 钩子"></a>shouldComponentUpdate 钩子</h3><p>在使用 <code>setState</code> 更改状态时，其实还会默默的执行 <code>shouldComponentUpdate</code> “钩子”，该钩子有返回值，不使用该 “钩子” 的情况下默认返回值为 <code>true</code>，若使用该 “钩子” 必须指定布尔类型的返回值 <code>true</code> 或 <code>false</code>，当返回值为 <code>true</code> 时代表更新状态和视图，否则不更新，只要使用 <code>setState</code> 就会触发该 “钩子”，该钩子有三个参数，与 <code>componentWillUpdate</code> “钩子” 相同。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  state = { num: 0 }
+
+  // 点击事件
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num + 1 });
+  }
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;componentWillUpdate&#39;);
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    console.log(&#39;componentDidUpdate&#39;);
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;shouldComponentUpdate&#39;);
+    console.log(&#39;nowState&#39;, this.state);
+    console.log(&#39;nextProps&#39;, nextProps);
+    console.log(&#39;nextState&#39;, nextState);
+    console.log(&#39;nextContext&#39;, nextContext);
+    return true;
+  }
+
+  render() {
+    console.log(&#39;render&#39;);
+    return (
+      &lt;div&gt;
+        {this.state.num}
+        &lt;button onClick={this.handleClick}&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// shouldComponentUpdate
+// nowState { num: 0 }
+// nextProps {}
+// nextState { num: 1 }
+// nextContext {}
+// componentWillUpdate
+// render
+// componentDidUpdate
+</code></pre><p>当 <code>shouldComponentUpdate</code> “钩子” 返回值为 <code>true</code> 时，触发点击事件后的执行顺序为：<code>shouldComponentUpdate</code> → <code>componentWillUpdate</code> → <code>render</code> → <code>componentDidUpdate</code>。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  state = { num: 0 }
+
+  // 点击事件
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num + 1 });
+  }
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;componentWillUpdate&#39;);
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    console.log(&#39;componentDidUpdate&#39;);
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;shouldComponentUpdate&#39;);
+    console.log(&#39;nextState&#39;, nextState);
+    return false;
+  }
+
+  render() {
+    console.log(&#39;render&#39;);
+    return (
+      &lt;div&gt;
+        {this.state.num}
+        &lt;button onClick={this.handleClick}&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// shouldComponentUpdate
+// nextState { num: 1 } 不断更新
+</code></pre><p>当 <code>shouldComponentUpdate</code> “钩子” 返回值为 <code>false</code> 时，触发点击事件后只有 <code>shouldComponentUpdate</code> 执行了，并且随着触发点击事件的次数增加，<code>nextState</code> 参数的状态不断变化，但是 <code>state</code> 和页面都不更新。</p><h3 id="componentWillUnmount-钩子"><a href="#componentWillUnmount-钩子" class="headerlink" title="componentWillUnmount 钩子"></a>componentWillUnmount 钩子</h3><p><code>componentWillUnmount</code> “钩子” 会在组件卸载之前触发，卸载组件需调用 <code>ReactDOM</code> 的 <code>unmountComponentAtNode</code> 方法，并传入一个根节点，将会卸载这个根节点内部的所有组件。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  state = { num: 0 }
+
+  // 点击事件
+  handleClick = () =&gt; {
+    // 卸载组件
+    ReactDOM.unmountComponentAtNode(window.root);
+  }
+
+  componentWillUnmount () {
+    console.log(&#39;componentWillUnmount&#39;);
+  }
+
+  render() {
+    console.log(&#39;render&#39;);
+    return (
+      &lt;div&gt;
+        {this.state.num}
+        &lt;button onClick={this.handleClick}&gt;Kill&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// componentWillUnmount
+</code></pre><p><code>componentWillUnmount</code> 钩子一般用来在卸载组件之前清除可能会调用 <code>setState</code> 的异步操作，为了防止在卸载组件后继续更新状态而报错。</p><h2 id="复合组件的生命周期"><a href="#复合组件的生命周期" class="headerlink" title="复合组件的生命周期"></a>复合组件的生命周期</h2><blockquote class="pullquote info"><p><strong>上面着重介绍了单个类组件的生命周期，有的生命周期由于一个组件不容易演示，所以放在了这节中，这节也会将复合组件的生命周期执行顺序进行分析，并阐明一些使用的注意事项。</strong></p></blockquote><h3 id="复合组件渲染生命周期的执行顺序"><a href="#复合组件渲染生命周期的执行顺序" class="headerlink" title="复合组件渲染生命周期的执行顺序"></a>复合组件渲染生命周期的执行顺序</h3><p>在复合组件中，父组件套着子组件，两个组件都有自己的生命周期，那么执行顺序会是怎么样的，看下面案例。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 子组件
+class ChildCounter extends Component {
+  state = { num: 0 }
+
+  componentWillMount() {
+    console.log(&#39;child-componentWillMount&#39;);
+  }
+
+  componentDidMount() {
+    console.log(&#39;child-componentDidMount&#39;);
+  }
+
+  render() {
+    console.log(&#39;child-render&#39;);
+    return &lt;div&gt;{this.state.num}&lt;/div&gt;
+  }
+}
+
+// 父组件
+class Counter extends Component {
+  componentWillMount() {
+    console.log(&#39;parent-componentWillMount&#39;);
+  }
+
+  componentDidMount() {
+    console.log(&#39;parent-componentDidMount&#39;);
+  }
+
+  render() {
+    console.log(&#39;parent-render&#39;);
+    return (
+      &lt;div&gt;
+        &lt;ChildCounter /&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// parent-componentWillMount
+// parent-render
+// child-componentWillMount
+// child-render
+// child-componentDidMount
+// parent-componentDidMount
+</code></pre><p>从上面的执行顺序可以看出，在执行父组件生命周期的时候，执行 <code>render</code> 会渲染子组件，渲染子组件会将子组件的生命周期优先执行，等子组件完成渲染继续父组件的渲染，即继续执行父组件渲染后的生命周期。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 子组件
+class ChildCounter extends Component {
+  state = { num: 0 }
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;child-componentWillUpdate&#39;);
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    console.log(&#39;child-componentDidUpdate&#39;);
+  }
+
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num - 1 });
+  }
+
+  render() {
+    console.log(&#39;child-render&#39;);
+    return (
+      &lt;div&gt;
+        {this.state.num}
+        &lt;button onClick={this.handleClick}&gt;update-child&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 父组件
+class Counter extends Component {
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;parent-componentWillUpdate&#39;);
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    console.log(&#39;parent-componentDidUpdate&#39;);
+  }
+
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num + 1 });
+  }
+
+  render() {
+    console.log(&#39;parent-render&#39;);
+    return (
+      &lt;div&gt;
+        &lt;ChildCounter /&gt;
+        &lt;button onClick={this.handleClick}&gt;update-parent&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// 点击子组件更新按钮
+// child-componentWillUpdate
+// clild-render
+// child-componentDidUpdate
+
+// 点击父组件更新按钮
+// parent-componentWillUpdate
+// parent-render
+// child-componentWillUpdate
+// clild-render
+// child-componentDidUpdate
+// parent-componentDidUpdate
+</code></pre><p>当子组件更新时，父组件不会重新渲染，只会执行子组件的生命周期，当父组件更新时，子组件也会重新渲染，此时当父组件执行 <code>render</code> 时会执行子组件更新相关的生命周期，在继续执行父组件更新相关的生命周期。</p><p>点击父组件更新按钮生命周期的执行顺序：<code>parent-componentWillUpdate</code> → <code>parent-render</code> → <code>child-componentWillUpdate</code> → <code>clild-render</code> → <code>child-componentDidUpdate</code> → <code>parent-componentDidUpdate</code>。</p><p>点击子组件更新按钮生命周期的执行顺序：<code>child-componentWillUpdate</code> → <code>clild-render</code> → <code>child-componentDidUpdate</code>。</p><blockquote class="pullquote warning"><p><strong>如果更新父组件时，不希望子组件重新渲染，可以通过子组件的 <code>shouldComponentUpdate</code> “钩子” 将返回值设置为 <code>false</code> 的方式来控制。</strong></p></blockquote><h3 id="componentWillReceiveProps-钩子"><a href="#componentWillReceiveProps-钩子" class="headerlink" title="componentWillReceiveProps 钩子"></a>componentWillReceiveProps 钩子</h3><p>当传入组件的参数，即 <code>props</code> 发生变化时，<code>componentWillReceiveProps</code> “钩子” 执行，该钩子有一个参数，代表下一次更新的 <code>props</code> 对象，执行该 “钩子” 时，<code>props</code> 并没有更新，也就是说是在 <code>props</code> 变化之前执行。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 子组件
+class ChildCounter extends Component {
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;child-componentWillUpdate&#39;);
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    console.log(&#39;child-componentDidUpdate&#39;);
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;child-shouldComponentUpdate&#39;);
+    return true;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    console.log(&#39;child-componentWillReceiveProps&#39;);
+    console.log(&#39;nowProps&#39;, this.props);
+    console.log(&#39;nextProps&#39;, nextProps);
+  }
+
+  render() {
+    console.log(&#39;child-render&#39;);
+    return &lt;div&gt;{this.props.n}&lt;/div&gt;
+  }
+}
+
+// 父组件
+class Counter extends Component {
+  state = { num: 0 }
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    console.log(&#39;parent-componentWillUpdate&#39;);
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    console.log(&#39;parent-componentDidUpdate&#39;);
+  }
+
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num + 1 });
+  }
+
+  render() {
+    console.log(&#39;parent-render&#39;);
+    return (
+      &lt;div&gt;
+        &lt;ChildCounter n={this.state.num} /&gt;
+        &lt;button onClick={this.handleClick}&gt;update-parent&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// parent-componentWillUpdate
+// parent-render
+// child-componentWillReceiveProps
+// nowProps { n: 0 }
+// nextProps { n: 1 }
+// child-shouldComponentUpdate
+// child-componentWillUpdate
+// child-render
+// child-componentDidUpdate
+// parent-componentDidUpdate
+</code></pre><p>点击父组件更新按钮后，父子组件生命周期的执行顺序如下：</p><p><code>parent-componentWillUpdate</code> → <code>parent-render</code> → <code>child-componentWillReceiveProps</code> → <code>child-shouldComponentUpdate</code> → <code>child-componentWillUpdate</code> → <code>child-render</code> → <code>child-componentDidUpdate</code> → <code>parent-componentDidUpdate</code>。</p><p>由此可以说明 <code>componentWillReceiveProps</code> 钩子在 <code>shouldComponentUpdate</code> 之前执行。</p><blockquote class="pullquote danger"><p><strong><code>componentWillReceiveProps</code> “钩子” 在第一次渲染父子组件时不执行，在 <code>React 16.x</code> 版本中被标记为 “已废弃”。</strong></p></blockquote><h2 id="关于-setState-在生命周期中的使用"><a href="#关于-setState-在生命周期中的使用" class="headerlink" title="关于 setState 在生命周期中的使用"></a>关于 setState 在生命周期中的使用</h2><p>在 <code>React</code> 生命周期 “钩子” 中，只有 <code>componentWillMount</code>、<code>componentDidMount</code> 和 <code>componentWillReceiveProps</code> 中可以调用 <code>setState</code>。</p><p>原因是 <code>setState</code> 方法会触发 <code>render</code> “钩子” 执行，而 <code>shouldComponentUpdate</code>、<code>componentWillUpdate</code>、<code>componentDidUpdate</code> 是在 <code>render</code> 后触发，包括在 <code>render</code> 中调用 <code>setState</code>，都会出现更新 “死循环” 的现象，最后造成堆栈溢出，而 <code>componentWillUnmount</code> “钩子” 执行时，组件将被卸载，在此时更新状态毫无意义。</p><blockquote class="pullquote warning"><p><strong>在 <code>componentWillReceiveProps</code> 中使用 <code>setState</code>，其目的是为了将新更改的属性更新为该组件的状态，但 <code>React</code> 官方不建议这样使用。</strong></p></blockquote><h2 id="React-生命周期流程图"><a href="#React-生命周期流程图" class="headerlink" title="React 生命周期流程图"></a>React 生命周期流程图</h2><p>下面是一张关于目前版本比较常用的 <code>React</code> 生命周期 “钩子” 执行顺序的流程图，帮助大家快速理解 <code>React</code> 生命周期中各个钩子函数的执行过程。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/React/20180915194439/react-lifecycle-raw.png" alt="React 生命周期流程图"></div><div class="image-caption">React 生命周期流程图</div></figure><p><br></p><h2 id="React-16-3-新增生命周期"><a href="#React-16-3-新增生命周期" class="headerlink" title="React 16.3 新增生命周期"></a>React 16.3 新增生命周期</h2><h3 id="getDerivedStateFromProps-静态方法"><a href="#getDerivedStateFromProps-静态方法" class="headerlink" title="getDerivedStateFromProps 静态方法"></a>getDerivedStateFromProps 静态方法</h3><p><code>getDerivedStateFromProps</code> 是一个类组件的静态方法，用来替代 <code>componentWillReceiveProps</code> “钩子”，在传入的属性变化之前执行，方法的参数与 <code>componentWillReceiveProps</code> 相同，是更新的属性对象，该方法要求必须返回一个状态对象的返回值，且使用该方法的组件必须含有 <code>state</code>，不能和 <code>componentWillMount</code> “钩子” 同时使用。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 子组件
+class ChildCounter extends Component {
+  state = { num: 0 }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    console.log(&#39;child-componentDidUpdate&#39;);
+    console.log(&#39;nowState&#39;, this.state);
+  }
+
+  static getDerivedStateFromProps(nextProps) {
+    console.log(&#39;child-getDerivedStateFromProps&#39;);
+    console.log(&#39;nextProps&#39;, nextProps);
+    return { num: nextProps.n };
+  }
+
+  render() {
+    console.log(&#39;child-render&#39;);
+    return &lt;div&gt;{this.props.n}&lt;/div&gt;
+  }
+}
+
+// 父组件
+class Counter extends Component {
+  state = { num: 0 }
+
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num + 1 });
+  }
+
+  render() {
+    console.log(&#39;parent-render&#39;);
+    return (
+      &lt;div&gt;
+        &lt;ChildCounter n={this.state.num} /&gt;
+        &lt;button onClick={this.handleClick}&gt;update-parent&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// parent-render
+// child-render
+// child-getDerivedStateFromProps
+// nextProps { n: 1 }
+// child-componentDidUpdate
+// nowState { num: 1 }
+</code></pre><p>点击父组件的更新按钮钩子的执行顺序如下：<code>parent-render</code> → <code>child-render</code> → <code>child-getDerivedStateFromProps</code> → <code>child-componentDidUpdate</code>。</p><blockquote class="pullquote primary"><p><strong><code>getDerivedStateFromProps</code> 除了上面叙述的用法的注意事项，与 <code>componentWillReceiveProps</code> 相比还有两个优势：</strong></p><ul><li><strong>第一点是默认第一次渲染时也会执行该 “钩子”；</strong></li><li><strong>第二点是不需要再通过调用 <code>setState</code> 将新的 <code>props</code> 转换成组件的状态，可以直接通过返回值设置状态。</strong></li></ul></blockquote><h3 id="getSnapshotBeforeUpdate-钩子"><a href="#getSnapshotBeforeUpdate-钩子" class="headerlink" title="getSnapshotBeforeUpdate 钩子"></a>getSnapshotBeforeUpdate 钩子</h3><p><code>getSnapshotBeforeUpdate</code> “钩子” 用于替代 <code>componentWillUpdate</code> “钩子”，不能与 <code>componentWillMount</code> “钩子” 同时使用，必须与 <code>componentDidUpdate</code> “钩子” 同时使用，需返回一个值或者 <code>null</code>，该值会传给 <code>componentDidUpdate</code> “钩子” 的第三个参数。</p><pre><code class="lang-jsx">import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  state = { num: 0 }
+
+  // 点击事件
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num + 1 });
+  }
+
+  getSnapshotBeforeUpdate() {
+    console.log(&#39;getSnapshotBeforeUpdate&#39;);
+    return 123;
+  }
+
+  componentDidUpdate(prevProps, prevState, prop) {
+    console.log(&#39;componentDidUpdate&#39;);
+    console.log(&#39;prop&#39;, prop);
+  }
+
+  render() {
+    console.log(&#39;render&#39;);
+    return (
+      &lt;div&gt;
+        {this.state.num}
+        &lt;button onClick={this.handleClick}&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+
+// render
+// getSnapshotBeforeUpdate
+// componentDidUpdate
+// prop 123
+</code></pre><p>点击更新按钮执行顺序为：<code>render</code> → <code>getSnapshotBeforeUpdate</code> → <code>componentDidUpdate</code>。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>以上就是关于 <code>React</code> 生命周期的内容，涵盖了在 <code>React</code> 开发中对生命周期大部分的应用，也是 <code>React</code> 知识体系中非常重要的部分，<code>React</code> 生命周期和 <code>Vue</code> 相比的特点是名字长，不容易记，希望大家在学习理解之后多巩固，孰能生巧。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180915194439/" target="_blank" rel="external">https://www.overtaking.top/20180915194439/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/" rel="tag">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" rel="tag">生命周期</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180915194439/&title=《React 基础篇 —— 生命周期详解》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180915194439/&title=《React 基础篇 —— 生命周期详解》 — Shen's Blog&source=前言本篇文章主要内容针对 React 类组件的生命周期展开，会详细介绍生命周期 “钩子” 的执行和用法，如果一点也不了解 React 的同学建议先学习一下..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180915194439/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《React 基础篇 —— 生命周期详解》 — Shen's Blog&url=https://www.overtaking.top/20180915194439/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180915194439/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180919002629/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">React 基础篇 —— 组件间的参数传递</h4></a></div><div class="waves-block waves-effect next"><a href="/20180910025959/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">React 基础篇 —— 带你走进 React 世界</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180915194439/&title=《React 基础篇 —— 生命周期详解》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180915194439/&title=《React 基础篇 —— 生命周期详解》 — Shen's Blog&source=前言本篇文章主要内容针对 React 类组件的生命周期展开，会详细介绍生命周期 “钩子” 的执行和用法，如果一点也不了解 React 的同学建议先学习一下..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180915194439/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《React 基础篇 —— 生命周期详解》 — Shen's Blog&url=https://www.overtaking.top/20180915194439/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180915194439/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABxElEQVR42u3aQW7DMAwEQP//0y6QU4HWCle05LQYnQIHscc5LERSx1Fe52tVrny/Pv7Vz29vW7i4uG3uOVxXlLmXGb/Y2ICLi7ufO0a8uUUhmOZCDRcX9/O54/ibCyxcXNz/xE23MpUtFC4u7qdx67frFDZzL4aLi7ufmzZMV3xe2N/FxcUNuWe4Ko9P4y94Oi4u7hbuXKsiDbvKMGacWkfaj8HFxW1wO2XJXeE1ucXBxcXdwq0coUhbGOmg5Y0KFxd3C7ceapWDF5V4Sl91MoNxcXEb3Hqp09nopH/H5d1wcXG3cOfal3MHs1op2xmr4OLihty04ElbIZ0Gyi/XcXFxH+XOBVNlk3TDCTJcXNzF3DGxEnPpUDYd21zGGS4u7kZuZVNSb6p2hqylIMPFxV3ArQ9H6+VQPezSz7i4uM9y+8OP9GxVUKvh4uIu5s61ROudiqOxSs0RXFzcBdwzXPeWOun9cXFx93DTWElHs/X2a2nIiouLu5Gbhle8ewpjLh6l4OLiLuOm4VWH3lyr4eLifhi3s7lJn4KLi/sXuWmjpHVMExcX9yFuWvykm5u50ggXF/cpbv9hnXBcMrLFxcWd534BPgwz0oe7c8YAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

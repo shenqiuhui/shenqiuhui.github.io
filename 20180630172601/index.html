@@ -1,0 +1,440 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Node.js 文件操作 —— fs 基本使用 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,fs"><meta name="description" content="fs 概述在 Node.js 中，所有与文件操作都是通过 fs 核心模块来实现的，包括文件目录的创建、删除、查询以及文件的读取和写入，在 fs 模块中，所有的方法都分为同步和异步两种实现，具有 sync 后缀的方法为同步方法，不具有 sync 后缀的方法为异步方法，在了解文件操作的方法之前有一些关于系统和文件的前置知识需要先明确，如文件的权限位 mode、标识位 flag、文件描述符 fd 等。"><meta property="og:type" content="article"><meta property="og:title" content="Node.js 文件操作 —— fs 基本使用"><meta property="og:url" content="https://www.overtaking.top/20180630172601/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="fs 概述在 Node.js 中，所有与文件操作都是通过 fs 核心模块来实现的，包括文件目录的创建、删除、查询以及文件的读取和写入，在 fs 模块中，所有的方法都分为同步和异步两种实现，具有 sync 后缀的方法为同步方法，不具有 sync 后缀的方法为异步方法，在了解文件操作的方法之前有一些关于系统和文件的前置知识需要先明确，如文件的权限位 mode、标识位 flag、文件描述符 fd 等。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180630172601/fs.jpg"><meta property="article:published_time" content="2018-06-30T09:26:01.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="fs"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180630172601/fs.jpg"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Node.js 文件操作 —— fs 基本使用</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Node.js 文件操作 —— fs 基本使用</h1><h5 class="subtitle"><time datetime="2018-06-30T09:26:01.000Z" itemprop="datePublished" class="page-time">2018-06-30</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#fs-概述"><span class="post-toc-number">1.</span> <span class="post-toc-text">fs 概述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#权限位-mode"><span class="post-toc-number">2.</span> <span class="post-toc-text">权限位 mode</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#标识位-flag"><span class="post-toc-number">3.</span> <span class="post-toc-text">标识位 flag</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#文件描述符-fd"><span class="post-toc-number">4.</span> <span class="post-toc-text">文件描述符 fd</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#文件操作的基本方法"><span class="post-toc-number">5.</span> <span class="post-toc-text">文件操作的基本方法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#文件读取"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">文件读取</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#同步读取方法-readFileSync"><span class="post-toc-number">5.1.1.</span> <span class="post-toc-text">同步读取方法 readFileSync</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异步读取方法-readFile"><span class="post-toc-number">5.1.2.</span> <span class="post-toc-text">异步读取方法 readFile</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#文件写入"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">文件写入</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#同步写入方法-writeFileSync"><span class="post-toc-number">5.2.1.</span> <span class="post-toc-text">同步写入方法 writeFileSync</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异步写入方法-writeFile"><span class="post-toc-number">5.2.2.</span> <span class="post-toc-text">异步写入方法 writeFile</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#文件追加写入"><span class="post-toc-number">5.3.</span> <span class="post-toc-text">文件追加写入</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#同步追加写入方法-appendFileSync"><span class="post-toc-number">5.3.1.</span> <span class="post-toc-text">同步追加写入方法 appendFileSync</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异步追加写入方法-appendFile"><span class="post-toc-number">5.3.2.</span> <span class="post-toc-text">异步追加写入方法 appendFile</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#文件拷贝写入"><span class="post-toc-number">5.4.</span> <span class="post-toc-text">文件拷贝写入</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#同步拷贝写入方法-copyFileSync"><span class="post-toc-number">5.4.1.</span> <span class="post-toc-text">同步拷贝写入方法 copyFileSync</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异步拷贝写入方法-copyFile"><span class="post-toc-number">5.4.2.</span> <span class="post-toc-text">异步拷贝写入方法 copyFile</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#模拟同步、异步拷贝写入文件"><span class="post-toc-number">5.4.3.</span> <span class="post-toc-text">模拟同步、异步拷贝写入文件</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#文件操作的高级方法"><span class="post-toc-number">6.</span> <span class="post-toc-text">文件操作的高级方法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#打开文件-open"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">打开文件 open</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#关闭文件-close"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">关闭文件 close</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#读取文件-read"><span class="post-toc-number">6.3.</span> <span class="post-toc-text">读取文件 read</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#同步磁盘缓存-fsync"><span class="post-toc-number">6.4.</span> <span class="post-toc-text">同步磁盘缓存 fsync</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#写入文件-write"><span class="post-toc-number">6.5.</span> <span class="post-toc-text">写入文件 write</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#针对大文件实现-copy"><span class="post-toc-number">6.6.</span> <span class="post-toc-text">针对大文件实现 copy</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#文件目录操作方法"><span class="post-toc-number">7.</span> <span class="post-toc-text">文件目录操作方法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#查看文件目录操作权限"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">查看文件目录操作权限</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#同步查看操作权限方法-accessSync"><span class="post-toc-number">7.1.1.</span> <span class="post-toc-text">同步查看操作权限方法 accessSync</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异步查看操作权限方法-access"><span class="post-toc-number">7.1.2.</span> <span class="post-toc-text">异步查看操作权限方法 access</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#获取文件目录的-Stats-对象"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">获取文件目录的 Stats 对象</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#同步获取-Stats-对象方法-statSync"><span class="post-toc-number">7.2.1.</span> <span class="post-toc-text">同步获取 Stats 对象方法 statSync</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异步获取-Stats-对象方法-stat"><span class="post-toc-number">7.2.2.</span> <span class="post-toc-text">异步获取 Stats 对象方法 stat</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建文件目录"><span class="post-toc-number">7.3.</span> <span class="post-toc-text">创建文件目录</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#同步创建目录方法-mkdirSync"><span class="post-toc-number">7.3.1.</span> <span class="post-toc-text">同步创建目录方法 mkdirSync</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异步创建目录方法-mkdir"><span class="post-toc-number">7.3.2.</span> <span class="post-toc-text">异步创建目录方法 mkdir</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#读取文件目录"><span class="post-toc-number">7.4.</span> <span class="post-toc-text">读取文件目录</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#同步读取目录方法-readdirSync"><span class="post-toc-number">7.4.1.</span> <span class="post-toc-text">同步读取目录方法 readdirSync</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异步读取目录方法-readdir"><span class="post-toc-number">7.4.2.</span> <span class="post-toc-text">异步读取目录方法 readdir</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#删除文件目录"><span class="post-toc-number">7.5.</span> <span class="post-toc-text">删除文件目录</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#同步删除目录方法-rmdirSync"><span class="post-toc-number">7.5.1.</span> <span class="post-toc-text">同步删除目录方法 rmdirSync</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异步删除目录方法-rmdir"><span class="post-toc-number">7.5.2.</span> <span class="post-toc-text">异步删除目录方法 rmdir</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#删除文件操作"><span class="post-toc-number">7.6.</span> <span class="post-toc-text">删除文件操作</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#同步删除文件方法-unlinkSync"><span class="post-toc-number">7.6.1.</span> <span class="post-toc-text">同步删除文件方法 unlinkSync</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异步删除文件方法-unlink"><span class="post-toc-number">7.6.2.</span> <span class="post-toc-text">异步删除文件方法 unlink</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现递归创建目录"><span class="post-toc-number">8.</span> <span class="post-toc-text">实现递归创建目录</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#同步的实现"><span class="post-toc-number">8.1.</span> <span class="post-toc-text">同步的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#异步回调的实现"><span class="post-toc-number">8.2.</span> <span class="post-toc-text">异步回调的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#异步-async-await-的实现"><span class="post-toc-number">8.3.</span> <span class="post-toc-text">异步 async&#x2F;await 的实现</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">9.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180630172601" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Node.js 文件操作 —— fs 基本使用</h1><div class="post-meta"><time class="post-time" title="2018-06-30 17:26:01" datetime="2018-06-30T09:26:01.000Z" itemprop="datePublished">2018-06-30</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180630172601/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js 文件操作 —— fs 基本使用"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180630172601/fs.jpg" title="fs 文件操作"><p><br></p><h2 id="fs-概述"><a href="#fs-概述" class="headerlink" title="fs 概述"></a>fs 概述</h2><blockquote class="pullquote info"><p><strong>在 <code>Node.js</code> 中，所有与文件操作都是通过 <code>fs</code> 核心模块来实现的，包括文件目录的创建、删除、查询以及文件的读取和写入，在 <code>fs</code> 模块中，所有的方法都分为同步和异步两种实现，具有 <code>sync</code> 后缀的方法为同步方法，不具有 <code>sync</code> 后缀的方法为异步方法，在了解文件操作的方法之前有一些关于系统和文件的前置知识需要先明确，如文件的权限位 <code>mode</code>、标识位 <code>flag</code>、文件描述符 <code>fd</code> 等。</strong></p></blockquote><a id="more"></a><h2 id="权限位-mode"><a href="#权限位-mode" class="headerlink" title="权限位 mode"></a>权限位 mode</h2><p>因为 <code>fs</code> 模块需要对文件进行操作，会涉及到操作权限的问题，所以需要先清楚文件权限是什么，都有哪些权限。</p><p><strong>文件权限表：</strong></p><table><thead><tr><th>权限分配</th><th colspan="3">文件所有者</th><th colspan="3">文件所属组</th><th colspan="3">其他用户</th></tr></thead><tbody><tr><td>权限项</td><td>读</td><td>写</td><td>执行</td><td>读</td><td>写</td><td>执行</td><td>读</td><td>写</td><td>执行</td></tr><tr><td>字符表示</td><td>r</td><td>w</td><td>x</td><td>r</td><td>w</td><td>x</td><td>r</td><td>w</td><td>x</td></tr><tr><td>数字表示</td><td>4</td><td>2</td><td>1</td><td>4</td><td>2</td><td>1</td><td>4</td><td>2</td><td>1</td></tr></tbody></table><p>在上面表格中，我们可以看出系统中针对三种类型进行权限分配，即文件所有者（自己）、文件所属组（家人）和其他用户（陌生人），文件操作权限又分为三种，读、写和执行，数字表示为八进制数，具备权限的八进制数分别为 <code>4</code> 、<code>2</code>、<code>1</code>，不具备权限为 <code>0</code>。</p><p>为了更容易理解，我们可以随便在一个目录中打开命令行，使用 <code>Linux</code> 命令 <code>ls -al</code> 来查目录中文件和文件夹的权限位，如果对 <code>Linux</code> 基本命令不熟悉，可以看 <a href="https://www.overtaking.top/20171214024101/" target="_blank">Git 命令总结，从零到熟悉</a> 的前一小节。</p><pre><code class="lang-bash">drwxr-xr-x 1 PandaShen 197121 0 Jun 28 14:41 core
+-rw-r--r-- 1 PandaShen 197121 293 Jun 23 17:44 index.md
+</code></pre><p>在上面的目录信息当中，很容易看出用户名、创建时间和文件名等信息（十位的字符），但最重要的是开头第一项。</p><p>第一位代表是文件还是文件夹，<code>d</code> 开头代表文件夹，<code>-</code> 开头的代表文件，而后面九位就代表当前用户、用户所属组和其他用户的权限位，按每三位划分，分别代表读（<code>r</code>）、写（<code>w</code>）和执行（<code>x</code>），<code>-</code> 代表没有当前位对应的权限。</p><blockquote class="pullquote warning"><p><strong>权限参数 <code>mode</code> 主要针对 <code>Linux</code> 和 <code>Unix</code> 操作系统，<code>Window</code> 的权限默认是可读、可写、不可执行，所以权限位数字表示为 <code>0o666</code>，转换十进制表示为 <code>438</code>。</strong></p></blockquote><table><thead><tr><th>r</th><th>w</th><th>—</th><th>r</th><th>—</th><th>—</th><th>r</th><th>—</th><th>—</th></tr></thead><tbody><tr><td>4</td><td>2</td><td>0</td><td>4</td><td>0</td><td>0</td><td>4</td><td>0</td><td>0</td></tr><tr><td colspan="3">6</td><td colspan="3">4</td><td colspan="3">4</td></tr></tbody></table><p><br></p><h2 id="标识位-flag"><a href="#标识位-flag" class="headerlink" title="标识位 flag"></a>标识位 flag</h2><p><code>Node.js</code> 中，标识位代表着对文件的操作方式，如可读、可写、即可读又可写等等，下面用一张表来表示文件操作的标识位和其对应的含义。</p><table><thead><tr><th style="width:20%">符号</th><th>含义</th></tr></thead><tbody><tr><td>r</td><td>读取文件，如果文件不存在则抛出异常。</td></tr><tr><td>r+</td><td>读取并写入文件，如果文件不存在则抛出异常。</td></tr><tr><td>rs</td><td>读取并写入文件，指示操作系统绕开本地文件系统缓存。</td></tr><tr><td>w</td><td>写入文件，文件不存在会被创建，存在则清空后写入。</td></tr><tr><td>wx</td><td>写入文件，排它方式打开。</td></tr><tr><td>w+</td><td>读取并写入文件，文件不存在则创建文件，存在则清空后写入。</td></tr><tr><td>wx+</td><td>和 w+ 类似，排他方式打开。</td></tr><tr><td>a</td><td>追加写入，文件不存在则创建文件。</td></tr><tr><td>ax</td><td>与 a 类似，排他方式打开。</td></tr><tr><td>a+</td><td>读取并追加写入，不存在则创建。</td></tr><tr><td>ax+</td><td>与 a+ 类似，排他方式打开。</td></tr></tbody></table><blockquote class="pullquote danger"><p><strong>上面表格就是这些标识位的具体字符和含义，但是 <code>flag</code> 是不经常使用的，不容易被记住，所以总结了一个加速记忆的方：</strong></p><ul><li><strong><code>r</code>：读取</strong></li><li><strong><code>w</code>：写入</strong></li><li><strong><code>s</code>：同步</strong></li><li><strong><code>+</code>：增加相反操作</strong></li><li><strong><code>x</code>：排他方式</strong></li></ul></blockquote><p><code>r+</code> 和 <code>w+</code> 的区别，当文件不存在时，<code>r+</code> 不会创建文件，而会抛出异常，但 <code>w+</code> 会创建文件；如果文件存在，<code>r+</code> 不会自动清空文件，但 <code>w+</code> 会自动把已有文件的内容清空。</p><h2 id="文件描述符-fd"><a href="#文件描述符-fd" class="headerlink" title="文件描述符 fd"></a>文件描述符 fd</h2><blockquote class="pullquote success"><p><strong>操作系统会为每个打开的文件分配一个名为文件描述符的数值标识，文件操作使用这些文件描述符来识别与追踪每个特定的文件，<code>Windows</code> 系统使用了一个不同但概念类似的机制来追踪资源，为方便用户，<code>Node.js</code> 抽象了不同操作系统间的差异，为所有打开的文件分配了数值的文件描述符。</strong></p></blockquote><p>在 <code>Node.js</code> 中，每操作一个文件，文件描述符递增，文件描述符一般从 <code>3</code> 开始，因为前面有 <code>0</code>、<code>1</code>、<code>2</code> 三个比较特殊的描述符被占用了，分别为 <code>process.stdin</code>（标准输入）、<code>process.stdout</code>（标准输出）和 <code>process.stderr</code>（错误输出）。</p><h2 id="文件操作的基本方法"><a href="#文件操作的基本方法" class="headerlink" title="文件操作的基本方法"></a>文件操作的基本方法</h2><blockquote class="pullquote primary"><p><strong>文件操作中的基本方法都是对文件进行整体操作，即整个文件数据直接放在内存中操作，如读取、写入、拷贝和追加，由于计算机的内存容量有限，对文件操作需要考虑性能，所以这些方法只针对操作占用内存较小的文件。</strong></p></blockquote><h3 id="文件读取"><a href="#文件读取" class="headerlink" title="文件读取"></a>文件读取</h3><h4 id="同步读取方法-readFileSync"><a href="#同步读取方法-readFileSync" class="headerlink" title="同步读取方法 readFileSync"></a>同步读取方法 readFileSync</h4><blockquote class="pullquote default"><p><strong><code>readFileSync</code> 有两个参数：</strong></p><ul><li><strong>第一个参数为读取文件的路径或文件描述符；</strong></li><li><strong>第二个参数为 <code>options</code> 对象，默认值为 <code>null</code>，对象属性有 <code>encoding</code>（编码，默认为 <code>null</code>）和 <code>flag</code>（标识位，默认为 <code>r</code>），该参数也可直接传入 <code>encoding</code>；</strong></li><li><strong>返回值为文件的内容，如果没有 <code>encoding</code>，返回的文件内容为 <code>Buffer</code>，如果有按照传入的编码解析。</strong></li></ul></blockquote><p>若现在有一个文件名为 <code>1.txt</code>，内容为 “Hello”，现在使用 <code>readFileSync</code> 读取。</p><pre><code class="lang-js">/* 同步读取 readFileSync */
+const fs = require(&#39;fs&#39;);
+
+const buf = fs.readFileSync(&#39;1.txt&#39;);
+const data = fs.readFileSync(&#39;1.txt&#39;, &#39;utf8&#39;);
+
+console.log(buf); // &lt;Buffer 48 65 6c 6c 6f&gt;
+console.log(data); // Hello
+</code></pre><h4 id="异步读取方法-readFile"><a href="#异步读取方法-readFile" class="headerlink" title="异步读取方法 readFile"></a>异步读取方法 readFile</h4><p>异步读取方法 <code>readFile</code> 与 <code>readFileSync</code> 的前两个参数相同，最后一个参数为回调函数，函数内有两个参数 <code>err</code>（错误）和 <code>data</code>（数据），该方法没有返回值，回调函数在读取文件成功后执行。</p><p>依然读取 <code>1.txt</code> 文件：</p><pre><code class="lang-js">/* 异步读取 readFile */
+const fs = require(&#39;fs&#39;);
+
+fs.readFile(&#39;1.txt&#39;, &#39;utf8&#39;, (err, data) =&gt; {
+  console.log(err); // null
+  console.log(data); // Hello
+});
+</code></pre><h3 id="文件写入"><a href="#文件写入" class="headerlink" title="文件写入"></a>文件写入</h3><h4 id="同步写入方法-writeFileSync"><a href="#同步写入方法-writeFileSync" class="headerlink" title="同步写入方法 writeFileSync"></a>同步写入方法 writeFileSync</h4><blockquote class="pullquote info"><p><strong><code>writeFileSync</code> 有三个参数：</strong></p><ul><li><strong>第一个参数为写入文件的路径或文件描述符；</strong></li><li><strong>第二个参数为写入的数据，类型为 <code>String</code> 或 <code>Buffer</code>；</strong></li><li><strong>第三个参数为 <code>options</code> 对象，默认值为 <code>null</code>，对象属性有 <code>encoding</code>（编码，默认为 <code>utf8</code>）、 <code>flag</code>（标识位，默认为 <code>w</code>）和 <code>mode</code>（权限位，默认为 <code>0o666</code>），该参数也可直接传入 <code>encoding</code>。</strong></li></ul></blockquote><p>若现在有一个文件名为 <code>2.txt</code>，内容为 “12345”，现在使用 <code>writeFileSync</code> 写入。</p><pre><code class="lang-js">/* 同步写入 writeFileSync */
+const fs = require(&#39;fs&#39;);
+
+fs.writeFileSync(&#39;2.txt&#39;, &#39;Hello world&#39;);
+const data = fs.readFileSync(&#39;2.txt&#39;, &#39;utf8&#39;);
+
+console.log(data); // Hello world
+</code></pre><h4 id="异步写入方法-writeFile"><a href="#异步写入方法-writeFile" class="headerlink" title="异步写入方法 writeFile"></a>异步写入方法 writeFile</h4><p>异步写入方法 <code>writeFile</code> 与 <code>writeFileSync</code> 的前三个参数相同，最后一个参数为回调函数，函数内有一个参数 <code>err</code>（错误），回调函数在文件写入数据成功后执行。</p><pre><code class="lang-js">/* 异步写入 writeFile */
+const fs = require(&#39;fs&#39;);
+
+fs.writeFile(&#39;2.txt&#39;, &#39;Hello world&#39;, err =&gt; {
+  if (!err) {
+    fs.readFile(&#39;2.txt&#39;, &#39;utf8&#39;, (err, data) =&gt; {
+      console.log(data); // Hello world
+    });
+  }
+});
+</code></pre><h3 id="文件追加写入"><a href="#文件追加写入" class="headerlink" title="文件追加写入"></a>文件追加写入</h3><h4 id="同步追加写入方法-appendFileSync"><a href="#同步追加写入方法-appendFileSync" class="headerlink" title="同步追加写入方法 appendFileSync"></a>同步追加写入方法 appendFileSync</h4><blockquote class="pullquote warning"><p><strong><code>appendFileSync</code> 有三个参数：</strong></p><ul><li><strong>第一个参数为写入文件的路径或文件描述符；</strong></li><li><strong>第二个参数为写入的数据，类型为 <code>String</code> 或 <code>Buffer</code>；</strong></li><li><strong>第三个参数为 <code>options</code> 对象，默认值为 <code>null</code>，对象属性有 <code>encoding</code>（编码，默认为 <code>utf8</code>）、 <code>flag</code>（标识位，默认为 <code>a</code>）和 <code>mode</code>（权限位，默认为 <code>0o666</code>），该参数也可直接传入 <code>encoding</code>。</strong></li></ul></blockquote><p>若现在有一个文件名为 <code>3.txt</code>，内容为 “Hello”，现在使用 <code>appendFileSync</code> 追加写入 “ world”。</p><pre><code class="lang-js">/* 同步追加 appendFileSync */
+const fs = require(&#39;fs&#39;);
+
+fs.appendFileSync(&#39;3.txt&#39;, &#39; world&#39;);
+const data = fs.readFileSync(&#39;3.txt&#39;, &#39;utf8&#39;);
+
+console.log(data); // Hello world
+</code></pre><h4 id="异步追加写入方法-appendFile"><a href="#异步追加写入方法-appendFile" class="headerlink" title="异步追加写入方法 appendFile"></a>异步追加写入方法 appendFile</h4><p>异步追加写入方法 <code>appendFile</code> 与 <code>appendFileSync</code> 的前三个参数相同，最后一个参数为回调函数，函数内有一个参数 <code>err</code>（错误），回调函数在文件追加写入数据成功后执行。</p><pre><code class="lang-js">/* 异步追加 appendFile */
+const fs = require(&#39;fs&#39;);
+
+fs.appendFile(&#39;3.txt&#39;, &#39; world&#39;, err =&gt; {
+  if (!err) {
+    fs.readFile(&#39;3.txt&#39;, &#39;utf8&#39;, (err, data) =&gt; {
+      console.log(data); // Hello world
+    });
+  }
+});
+</code></pre><h3 id="文件拷贝写入"><a href="#文件拷贝写入" class="headerlink" title="文件拷贝写入"></a>文件拷贝写入</h3><h4 id="同步拷贝写入方法-copyFileSync"><a href="#同步拷贝写入方法-copyFileSync" class="headerlink" title="同步拷贝写入方法 copyFileSync"></a>同步拷贝写入方法 copyFileSync</h4><p>同步拷贝写入方法 <code>copyFileSync</code> 有两个参数，第一个参数为被拷贝的源文件路径，第二个参数为拷贝到的目标文件路径，如果目标文件不存在，则会创建并拷贝。</p><p>现在将上面 <code>3.txt</code> 的内容拷贝到 <code>4.txt</code> 中：</p><pre><code class="lang-js">/* 同步拷贝 copyFileSync */
+const fs = require(&#39;fs&#39;);
+
+fs.copyFileSync(&#39;3.txt&#39;, &#39;4.txt&#39;);
+const data = fs.readFileSync(&#39;4.txt&#39;, &#39;utf8&#39;);
+
+console.log(data); // Hello world
+</code></pre><h4 id="异步拷贝写入方法-copyFile"><a href="#异步拷贝写入方法-copyFile" class="headerlink" title="异步拷贝写入方法 copyFile"></a>异步拷贝写入方法 copyFile</h4><p>异步拷贝写入方法 <code>copyFile</code> 和 <code>copyFileSync</code> 前两个参数相同，最后一个参数为回调函数，在拷贝完成后执行。</p><pre><code class="lang-js">/* 异步拷贝 copyFile */
+const fs = require(&#39;fs&#39;);
+
+fs.copyFile(&#39;3.txt&#39;, &#39;4.txt&#39;, () =&gt; {
+  fs.readFile(&#39;4.txt&#39;, &#39;utf8&#39;, (err, data) =&gt; {
+    console.log(data); // Hello world
+  });
+});
+</code></pre><h4 id="模拟同步、异步拷贝写入文件"><a href="#模拟同步、异步拷贝写入文件" class="headerlink" title="模拟同步、异步拷贝写入文件"></a>模拟同步、异步拷贝写入文件</h4><p>使用 <code>readFileSync</code> 和 <code>writeFileSync</code> 可以模拟同步拷贝写入文件，使用 <code>readFile</code> 和 <code>writeFile</code> 可以模拟异步写入拷贝文件，代码如下：</p><pre><code class="lang-js">/* 模拟同步拷贝 */
+const fs = require(&#39;fs&#39;);
+
+function copy(src, dest) {
+  const data = fs.readFileSync(src);
+  fs.writeFileSync(dest, data);
+}
+
+// 拷贝
+copy(&#39;3.txt&#39;, &#39;4.txt&#39;);
+
+const data = fs.readFileSync(&#39;4.txt&#39;, &#39;utf8&#39;);
+console.log(data); // Hello world
+</code></pre><pre><code class="lang-js">/* 模拟异步拷贝 */
+const fs = require(&#39;fs&#39;);
+
+function copy(src, dest, cb) {
+  fs.readFile(src, (err, data) =&gt; {
+    // 没错误就正常写入
+    if (!err) fs.writeFile(dest, data, cb);
+  });
+}
+
+// 拷贝
+copy(&#39;3.txt&#39;, &#39;4.txt&#39;, () =&gt; {
+  fs.readFile(&#39;4.txt&#39;, &#39;utf8&#39;, (err, data) =&gt; {
+    console.log(data); // Hello world
+  });
+});
+</code></pre><h2 id="文件操作的高级方法"><a href="#文件操作的高级方法" class="headerlink" title="文件操作的高级方法"></a>文件操作的高级方法</h2><h3 id="打开文件-open"><a href="#打开文件-open" class="headerlink" title="打开文件 open"></a>打开文件 open</h3><blockquote class="pullquote default"><p><strong><code>open</code> 方法有四个参数：</strong></p><ul><li><strong><code>path</code>：文件的路径；</strong></li><li><strong><code>flag</code>：标识位；</strong></li><li><strong><code>mode</code>：权限位，默认 <code>0o666</code>；</strong></li><li><strong><code>callback</code>：回调函数，有两个参数 <code>err</code>（错误）和 <code>fd</code>（文件描述符），打开文件后执行。</strong></li></ul></blockquote><pre><code class="lang-js">/* 异步打开文件 */
+const fs = require(&#39;fs&#39;);
+
+fs.open(&#39;4.txt&#39;, &#39;r&#39;, (err, fd) =&gt; {
+  console.log(fd);
+  fs.open(&#39;5.txt&#39;, &#39;r&#39;, (err, fd) =&gt; {
+    console.log(fd);
+  });
+});
+
+// 3
+// 4
+</code></pre><h3 id="关闭文件-close"><a href="#关闭文件-close" class="headerlink" title="关闭文件 close"></a>关闭文件 close</h3><p><code>close</code> 方法有两个参数，第一个参数为关闭文件的文件描述符 <code>fd</code>，第二参数为回调函数，回调函数有一个参数 <code>err</code>（错误），关闭文件后执行。</p><pre><code class="lang-js">/* 异步关闭文件 */
+const fs = require(&#39;fs&#39;);
+
+fs.open(&#39;4.txt&#39;, &#39;r&#39;, (err, fd) =&gt; {
+  fs.close(fd, err =&gt; {
+    console.log(&#39;关闭成功&#39;);
+  });
+});
+
+// 关闭成功
+</code></pre><h3 id="读取文件-read"><a href="#读取文件-read" class="headerlink" title="读取文件 read"></a>读取文件 read</h3><blockquote class="pullquote danger"><p><strong><code>read</code> 方法与 <code>readFile</code> 不同，一般针对于文件太大，无法一次性读取全部内容到缓存中或文件大小未知的情况，都是多次读取到 <code>Buffer</code> 中，想了解 <code>Buffer</code> 可以看</strong> <a href="https://www.overtaking.top/20180629115313/" target="_blank">Node.js —— Buffer 解读</a>。</p></blockquote><blockquote class="pullquote success"><p><strong><code>read</code> 方法中有六个参数：</strong></p><ul><li><strong><code>fd</code>：文件描述符，需要先使用 <code>open</code> 打开文件获取；</strong></li><li><strong><code>buffer</code>：要将内容读取到的 <code>Buffer</code>；</strong></li><li><strong><code>offset</code>：整数，向 <code>Buffer</code> 写入的初始位置；</strong></li><li><strong><code>length</code>：整数，读取文件多少个字节长度；</strong></li><li><strong><code>position</code>：整数，读取文件初始位置；</strong></li><li><strong><code>callback</code>：回调函数，有三个参数 <code>err</code>（错误），<code>bytesRead</code>（实际读取的字节数），<code>buffer</code>（被写入的缓存区对象），读取执行完成后执行。</strong></li></ul></blockquote><p>下面读取一个 <code>6.txt</code> 文件，内容为 “你好”。</p><pre><code class="lang-js">/* 异步读取文件 */
+const fs = require(&#39;fs&#39;);
+const buf = Buffer.alloc(6);
+
+// 打开文件
+fs.open(&#39;6.txt&#39;, &#39;r&#39;, (err, fd) =&gt; {
+  // 读取文件
+  fs.read(fd, buf, 0, 3, 0, (err, bytesRead, buffer) =&gt; {
+    console.log(bytesRead);
+    console.log(buffer);
+
+    // 继续读取
+    fs.read(fd, buf, 3, 3, 3, (err, bytesRead, buffer) =&gt; {
+      console.log(bytesRead);
+      console.log(buffer);
+      console.log(buffer.toString());
+    });
+  });
+});
+
+// 3
+// &lt;Buffer e4 bd a0 00 00 00&gt;
+
+// 3
+// &lt;Buffer e4 bd a0 e5 a5 bd&gt;
+// 你好
+</code></pre><h3 id="同步磁盘缓存-fsync"><a href="#同步磁盘缓存-fsync" class="headerlink" title="同步磁盘缓存 fsync"></a>同步磁盘缓存 fsync</h3><p><code>fsync</code> 方法有两个参数，第一个参数为文件描述符 <code>fd</code>，第二个参数为回调函数，回调函数中有一个参数 <code>err</code>（错误），在同步磁盘缓存后执行。</p><blockquote class="pullquote warning"><p><strong>在使用 <code>write</code> 方法向文件写入数据时，由于不是一次性写入，所以最后一次写入在关闭文件之前应先同步磁盘缓存，<code>fsync</code> 方法将在后面配合 <code>write</code> 一起使用。</strong></p></blockquote><h3 id="写入文件-write"><a href="#写入文件-write" class="headerlink" title="写入文件 write"></a>写入文件 write</h3><blockquote class="pullquote info"><p><strong><code>write</code> 方法与 <code>writeFile</code> 不同，是将 <code>Buffer</code> 中的数据写入文件，<code>Buffer</code> 的作用是一个数据中转站，可能数据的源占用内存太大或内存不确定，无法一次性放入内存中写入，所以分段写入，多与 <code>read</code> 方法配合。</strong></p></blockquote><blockquote class="pullquote primary"><p><strong><code>write</code> 方法中有六个参数：</strong></p><ul><li><strong><code>fd</code>：文件描述符，需要先使用 <code>open</code> 打开文件获取；</strong></li><li><strong><code>buffer</code>：存储将要写入文件数据的 <code>Buffer</code>；</strong></li><li><strong><code>offset</code>：整数，从 <code>Buffer</code> 读取数据的初始位置；</strong></li><li><strong><code>length</code>：整数，读取 <code>Buffer</code> 数据的字节数；</strong></li><li><strong><code>position</code>：整数，写入文件初始位置；</strong></li><li><strong><code>callback</code>：回调函数，有三个参数 <code>err</code>（错误），<code>bytesWritten</code>（实际写入的字节数），<code>buffer</code>（被读取的缓存区对象），写入完成后执行。</strong></li></ul></blockquote><p>下面将一个 Buffer 中间的两个字写入文件 <code>6.txt</code>，原内容为 “你好”。</p><pre><code class="lang-js">/* 选择范围写入 */
+const fs = require(&#39;fs&#39;);
+const buf = Buffer.from(&#39;你还好吗&#39;);
+
+// 打开文件
+fs.open(&#39;6.txt&#39;, &#39;r+&#39;, (err, fd) =&gt; {
+  // 读取 buf 向文件写入数据
+  fs.write(fd, buf, 3, 6, 3, (err, bytesWritten, buffer) =&gt; {
+    // 同步磁盘缓存
+    fs.fsync(fd, err =&gt; {
+      // 关闭文件
+      fs.close(fd, err =&gt; {
+        console.log(&#39;关闭文件&#39;);
+      });
+    });
+  });
+});
+
+// 这里为了看是否写入成功简单粗暴的使用 readFile 方法
+fs.readFile(&#39;6.txt&#39;, &#39;utf8&#39;, (err, data) =&gt; {
+  console.log(data);
+});
+
+// 你还好
+</code></pre><p>上面代码将 “你还好吗” 中间的 “还好” 从 Buffer 中读取出来写入到 <code>6.txt</code> 的 “你” 字之后，但是最后的 “好” 并没有被保留，说明先清空了文件中 “你” 字之后的内容再写入。</p><h3 id="针对大文件实现-copy"><a href="#针对大文件实现-copy" class="headerlink" title="针对大文件实现 copy"></a>针对大文件实现 copy</h3><p>之前我们使用 <code>readFile</code> 和 <code>writeFile</code> 实现了一个 <code>copy</code> 函数，那个 <code>copy</code> 函数是将被拷贝文件的数据一次性读取到内存，一次性从内存写入到目标文件中，主要针对小文件。</p><p>如果是一个大文件一次性读取到内存再写入非常占用计算机的内存，所以需要多次读取多次写入，也就是一边读一边写，接下来使用上面的这些高级方法针对大文件和文件大小未知的情况实现一个 <code>copy</code> 函数。</p><pre><code class="lang-js">/* 大文件拷贝 */
+// copy 方法
+function copy(src, dest, size = 16 * 1024, callback) {
+  // 打开源文件
+  fs.open(src, &#39;r&#39;, (err, readFd) =&gt; {
+    // 打开目标文件
+    fs.open(dest, &#39;w&#39;, (err, writeFd) =&gt; {
+      const buf = Buffer.alloc(size);
+      let readed = 0; // 下次读取文件的位置
+      let writed = 0; // 下次写入文件的位置
+
+      function next() {
+        // 读取
+        fs.read(readFd, buf, 0, size, readed, (err, bytesRead) =&gt; {
+          readed += bytesRead;
+
+          // 如果读不到内容关闭文件
+          if (!bytesRead) fs.close(readFd, err =&gt; console.log(&#39;关闭源文件&#39;));
+
+          // 写入
+          fs.write(writeFd, buf, 0, bytesRead, writed, (err, bytesWritten) =&gt; {
+            // 如果没有内容了同步缓存，并关闭文件后执行回调
+            if (!bytesWritten) {
+              fs.fsync(writeFd, err =&gt; {
+                fs.close(writeFd, err =&gt; return !err &amp;&amp; callback());
+              });
+            }
+            writed += bytesWritten;
+
+            // 继续读取、写入
+            next();
+          });
+        });
+      };
+
+      // 第一次执行读取写入
+      next()
+    });
+  });
+}
+</code></pre><p>在上面的 <code>copy</code> 方法中，我们手动维护的下次读取位置和下次写入位置，其实参数 <code>readed</code> 和 <code>writed</code> 的位置传入 <code>null</code>，<code>Node.js</code> 会自动帮我们维护这两个值。</p><p>现在有一个文件 <code>6.txt</code> 内容为 “你好”，一个空文件 <code>7.txt</code>，我们将 <code>6.txt</code> 的内容写入 <code>7.txt</code> 中。</p><pre><code class="lang-js">/* 验证大文件拷贝 */
+const fs = require(&#39;fs&#39;);
+
+// buffer 的长度
+const BUFFER_SIZE = 3;
+
+// 拷贝文件内容并写入
+copy(&#39;6.txt&#39;, &#39;7.txt&#39;, BUFFER_SIZE, () =&gt; {
+  fs.readFile(&#39;7.txt&#39;, &#39;utf8&#39;, (err, data) =&gt; {
+    // 拷贝完读取 7.txt 的内容
+    console.log(data); // 你好
+  });
+});
+</code></pre><blockquote class="pullquote default"><p><strong>在 <code>Node.js</code> 中进行文件操作，多次读取和写入时，一般一次读取数据大小为 <code>64k</code>，写入数据大小为 <code>16k</code>。</strong></p></blockquote><h2 id="文件目录操作方法"><a href="#文件目录操作方法" class="headerlink" title="文件目录操作方法"></a>文件目录操作方法</h2><blockquote class="pullquote info"><p><strong>下面的这些操作文件目录的方法有一个共同点，就是传入的第一个参数都为文件的路径，如：<code>a/b/c/d</code>，也分为同步和异步两种实现。</strong></p></blockquote><h3 id="查看文件目录操作权限"><a href="#查看文件目录操作权限" class="headerlink" title="查看文件目录操作权限"></a>查看文件目录操作权限</h3><h4 id="同步查看操作权限方法-accessSync"><a href="#同步查看操作权限方法-accessSync" class="headerlink" title="同步查看操作权限方法 accessSync"></a>同步查看操作权限方法 accessSync</h4><p><code>accessSync</code> 方法传入文件路径，检查传入路径下的目录是否可读可写，当有操作权限的时候没有返回值，没有权限或路径非法时抛出一个 <code>Error</code> 对象，所以使用时多用 <code>try...catch...</code> 进行异常捕获。</p><pre><code class="lang-js">/* 同步查看操作权限 */
+const fs = require(&#39;fs&#39;);
+
+try {
+  fs.accessSync(&#39;a/b/c&#39;);
+  console.log(&#39;可读可写&#39;);
+} catch (err) {
+  console.error(&#39;不可访问&#39;);
+}
+</code></pre><h4 id="异步查看操作权限方法-access"><a href="#异步查看操作权限方法-access" class="headerlink" title="异步查看操作权限方法 access"></a>异步查看操作权限方法 access</h4><p><code>access</code> 方法与第一个参数为文件路径，最后一个参数为一个回调函数，回调函数有一个参数为 <code>err</code>（错误），在权限检测后触发，如果有权限 <code>err</code> 为 <code>null</code>，没有权限或路径非法 <code>err</code> 是一个 <code>Error</code> 对象。</p><pre><code class="lang-js">/* 异步查看操作权限 */
+const fs = require(&#39;fs&#39;);
+
+fs.access(&#39;a/b/c&#39;, err =&gt; {
+  if (err) {
+    console.error(&#39;不可访问&#39;);
+  } else {
+    console.log(&#39;可读可写&#39;);
+  }
+});
+</code></pre><h3 id="获取文件目录的-Stats-对象"><a href="#获取文件目录的-Stats-对象" class="headerlink" title="获取文件目录的 Stats 对象"></a>获取文件目录的 Stats 对象</h3><p>文件目录的 <code>Stats</code> 对象存储着关于这个文件或文件夹的一些元信息，如创建时间、最后一次访问的时间、最后一次修改的时间、文章所占字节和判断文件类型的多个方法等等。</p><h4 id="同步获取-Stats-对象方法-statSync"><a href="#同步获取-Stats-对象方法-statSync" class="headerlink" title="同步获取 Stats 对象方法 statSync"></a>同步获取 Stats 对象方法 statSync</h4><p><code>statSync</code> 方法参数为文件路径，返回值为当前目录路径的 <code>Stats</code> 对象，现在通过 <code>Stats</code> 对象获取 <code>a</code> 目录下的 <code>b</code> 目录下的 <code>c.txt</code> 文件的字节大小，文件内容为 “你好”。</p><pre><code class="lang-js">/* 同步获取 Stats 对象 */
+const fs = require(&#39;fs&#39;);
+
+const statObj = fs.statSync(&#39;a/b/c.txt&#39;);
+console.log(statObj.size); // 6
+</code></pre><h4 id="异步获取-Stats-对象方法-stat"><a href="#异步获取-Stats-对象方法-stat" class="headerlink" title="异步获取 Stats 对象方法 stat"></a>异步获取 Stats 对象方法 stat</h4><p><code>stat</code> 方法的第一个参数为文件路径，最后一个参数为回调函数，回调函数有两个参数 <code>err</code>（错误）和 <code>Stats</code> 对象，在读取 <code>Stats</code> 后执行，同样实现上面的读取文件字节数的例子。</p><pre><code class="lang-js">/* 异步获取 Stats 对象 */
+const fs = require(&#39;fs&#39;);
+
+fs.stat(&#39;a/b/c.txt&#39;, (err, statObj) =&gt; {
+  console.log(statObj.size); // 6
+});
+</code></pre><h3 id="创建文件目录"><a href="#创建文件目录" class="headerlink" title="创建文件目录"></a>创建文件目录</h3><h4 id="同步创建目录方法-mkdirSync"><a href="#同步创建目录方法-mkdirSync" class="headerlink" title="同步创建目录方法 mkdirSync"></a>同步创建目录方法 mkdirSync</h4><p><code>mkdirSync</code> 方法参数为文件路径，没有返回值，在创建目录的过程中，必须保证传入的路径前面的文件目录都存在，否则会抛出异常。</p><pre><code class="lang-js">/* 同步创建文件目录 */
+const fs = require(&#39;fs&#39;);
+
+// 假设已经有了 a 文件夹和 a 下的 b 文件夹
+fs.mkdirSync(&#39;a/b/c&#39;);
+</code></pre><h4 id="异步创建目录方法-mkdir"><a href="#异步创建目录方法-mkdir" class="headerlink" title="异步创建目录方法 mkdir"></a>异步创建目录方法 mkdir</h4><p><code>mkdir</code> 方法的第一个参数为文件路径，最后一个参数为回调函数，回调函数有一个参数 <code>err</code>（错误），在执行创建操作后执行，同样需要路径前部分的文件夹都存在。</p><pre><code class="lang-js">/* 异步创建文件目录 */
+const fs = require(&#39;fs&#39;);
+
+// 假设已经有了 a 文件夹和 a 下的 b 文件夹
+fs.mkdir(&#39;a/b/c&#39;, err =&gt; {
+  if (!err) console.log(&#39;创建成功&#39;);
+});
+
+// 创建成功
+</code></pre><h3 id="读取文件目录"><a href="#读取文件目录" class="headerlink" title="读取文件目录"></a>读取文件目录</h3><h4 id="同步读取目录方法-readdirSync"><a href="#同步读取目录方法-readdirSync" class="headerlink" title="同步读取目录方法 readdirSync"></a>同步读取目录方法 readdirSync</h4><blockquote class="pullquote default"><p><strong><code>readdirSync</code> 方法有两个参数：</strong></p><ul><li><strong>第一个参数为文件路径，传入的路径前部分的目录必须存在，否则会报错；</strong></li><li><strong>第二个参数为 <code>options</code>，其中有 <code>encoding</code>（编码，默认值为 <code>utf8</code>），该参数也可直接传入 <code>encoding</code>；</strong></li><li><strong>返回值为一个存储文件目录中成员名称的数组。</strong></li></ul></blockquote><p>假设现在已经存在了 <code>a</code> 目录和 <code>a</code> 下的 <code>b</code> 目录，<code>b</code> 目录中有 <code>c</code> 目录和 <code>index.js</code> 文件，下面读取文件目录结构。</p><pre><code class="lang-js">/* 同步读取目录 */
+const fs = require(&#39;fs&#39;);
+
+const data = fs.readdirSync(&#39;a/b&#39;);
+console.log(data); // [ &#39;c&#39;, &#39;index.js&#39; ]
+</code></pre><h4 id="异步读取目录方法-readdir"><a href="#异步读取目录方法-readdir" class="headerlink" title="异步读取目录方法 readdir"></a>异步读取目录方法 readdir</h4><p><code>readdir</code> 方法的前两个参数与 <code>readdirSync</code> 相同，第三个参数为一个回调函数，回调函数有两个参数 <code>err</code>（错误）和 <code>data</code>（存储文件目录中成员名称的数组），在读取文件目录后执行。</p><p>上面案例异步的写法：</p><pre><code class="lang-js">/* 异步读取目录 */
+const fs = require(&#39;fs&#39;);
+
+fs.readdir(&#39;a/b&#39;, (err, data) =&gt; {
+  if (!err) console.log(data);
+});
+
+// [ &#39;c&#39;, &#39;index.js&#39; ]
+</code></pre><h3 id="删除文件目录"><a href="#删除文件目录" class="headerlink" title="删除文件目录"></a>删除文件目录</h3><blockquote class="pullquote warning"><p><strong>无论同步还是异步，删除文件目录时必须同时满足两个条件：</strong></p><ul><li><strong>保证文件目录的路径存在；</strong></li><li><strong>且被删除的文件目录为空，即不存在任何文件夹和文件。</strong></li></ul></blockquote><h4 id="同步删除目录方法-rmdirSync"><a href="#同步删除目录方法-rmdirSync" class="headerlink" title="同步删除目录方法 rmdirSync"></a>同步删除目录方法 rmdirSync</h4><p><code>rmdirSync</code> 的参数为要删除目录的路径，现在存在 <code>a</code> 目录和 <code>a</code> 目录下的 <code>b</code> 目录，删除 <code>b</code> 目录。</p><pre><code class="lang-js">/* 同步删除目录 */
+const fs = require(&#39;fs&#39;);
+
+fs.rmdirSync(&#39;a/b&#39;);
+</code></pre><h4 id="异步删除目录方法-rmdir"><a href="#异步删除目录方法-rmdir" class="headerlink" title="异步删除目录方法 rmdir"></a>异步删除目录方法 rmdir</h4><p><code>rmdir</code> 方法的第一个参数与 <code>rmdirSync</code> 相同，最后一个参数为回调函数，函数中存在一个参数 <code>err</code>（错误），在删除目录操作后执行。</p><pre><code class="lang-js">/* 异步删除目录 */
+const fs = require(&#39;fs&#39;);
+
+fs.rmdir(&#39;a/b&#39;, err =&gt; {
+  if (!err) console.log(&#39;删除成功&#39;);
+});
+
+// 删除成功
+</code></pre><h3 id="删除文件操作"><a href="#删除文件操作" class="headerlink" title="删除文件操作"></a>删除文件操作</h3><h4 id="同步删除文件方法-unlinkSync"><a href="#同步删除文件方法-unlinkSync" class="headerlink" title="同步删除文件方法 unlinkSync"></a>同步删除文件方法 unlinkSync</h4><p><code>unlinkSync</code> 的参数为要删除文件的路径，现在存在 <code>a</code> 目录和 <code>a</code> 目录下的 <code>index.js</code> 文件，删除 <code>index.js</code> 文件。</p><pre><code class="lang-js">/* 同步删除文件 */
+const fs = require(&#39;fs&#39;);
+
+fs.unlinkSync(&#39;a/inde.js&#39;);
+</code></pre><h4 id="异步删除文件方法-unlink"><a href="#异步删除文件方法-unlink" class="headerlink" title="异步删除文件方法 unlink"></a>异步删除文件方法 unlink</h4><p><code>unlink</code> 方法的第一个参数与 <code>unlinkSync</code> 相同，最后一个参数为回调函数，函数中存在一个参数 <code>err</code>（错误），在删除文件操作后执行。</p><pre><code class="lang-js">/* 异步删除文件 */
+const fs = require(&#39;fs&#39;);
+
+fs.unlink(&#39;a/index.js&#39;, err =&gt; {
+  if (!err) console.log(&#39;删除成功&#39;);
+});
+
+// 删除成功
+</code></pre><h2 id="实现递归创建目录"><a href="#实现递归创建目录" class="headerlink" title="实现递归创建目录"></a>实现递归创建目录</h2><blockquote class="pullquote success"><p><strong>我们创建一个函数，参数为一个路径，按照路径逐级的创建文件夹目录。</strong></p></blockquote><h3 id="同步的实现"><a href="#同步的实现" class="headerlink" title="同步的实现"></a>同步的实现</h3><pre><code class="lang-js">/* 递归删除文件目录 —— 同步 */
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 同步创建文件目录
+function mkPathSync(dirPath) {
+  // path.sep 文件路径分隔符（mac 与 windows 系统不同），转变成数组，如 [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]
+  const parts = dirPath.split(path.sep);
+  for (let i = 1; i &lt;= parts.length; i++) {
+    // 重新拼接成 a a/b a/b/c
+    const current = parts.slice(0, i).join(path.sep);
+
+    // accessSync 路径不存在则抛出错误在 catch 中创建文件夹，否则直接创建下一级
+    try {
+      fs.accessSync(current);
+    } catch(e) {
+      fs.mkdirSync(current);
+    }
+  }
+}
+
+// 创建文件目录
+mkPathSync(path.join(&#39;a&#39;, &#39;b&#39;, &#39;c&#39;));
+</code></pre><p>同步代码就是利用 <code>accessSync</code> 方法检查文件路径是否存在，利用 <code>try...catch...</code> 进行错误捕获，如果路径不存在，则会报错，会进入 <code>catch</code> 完成文件夹的创建。</p><h3 id="异步回调的实现"><a href="#异步回调的实现" class="headerlink" title="异步回调的实现"></a>异步回调的实现</h3><pre><code class="lang-js">/* 递归删除文件目录 —— 异步回调 */
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+function mkPathAsync(dirPath, callback) {
+  // 转变成数组，如 [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]
+  const parts = dirPath.split(path.sep);
+
+  // 创建文件夹方法
+  function next(index) {
+    // 重新拼接成 a a/b a/b/c
+    const current = parts.slice(0, index).join(path.sep);
+
+    // 如果路径检查成功说明已经有该文件目录，则继续创建下一级, 失败则创建目录，成功后递归 next 创建下一级
+    fs.access(current, err =&gt; {
+      if (err) {
+        fs.mkdir(current, () =&gt; next(++index));
+      } else {
+        next(++index);
+      }
+    });
+  }
+
+  // 第一次调用 index 值为 1，因为 slice 截取包前不包后
+  next(1);
+}
+
+// 创建文件目录
+mkPathAsync(path.join(&#39;a&#39;, &#39;b&#39;, &#39;c&#39;), () =&gt; {
+  console.log(&#39;创建文件目录完成&#39;)
+});
+
+// 创建文件目录完成
+</code></pre><p>上面方法中没有通过循环实现每次目录的拼接，而是通过递归内部函数 <code>next</code> 的方式并维护 <code>index</code> 变量来实现的，在使用 <code>access</code> 的时候成功说明文件目录已经存在，就继续递归创建下一级，如果存在 <code>err</code> 说明不存在，则创建文件夹。</p><h3 id="异步-async-await-的实现"><a href="#异步-async-await-的实现" class="headerlink" title="异步 async/await 的实现"></a>异步 async/await 的实现</h3><p>上面两种方式，同步会阻塞代码，性能不好，异步回调函数性能好，但嵌套多维护性差，我们想要具备性能好，代码可读性又好可以使用现在 <code>Node.js</code> 中正流行的 <code>async/await</code> 的方式进行异步编程，想了解 <code>async/await</code> 可以看 <a href="https://www.overtaking.top/20180615212040/" target="_blank">异步发展流程 —— 异步编程的终极大招 async/await</a> 这篇文章。</p><p>使用 <code>async</code> 函数中 <code>await</code> 等待的异步操作必须转换成 <code>Promise</code> 实例，<code>util</code> 模块下的 <code>promisify</code> 方法可以进行转换，其实 <code>promisify</code> 方法的原理也很简单，我们在实现递归创建文件目录之前先实现 <code>promisify</code> 方法。</p><pre><code class="lang-js">/* promisify 原理 */
+// 将一个异步方法转换成 Promise
+function promisify(fn) {
+  return function (...args) {
+    return new Promise((resolve, reject) =&gt; {
+      fn.call(null, ...args, (err, data) =&gt; {
+        err ? reject(err) : resolve(data);
+      });
+    });
+  }
+}
+</code></pre><p>其实 <code>promisify</code> 方法就是利用闭包来实现的，调用时传入一个需要转换成 <code>Promise</code> 的函数 <code>fn</code>，返回一个闭包函数，在闭包函数中返回一个 <code>Promise</code> 实例，并同步执行了 <code>fn</code>，通过 <code>call</code> 将闭包函数中的参数和回调函数作为参数传入了 <code>fn</code> 中，该回调存在错误的时候调用了 <code>Promise</code> 实例的 <code>reject</code>，否则调用 <code>resolve</code>；</p><pre><code class="lang-js">/* 递归删除文件目录 —— 异步 async/await */
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 将 fs 中用到的方法转换成 Promise
+const access = promisify(fs.access);
+const mkdir = promisify(fs.mkdir);
+
+// async/await 实现递归创建文件目录
+async function mkPath(dirPath) {
+  // 转变成数组，如 [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]
+  const parts = dirPath.split(path.sep);
+
+  for (let i = 1; i &lt;= parts.length; i++) {
+    // 重新拼接成 a a/b a/b/c
+    const current = parts.slice(0, i).join(path.sep);
+
+    // accessSync 路径不存在则抛出错误在 catch 中创建文件夹
+    try {
+      await access(current);
+    } catch(e) {
+      await mkdir(current);
+    }
+  }
+}
+
+// 创建文件目录
+mkPath(path.(&#39;a&#39;, &#39;b&#39;, &#39;c&#39;)).then(() =&gt; {
+  console.log(&#39;创建文件目录完成&#39;);
+});
+
+// 创建文件目录完成
+</code></pre><p>使用 <code>async/await</code> 的写法，代码更像同步的实现方式，却是异步执行，所以同时兼顾了性能和代码的可读性，优势显而易见，在使用 <code>Node.js</code> 框架 <code>Koa 2.x</code> 版本时大量使用这种方式进行异步编程。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>在 <code>fs</code> 所有模块都有同步异步两种实现，同步方法的特点就是阻塞代码，性能差，异步代码的特点就是回调函数嵌套多，在使用 <code>fs</code> 应尽量使用异步方式编程来保证性能，如果觉得回调函数嵌套不好维护，可以使用 <code>Promise</code> 或 <code>async/await</code> 的方式解决。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180630172601/" target="_blank" rel="external">https://www.overtaking.top/20180630172601/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fs/" rel="tag">fs</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180630172601/&title=《Node.js 文件操作 —— fs 基本使用》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180630172601/&title=《Node.js 文件操作 —— fs 基本使用》 — Shen's Blog&source=fs 概述在 Node.js 中，所有与文件操作都是通过 fs 核心模块来实现的，包括文件目录的创建、删除、查询以及文件的读取和写入，在 fs 模块中，所..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180630172601/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 文件操作 —— fs 基本使用》 — Shen's Blog&url=https://www.overtaking.top/20180630172601/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180630172601/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180702122923/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Node.js 树结构遍历 —— 深度优先和广度优先</h4></a></div><div class="waves-block waves-effect next"><a href="/20180629115313/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Node.js —— Buffer 解读</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180630172601/&title=《Node.js 文件操作 —— fs 基本使用》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180630172601/&title=《Node.js 文件操作 —— fs 基本使用》 — Shen's Blog&source=fs 概述在 Node.js 中，所有与文件操作都是通过 fs 核心模块来实现的，包括文件目录的创建、删除、查询以及文件的读取和写入，在 fs 模块中，所..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180630172601/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 文件操作 —— fs 基本使用》 — Shen's Blog&url=https://www.overtaking.top/20180630172601/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180630172601/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABxklEQVR42u3aO47DMAwFwNz/0tl2GymPpK0YwagyAkcauyD48esVr/e/tfplf+f++uKFi4s75r63a3XMiruiVPdc7o+Li3uQuz9yH4DyoJbs/8GGi4v7SG4SzpKUCBcX9ze4ydrffzSQ4eLijrnV43tdi+rj4eLifoubdynvu76lv4uLi9viToLOqOnZOx0XF/cItzdKSUYmkybLh1NwcXGPcPPh6Lw0yputuLi43+ImyUcv9FT3LGRkuLi4B7n5wCMfmfTKoWWww8XFPcJNws1k02pBVR6l4OLi3satFjN5ulMdzUavDBcX9yC3+vv+IasFT+FF4OLi3sydj1fzFCdPp5YPgIuLe4Q7yR+q49jefy9Ld3BxcQcpTi+clWe5rdQKFxf3JDdJLyaJyKRMKr9pXFzci7hXTWPKn1P0TsTFxT3IrRYhecirpi/lOTAuLu6l3HdxlYuTePQStV1wcXGPcCdHziNo8gpwcXG/xc2DVz5MzYul8n9xcXEPcvM2R/4JRTNqJt+M4OLiPpKbX/dGtksbLi7uI7nVyW3567D9Dri4uAe5efFTLXiqiVEUyHBxcW/mTkqRXnlTDWHN/i4uLm6H+wehtAEvwhr0xAAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

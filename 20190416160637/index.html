@@ -1,0 +1,1262 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>TypeScript 基础知识总结 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="TypeScript"><meta name="description" content="TypeScript 简介TypeScript 是由微软开发的开源编程语言（后面简称 TS），是 JavaScript 的超集（后面简称 JS），由于 JS 过于灵活，如果使用不当，在长期维护迭代的大型企业应用中，会存在潜在的 Bug 和风险，而 TS 更适合大型企业应用，是因为 TS 需要编译成 JS 运行，所以在编译阶段可以进行语法错误，类型错误检查，提前知道代码中潜在的问题，不至于等到代码运"><meta property="og:type" content="article"><meta property="og:title" content="TypeScript 基础知识总结"><meta property="og:url" content="https://www.overtaking.top/20190416160637/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="TypeScript 简介TypeScript 是由微软开发的开源编程语言（后面简称 TS），是 JavaScript 的超集（后面简称 JS），由于 JS 过于灵活，如果使用不当，在长期维护迭代的大型企业应用中，会存在潜在的 Bug 和风险，而 TS 更适合大型企业应用，是因为 TS 需要编译成 JS 运行，所以在编译阶段可以进行语法错误，类型错误检查，提前知道代码中潜在的问题，不至于等到代码运"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/TypeScript/20190416160637/typescript.jpeg"><meta property="og:image" content="https://static.overtaking.top/images/TypeScript/20190416160637/ts-js.png"><meta property="article:published_time" content="2019-04-16T08:06:37.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="TypeScript"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/TypeScript/20190416160637/typescript.jpeg"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">TypeScript 基础知识总结</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">TypeScript 基础知识总结</h1><h5 class="subtitle"><time datetime="2019-04-16T08:06:37.000Z" itemprop="datePublished" class="page-time">2019-04-16</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/TypeScript/">TypeScript</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#TypeScript-简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">TypeScript 简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#如何使用-TS"><span class="post-toc-number">2.</span> <span class="post-toc-text">如何使用 TS</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#安装"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">安装</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#编译"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">编译</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#TS-的数据类型"><span class="post-toc-number">3.</span> <span class="post-toc-text">TS 的数据类型</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#基本数据类型"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">基本数据类型</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#基本数据类型定义"><span class="post-toc-number">3.1.1.</span> <span class="post-toc-text">基本数据类型定义</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#数据类型-any"><span class="post-toc-number">3.1.2.</span> <span class="post-toc-text">数据类型 any</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#类型推论"><span class="post-toc-number">3.1.3.</span> <span class="post-toc-text">类型推论</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#基本包装类"><span class="post-toc-number">3.1.4.</span> <span class="post-toc-text">基本包装类</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#联合类型"><span class="post-toc-number">3.1.5.</span> <span class="post-toc-text">联合类型</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#类型断言"><span class="post-toc-number">3.1.6.</span> <span class="post-toc-text">类型断言</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#值的联合"><span class="post-toc-number">3.1.7.</span> <span class="post-toc-text">值的联合</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#数组"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">数组</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#元组"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">元组</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#对象"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">对象</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#枚举"><span class="post-toc-number">3.5.</span> <span class="post-toc-text">枚举</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#数字枚举"><span class="post-toc-number">3.5.1.</span> <span class="post-toc-text">数字枚举</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#字符串枚举"><span class="post-toc-number">3.5.2.</span> <span class="post-toc-text">字符串枚举</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#异构枚举"><span class="post-toc-number">3.5.3.</span> <span class="post-toc-text">异构枚举</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#常量枚举"><span class="post-toc-number">3.5.4.</span> <span class="post-toc-text">常量枚举</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#枚举成员"><span class="post-toc-number">3.5.5.</span> <span class="post-toc-text">枚举成员</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#函数"><span class="post-toc-number">3.6.</span> <span class="post-toc-text">函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#参数类型定义"><span class="post-toc-number">3.6.1.</span> <span class="post-toc-text">参数类型定义</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#返回值类型定义"><span class="post-toc-number">3.6.2.</span> <span class="post-toc-text">返回值类型定义</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#函数表达式"><span class="post-toc-number">3.6.3.</span> <span class="post-toc-text">函数表达式</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#函数重载"><span class="post-toc-number">3.6.4.</span> <span class="post-toc-text">函数重载</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#类"><span class="post-toc-number">4.</span> <span class="post-toc-text">类</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#类的定义"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">类的定义</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#存取器"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">存取器</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#参数属性"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">参数属性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#只读属性"><span class="post-toc-number">4.4.</span> <span class="post-toc-text">只读属性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#类的继承"><span class="post-toc-number">4.5.</span> <span class="post-toc-text">类的继承</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#访问控制修饰符"><span class="post-toc-number">4.6.</span> <span class="post-toc-text">访问控制修饰符</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#静态属性和方法"><span class="post-toc-number">4.7.</span> <span class="post-toc-text">静态属性和方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#抽象类"><span class="post-toc-number">4.8.</span> <span class="post-toc-text">抽象类</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#接口"><span class="post-toc-number">5.</span> <span class="post-toc-text">接口</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#接口的定义和使用"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">接口的定义和使用</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#接口的只读属性"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">接口的只读属性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#接口的可选属性"><span class="post-toc-number">5.3.</span> <span class="post-toc-text">接口的可选属性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#接口的未知属性"><span class="post-toc-number">5.4.</span> <span class="post-toc-text">接口的未知属性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#接口的继承"><span class="post-toc-number">5.5.</span> <span class="post-toc-text">接口的继承</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#函数型接口"><span class="post-toc-number">5.6.</span> <span class="post-toc-text">函数型接口</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#构造函数型接口"><span class="post-toc-number">5.7.</span> <span class="post-toc-text">构造函数型接口</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#泛型"><span class="post-toc-number">6.</span> <span class="post-toc-text">泛型</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#泛型函数"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">泛型函数</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#泛型类"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">泛型类</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#泛型接口"><span class="post-toc-number">6.3.</span> <span class="post-toc-text">泛型接口</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#默认泛型类型"><span class="post-toc-number">6.4.</span> <span class="post-toc-text">默认泛型类型</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#定义多个泛型"><span class="post-toc-number">6.5.</span> <span class="post-toc-text">定义多个泛型</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#泛型的约束"><span class="post-toc-number">6.6.</span> <span class="post-toc-text">泛型的约束</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#泛型的继承"><span class="post-toc-number">6.7.</span> <span class="post-toc-text">泛型的继承</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#泛型的流程控制"><span class="post-toc-number">6.8.</span> <span class="post-toc-text">泛型的流程控制</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#泛型的别名"><span class="post-toc-number">6.9.</span> <span class="post-toc-text">泛型的别名</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#结构类型系统"><span class="post-toc-number">7.</span> <span class="post-toc-text">结构类型系统</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#基本数据类型的兼容性"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">基本数据类型的兼容性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#枚举的兼容性"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">枚举的兼容性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#函数的兼容性"><span class="post-toc-number">7.3.</span> <span class="post-toc-text">函数的兼容性</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#参数的兼容性"><span class="post-toc-number">7.3.1.</span> <span class="post-toc-text">参数的兼容性</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#参数的双向协变"><span class="post-toc-number">7.3.2.</span> <span class="post-toc-text">参数的双向协变</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#返回值的兼容性"><span class="post-toc-number">7.3.3.</span> <span class="post-toc-text">返回值的兼容性</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#类的兼容性"><span class="post-toc-number">7.4.</span> <span class="post-toc-text">类的兼容性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#接口的兼容性"><span class="post-toc-number">7.5.</span> <span class="post-toc-text">接口的兼容性</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#比较属性的兼容性"><span class="post-toc-number">7.5.1.</span> <span class="post-toc-text">比较属性的兼容性</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#鸭式变形法"><span class="post-toc-number">7.5.2.</span> <span class="post-toc-text">鸭式变形法</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#可索引接口的兼容性"><span class="post-toc-number">7.5.3.</span> <span class="post-toc-text">可索引接口的兼容性</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#泛型的兼容性"><span class="post-toc-number">7.6.</span> <span class="post-toc-text">泛型的兼容性</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#类型保护"><span class="post-toc-number">8.</span> <span class="post-toc-text">类型保护</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#typeof-和-instanceof-类型保护"><span class="post-toc-number">8.1.</span> <span class="post-toc-text">typeof 和 instanceof 类型保护</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#null-类型保护"><span class="post-toc-number">8.2.</span> <span class="post-toc-text">null 类型保护</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#链判断运算符"><span class="post-toc-number">8.3.</span> <span class="post-toc-text">链判断运算符</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#可辨识的联合类型"><span class="post-toc-number">8.4.</span> <span class="post-toc-text">可辨识的联合类型</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#in-操作符"><span class="post-toc-number">8.5.</span> <span class="post-toc-text">in 操作符</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#自定义类型保护"><span class="post-toc-number">8.6.</span> <span class="post-toc-text">自定义类型保护</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#类型变换"><span class="post-toc-number">9.</span> <span class="post-toc-text">类型变换</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#交叉类型"><span class="post-toc-number">9.1.</span> <span class="post-toc-text">交叉类型</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#typeof-获取类型"><span class="post-toc-number">9.2.</span> <span class="post-toc-text">typeof 获取类型</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#索引访问操作符"><span class="post-toc-number">9.3.</span> <span class="post-toc-text">索引访问操作符</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#keyof"><span class="post-toc-number">9.4.</span> <span class="post-toc-text">keyof</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#映射类型"><span class="post-toc-number">9.5.</span> <span class="post-toc-text">映射类型</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#内置工具类型"><span class="post-toc-number">10.</span> <span class="post-toc-text">内置工具类型</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Partial"><span class="post-toc-number">10.1.</span> <span class="post-toc-text">Partial</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Required"><span class="post-toc-number">10.2.</span> <span class="post-toc-text">Required</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Readonly"><span class="post-toc-number">10.3.</span> <span class="post-toc-text">Readonly</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Pick"><span class="post-toc-number">10.4.</span> <span class="post-toc-text">Pick</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#内置条件类型"><span class="post-toc-number">10.5.</span> <span class="post-toc-text">内置条件类型</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Exclude"><span class="post-toc-number">10.5.1.</span> <span class="post-toc-text">Exclude</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Extract"><span class="post-toc-number">10.5.2.</span> <span class="post-toc-text">Extract</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#NonNullable"><span class="post-toc-number">10.5.3.</span> <span class="post-toc-text">NonNullable</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#ReturnType"><span class="post-toc-number">10.5.4.</span> <span class="post-toc-text">ReturnType</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#InstanceType"><span class="post-toc-number">10.5.5.</span> <span class="post-toc-text">InstanceType</span></a></li></ol></li></ol></li></ol></nav></aside><article id="post-TypeScript/20190416160637" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">TypeScript 基础知识总结</h1><div class="post-meta"><time class="post-time" title="2019-04-16 16:06:37" datetime="2019-04-16T08:06:37.000Z" itemprop="datePublished">2019-04-16</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/TypeScript/">TypeScript</a></li></ul><span class="stick-container"><i class="icon icon-thumb-tack icon-pr"></i><span class="stick">置顶</span></span> <span id="/20190416160637/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="TypeScript 基础知识总结"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/TypeScript/20190416160637/typescript.jpeg" title="Typescript"><p><br></p><h2 id="TypeScript-简介"><a href="#TypeScript-简介" class="headerlink" title="TypeScript 简介"></a>TypeScript 简介</h2><blockquote class="pullquote info"><p><strong><code>TypeScript</code> 是由微软开发的开源编程语言（后面简称 <code>TS</code>），是 <code>JavaScript</code> 的超集（后面简称 <code>JS</code>），由于 <code>JS</code> 过于灵活，如果使用不当，在长期维护迭代的大型企业应用中，会存在潜在的 <code>Bug</code> 和风险，而 <code>TS</code> 更适合大型企业应用，是因为 <code>TS</code> 需要编译成 <code>JS</code> 运行，所以在编译阶段可以进行语法错误，类型错误检查，提前知道代码中潜在的问题，不至于等到代码运行时报错。</strong></p></blockquote><a id="more"></a><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/TypeScript/20190416160637/ts-js.png" alt="TypeScript 与 JavaScript 关系图"></div><div class="image-caption">TypeScript 与 JavaScript 关系图</div></figure><p><br></p><p><code>TS</code> 是前端开发工程化新的趋势，目前很多的开源项目内部都是用 <code>TS</code> 编写，也有很多大牛在推广 <code>TS</code>，目前使用 <code>TS</code> 开发的典型项目有 <code>VSCode</code>、<code>Angular6</code>、<code>Vue3</code> 和 <code>React16</code> 等。</p><h2 id="如何使用-TS"><a href="#如何使用-TS" class="headerlink" title="如何使用 TS"></a>如何使用 TS</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>在使用 <code>TS</code> 之前应该先进行全局安装，安装 <code>TS</code> 的命令：</p><pre><code class="lang-bash">$ npm install typescript -g
+</code></pre><p>全局安装后会提供 <code>tsc</code> 命令，<code>tsc -v</code> 可以查看当前安装 <code>TS</code> 版本。</p><h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><p>我们可以通过命令单独对文件进行编译，也可以编译整个项目的 <code>TS</code> 文件。</p><p><strong>编译单个文件：</strong></p><pre><code class="lang-bash">$ tsc &lt;filename&gt;
+</code></pre><blockquote class="pullquote danger"><p><strong>块级作用域变量名检测，两个文件（无论 <code>JS</code> 还是 <code>TS</code>）不允许有相同的变量名。</strong></p></blockquote><p>编译整个项目的 <code>TS</code> 文件需要在项目中设置 <code>tsconfig.json</code> 的配置文件，快速生成配置文件命令如下：</p><pre><code class="lang-bash">tsc --init
+</code></pre><p>生成 <code>TS</code> 配置文件以后，编译命令 <code>tsc</code> 不需要再指定文件名，会默认读取 <code>tsconfig.json</code> 文件的配置进行编译，关于 <code>tsconfig.json</code> 属性详解请看（<code>TO DO</code>）。</p><p>当 <code>TS</code> 文件发生变化时，可以通过 <code>--watch</code> 参数进行实时监听，并当 <code>TS</code> 文件变化时实时编译，也可以把命令配置在 <code>package.json</code> 中通过 <code>npm</code> 执行。</p><pre><code class="lang-json">/* package.json 文件 */
+{
+  &quot;scripts&quot;: {
+    &quot;build&quot;: &quot;tsc&quot;,
+    &quot;start&quot;: &quot;tsc --watch&quot;
+  }
+}
+</code></pre><h2 id="TS-的数据类型"><a href="#TS-的数据类型" class="headerlink" title="TS 的数据类型"></a>TS 的数据类型</h2><p>在 <code>TS</code> 中提供了强大的类型系统，编译时帮助我们对代码中定义的数据类型和值进行检查，如果使用支持 <code>TS</code> 比较好的编辑器，如 <code>VSCode</code>，可以在代码编写时根据智能提示及时发现错误。</p><h3 id="基本数据类型"><a href="#基本数据类型" class="headerlink" title="基本数据类型"></a>基本数据类型</h3><h4 id="基本数据类型定义"><a href="#基本数据类型定义" class="headerlink" title="基本数据类型定义"></a>基本数据类型定义</h4><p><code>TS</code> 中包含了 <code>JS</code>，所以 <code>TS</code> 也有 <code>6</code> 种基本数据类型，<code>string</code>、<code>number</code>、<code>boolean</code>、<code>undefined</code>、<code>null</code>、<code>symbol</code>。</p><pre><code class="lang-ts">let name: string = &#39;panda&#39;;
+let age: number = 18;
+let merried: boolean = false;
+let un: undefined = undefined;
+let nu: null = null;
+let sym: symbol = Symbol();
+</code></pre><p>上面声明变量的值与所定义的数据类型必须严格符合，否则编译时报错（编辑器默认就会报错，后面统一说成报错）。</p><blockquote class="pullquote warning"><p><strong><code>undefined</code> 和 <code>null</code> 是其他基本类型的子类型：</strong></p><ul><li><strong>类型定义为 <code>undefined</code> 的变量只能赋值 <code>undefined</code>；</strong></li><li><strong>类型定义为 <code>null</code> 的变量只能赋值 <code>null</code>；</strong></li><li><strong>类型定义为除 <code>undefined</code> 和 <code>null</code> 以外的其他类型，可以赋值为 <code>undefined</code> 和 <code>null</code>。</strong></li></ul></blockquote><pre><code class="lang-ts">/* 默认会报错 */
+let name: string = undefined;
+let age: number = null;
+</code></pre><p>其他类型的赋值也必须严格与其定义相对应（默认行为，也被叫做严格类型检查模式），可以通过配置 <code>tsconfig.json</code> 文件 <code>compilerOptions</code> 的 <code>strictNullChecks</code> 属性值为 <code>false</code> 跳过严格检查。</p><pre><code class="lang-json">/* tsconfig.json 文件 */
+{
+  &quot;compilerOptions&quot;: {
+    &quot;strictNullChecks&quot;: false
+  }
+}
+</code></pre><h4 id="数据类型-any"><a href="#数据类型-any" class="headerlink" title="数据类型 any"></a>数据类型 any</h4><p>希望定义的数据类型可以赋值任何类型的值，可以将数据类型定义为 <code>any</code>，这样相当于没有使用类型校验，等同于直接使用 <code>JS</code>（戏称 <code>AnyScript</code>）。</p><pre><code class="lang-ts">let value: any = 18;
+value = &#39;hello world&#39;;
+value = true;
+value = null;
+value = undefined;
+value = Symbol();
+</code></pre><blockquote class="pullquote default"><p><strong>上面代码中的赋值操作不会报任何错误，因为变量的值类型定义为了 <code>any</code>。</strong></p></blockquote><h4 id="类型推论"><a href="#类型推论" class="headerlink" title="类型推论"></a>类型推论</h4><p>在 <code>TS</code> 中，如果定义的变量没有定义类型，则会对变量的类型进行推测，同样可以在代码编译阶段按照推测的类型校验。</p><pre><code class="lang-js">let num = 10;
+num = &#39;hello&#39;; // 报错，不能将类型“&quot;hello&quot;”分配给类型“number”
+
+let str = &#39;world&#39;;
+str = 1; // 报错，不能将类型“1”分配给类型“string”
+
+let value; // let value: any
+</code></pre><blockquote class="pullquote primary"><p><strong>类型推论规则：</strong></p><ul><li><strong>从报错的结果可以看出，<code>TS</code> 中声明变量如果没有指定值的类型，则会默认将声明变量时赋值数据的类型定义为该变量的值类型；</strong></li><li><strong>当声明变量没有直接赋值时，<code>TS</code> 会将变量的值类型定义为 <code>any</code>。</strong></li></ul></blockquote><h4 id="基本包装类"><a href="#基本包装类" class="headerlink" title="基本包装类"></a>基本包装类</h4><p><code>TS</code> 也包含基本包装类，基本数据类型是没有方法的（只有对象可以调用对应原型上的方法），在基本数据类型调用方法时是先进行包装过程，把基本类型包装成对象类型。</p><pre><code class="lang-ts">/* 基本数据类型调用方法的包装 */
+let num = 10;
+num.toFixed(2);
+
+// new Number(num).toFixed(2);
+</code></pre><h4 id="联合类型"><a href="#联合类型" class="headerlink" title="联合类型"></a>联合类型</h4><p>有些时候定义的变量在不同场景会赋不同类型的值，我们想要指定这个变量只接受某几个固定类型的值，可以使用联合类型的方式。</p><pre><code class="lang-ts">/* 联合类型 */
+let value: string | number = &#39;hello&#39;;
+value = 10;
+value = true; // 报错
+</code></pre><p>被定义联合类型的变量可以指定符合联合类型中任意一种类型的值，定义时不同的数据类型用 <code>|</code> 隔开，当被赋值不符合联合类型时会报错。</p><blockquote class="pullquote warning"><p><strong>上面联合类型的写法如果多处相同会让代码冗余，在 <code>TS</code> 中提供了 <code>type</code> 关键字来声明类型，用法如下。</strong></p></blockquote><pre><code class="lang-ts">// 冗余的写法
+let x: string | number | boolean = &#39;hello&#39;;
+let y: string | number | boolean = 10;
+let z: string | number | boolean = true;
+
+// 更改后...
+type MyType = string | number | boolean;
+let x: MyType = &#39;hello&#39;;
+let y: MyType = 10;
+let z: MyType = true;
+</code></pre><h4 id="类型断言"><a href="#类型断言" class="headerlink" title="类型断言"></a>类型断言</h4><p>被定义联合类型的变量可以通过类型断言指定为更具体的类型，不可以指定联合类型中不包含的类型。</p><pre><code class="lang-ts">let value: string | number | boolean;
+value = &#39;hello&#39;;
+value = 10;
+value = true;
+
+console.log((value as string).length); // 报错
+</code></pre><p>断言的语法是将变量使用 <code>as</code> 关键字指定要断言的类型，上面代码中因为变量 <code>value</code> 值最后已经是布尔，而强行将 <code>value</code> 指定为 <code>string</code> 类型去获取 <code>length</code> 属性报错，因为布尔值无法调用 <code>length</code> 属性。</p><h4 id="值的联合"><a href="#值的联合" class="headerlink" title="值的联合"></a>值的联合</h4><p>值的联合（又叫字面量联合）与联合类型不同的是，联合类型只是指定了变量的值类型必须为哪几种，而值的联合则限定了变量的值，变量赋值必须是值的联合中的其中某一个，否则报错。</p><pre><code class="lang-ts">let point: 1 | 6 | 10;
+point = 10;
+point = &#39;hello&#39;; // 报错
+
+let level: &#39;A&#39; | &#39;B&#39; | &#39;C&#39;;
+level = &#39;B&#39;;
+level = &#39;b&#39;; // 报错
+</code></pre><h3 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h3><p>在 <code>TS</code> 中，数组是引用类型，定义一个数组类型时需要定义数组内部元素的类型。</p><pre><code class="lang-ts">/* 普通数组类型定义 */
+let names: string[] = [&#39;Jim&#39;, &#39;Peter&#39;];
+let ages: number[] = [18, 20];
+</code></pre><pre><code class="lang-ts">/* 泛型定义（泛型会在后面详细说明） */
+let names: Array&lt;string&gt; = [&#39;Jim&#39;, &#39;Peter&#39;];
+let ages: Array&lt;number&gt; = [18, 20];
+</code></pre><p>上面两种方式定义的数组内元素类型必须统一，如果数组内要支持多种数据类型则可以使用联合类型或元组类型。</p><pre><code class="lang-ts">let data: Array&lt;string | number&gt; = [&#39;James&#39;, 25];
+</code></pre><h3 id="元组"><a href="#元组" class="headerlink" title="元组"></a>元组</h3><p>如果让数组内部元素类型不同该怎么办，在 <code>TS</code> 中有一种特殊的数组类型定义叫做 “元组类型”（<code>tuple</code>）。</p><pre><code class="lang-ts">/* 元组类型定义 */
+let people: [string, number] = [&#39;Jim&#39;, 18];
+</code></pre><p><strong>元组的越界问题：</strong></p><pre><code class="lang-ts">let tuple: [string, number] = [&#39;hello&#39;, 100];
+
+tuple.push(false);
+console.log(tuple); // [&#39;hello&#39;, 100, false]
+tuple[2] // 报错
+</code></pre><p>元组类型可以越界添加元素，如使用数组的 <code>push</code> 方法，但是访问越界元素会报错，强烈不建议让元组越界。</p><p><strong>元组类型和数组类型的特点如下表：</strong></p><div class="table-container"><table><thead><tr><th style="text-align:left">元组</th><th style="text-align:left">数组</th></tr></thead><tbody><tr><td style="text-align:left">元素可以是不同类型</td><td style="text-align:left">元素必须为相同类型</td></tr><tr><td style="text-align:left">有预定的长度</td><td style="text-align:left">没有预定的长度</td></tr><tr><td style="text-align:left">用于表示一个结构</td><td style="text-align:left">用于表示一个列表</td></tr></tbody></table></div><p><br></p><h3 id="对象"><a href="#对象" class="headerlink" title="对象"></a>对象</h3><p><code>TS</code> 可以通过 <code>object</code> 来声明对象类型。</p><pre><code class="lang-ts">let obj: object = {x: 1, y: 2};
+obj.x = 3; // 报错
+</code></pre><p>用 <code>object</code> 类型并不能定义对象上具体属性的类型，所以对 <code>x</code> 属性重新赋值会报错，也可以在创建对象时直接定义属性的类型如下：</p><pre><code class="lang-ts">let obj: {x: number, y: number} = {x: 1, y: 2};
+obj.x = 3
+</code></pre><blockquote class="pullquote info"><p><strong>对象类型内部成员的类型很少使用上面的方式，通常使用接口（后面介绍）进行定义。</strong></p></blockquote><h3 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h3><p>枚举类型是 <code>JS</code> 中所不包含的数据类型，通过 <code>enum</code> 关键字定义，在业务需求中经常会出现某个业务类型对应固定的值，前后端交互的参数都是通过这个值进行约束和传递的。</p><h4 id="数字枚举"><a href="#数字枚举" class="headerlink" title="数字枚举"></a>数字枚举</h4><pre><code class="lang-ts">enum Gender {
+  BOY,
+  GIRL
+}
+</code></pre><pre><code class="lang-js">/* 编译后 */
+var Gender;
+(function (Gender) {
+  Gender[Gender[&quot;BOY&quot;] = 0] = &quot;BOY&quot;;
+  Gender[Gender[&quot;GIRL&quot;] = 1] = &quot;GIRL&quot;;
+})(Gender || (Gender = {}));
+</code></pre><p>从编译结果来看，枚举类型编译成 <code>JS</code> 后帮助我们创建了一个类似于映射表的同名对象（实现原理，反向映射），所以可以在 <code>TS</code> 中通过对象属性的方式获取枚举的值。</p><pre><code class="lang-ts">/* 获取枚举值 */
+console.log(Gender.BOY); // 0
+console.log(Gender[1]); // &quot;GIRL&quot;
+</code></pre><blockquote class="pullquote success"><p><strong>如果给第一个枚举值设置数值类型的初始值，则后面的枚举值会依次递增。</strong></p></blockquote><h4 id="字符串枚举"><a href="#字符串枚举" class="headerlink" title="字符串枚举"></a>字符串枚举</h4><pre><code class="lang-ts">enum Week {
+  MONDAY = &#39;1&#39;,
+  TUESDAY = &#39;2&#39;
+}
+</code></pre><pre><code class="lang-js">/* 编译后 */
+var Week;
+(function (Week) {
+  Week[&quot;MONDAY&quot;] = &quot;1&quot;;
+  Week[&quot;TUESDAY&quot;] = &quot;2&quot;;
+})(Week || (Week = {}));
+</code></pre><p>字符串枚举是在枚举过程中给枚举项明确赋值，值类型为字符串类型。</p><h4 id="异构枚举"><a href="#异构枚举" class="headerlink" title="异构枚举"></a>异构枚举</h4><p>异构枚举是将数字枚举和字符串枚举混合使用（容易引起混淆，不建议使用）。</p><pre><code class="lang-ts">enum Answer {
+  N,
+  Y = &#39;Yes&#39;
+}
+</code></pre><h4 id="常量枚举"><a href="#常量枚举" class="headerlink" title="常量枚举"></a>常量枚举</h4><p>常量枚举的语法是在创建枚举的 <code>enum</code> 关键字前使用 <code>const</code> 声明。</p><pre><code class="lang-ts">const enum Colors {
+  RED,
+  YELLOW,
+  BLUE
+}
+
+let colors: Array&lt;number&gt; = [Colors.RED, Colors.YELLOW, Colors.BLUE];
+</code></pre><pre><code class="lang-js">/* 编译后 */
+var colors = [0 /* RED */, 1 /* YELLOW */, 2 /* BLUE */];
+</code></pre><blockquote class="pullquote success"><p><strong>常数枚举与其他类型枚举的不同是，在编译阶段不会为枚举的类型创建对象，使用枚举类型值的位置直接编译成对应的枚举值。</strong></p></blockquote><h4 id="枚举成员"><a href="#枚举成员" class="headerlink" title="枚举成员"></a>枚举成员</h4><blockquote class="pullquote warning"><p><strong>枚举成员主要分为两类：</strong></p><ul><li><strong><code>const member</code>：以编译阶段计算结果，以常量的形式出现在运行时环境；</strong><ul><li><strong>没有初始值的枚举值；</strong></li><li><strong>对已有枚举成员的引用；</strong></li><li><strong>常量的表达式。</strong></li></ul></li><li><strong><code>computed member</code>：编译阶段不会计算，会被保留在程序的执行阶段。</strong><ul><li><strong>动态计算的表达式；</strong></li><li><strong>后面的枚举值必须赋值初始值。</strong></li></ul></li></ul></blockquote><pre><code class="lang-ts">enum Char {
+  // const member
+  a, // 无初始值
+  b = Char.a, // 对已有成员的引用
+  c = 1 + 2, // 常量表达式
+  // computed member
+  d = Math.random(),
+  e = &#39;123&#39;.length,
+}
+</code></pre><pre><code class="lang-ts">Char.a = 1 // 报错
+</code></pre><blockquote class="pullquote warning"><p><strong>枚举成员的值为只读类型，在定义后不能重新赋值。</strong></p></blockquote><h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><h4 id="参数类型定义"><a href="#参数类型定义" class="headerlink" title="参数类型定义"></a>参数类型定义</h4><pre><code class="lang-ts">function sum(a: number, b: number) {
+  return a + b;
+}
+
+sum(1, 2); // 3
+</code></pre><p>在函数中经常会定义可选参数，即非必传，但是 <code>TS</code> 中函数如果按照上面方式定义在调用时不传会报错，可选参数的类型定义如下。</p><pre><code class="lang-ts">/* 可选参数 */
+function people(name: string, age?: number) {
+  console.log(name);
+}
+
+people(&#39;jim&#39;);
+</code></pre><p>使用 <code>?:</code> 替代 <code>:</code>，即代表该参数为可选参数，在 <code>TS</code> 中也支持使用默认参数和剩余参数，使用方式如下。</p><pre><code class="lang-ts">/* 默认参数 */
+function fn(sum: number = 0) {
+  console.log(sum);
+}
+
+fn(); // 0
+</code></pre><pre><code class="lang-ts">/* 剩余参数 */
+function sum(prefix: string, ...args: number[]) {
+  return prefix + args.reduce((sum, val) =&gt; sum + val, 0);
+}
+
+sum(&#39;$&#39;, 1, 2, 3); // 6
+</code></pre><p>在使用默认参数和剩余参数时，设置的参数初始值和传入的剩余参数与定义类型不符合，则会报错。</p><h4 id="返回值类型定义"><a href="#返回值类型定义" class="headerlink" title="返回值类型定义"></a>返回值类型定义</h4><pre><code class="lang-ts">function sum(a: number, b: number): number {
+  return a + b;
+}
+</code></pre><blockquote class="pullquote danger"><p><strong>特殊的返回值类型：</strong></p><ul><li><strong><code>never</code>：是其他类型的子类型，代表不会出现的值，作为没有返回值的返回类型，函数无法执行完成；</strong></li><li><strong><code>void</code>：表示没有任何类型，指函数没有返回值，函数可以正常执行完，如果一个函数没有返回值，则 <code>TS</code> 认为返回值为 <code>void</code> 类型。</strong></li></ul></blockquote><pre><code class="lang-ts">/* never 为返回值类型的函数 */
+function fn1(): nerver {
+  throw new Error(&#39;报错了&#39;);
+  console.log(1);
+}
+
+function fn2(): nerver {
+  while (true) {}
+  console.log(1);
+}
+</code></pre><p>上面两个函数返回值设置为 <code>never</code>，因为抛错和死循环导致都没有执行完毕，此时函数编译不会报错。</p><pre><code class="lang-ts">/* void 为返回值类型的函数 */
+function fn1(): void {
+  console.log(1);
+}
+
+function fn2(): void {
+  return null;
+}
+</code></pre><p>上面的 <code>fn2</code> 函数只在非严格检查模式下不会报错，非严格检查模式下返回值类型被定义为 <code>void</code> 的函数可以返回 <code>null</code> 和 <code>undefined</code>。</p><h4 id="函数表达式"><a href="#函数表达式" class="headerlink" title="函数表达式"></a>函数表达式</h4><p>之前的函数参数和返回值类型定义是函数声明的方式，声明函数同样有另外一种方式，函数表达式，即给变量赋值为函数，那如何为接收函数的变量定义类型呢？</p><pre><code class="lang-ts">let fullName: (x: string, y: string) =&gt; string;
+
+fullName = function (firstName:string, lastName:string): string {
+  return firstName + lastName;
+}
+</code></pre><p>括号中 <code>x</code> 和 <code>y</code> 代表定义参数的类型，箭头后代表定义返回值的类型，也可以使用 <code>type</code> 关键字进行声明。</p><pre><code class="lang-ts">type Fn = (x: string, y: string) =&gt; string;
+
+let fullName: Fn = function (firstName: string, lastName: string): string {
+  return firstName + lastName;
+}
+</code></pre><blockquote class="pullquote info"><p><strong>赋值函数的参数类型必须与变量声明的函数参数类型严格一致，赋值函数的返回值类型必须与变量声明的函数返回值类型严格一致。</strong></p></blockquote><h4 id="函数重载"><a href="#函数重载" class="headerlink" title="函数重载"></a>函数重载</h4><p>函数重载是强类型语言中的特性，在 <code>Java</code> 中代表多个同名函数参数不相同，而在 <code>TS</code> 中有所不同，代表为同一个函数提供多个参数类型及返回值定义。</p><pre><code class="lang-ts">// 联合类型
+type MyType = string | number | boolean
+
+// 重载限定函数 double
+function double(val: string): string;
+function double(val: number): number;
+function double(val: boolean): boolean;
+
+// 函数
+function double(val: MyType) {
+  if (typeof val === &#39;string&#39;) return val + val;
+  if (typeof val === &#39;number&#39;) return 2 * val;
+  if (typeof val === &#39;boolean&#39;) return !val;
+}
+
+double(&#39;hello&#39;); // hellohello
+double(5); // 10
+double(true); // false
+</code></pre><p>重载限定某个函数的方式只有函数声明、函数名、参数及返回值的类型，而没有函数体。</p><h2 id="类"><a href="#类" class="headerlink" title="类"></a>类</h2><h3 id="类的定义"><a href="#类的定义" class="headerlink" title="类的定义"></a>类的定义</h3><p><code>TS</code> 类的定义与 <code>JS</code> 相同，使用 <code>class</code> 关键字声明，但可以直接对属性、方法定义参数类型和返回值类型。</p><pre><code class="lang-ts">class Person {
+  name: string
+  getName(): void {
+    console.log(this.name)
+  }
+}
+
+let p = new Person();
+p.name = &#39;neil&#39;;
+p.getName(); // neil
+</code></pre><h3 id="存取器"><a href="#存取器" class="headerlink" title="存取器"></a>存取器</h3><p>在 <code>TS</code> 中，我们可以通过存取器来改变一个类中属性的读取和赋值行为，并可以定义存取器的参数及返回值类型。</p><pre><code class="lang-ts">class Person {
+  myName: string,
+  constructor(myName: string) {
+    this.myName = myName;
+  }
+  get name(): string {
+    return this.myName;
+  }
+  set name(newVal: string) {
+    this.myName = newVal;
+  }
+}
+
+let p = new Person(&#39;neil&#39;);
+console.log(p.name); // neil
+
+p.name = &#39;jim&#39;;
+console.log(p.name); // jim
+</code></pre><h3 id="参数属性"><a href="#参数属性" class="headerlink" title="参数属性"></a>参数属性</h3><p>上面都在类中定义属性，也可以使用参数属性进行简化，代码如下。</p><pre><code class="lang-ts">/* 简化前 */
+class Person {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+</code></pre><pre><code class="lang-ts">/* 简化后 */
+class Person {
+  constructor(public myName: string) {}
+}
+
+let p = new Person(&#39;neil&#39;);
+console.log(p.myName); // neil
+</code></pre><p><code>public</code> 修饰符写在 <code>constructor</code> 的参数前，代表创建一个与参数同名的公有属性。</p><h3 id="只读属性"><a href="#只读属性" class="headerlink" title="只读属性"></a>只读属性</h3><p>在 <code>TS</code> 中可以在类中定义只读属性，只需要通过 <code>readonly</code> 修饰符修饰即可，只在编译阶段进行检查。</p><pre><code class="lang-ts">class Person {
+  constructor(public readonly myName: string) {
+    this.myName = myName;
+  }
+}
+
+let p = new Person(&#39;neil&#39;);
+console.log(p.myName); // neil
+p.myName = &#39;jim&#39;; // 报错
+</code></pre><blockquote class="pullquote warning"><p><strong>不同类别的（非互斥）的修饰符可以同时修饰一个变量，使用空格隔开。</strong></p></blockquote><h3 id="类的继承"><a href="#类的继承" class="headerlink" title="类的继承"></a>类的继承</h3><p>类与类之间通过 <code>extends</code> 关键字实现继承，子类继承父类后拥有父类的属性和方法，可以增强代码的复用性。</p><pre><code class="lang-ts">// 父类
+class Parent {
+  name: string;
+  age: number;
+  constructor(name: string, age: number) {
+    this.name = name;
+    this.age = age;
+  }
+  getName(): string {
+    return this.name;
+  }
+  setName(name: string): void {
+    this.name = name;
+  }
+}
+
+// 子类继承父类
+class Child extends Parent {
+  hobby: string;
+  constructor(name: string, age: number, hobby: number) {
+    super(name, age);
+    this.hobby = hobby;
+  }
+  getHobby(): number {
+    return this.hobby;
+  }
+}
+
+let c = new Child(&#39;neil&#39;, 20, &#39;swim&#39;);
+console.log(c.getHobby()); // swim
+console.log(c.getName()); // neil
+console.log(c.getAge()); // 20
+</code></pre><h3 id="访问控制修饰符"><a href="#访问控制修饰符" class="headerlink" title="访问控制修饰符"></a>访问控制修饰符</h3><blockquote class="pullquote default"><p><strong>在 <code>TS</code> 的类中有三种访问控制修饰符：</strong></p><ul><li><strong><code>public</code>：公有的属性，所有地方都能访问；</strong></li><li><strong><code>protected</code>：受保护的属性，不能被实例化只能被继承，只能在自己和自己的子类中被访问；</strong></li><li><strong><code>private</code>：私有属性，既不能被实例化也不能被继承，只有自己内部可以访问。</strong></li></ul></blockquote><pre><code class="lang-ts">// 父类
+class Parent {
+  public name: string;
+  protected age: number;
+  private money: number;
+  constructor(name: string, age: number, money: number) {
+    this.name = name;
+    this.age = age;
+    this.money = money;
+  }
+  getName() {
+    console.log(&#39;父类：&#39; + this.name);
+  }
+  getAge() {
+    console.log(&#39;父类：&#39; + this.age);
+  }
+  getMoney() {
+    console.log(&#39;父类：&#39; + this.money);
+  }
+}
+
+// 子类
+class Child extends Parent {
+  constructor(name, age, money) {
+    super(name, age, money);
+  }
+  getName() {
+    console.log(&#39;子类：&#39; + this.name);
+  }
+  getAge() {
+    console.log(&#39;子类：&#39; + this.age);
+  }
+  getMoney() {
+    console.log(&#39;子类：&#39; + this.money); // 报错
+  }
+}
+</code></pre><p>在上面代码中 <code>name</code> 属性可以通过父类的实例访问、子类的实例访问，父类的 <code>getName</code> 方法访问，子类的 <code>getName</code> 方法访问，<code>age</code> 属性可以只能通过父类和子类的 <code>getAge</code> 方法访问，<code>money</code> 属性只能通过父类 <code>getMoney</code> 方法访问，其他不被允许的访问方式都会报错。</p><h3 id="静态属性和方法"><a href="#静态属性和方法" class="headerlink" title="静态属性和方法"></a>静态属性和方法</h3><p>在 <code>TS</code> 中给类定义私有属性和方法的修饰符为 <code>static</code>，与 <code>JS</code> 的类相同。</p><pre><code class="lang-ts">class Father {
+  static myName: string = &#39;hello&#39;;
+  static getMyName(): string {
+    return Father.myName;
+  }
+}
+
+console.log(Father.myName); // hello
+console.log(Father.getMyName()); // hello
+</code></pre><h3 id="抽象类"><a href="#抽象类" class="headerlink" title="抽象类"></a>抽象类</h3><p>抽象类是一种抽象的概念，使用 <code>abstract</code> 关键字定义，无法被实例化（无法使用 <code>new</code>），只能被继承。</p><p>抽象类的内部包含抽象方法和抽象属性，同样使用 <code>abstract</code> 关键字定义，抽象方法不能在抽象类中实现，具体实现细节只能在抽象类的子类中实现，且必须实现。</p><pre><code class="lang-ts">abstract class Animal {
+  abstract name: string;
+  abstract speak();
+}
+
+class Cat extends Animal {
+  name: string;
+  speak() {
+    console.log(&#39;喵喵喵&#39;);
+  }
+}
+
+class Dog extends Animal {
+  name: string;
+  speak() {
+    console.log(&#39;汪汪汪&#39;);
+  }
+}
+</code></pre><blockquote class="pullquote primary"><p><strong>继承抽象类的子类中必须包含所有抽象类中所定义的内容，继承过程，子类覆盖抽象类所定义抽象方法的行为叫做 “重写”，多个子类创建不同的抽象方法的现象被叫做 “多态”。</strong></p></blockquote><h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2><blockquote class="pullquote info"><p><strong>接口是 <code>TS</code> 中的核心之一，主要有两个作用：</strong></p><ul><li><strong>用于描述或约束一种对象结构，描述属性的名称和值的类型；</strong></li><li><strong>用来表示行为的抽象，让类去实现接口。</strong></li></ul></blockquote><h3 id="接口的定义和使用"><a href="#接口的定义和使用" class="headerlink" title="接口的定义和使用"></a>接口的定义和使用</h3><p><code>TS</code> 中使用 <code>interface</code> 关键字来定义接口，接口成员可以是属性或方法名，多个成员可以使用分号、逗号或换行隔开，主要定义属性的名称和值的类型。</p><pre><code class="lang-ts">/* 定义接口，使用接口创建对象 */
+interface UserInterface {
+  name: string;
+  age: number;
+}
+
+let user: UserInterface = {
+  name: &#39;hello&#39;,
+  age: 20
+};
+</code></pre><p>上面 <code>UserInterface</code> 接口创建的对象 <code>user</code>，属性和值的类型必须与定义的接口严格对应。</p><pre><code class="lang-ts">/* 让类去实现定义的接口 */
+interface Flyable {
+  fly(): void;
+}
+
+class Bird implements Flyable {
+  fly() {
+    console.log(&#39;bird fly&#39;);
+  }
+}
+</code></pre><p>让类实现一个接口使用 <code>implements</code> 关键字，接口在定义方法时与抽象类非常类似，只需要定义方法和类型，不需要具体实现，在实现接口的类中对方法进行具体实现。</p><pre><code class="lang-ts">/* 一个类实现多个接口 */
+// 接口
+interface Speakable {
+  name: string;
+  speak(): void;
+}
+
+interface Eatable {
+  food: string;
+  eat(): void;
+}
+
+// 类
+class Person implements Speakable, Eatable {
+  name: &#39;hello&#39;;
+  food: &#39;cake&#39;;
+  speak() {
+    console.log(&#39;say hello&#39;);
+  }
+  eat() {
+    console.log(&#39;eat cake&#39;);
+  }
+}
+</code></pre><blockquote class="pullquote default"><p><strong>继承与实现接口的区别：</strong></p><ul><li><strong>一个类可以实现多个接口，一个接口可以被多个类实现；</strong></li><li><strong>而一个父类（包含抽象类）可以被多个类所继承，一个子类只能继承一个父类（单继承）。</strong></li></ul></blockquote><h3 id="接口的只读属性"><a href="#接口的只读属性" class="headerlink" title="接口的只读属性"></a>接口的只读属性</h3><p>接口中可以定义只读属性，这样通过接口创建对象的值在修改时会报错，可以在定义接口属性是加上 <code>readonly</code> 修饰符实现。</p><pre><code class="lang-ts">/* 接口的只读属性 */
+interface Person {
+  id: number;
+  readonly name: string;
+}
+
+let p: Person = {
+  id: 1;
+  name: &#39;hello&#39;;
+};
+
+console.log(p.id); // 1
+p.name = 2; // 报错
+</code></pre><h3 id="接口的可选属性"><a href="#接口的可选属性" class="headerlink" title="接口的可选属性"></a>接口的可选属性</h3><p>在上面接口定义时，创建的对象和实现接口类的属性方法都必须与接口定义的属性名、类型一致，其实在接口定义时也可以定义一些非必须的可选属性，在使用接口创建对象或使用类实现接口时，这样的属性不定义不会报错。</p><pre><code class="lang-ts">/* 接口的可选属性 */
+interface Person {
+  id: number;
+  name: string;
+  age?: number;
+}
+
+let p1: Person = {
+  id: 1,
+  name: &#39;hello&#39;,
+  age: 20
+};
+
+let p2: Person = {
+  id: 2,
+  name: &#39;world&#39;
+};
+</code></pre><p>定义接口的可选属性与函数定义可选参数类似，都是使用 <code>?:</code> 替代原本的 <code>:</code> 即代表可选。</p><h3 id="接口的未知属性"><a href="#接口的未知属性" class="headerlink" title="接口的未知属性"></a>接口的未知属性</h3><p>当接口中存在可选属性时，也只是满足某些属性可以在使用接口时（对象、类），可选属性可以不创建，但是如果对象和类上扩展了未知的其他任意属性，则编译会报错，此时定义接口未知属性，可以解决编译时报错的问题。</p><pre><code class="lang-ts">interface Person {
+  id: number;
+  name: string;
+  [proName: string]: any;
+}
+
+let p: Person = {
+  id: 1,
+  name: &#39;hello&#39;,
+  age: 20,
+  city: &#39;Beijing&#39;
+};
+</code></pre><blockquote class="pullquote success"><p><strong><code>proName</code> 名字是任意的，可以随意取，<code>string</code> 代表属性的类型，<code>any</code> 代表属性值的类型，上面的写法不固定，可以根据需求定义，只需满足 <code>[name: type]: type</code> 的结构即可。</strong></p></blockquote><p>根据上面的未知属性格式可以衍生出 “可索引接口” 专门用来限制长度未知的数组、属性名和属性个数未知的对象。</p><p><strong>可索引接口限制数组和对象：</strong></p><pre><code class="lang-ts">/* 限制数组 */
+interface UserInterface {
+  [index: number]: string;
+}
+
+let userArr: UserInterface = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;];
+userArr = [&#39;a&#39;, &#39;b&#39;, 1]; // 报错
+</code></pre><p>上面的数组 <code>userArr</code> 内的的索引为数字类型，满足可索引接口的要求，但是使用 <code>UserInterface</code> 约束后，所有项必须是字符串，如果改成其他类型则会报错。</p><pre><code class="lang-ts">/* 限制对象 */
+interface UserInterface {
+  [index: string]: string;
+}
+
+let userObj: UserInterface = {
+  jim: &#39;1&#39;,
+  bob: &#39;2&#39;
+};
+</code></pre><p>上面的对象 <code>userObj</code> 使用 <code>UserInterface</code> 约束后，键和值必须都为字符串，否则报错。</p><h3 id="接口的继承"><a href="#接口的继承" class="headerlink" title="接口的继承"></a>接口的继承</h3><p>接口的继承同类的继承相同，使用 <code>extends</code> 关键字实现，下面是一段接口继承的代码。</p><pre><code class="lang-ts">// 父接口
+interface Speakable {
+  speak(): void;
+}
+
+// 子接口
+interface SpeakChinese extends Speakable {
+  speakChinese(): void;
+}
+
+// 类实现接口
+class ChinesePerson implements SpeakChinese {
+  speak() {
+    console.log(&#39;speak&#39;);
+  }
+  speakChinese() {
+    console.log(&#39;你好&#39;);
+  }
+}
+</code></pre><blockquote class="pullquote warning"><p><strong>当类实现的接口继承了其他的接口，那这个类的内部需要同时实现子接口和父接口的属性和方法。</strong></p></blockquote><h3 id="函数型接口"><a href="#函数型接口" class="headerlink" title="函数型接口"></a>函数型接口</h3><p>函数型接口专门对函数或方法传入的参数和返回值进行约束。</p><pre><code class="lang-ts">interface Discount {
+  (price: number): number;
+}
+
+function discount(price: number): number {
+  return price * 0.8;
+}
+
+const dFun: Discount = discount;
+</code></pre><p>上面代码中 <code>Discount</code> 接口内部括号内代表参数类型定义，后面代表返回值类型，函数 <code>discount</code> 定义的参数和返回值类型必须与 <code>Discount</code> 接口内部定义的类型保持一致。</p><h3 id="构造函数型接口"><a href="#构造函数型接口" class="headerlink" title="构造函数型接口"></a>构造函数型接口</h3><p>在 <code>TS</code> 中存在对构造函数或类的实例化的类型约束，即在执行 <code>new</code> 操作的时候进行约束检查。</p><pre><code class="lang-ts">// 被约束实例化动作的类
+class Animal {
+  constructor(public name: string) {}
+}
+
+// 约束实例化的接口
+interface WithNameClazz {
+  new (name: string): Animal;
+}
+
+// 工厂函数
+function createAnimal(Clazz: WithNameClazz, name: string) {
+  return new Clazz(name);
+}
+
+let animal = createAnimal(Animal, &#39;hellop&#39;);
+</code></pre><p>上面代码的 <code>interface</code> 中，<code>new</code> 代表约束的动作为实例化操作，<code>name</code> 为参数，<code>string</code> 为参数的类型，而 <code>Animal</code> 代表返回值需要是一个 <code>Animal</code> 类的实例。</p><h2 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h2><blockquote class="pullquote primary"><p><strong>“泛型” 是指在定义函数、接口和类的时候，不预先指定具体的类型，而在使用的时候再进行指定的一种特性。</strong></p></blockquote><h3 id="泛型函数"><a href="#泛型函数" class="headerlink" title="泛型函数"></a>泛型函数</h3><p>在介绍泛型函数之前先创建一个普通的函数，参数为长度和值，返回一个长度为传入长度、内部元素都为传入值的数组。</p><pre><code class="lang-ts">/* 为使用泛型定义的函数 */
+function createArray(len: number, val: any): any[] {
+  const result: any[] = [];
+  for (let i = 0; i &lt; len; i++) {
+    result[i] = val;
+  }
+  return result;
+}
+
+console.log(createArray(3, &#39;x&#39;)); // [&#39;x&#39;, &#39;x&#39;, &#39;x&#39;]
+</code></pre><p>在上面函数中我们类型都是提前进行定义，包括参数、返回值和函数内部变量，这样如果函数内给数组每一项赋值操作没有使用 <code>val</code> 参数传入的值，而是使用其他值，这样无法进行限定，下面使用泛型重新编写上面的函数。</p><pre><code class="lang-ts">function createArray&lt;T&gt;(len: number, val: T): T[] {
+  const result: T[] = [];
+  for (let i = 0; i &lt; len; i++) {
+    result[i] = val;
+  }
+  return result;
+}
+
+console.log(createArray&lt;string&gt;(3, 1)); // 报错
+</code></pre><p>上面的 <code>T</code> 是泛型的占位符，代表 <code>Type</code> 的意思，也可以使用其他字母代替（类比函数的形参），真正定义类型的时候是在函数调用时传入的。</p><h3 id="泛型类"><a href="#泛型类" class="headerlink" title="泛型类"></a>泛型类</h3><pre><code class="lang-ts">class MyArray&lt;T&gt; {
+  list: T[] = [];
+  add(val: T) {
+    this.list.push(val);
+  }
+  getFirst(): T {
+    return this.list[0];
+  }
+}
+
+let myArray = new MyArray&lt;number&gt;();
+myArray.add(1);
+myArray.add(2);
+console.log(myArray.getFirst());
+</code></pre><p>泛型类与泛型函数相似，都是通过占位符 <code>T</code> 占位，在真正实例化的时候传入类型。</p><h3 id="泛型接口"><a href="#泛型接口" class="headerlink" title="泛型接口"></a>泛型接口</h3><p>上面接口一节中，接口内部属性及函数型接口等，成员类型也可以使用泛型进行约束，在某个具体的对象使用接口或类实现接口时传入具体类型，下面是一个函数型接口使用泛型的例子。</p><pre><code class="lang-ts">interface SUM&lt;T&gt; {
+  (a: T, b: T): T
+}
+
+const sum: SUM&lt;number&gt; = function (a: number, b: number): number {
+  return a + b;
+}
+</code></pre><blockquote class="pullquote danger"><p><strong>泛型占位符（上面为 <code>T</code>）只在约束的函数、类和接口内部可以使用，可类比函数的形参。</strong></p></blockquote><h3 id="默认泛型类型"><a href="#默认泛型类型" class="headerlink" title="默认泛型类型"></a>默认泛型类型</h3><p>默认泛型类型指的是定义泛型的默认值，被约束的函数、类或者接口在使用时不传入具体类型，则会使用默认类型，编译时会检查是否符合这个默认类型。</p><pre><code class="lang-ts">class MyArray&lt;T = number&gt; {
+  list: T[] = [];
+  add(val: T) {
+    this.list.push(val);
+  }
+}
+
+let myArray = new MyArray();
+myArray.add(1);
+myArray.add(&#39;a&#39;); // 报错
+</code></pre><h3 id="定义多个泛型"><a href="#定义多个泛型" class="headerlink" title="定义多个泛型"></a>定义多个泛型</h3><p>上面的泛型中都只使用了一个占位符 <code>T</code>，其实泛型是允许有多个的。</p><pre><code class="lang-ts">function swap&lt;A, B&gt;(tuple: [A, B]): [B, A] {
+  return [tuple[1], tuple[0]];
+}
+
+console.log(swap&lt;string, number&gt;([&#39;a&#39;, 1])); // [1, &#39;a&#39;]
+</code></pre><p>上面方法中定义了两个泛型，函数参数为一个元组类型的数组，函数返回值为两项交换后的数组。</p><h3 id="泛型的约束"><a href="#泛型的约束" class="headerlink" title="泛型的约束"></a>泛型的约束</h3><p>在函数或类中使用泛型，由于预先不知道泛型的具体类型，所以不能随便使用泛型约束变量的属性和方法。</p><pre><code class="lang-ts">function logger&lt;T&gt;(val: T): void {
+  console.log(val.length); // 报错
+}
+</code></pre><h3 id="泛型的继承"><a href="#泛型的继承" class="headerlink" title="泛型的继承"></a>泛型的继承</h3><p>如果一定要在函数或类中使用泛型约束变量的属性和方法时，可以预先通过接口定义使用的属性和方法，再通过泛型去继承这个接口即可。</p><pre><code class="lang-ts">// 接口
+interface LengthWise {
+  length: number;
+}
+
+// 函数
+function logger&lt;T extends LengthWise&gt;(val: T): void {
+  console.log(val.length);
+}
+
+logger&lt;number&gt;(&#39;hello&#39;); // 报错
+logger&lt;string&gt;(&#39;hello&#39;); // 5
+</code></pre><h3 id="泛型的流程控制"><a href="#泛型的流程控制" class="headerlink" title="泛型的流程控制"></a>泛型的流程控制</h3><p>在定义泛型的时候能够加入逻辑分支，可以使泛型更加灵活。</p><pre><code class="lang-ts">interface Fish {
+  nameFish: string;
+}
+
+interface Water {
+  nameWater: string;
+}
+
+interface Bird {
+  nameBird: string;
+}
+
+interface Sky {
+  nameSky: string;
+}
+
+type Condition&lt;T&gt; = T extends Fish ? Water : Sky;
+
+let con: Condition&lt;Fish&gt; = {
+  nameWater: &#39;hello&#39;
+}
+</code></pre><p>上面定义了四个接口 <code>Fish</code>、<code>Bird</code>、<code>Water</code> 和 <code>Sky</code>，定义一个 <code>Condition</code> 类型和泛型，如果泛型为 <code>Fish</code> 则继承 <code>Water</code>，否则继承 <code>Sky</code>，在变量 <code>con</code> 使用类型 <code>Condition</code> 时，传入 <code>Fish</code> 接口。</p><h3 id="泛型的别名"><a href="#泛型的别名" class="headerlink" title="泛型的别名"></a>泛型的别名</h3><p>泛型可以使用 <code>type</code> 关键字定义别名，还记得在基本数据类型一节数组的定义中有泛型的定义方式。</p><pre><code class="lang-ts">let arr: Array&lt;string&gt; = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;];
+</code></pre><p>其实上面的 <code>Array</code> 就是定义泛型的别名，<code>&lt;string&gt;</code> 则是在调用这个泛型时传入的具体类型，看了下面例子就明白了。</p><pre><code class="lang-ts">// 定义泛型别名
+type Cart&lt;T&gt; = { list: T[] } | T[];
+
+// 使用泛型别名
+let cart1: Cart&lt;string&gt; = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;];
+let cart2: Cart&lt;string&gt; = {
+  list: [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]
+};
+</code></pre><p>在 <code>JS</code> 中有很多类数组对象，如 <code>arguments</code>、获取的 <code>DOM</code> 元素集合等等，每一种类数组对象 <code>TS</code> 都定义了对应的泛型别名，下面看两个案例。</p><pre><code class="lang-ts">/* arguments 对象的泛型 */
+function sum(...args: number[]) {
+  let params: IArguments = arguments;
+  let result = 0;
+  for (let i = 0; i &lt; params.length; i++) {
+    result += params[i];
+  }
+  return result;
+}
+</code></pre><pre><code class="lang-ts">/* DOM 节点类数组对象的泛型 */
+let root = document.getElementById(&#39;root&#39;);
+let children: HTMLCollection = root.children;
+let childNodes: NodeListOf&lt;ChildNode&gt; = root.childNodes;
+</code></pre><p>上面用来定义 <code>arguments</code> 类数组对象的泛型别名为 <code>IArguments</code>，获取 <code>DOM</code> 节点的元素节点集合的泛型别名为 <code>HTMLCollection</code>，而全部子节点的泛型别名为 <code>NodeListOf&lt;ChildNode&gt;</code>，如果使用 <code>VSCode</code> 编辑器，可以将鼠标放在变量前面会自动提示对应的泛型别名。</p><blockquote class="pullquote info"><p><strong>接口和泛型别名的区别：</strong></p><ul><li><strong>接口会创建一个新的名称，而别名不会（只是用 <code>type</code> 关键字创建了一个变量）；</strong></li><li><strong>别名不能被继承和实现；</strong></li><li><strong>定义一个类型的时候使用接口，要使用联合类型或者元组类型时，泛型别名会更合适。</strong></li></ul></blockquote><h2 id="结构类型系统"><a href="#结构类型系统" class="headerlink" title="结构类型系统"></a>结构类型系统</h2><p>如果传入的变量和声明的类型不匹配，<code>TS</code> 会进行兼容性检查，不是基于定义的类型名称来决定的，而是基于类型的组成结构。</p><h3 id="基本数据类型的兼容性"><a href="#基本数据类型的兼容性" class="headerlink" title="基本数据类型的兼容性"></a>基本数据类型的兼容性</h3><p>基本数据类型也有兼容性判断，如果赋值过程中右侧值的类型符合左侧值的类型，则不会报错，如果左侧类型定义含有 <code>toString</code> 方法的约束，则右侧值凡是可以通过 <code>toString</code> 转换成字符串的都不会报错，赋值时如果右侧值传入的属性多余左侧定义的值时也会报错。</p><pre><code class="lang-ts">let num1: string | number;
+let str1: string;
+num1 = str1;
+
+let num2: {
+  toString(): string;
+};
+let str2: number;
+num2 = str2;
+
+type People = {
+  name: string;
+  age: number;
+}
+
+let p: People = {
+  name: &#39;hello&#39;,
+  age: 20,
+  gender: &#39;male&#39; // 报错
+};
+</code></pre><h3 id="枚举的兼容性"><a href="#枚举的兼容性" class="headerlink" title="枚举的兼容性"></a>枚举的兼容性</h3><p>默认的枚举类型与数字类型兼容，数字类型与枚举类型兼容，不同的枚举类型之间是不兼容的。</p><pre><code class="lang-ts">enum Colors {
+  RED,
+  YELLOW,
+  BLUE
+}
+
+// 兼容数字类型
+let colorRed: number = Colors.RED;
+
+// 兼容枚举类型
+let colorYello: Colors;
+colorYello = Colors.Red;
+colorYello = 1;
+</code></pre><pre><code class="lang-ts">// 所有枚举值没有初始值
+enum E {
+  a,
+  b
+}
+
+// 所有枚举值初始值都为数值
+enum F {
+  a = 1,
+  b = 2
+}
+
+// 所有枚举值类型都为字符串
+enum G {
+  a = &#39;apple&#39;,
+  b = &#39;banana&#39;
+}
+</code></pre><p><strong>赋值可以超出枚举值范围：</strong></p><pre><code class="lang-ts">let e: E = 3; // 不报错
+</code></pre><p><strong>不同枚举约束的变量不可以进行比较：</strong></p><pre><code class="lang-ts">let e: E = 1;
+let f: F = 2;
+
+console.log(e === f); // 报错
+</code></pre><p><strong>相同枚举不同枚举值约束的变量不可以进行比较：</strong></p><pre><code class="lang-ts">let e1: E.a = 1;
+let e2: E.b = 2;
+let e3: E.a = 1;
+
+console.log(e1 === e2) // 报错
+console.log(e1 === e3) // true
+</code></pre><p><strong>字符串枚举和字符串枚举值约束赋值：</strong></p><pre><code class="lang-ts">// 字符串枚举约束赋值必须是类型中的枚举值
+let g1: G = G.a
+
+// 字符串的枚举值约束赋值必须是这个枚举值
+let g2: G.b = G.b
+</code></pre><h3 id="函数的兼容性"><a href="#函数的兼容性" class="headerlink" title="函数的兼容性"></a>函数的兼容性</h3><p>比较函数的兼容性时要先比较函数的参数，再比较函数的返回值。</p><h4 id="参数的兼容性"><a href="#参数的兼容性" class="headerlink" title="参数的兼容性"></a>参数的兼容性</h4><pre><code class="lang-ts">/* 参数的类型比较 */
+type SumFunc = (a: number, b: number) =&gt; number;
+let sum: SumFunc;
+
+// 不报错的赋值
+sum = function(a: number, b: number): number {
+  return a + b;
+}
+
+sum = function(a: number): number {
+  return a;
+}
+
+sum = function(): number {
+  return 0;
+}
+
+// 报错的赋值
+sum = function(a: number, b: number, c: number): number {
+  return a + b + c;
+}
+</code></pre><p>函数的类型检查可以兼容少传参数或不传参数，但是多传参数会报错。</p><h4 id="参数的双向协变"><a href="#参数的双向协变" class="headerlink" title="参数的双向协变"></a>参数的双向协变</h4><p>参数的 “双向协变” 是指变量定义的参数类型去兼容变量赋值定义的参数类型，或者变量赋值的参数类型去兼容定义的参数类型，只要有一个成立即可，所谓兼容必须是包含的关系。</p><pre><code class="lang-ts">type LogFunc = (val: number | string) =&gt; void;
+let log: LogFunc;
+
+// 变量定义类型兼容赋值定义类型
+log = function (val: string) {
+  console.log(val);
+}
+
+// 变量赋值类型兼容变量定义的类型
+log = function (val: number | string | boolean) {
+  console.log(val);
+}
+</code></pre><h4 id="返回值的兼容性"><a href="#返回值的兼容性" class="headerlink" title="返回值的兼容性"></a>返回值的兼容性</h4><pre><code class="lang-ts">/* 返回值的类型比较 */
+type GetPerson = () =&gt; { name: string, age: number };
+let getPerson: GetPerson;
+
+// 不报错的赋值
+getPerson = function () {
+  return { name: &#39;hello&#39;, age: 20 };
+}
+
+getPerson = function () {
+  return { name: &#39;hello&#39;, age: 20, gender: 1 };
+}
+
+// 报错的赋值
+getPerson = function () {
+  return { name: &#39;hello&#39; };
+}
+
+// 可能调用 age 属性的方法
+getPerson().age.toFixed(2);
+</code></pre><p>返回值可以兼容多返回的属性，属性少了会报错，因为可能会调用返回值缺失属性的方法。</p><h3 id="类的兼容性"><a href="#类的兼容性" class="headerlink" title="类的兼容性"></a>类的兼容性</h3><pre><code class="lang-ts">class Parent {
+  name: string;
+}
+
+class Child extends Parent {
+  age: number;
+}
+
+let p1: Parent = new Parent();
+let c1: Child = new Child();
+
+let p2: Parent = new Child();
+let c2: Child = new Parent(); // 报错
+</code></pre><p>父类和子类能不能赋值给限制了父类或子类泛型的变量，能不能赋值和是父类或子类没任何关联，主要看属性是否满足，而上面 <code>p2</code> 没有报错的原因是子类的实例继承了父类的属性，所以提供了父类泛型所要求的属性，而 <code>c2</code> 报错是因为父类的实例并没有提供子类泛型要求的属性。</p><h3 id="接口的兼容性"><a href="#接口的兼容性" class="headerlink" title="接口的兼容性"></a>接口的兼容性</h3><h4 id="比较属性的兼容性"><a href="#比较属性的兼容性" class="headerlink" title="比较属性的兼容性"></a>比较属性的兼容性</h4><p>在检查参数类型时，并不是真正的比较接口类型，而是比较具体的属性是否兼容。</p><pre><code class="lang-ts">interface Person {
+  name: string;
+  age: number;
+  gender: number;
+}
+
+let p: Person = {
+  name: &#39;hello&#39;,
+  age: 20,
+  gender: 0
+};
+</code></pre><h4 id="鸭式变形法"><a href="#鸭式变形法" class="headerlink" title="鸭式变形法"></a>鸭式变形法</h4><p>“鸭式变形法” 是很多动态语言的类型风格，指的是一只鸟如果看起来像鸭子，游起来像鸭子，叫起来像鸭子，这只鸟就可以被当做一直鸭子，回到 <code>TS</code> 中，传入接口的对象只要符合接口的必要条件，即传入的属性不必接口约束的少，就认为可以通过校验，不会报错。</p><p>上面的案例可以稍微做改造如下：</p><pre><code class="lang-ts">interface Animal {
+  name: string;
+  age: number;
+}
+
+interface Person {
+  name: string;
+  age: number;
+  gender: number;
+}
+
+let p: Person = {
+  name: &#39;hello&#39;,
+  age: 20,
+  gender: 0
+};
+
+function getName(a: Animal): string {
+  return a.name;
+}
+
+getName(p); // hello;
+</code></pre><p>上面的代码中定义了两个接口 <code>Animal</code> 和 <code>Person</code>，<code>Person</code> 定义的属性更多，当一个符合 <code>Person</code> 的对象传给参数用 <code>Animal</code> 约束的函数时，检测的是接口的属性，只要提供的属性不比约束的属性少，则不会报错。、</p><p>在实际的开发应用中，有一个常见的场景，就是前端代码要对后端返回的数据进行定义和约束，往往后端返回的数据及类型对于前端并不是全部必要的，则可以利用该特性使用接口对必要的字段进行兼容。</p><pre><code class="lang-ts">interface List {
+  id: number;
+  name: string;
+}
+
+interface Result {
+  data: List[];
+}
+
+function render(result: Result) {
+  result.data.forEach(({ id, name }) =&gt; {
+    console.log(id, name)
+  });
+}
+
+render({
+  data: [
+    {id: 1, name: &#39;A&#39;, sex: &#39;male&#39;}, // 报错
+    {id: 2, name: &#39;B&#39;}
+  ]
+});
+</code></pre><blockquote class="pullquote danger"><p><strong>有一种特殊情况，就是直接传入对象字面量，则 <code>TS</code> 会对额外的字段进行检查，绕过检查的方式一共有三种：</strong></p><ul><li><strong>将对象字面量直接赋值给变量；</strong></li><li><strong>使用类型断言；</strong></li><li><strong>在定义接口时使用可索引签名；</strong></li></ul></blockquote><pre><code class="lang-ts">// 第一种方式：对象字面量赋值给变量
+let result = {
+  data: [
+    {id: 1, name: &#39;A&#39;, sex: &#39;male&#39;},
+    {id: 2, name: &#39;B&#39;},
+  ]
+};
+
+render(result);
+</code></pre><pre><code class="lang-ts">// 第二种方式：使用类型断言
+render({
+  data: [
+    {id: 1, name: &#39;A&#39;, sex: &#39;male&#39;}, // 报错
+    {id: 2, name: &#39;B&#39;},
+  ]
+} as Result);
+
+// 或
+
+// React 中容易产生歧义
+render(&lt;Result&gt;{
+  data: [
+    {id: 1, name: &#39;A&#39;, sex: &#39;male&#39;}, // 报错
+    {id: 2, name: &#39;B&#39;},
+  ]
+});
+</code></pre><pre><code class="lang-ts">// 第三种方式：定义接口使用可索引签名
+interface List {
+  id: number;
+  name: string;
+  [x: string]: any;
+}
+</code></pre><h4 id="可索引接口的兼容性"><a href="#可索引接口的兼容性" class="headerlink" title="可索引接口的兼容性"></a>可索引接口的兼容性</h4><p>用数值类型去索引一个接口，相当于给数组创建接口，可索引返回值的具体类型约束数组成员类型。</p><pre><code class="lang-ts">interface StringArray {
+  [index: number]: string;
+}
+
+const chars: StringArray = [&#39;A&#39;, &#39;B&#39;]
+</code></pre><p><strong>使用字符串类型作为可索引类型，则不能添加其他类型的属性：</strong></p><pre><code class="lang-ts">interface Names {
+  [x: string]: string;
+  y: number; // 报错
+}
+</code></pre><p><strong>可是使用字符串和数值类型同时作为可索引类型，数字类型返回值必须是字符串类型返回值的子类型：</strong></p><pre><code class="lang-ts">interface Names {
+  [x: string]: string;
+  [y: number]: string;
+}
+</code></pre><h3 id="泛型的兼容性"><a href="#泛型的兼容性" class="headerlink" title="泛型的兼容性"></a>泛型的兼容性</h3><p>泛型在判断兼容性的时候会先判断具体类型，再进行兼容性的判断，即用到了就会比较，没用到就不会比较。</p><pre><code class="lang-ts">/* 空接口 */
+interface Empty&lt;T&gt; {}
+
+let x: Empty&lt;string&gt;;
+let y: Empty&lt;number&gt;;
+x = y;
+</code></pre><pre><code class="lang-ts">/* 属性使用了泛型的接口 */
+interface NotEmpty&lt;T&gt; {
+  data: T;
+}
+
+let x: NotEmpty&lt;string&gt;;
+let y: NotEmpty&lt;number&gt;;
+x = y; // 报错，因为 number 类型的属性不能赋值给 string 类型的定义
+
+// 等价于
+interface NotEmptyString{
+  data: string
+}
+
+interface NotEmptyNumber{
+  data: number
+}
+
+let xString: NotEmptyString;
+let yNumber: NotEmptyNumber;
+xString = yNumber; // 报错
+</code></pre><h2 id="类型保护"><a href="#类型保护" class="headerlink" title="类型保护"></a>类型保护</h2><p>类型保护就是一些表达式在编译时，能通过类型信息确保某个具体作用域内变量的类型。</p><h3 id="typeof-和-instanceof-类型保护"><a href="#typeof-和-instanceof-类型保护" class="headerlink" title="typeof 和 instanceof 类型保护"></a>typeof 和 instanceof 类型保护</h3><pre><code class="lang-ts">/* typeof 类型保护 */
+function double(val: string | number | boolean) {
+  if (typeof val === &#39;string&#39;) {
+    return val.repeat(2);
+  }
+  if (typeof val === &#39;number&#39;) {
+    return val * 2;
+  }
+  if (typeof val === &#39;boolean&#39;) {
+    return !val;
+  }
+}
+</code></pre><p>上面方法因为使用 <code>typeof</code> 做了类型判断，所以分别在 <code>if</code> 判断的作用域内 <code>val</code> 的值会变成判断后对应的类型，可以调用类型对应的方法，而在判断的外面无法确认值的类型，调用方法编译时报错。</p><pre><code class="lang-ts">/* instanceof 类型保护 */
+class Bird {
+  nameBird: string;
+}
+
+class Dog {
+  nameDog: string;
+}
+
+function getName(animal: Bird | Dog) {
+  if (animal instanceof Bird) {
+    return animal.nameBird;
+  }
+
+  if (animal instanceof Dog) {
+    return animal.nameDog;
+  }
+}
+</code></pre><p>与 <code>typeof</code> 类似，使用 <code>instanceof</code> 判断了函数 <code>getName</code> 是否是 <code>Bird</code> 和 <code>Dog</code> 类的实例，判断的作用域内可以获取判断结果对应类上定义的属性。</p><h3 id="null-类型保护"><a href="#null-类型保护" class="headerlink" title="null 类型保护"></a>null 类型保护</h3><p>之前我们提到过在 <code>tsconfig.json</code> 文件 <code>compilerOptions</code> 的 <code>strictNullChecks</code> 属性设置为 <code>true</code> 时，则会对 <code>null</code> 进行严格检查，此时下面代码将会报错。</p><pre><code class="lang-ts">function getFirstLetter(str: string | null) {
+  return str.charAt(0); // 报错
+}
+</code></pre><p>此时的报错就是由于对 <code>null</code> 的类型保护引起的，有如下解决方法。</p><pre><code class="lang-ts">/* 方法一 */
+function getFirstLetter(str: string | null) {
+  str = str || &#39;&#39;;
+  return str.charAt(0);
+}
+</code></pre><pre><code class="lang-ts">/* 方法二 */
+function getFirstLetter(str: string | null) {
+  if (str == null) {
+    return &#39;&#39;;
+  }
+  return str.charAt(0);
+}
+</code></pre><p>上面两种方式第一种是通过设置初始值的方式来保证在调用字符串方法时 <code>str</code> 的值已经是一个字符串类型，第二种则是通过判断直接返回，没有走到调用字符串方法的代码，类型检查自然不会报错，下面还有一个稍微复杂的案例。</p><pre><code class="lang-ts">function getFirstLetter(str: string | null) {
+  function log() {
+    console.log(str.tirm()); // 报错
+  }
+
+  str = str || &#39;&#39;;
+  log();
+  return str.charAt(0);
+}
+</code></pre><p>上面代码中，<code>str</code> 调用 <code>tirm</code> 方法的代码封装在了函数 <code>log</code> 内部，当 <code>log</code> 调用时 <code>str</code> 的值已经变为了字符串，但是还是报错了，原因是代码编译阶段由上至下一行一行解析，所以解析函数 <code>log</code> 的时候就已经在函数内部报错了。</p><pre><code class="lang-ts">function getFirstLetter(str: string | null) {
+  function log() {
+    console.log(str!.tirm()); // 强制调用
+  }
+
+  str = str || &#39;&#39;;
+  log();
+  return str.charAt(0);
+}
+</code></pre><p>上面代码在 <code>log</code> 函数中，<code>str</code> 调用 <code>tirm</code> 方法时加了一个 <code>!</code>，意思为强行调用，不管类型是否符合都会调用，相当于忽略了函数 <code>getFirstLetter</code> 的参数类型检查。</p><h3 id="链判断运算符"><a href="#链判断运算符" class="headerlink" title="链判断运算符"></a>链判断运算符</h3><p>上面的强制调用方式虽然通能过编译，但是在运行时有报错的风险，应该慎用，在 <code>JS</code> 中有一个提案叫链判断运算符，针对上面情况，会先判断是否为字符串再去调用字符串方法，这样写起来比较繁琐，而链判断运算符就是用来解决这个问题，通过 <code>?.</code> 来调用。</p><pre><code class="lang-js">/* 链判断运算符的几种用法 */
+a?.b;
+// 如果 a 不含有 b 属性则返回 undefined，否则返回 a.b，等同于
+a == null ? undefined : a.b;
+
+a?.[b];
+// 如果 a 不含有键为 b 变量值的属性则返回 undefined，否则返回 a[b]，等同于
+a == null ? undefined : a[b];
+
+a?.b()
+// 如果 a 不含 b 属性则返回 undefined，否则执行 a.b()，如果 a.b 不是一个函数抛出类型错误，等同于
+a == null ? undefined : a.b();
+
+a?.()
+// 如果 a 不是函数则返回 undefined，否则执行 a()，等同于
+a == null ? undefined : a();
+</code></pre><h3 id="可辨识的联合类型"><a href="#可辨识的联合类型" class="headerlink" title="可辨识的联合类型"></a>可辨识的联合类型</h3><p>可辨识的联合类型是指，通过联合类型中的共同属性进行类型保护的一种技巧，通过同属性值的判断可以确定联合类型中的具体类型。</p><pre><code class="lang-ts">interface WarningButton {
+  class: &#39;warning&#39;;
+  name1: &#39;modified&#39;;
+}
+
+interface DangerButton {
+  class: &#39;danger&#39;;
+  name2: &#39;delete&#39;;
+}
+
+// 定义联合类型
+type Button = WarningButton | DangerButton;
+
+function getButton(button: Button) {
+  if (button.class === &#39;warning&#39;) {
+    return button.name1;
+  }
+
+  if (button.class === &#39;danger&#39;) {
+    return button.name2;
+  }
+}
+</code></pre><h3 id="in-操作符"><a href="#in-操作符" class="headerlink" title="in 操作符"></a>in 操作符</h3><p>在可辨识的联合类型中如果没有共同的属性，共同属性判断不同值区分的方法行不通，这时可以用 <code>in</code> 操作符和不同属性判断进行类型保护。</p><pre><code class="lang-ts">interface Bird {
+  talon: number;
+}
+
+interface Dog {
+  leg: number;
+}
+
+function getNumber(animal: Bird | Dog) {
+  if (&#39;talon&#39; in animal) {
+    console.log(animal.talon);
+  }
+
+  if (&#39;leg&#39; in animal) {
+    console.log(animal.leg);
+  }
+}
+</code></pre><h3 id="自定义类型保护"><a href="#自定义类型保护" class="headerlink" title="自定义类型保护"></a>自定义类型保护</h3><p><code>TS</code> 中的上面用到的类型保护大部分为表达式，其实可以不使用这些表达式，通过自定义类型保护函数的方式实现同样的效果。</p><pre><code class="lang-ts">interface Bird {
+  talon: number;
+}
+
+interface Dog {
+  leg: number;
+}
+
+// 自定义类型保护函数
+function isBird(animal: Bird | Dog): animal is Bird {
+  // return (animal as Bird).talon &gt; 0;
+  return (&lt;Bird&gt;animal).talon &gt; 0;
+}
+
+function getNumber(animal: Bird | Dog) {
+  if (isBird(animal)) {
+    console.log(animal.talon);
+  } else {
+    console.log(animal.leg);
+  }
+}
+</code></pre><p>上面的自定义保护函数 <code>isBird</code> 中参数类型与 <code>getNumber</code> 参数一致，返回值的 <code>animal is Bird</code> 是一个类型谓词，语法为 <code>param is type</code>，代表返回是否满足 <code>Bird</code> 接口，由于 <code>animal</code> 并不知道自己符合哪一个接口，所以使用类型断言指定成了 <code>Bird</code>，<code>isBird</code> 代码中注释和非注释两种方式都可以实现类型断言，这样自定义类型检查函数 <code>isBird</code> 就可以在 <code>getNumber</code> 中使用并实现类型保护。</p><h2 id="类型变换"><a href="#类型变换" class="headerlink" title="类型变换"></a>类型变换</h2><h3 id="交叉类型"><a href="#交叉类型" class="headerlink" title="交叉类型"></a>交叉类型</h3><p>交叉类型表示为将多个类型合并为一个类型。</p><pre><code class="lang-ts">interface Bird {
+  name: string;
+  fly(): void;
+}
+
+interface Person {
+  name: string;
+  eat(): void;
+}
+
+// 取的是接口的并集
+type BirdMan = Bird &amp; Person;
+
+// 实现接口必须包含两个接口所有的属性和方法
+let birdMan: BirdMan = {
+  name: &#39;niao&#39;,
+  fly() {
+    console.log(&#39;fly&#39;);
+  },
+  eat() {
+    console.log(&#39;eat&#39;);
+  }
+};
+</code></pre><h3 id="typeof-获取类型"><a href="#typeof-获取类型" class="headerlink" title="typeof 获取类型"></a>typeof 获取类型</h3><p>在 <code>TS</code> 使用时如果数据内容在变化，要不停的更改对应的接口，此时可以使用 <code>typeof</code> 关键字快速获取一个变量的类型。</p><pre><code class="lang-ts">/* 先定义类型，后定义变量 */
+interface People {
+  name: string;
+  age: number;
+}
+
+let p: People = {
+  name: &#39;hello&#39;,
+  age: 20;
+};
+</code></pre><pre><code class="lang-ts">/* 先定义变量，后定义接口 */
+let p: People = {
+  name: &#39;hello&#39;,
+  age: 20;
+};
+
+type People = typeof p;
+
+function getName(p: People) {
+  return p.name;
+}
+</code></pre><p>上面获取的类型定义 <code>People</code> 是根据 <code>p</code> 对象的属性和值生成，然后可以使用获取的类型去限制其他对象。</p><h3 id="索引访问操作符"><a href="#索引访问操作符" class="headerlink" title="索引访问操作符"></a>索引访问操作符</h3><p><code>TS</code> 中的索引访问操作符指可以通过 <code>[]</code> 获取一个类型的子类型。</p><pre><code class="lang-ts">// 定义嵌套类型接口
+interface Person {
+  name: string;
+  age: number;
+  // 对象，包含 name 属性
+  job: {
+    name: string;
+  };
+  // 成员为对象组成的数组，对象中含有 name 和 level 属性
+  hobbies: { name: string; level: number }[];
+}
+
+// 获取 Person 接口 job 对象中 name 属性的类型定义为 FEJob 的类型
+let FEJob: Person[&quot;job&quot;] = {
+  name: &quot;FE&quot;
+};
+
+// 获取数组中任意一项中 level 属性的类型作为 hobbyLevel 的类型
+let hobbyLevel: Person[&#39;hobbies&#39;][0][&#39;level&#39;] = 10;
+</code></pre><h3 id="keyof"><a href="#keyof" class="headerlink" title="keyof"></a>keyof</h3><p><code>TS</code> 中定义的关键字 <code>keyof</code> 是索引类型查询操作符，用来定义类型，当定义一个获取对象属性值的函数，传入的值为对象和属性名，这样属性名参数的类型定义为 <code>string</code> 不准确，因为很可能传入一个对象本身没有的属性字符串，<code>keyof</code> 就是用来解决类似这样问题的。</p><pre><code class="lang-ts">interface Person {
+  name: string;
+  age: number;
+  gender: &#39;male&#39; | &#39;female&#39;;
+}
+
+// 使用 keyof 定义类型
+type PersonKey = keyof Person;
+
+function getValueByKey(p: Person, key: PersonKey) {
+  return p[key];
+}
+
+let: person: Person = {
+  name: &#39;hello&#39;,
+  age: 20,
+  gender: &#39;male&#39;
+};
+
+getValueByKey(person, &#39;name&#39;); // hello
+getValueByKey(person, &#39;say&#39;); // 报错
+</code></pre><h3 id="映射类型"><a href="#映射类型" class="headerlink" title="映射类型"></a>映射类型</h3><p>在某一个类型定义中使用 <code>in</code> 操作符和 <code>keyof</code> 操作符批量映射修改一个新的类型定义。</p><pre><code class="lang-ts">interface Person {
+  name: string;
+  age: number;
+  gender: &#39;male&#39; | &#39;female&#39;;
+}
+
+// 映射 Person 接口定义的类型，把每一个属性都变成可选的
+type PartPerson = {
+  [key in keyof Person]?: Person[key];
+}
+
+let p1: PartPerson = {
+  name: &#39;hello&#39;
+};
+</code></pre><p>上面的代码中 <code>keyof Person</code> 取到了 <code>Person</code> 接口的每一个属性的类型，<code>key</code> 通过运算符 <code>in</code>（批量映射）代表获取的每一个属性名，<code>?:</code> 代表可选，<code>Person[key]</code> 代表对应的值。</p><h2 id="内置工具类型"><a href="#内置工具类型" class="headerlink" title="内置工具类型"></a>内置工具类型</h2><p>在 <code>TS</code> 内部内置了一些工具类型来帮助我们更好、更方便的使用类型系统。</p><h3 id="Partial"><a href="#Partial" class="headerlink" title="Partial"></a>Partial</h3><p><code>Partial</code> 可以将传入类型定义的属性由非可选变为可选，功能跟映射类型一节实现的功能非常相似，只是具体被映射的类型是通过参数传入的，所以底层是使用泛型实现的。</p><pre><code class="lang-ts">// 定义接口
+interface Person {
+  name: string;
+  age: number;
+}
+
+// 使用 Partial
+let p: Partial&lt;Person&gt; = {
+  name: &#39;hello&#39;
+};
+
+// Partial 的原理
+type Partial&lt;T&gt; = {
+  [key in keyof T]?: T[key]
+}
+</code></pre><h3 id="Required"><a href="#Required" class="headerlink" title="Required"></a>Required</h3><p><code>Required</code> 可以将传入类型定义的属性变为必选，使用 <code>-?:</code> 替换原有的 <code>:</code> 也可以实现。</p><pre><code class="lang-ts">// 定义接口
+interface Person {
+  name: string;
+  age: number;
+}
+
+// 使用 Required
+let p: Required&lt;Person&gt; = {
+  name: &#39;hello&#39;
+}; // 报错
+
+// Required 的原理
+type MyRequired&lt;T&gt; = {
+  [key in keyof T]-?: T[key]
+}
+</code></pre><h3 id="Readonly"><a href="#Readonly" class="headerlink" title="Readonly"></a>Readonly</h3><p><code>Readonly</code> 可以将传入类型定义的属性每一项都加上 <code>readonly</code> 修饰符来实现属性的只读。</p><pre><code class="lang-ts">// 定义接口
+interface Person {
+  name: string;
+  age: number;
+}
+
+// 使用 Readonly
+let p: Readonly&lt;Person&gt; = {
+  name: &#39;hello&#39;,
+  age: 10
+};
+
+p.name = &#39;world&#39;; // 报错
+
+// Readonly 的原理
+type MyReadonly&lt;T&gt; = {
+  readonly [key in keyof T]: T[key];
+}
+</code></pre><h3 id="Pick"><a href="#Pick" class="headerlink" title="Pick"></a>Pick</h3><p><code>Pick</code> 可以摘取传入类型定义的属性中的某一项返回。</p><pre><code class="lang-ts">// 定义接口
+interface Person {
+  name: string;
+  age: number;
+}
+
+// 使用 Pick
+let p: Pick&lt;Person, &#39;name&#39;&gt; = {
+  name: &#39;hello&#39;
+};
+
+// Pick 的原理
+type MyPick&lt;T, K extends keyof T&gt; = {
+  [key in K]: T[key];
+}
+</code></pre><h3 id="内置条件类型"><a href="#内置条件类型" class="headerlink" title="内置条件类型"></a>内置条件类型</h3><p>还记得在泛型一节中提到了泛型的流程控制，在 <code>TS</code> 中内置了一些常用的条件类型。</p><h4 id="Exclude"><a href="#Exclude" class="headerlink" title="Exclude"></a>Exclude</h4><pre><code class="lang-ts">// 定义
+Exclude&lt;T, U&gt; // 从 T 可分配给的类型中排除 U
+
+// 使用
+type E = Exclude&lt;string | number, string&gt;
+let x: E = 10;
+let y: E = &#39;hello&#39;; // 报错
+</code></pre><h4 id="Extract"><a href="#Extract" class="headerlink" title="Extract"></a>Extract</h4><pre><code class="lang-ts">// 定义
+Extract&lt;T, U&gt; // 从 T 可分配的类型中提取 U
+
+// 使用
+type E = Extract&lt;string | number, string&gt;
+let x: E = 10; // 报错
+let y: E = &#39;hello&#39;;
+</code></pre><h4 id="NonNullable"><a href="#NonNullable" class="headerlink" title="NonNullable"></a>NonNullable</h4><pre><code class="lang-ts">// 定义
+NonNullable&lt;T&gt; // 从 T 中排除 null 和 undefined
+
+// 使用
+type E = NonNullable&lt;string | null | undefined&gt;
+let x: E = null; // 报错
+let y: E = &#39;hello&#39;;
+</code></pre><h4 id="ReturnType"><a href="#ReturnType" class="headerlink" title="ReturnType"></a>ReturnType</h4><pre><code class="lang-ts">// 定义
+ReturnType&lt;T&gt; // 获取函数类型的返回类型
+
+// 使用
+function getUserInfo() {
+  return { name: &quot;hello&quot;, age: 10 };
+}
+
+type UserInfo = ReturnType&lt;typeof getUserInfo&gt;;
+
+let user: UserInfo = {
+  name: &#39;haha&#39;,
+  age: 18
+};
+</code></pre><h4 id="InstanceType"><a href="#InstanceType" class="headerlink" title="InstanceType"></a>InstanceType</h4><pre><code class="lang-ts">// 定义
+InstanceType&lt;T&gt; // 获取构造函数类型的实例类型
+
+// 使用
+class Person {
+  constructor(public name) {}
+  getName() {
+    console.log(this.name);
+  }
+}
+
+type P = InstanceType&lt;typeof Person&gt;;
+
+let p: P = {
+  name: &#39;hello&#39;,
+  getName() {
+    console.log(&#39;myName&#39;);
+  }
+};
+</code></pre><blockquote class="pullquote success"><p><strong>未完待续…</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20190416160637/" target="_blank" rel="external">https://www.overtaking.top/20190416160637/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TypeScript/" rel="tag">TypeScript</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20190416160637/&title=《TypeScript 基础知识总结》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20190416160637/&title=《TypeScript 基础知识总结》 — Shen's Blog&source=TypeScript 简介TypeScript 是由微软开发的开源编程语言（后面简称 TS），是 JavaScript 的超集（后面简称 JS），由于 J..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20190416160637/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《TypeScript 基础知识总结》 — Shen's Blog&url=https://www.overtaking.top/20190416160637/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20190416160637/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20190417112536/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">JavaScript 获取对象属性名的方法和区别</h4></a></div><div class="waves-block waves-effect next"><a href="/20190409024640/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Node.js 实现一个提交自动检测的 Git Hook</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20190416160637/&title=《TypeScript 基础知识总结》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20190416160637/&title=《TypeScript 基础知识总结》 — Shen's Blog&source=TypeScript 简介TypeScript 是由微软开发的开源编程语言（后面简称 TS），是 JavaScript 的超集（后面简称 JS），由于 J..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20190416160637/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《TypeScript 基础知识总结》 — Shen's Blog&url=https://www.overtaking.top/20190416160637/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20190416160637/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABxElEQVR42u3aQW6EMAwF0Ln/panUVasO6DsmHlS9rEYI8GMWVmL79YrX8b2S68eP9fees983L1xc3Db3uFxnYZJ19mFn70/eg4uLO8m9TlJJ+M6deaLExcV9GjdJUkmqwsXF/U/c6hYneQMuLu6TuUmw6j1JlI1nNVxc3Aa3WjDd8XtjfRcXF7fIPZZW3mjpb49+xcXFxR3hnh1FOskuPzJVD0K4uLiT3Lz0mbRMkmBr5VdcXNwZbrWgeX0l/+CkdPLmCi4u7gg3CVx9aV4wrW59cHFxZ7h5KbN6pMnbJ/n9uLi4k9xq5qt+WJ7mFlspuLi4t3Krdch8i1Md/GoVT3Fxcbdx87S11jTtRMTFxZ3n3pt68uGMfIN1emLDxcXdxq22RqoDHDm38Pfh4uKOcDuDEf3WaaHzg4uLO869TkNrzdS1NLeIxsXFvZW7tpWptlHv6pXg4uLu4x7FVT6cBIecwiAXLi7uCLeV+ZYGMqpP4eLifopbTV5r4TsJDhcX91PcPPxaIbVzPsPFxX0+t99G7RRkcXFxn8atNkHL25dke4SLizvIXRugTELmg57lCTJcXNxt3H7BtP/saH0XFxf3ivsFy7wu5fDblt4AAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

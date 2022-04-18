@@ -1,0 +1,220 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>浅析 event-loop 事件轮询 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript,异步,Promise,Node.js"><meta name="description" content="浏览器中的事件轮询JavaScript 是一门单线程语言，之所以说是单线程，是因为在浏览器中，如果是多线程，并且两个线程同时操作了同一个 Dom 元素，那最后的结果会出现问题。所以，JavaScript 是单线程的，但是如果完全由上至下的一行一行执行代码，假如一个代码块执行了很长的时间，后面必须要等待当前执行完毕，这样的效率是非常低的，所以有了异步的概念，确切的说，JavaScript 的主线程是"><meta property="og:type" content="article"><meta property="og:title" content="浅析 event-loop 事件轮询"><meta property="og:url" content="https://www.overtaking.top/20180325170208/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="浏览器中的事件轮询JavaScript 是一门单线程语言，之所以说是单线程，是因为在浏览器中，如果是多线程，并且两个线程同时操作了同一个 Dom 元素，那最后的结果会出现问题。所以，JavaScript 是单线程的，但是如果完全由上至下的一行一行执行代码，假如一个代码块执行了很长的时间，后面必须要等待当前执行完毕，这样的效率是非常低的，所以有了异步的概念，确切的说，JavaScript 的主线程是"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Async/20180325170208/libuv.png"><meta property="og:image" content="https://static.overtaking.top/images/Async/20180325170208/event-loop.jpg"><meta property="article:published_time" content="2018-03-25T09:02:08.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta property="article:tag" content="异步"><meta property="article:tag" content="Promise"><meta property="article:tag" content="Node.js"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Async/20180325170208/libuv.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">浅析 event-loop 事件轮询</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">浅析 event-loop 事件轮询</h1><h5 class="subtitle"><time datetime="2018-03-25T09:02:08.000Z" itemprop="datePublished" class="page-time">2018-03-25</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%BC%82%E6%AD%A5/">异步</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#浏览器中的事件轮询"><span class="post-toc-number">1.</span> <span class="post-toc-text">浏览器中的事件轮询</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Node-中的事件轮询"><span class="post-toc-number">2.</span> <span class="post-toc-text">Node 中的事件轮询</span></a></li></ol></nav></aside><article id="post-Async/20180325170208" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">浅析 event-loop 事件轮询</h1><div class="post-meta"><time class="post-time" title="2018-03-25 17:02:08" datetime="2018-03-25T09:02:08.000Z" itemprop="datePublished">2018-03-25</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%BC%82%E6%AD%A5/">异步</a></li></ul><span id="/20180325170208/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="浅析 event-loop 事件轮询"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Async/20180325170208/libuv.png" title="event-loop"><p><br></p><h2 id="浏览器中的事件轮询"><a href="#浏览器中的事件轮询" class="headerlink" title="浏览器中的事件轮询"></a>浏览器中的事件轮询</h2><blockquote class="pullquote default"><p><strong><code>JavaScript</code> 是一门单线程语言，之所以说是单线程，是因为在浏览器中，如果是多线程，并且两个线程同时操作了同一个 <code>Dom</code> 元素，那最后的结果会出现问题。所以，<code>JavaScript</code> 是单线程的，但是如果完全由上至下的一行一行执行代码，假如一个代码块执行了很长的时间，后面必须要等待当前执行完毕，这样的效率是非常低的，所以有了异步的概念，确切的说，<code>JavaScript</code> 的主线程是单线程的，但是也有其他的线程去帮我们实现异步操作，比如定时器线程、事件线程、<code>Ajax</code> 线程。</strong></p></blockquote><p>在浏览器中执行 <code>JavaScript</code> 有两个区域，一个是我们平时所说的同步代码执行，是在栈中执行，原则是先进后出，而在执行异步代码的时候分为两个队列，<code>macro-task</code>（宏任务）和 <code>micro-task</code>（微任务），遵循先进先出的原则。</p><a id="more"></a><pre><code class="lang-js">/* 作用域链 */
+function one() {
+  console.log(1);
+  function two() {
+    console.log(2);
+    function three() {
+      console.log(3);
+    }
+    three();
+  }
+  two();
+}
+one();
+
+// 1
+// 2
+// 3
+</code></pre><p>上面的代码都是同步的代码，在执行的时候先将全局作用域放入栈中，执行全局作用域中的代码，解析了函数 <code>one</code>，当执行函数调用 <code>one()</code> 的时候将 <code>one</code> 的作用域放入栈中，执行 <code>one</code> 中的代码，打印了 <code>1</code>，解析了 <code>two</code>，执行 <code>two()</code>，将 <code>two</code> 放入栈中，执行 <code>two</code>，打印了 <code>2</code>，解析了 <code>three</code>，执行了 <code>three()</code>，将 <code>three</code> 放入栈中，执行 <code>three</code>，打印了 <code>3</code>。</p><p>在函数执行完释放的过程中，因为全局作用域中有 <code>one</code> 正在执行，<code>one</code> 中有 <code>two</code> 正在执行，<code>two</code> 中有 <code>three</code> 正在执行，所以释放内存时必须由内层向外层释放，<code>three</code> 执行后释放，此时 <code>three</code> 不再占用 <code>two</code> 的执行环境，将 <code>two</code> 释放，<code>two</code> 不再占用 <code>one</code> 的执行环境，将 <code>one</code> 释放，<code>one</code> 不再占用全局作用域的执行环境，最后释放全局作用域，这就是在栈中执行同步代码时的先进后出原则，更像是一个杯子，先放进去的在最下面，需要最后取出。</p><p>而异步队列更像时一个管道，有两个口，从入口进，从出口出，所以是先进先出，在宏任务队列中代表的有 <code>setTimeout</code>、<code>setInterval</code>、<code>setImmediate</code>、<code>MessageChannel</code>，微任务的代表为 Promise 的 <code>then</code> 方法、<code>MutationObserve</code>（已废弃）。</p><p><strong>案例 1</strong></p><pre><code class="lang-js">const messageChannel = new MessageChannel();
+const prot2 = messageChannel.port2;
+
+messageChannel.port1.postMessage(&#39;I love you&#39;);
+console.log(1);
+
+prot2.onmessage = function (e) {
+  console.log(e.data);
+};
+console.log(2);
+
+// 1
+// 2
+// I love you
+</code></pre><p>从上面案例中可以看出，<code>MessageChannel</code> 是宏任务，晚于同步代码执行。</p><p><strong>案例 2</strong></p><pre><code class="lang-js">setTimeout(() =&gt; console.log(1), 2000);
+setTimeout(() =&gt; console.log(2), 1000);
+console.log(3);
+
+// 3
+// 2
+// 1
+</code></pre><p>上面代码可以看出其实 <code>setTimeout</code> 并不是在同步代码执行的时候就放入了异步队列，而是等待时间到达时才会放入异步队列，所以才会有了上面的结果。</p><p><strong>案例 3</strong></p><pre><code class="lang-js">setImmediate(function () {
+  console.log(&#39;setImmediate&#39;);
+});
+
+setTimeout(function () {
+  console.log(&#39;setTimeout&#39;);
+}, 0);
+
+console.log(1);
+
+// 1
+// setTimeout
+// setImmediate
+</code></pre><p>同为宏任务，<code>setImmediate</code> 在 <code>setTimeout</code> 延迟时间为 <code>0</code> 时是晚于 <code>setTimeout</code> 被放入异步队列的，这里需要注意的是 <code>setImmediate</code> 在浏览器端，到目前为止只有 IE 实现了。</p><p>上面的案例都是关于宏任务，下面我们举一个有微任务的案例来看一看微任务和宏任务的执行机制，在浏览器端微任务的代表其实就是 Promise 的 <code>then</code> 方法。</p><p><strong>案例 4</strong></p><pre><code class="lang-js">setTimeout(() =&gt; {
+  console.log(&#39;setTimeout1&#39;);
+  Promise.resolve().then(data =&gt; {
+    console.log(&#39;Promise1&#39;);
+  });
+}, 0);
+
+Promise.resolve().then(data =&gt; {
+  console.log(&#39;Promise2&#39;);
+  setTimeout(() =&gt; {
+    console.log(&#39;setTimeout2&#39;);
+  }, 0);
+});
+
+// Promise2
+// setTimeout1
+// Promise1
+// setTimeout2
+</code></pre><blockquote class="pullquote info"><p><strong>从上面的执行结果其实可以看出，同步代码在栈中执行完毕后会先去执行微任务队列，将微任务队列执行完毕后，会去执行宏任务队列，宏任务队列执行一个宏任务以后，会去看看有没有产生新的微任务，如果有则清空微任务队列后再执行下一个宏任务，依次轮询，直到清空整个异步队列。</strong></p></blockquote><h2 id="Node-中的事件轮询"><a href="#Node-中的事件轮询" class="headerlink" title="Node 中的事件轮询"></a>Node 中的事件轮询</h2><blockquote class="pullquote primary"><p><strong>在 Node 中的事件轮询机制与浏览器相似又不同，相似的是，同样先在栈中执行同步代码，同样是先进后出，不同的是 Node 有自己的多个处理不同问题的阶段和对应的队列，也有自己内部实现的微任务 <code>process.nextTick</code>，Node 的整个事件轮询机制是 Libuv 库实现的。</strong></p></blockquote><p><strong>Node 中事件轮询的流程如下图：</strong></p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Async/20180325170208/event-loop.jpg" alt="Node 事件环流程图"></div><div class="image-caption">Node 事件环流程图</div></figure><p><br></p><blockquote class="pullquote info"><p><strong>从图中可以看出，在 Node 中有多个队列，分别执行不同的操作，而每次在队列切换的时候都去执行一次微任务队列，反复的轮询。</strong></p></blockquote><p><strong>案例 1</strong></p><pre><code class="lang-js">setTimeout(function () {
+  console.log(&#39;setTimeout&#39;);
+}, 0);
+
+setImmediate(function () {
+  console.log(&#39;setInmediate&#39;);
+});
+</code></pre><p>默认情况下 <code>setTimeout</code> 和 <code>setImmediate</code> 是不知道哪一个先执行的，顺序不固定，Node 执行的时候有准备的时间，<code>setTimeout</code> 延迟时间设置为 <code>0</code> 其实是大概 <code>4ms</code>，假设 Node 准备时间在 <code>4ms</code> 之内，开始执行轮询，定时器没到时间，所以轮询到下一队列，此时要等再次循环到 <code>timer</code> 队列后执行定时器，所以会先执行 <code>check</code> 队列的 <code>setImmediate</code>。</p><p>如果 Node 执行的准备时间大于了 <code>4ms</code>，因为执行同步代码后，定时器的回调已经被放入 <code>timer</code> 队列，所以会先执行 <code>timer</code> 队列。</p><p><strong>案例 2</strong></p><pre><code class="lang-js">setTimeout(() =&gt; {
+  console.log(&#39;setTimeout1&#39;);
+  Promise.resolve().then(() =&gt; {
+    console.log(&#39;Promise1&#39;);
+  });
+}, 0);
+
+setTimeout(() =&gt; {
+  console.log(&#39;setTimeout2&#39;);
+}, 0);
+console.log(1);
+
+// 1
+// setTimeout1
+// setTimeout2
+// Promise1
+</code></pre><p>Node 事件轮询中，轮询到每一个队列时，都会将当前队列任务清空后，在切换下一队列之前清空一次微任务队列，这是与浏览器端不一样的。</p><p>浏览器端会在宏任务队列当中执行一个任务后插入执行微任务队列，清空微任务队列后，再回到宏任务队列执行下一个宏任务。</p><p>上面案例在 Node 事件轮询中，会将 <code>timer</code> 队列清空后，在轮询下一个队列之前执行微任务队列。</p><p><strong>案例 3</strong></p><pre><code class="lang-js">setTimeout(() =&gt; {
+  console.log(&#39;setTimeout1&#39;);
+}, 0);
+
+setTimeout(() =&gt; {
+  console.log(&#39;setTimeout2&#39;);
+}, 0);
+
+Promise.resolve().then(() =&gt; {
+  console.log(&#39;Promise1&#39;);
+});
+console.log(1);
+
+// 1
+// Promise1
+// setTimeout1
+// setTimeout2
+</code></pre><p>上面代码的执行过程是，先执行栈，栈执行时打印 <code>1</code>，<code>Promise.resolve()</code> 产生微任务，栈执行完毕，从栈切换到 <code>timer</code> 队列之前，执行微任务队列，再去执行 <code>timer</code> 队列。</p><p><strong>案例 4</strong></p><pre><code class="lang-js">setImmediate(() =&gt; {
+  console.log(&#39;setImmediate1&#39;);
+  setTimeout(() =&gt; {
+    console.log(&#39;setTimeout1&#39;);
+  }, 0);
+});
+
+setTimeout(() =&gt; {
+  console.log(&#39;setTimeout2&#39;);
+  setImmediate(() =&gt; {
+    console.log(&#39;setImmediate2&#39;);
+  });
+}, 0);
+
+//结果1
+// setImmediate1
+// setTimeout2
+// setTimeout1
+// setImmediate2
+
+// 结果2
+// setTimeout2
+// setImmediate1
+// setImmediate2
+// setTimeout1
+</code></pre><p><code>setImmediate</code> 和 <code>setTimeout</code> 执行顺序不固定，假设 <code>check</code> 队列先执行，会执行 <code>setImmediate</code> 打印 <code>setImmediate1</code>，将遇到的定时器放入 <code>timer</code> 队列，轮询到 <code>timer</code> 队列，因为在栈中执行同步代码已经在 <code>timer</code> 队列放入了一个定时器，所以按先后顺序执行两个 <code>setTimeout</code>，执行第一个定时器打印 <code>setTimeout2</code>，将遇到的 <code>setImmediate</code> 放入 <code>check</code> 队列，执行第二个定时器打印 <code>setTimeout1</code>，再次轮询到 <code>check</code> 队列执行新加入的 <code>setImmediate</code>，打印 <code>setImmediate2</code>，产生结果 <code>1</code>。</p><p>假设 <code>timer</code> 队列先执行，会执行 <code>setTimeout</code> 打印 <code>setTimeout2</code>，将遇到的 <code>setImmediate</code> 放入 <code>check</code> 队列，轮询到 <code>check</code> 队列，因为在栈中执行同步代码已经在 <code>check</code> 队列放入了一个 <code>setImmediate</code>，所以按先后顺序执行两个 <code>setImmediate</code>，执行第一个 <code>setImmediate</code> 打印 <code>setImmediate1</code>，将遇到的 <code>setTimeout</code> 放入 <code>timer</code> 队列，执行第二个 <code>setImmediate</code> 打印 <code>setImmediate2</code>，再次轮询到 <code>timer</code> 队列执行新加入的 <code>setTimeout</code>，打印 <code>setTimeout1</code>，产生结果 <code>2</code>。</p><p><strong>案例 5</strong></p><pre><code class="lang-js">setImmediate(() =&gt; {
+  console.log(&#39;setImmediate1&#39;);
+  setTimeout(() =&gt; {
+    console.log(&#39;setTimeout1&#39;);
+  }, 0);
+});
+
+setTimeout(() =&gt; {
+  process.nextTick(() =&gt; console.log(&#39;nextTick&#39;));
+  console.log(&#39;setTimeout2&#39;);
+  setImmediate(() =&gt; {
+    console.log(&#39;setImmediate2&#39;);
+  });
+}, 0);
+
+//结果1
+// setImmediate1
+// setTimeout2
+// setTimeout1
+// nextTick
+// setImmediate2
+
+// 结果2
+// setTimeout2
+// nextTick
+// setImmediate1
+// setImmediate2
+// setTimeout1
+</code></pre><p>这与上面一个案例类似，不同的是在 <code>setTimeout</code> 执行的时候产生了一个微任务 <code>nextTick</code>，我们只要知道，在 Node 事件轮询中，在切换队列时要先去执行微任务队列，无论是 <code>check</code> 队列先执行，还是 <code>timer</code> 队列先执行，都会很容易分析出上面的两个结果。</p><p><strong>案例 6</strong></p><pre><code class="lang-js">const fs = require(&#39;fs&#39;);
+
+fs.readFile(&#39;./.gitignore&#39;, &#39;utf8&#39;, function () {
+  setTimeout(() =&gt; {
+    console.log(&#39;timeout&#39;);
+  }, 0);
+  setImmediate(function () {
+    console.log(&#39;setImmediate&#39;);
+  });
+});
+
+// setImmediate
+// timeout
+</code></pre><p>上面案例的 <code>setTimeout</code> 和 <code>setImmediate</code> 的执行顺序是固定的，前面都是不固定的，这是为什么？</p><p>因为前面的不固定是在栈中执行同步代码时就遇到了 <code>setTimeout</code> 和 <code>setImmediate</code>，因为无法判断 Node 的准备时间，不确定准备结束定时器是否到时并加入 <code>timer</code> 队列。</p><p>而上面代码明显可以看出 Node 准备结束后会直接执行 <code>poll</code> 队列进行文件的读取，在回调中将 <code>setTimeout</code> 和 <code>setImmediate</code> 分别加入 <code>timer</code> 队列和 <code>check</code> 队列，Node 队列的轮询是有顺序的，在 <code>poll</code> 队列后应该先切换到 <code>check</code> 队列，然后再重新轮询到 <code>timer</code> 队列，所以得到上面的结果。</p><p><strong>案例 7</strong></p><pre><code class="lang-js">Promise.resolve().then(() =&gt; console.log(&#39;Promise&#39;));
+process.nextTick(() =&gt; console.log(&#39;nextTick&#39;));
+
+// nextTick
+// Promise
+</code></pre><p>在 Node 中有两个微任务，<code>Promise</code> 的 <code>then</code> 方法和 <code>process.nextTick</code>，从上面案例的结果我们可以看出，在微任务队列中 <code>process.nextTick</code> 是优先执行的。</p><blockquote class="pullquote success"><p><strong>上面内容就是浏览器与 Node 在事件轮询的规则，相信在读完以后应该已经彻底弄清了浏览器的事件轮询机制和 Node 的事件轮询机制，并深刻的体会到了他们之间的相同和不同。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180325170208/" target="_blank" rel="external">https://www.overtaking.top/20180325170208/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Promise/" rel="tag">Promise</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%82%E6%AD%A5/" rel="tag">异步</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180325170208/&title=《浅析 event-loop 事件轮询》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180325170208/&title=《浅析 event-loop 事件轮询》 — Shen's Blog&source=浏览器中的事件轮询JavaScript 是一门单线程语言，之所以说是单线程，是因为在浏览器中，如果是多线程，并且两个线程同时操作了同一个 Dom 元素，那..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180325170208/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《浅析 event-loop 事件轮询》 — Shen's Blog&url=https://www.overtaking.top/20180325170208/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180325170208/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180328140039/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">模拟 Vue 手写一个 MVVM</h4></a></div><div class="waves-block waves-effect next"><a href="/20171214024101/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Git 命令总结，从零到熟悉</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180325170208/&title=《浅析 event-loop 事件轮询》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180325170208/&title=《浅析 event-loop 事件轮询》 — Shen's Blog&source=浏览器中的事件轮询JavaScript 是一门单线程语言，之所以说是单线程，是因为在浏览器中，如果是多线程，并且两个线程同时操作了同一个 Dom 元素，那..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180325170208/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《浅析 event-loop 事件轮询》 — Shen's Blog&url=https://www.overtaking.top/20180325170208/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180325170208/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABw0lEQVR42u3aUa7DIAwEwN7/0n0HqMJb25Cm0uSraioY+mHBmtcrft7x8/n79WivEw8uLu6YW53+c5pk4qsxcwMuLu793KsJqqC8YCXj4+Li/gp3TU+2NeuihouL+7vc9UYn2azg4uI+n5sXmvX06+/zw9WGsxouLu6Am6eU5z4fyXdxcXFb3HfxWUef1Ti1PDsuLu4t3EkjZB2SJqWwOS8uLu5hbu+SRDUWmd+vKHRmcHFxx9ycWG2ZJAvIY5FLDy4u7jFudWXVSLQ38mWAgouLe5ibFJd1mZsffpIF4OLi3slNjhw5btf1i/JeDBcXdyt3dMVhcGGrWhajwBQXF3cTNy9kvVZrte2aLwMXF/c0txd8VIPU6naq0BPGxcU9xu01U+fdz7wZg4uL+11u7+JU3kadfIOLi3snt9pAnbyttk9wcXG/y+1tUP7ZlLS2R4XXuLi4W7m9S1RJsyQfp/DX4OLi3sKtRhW9psik/DUXg4uLO+b2itd8q5S3bwvVFxcXdys3LzS9sOPgWQ0XF/cx3MkhalIucXFxn8/NWyO7AllcXNw7uXm4maBzVv6n4OLi3smdt1HnAUo1qMXFxT3G/QPxJ8NCuLuxeQAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

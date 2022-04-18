@@ -1,0 +1,143 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Express 中间件 body-parser 原理分析 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,源码分析,中间件,Express"><meta name="description" content="前言Express 是基于 Node.js 平台的 Web 框架，应用广泛，在 Express 社区中有着大量的开发者通过 Express 中间件的特性，开发了各种功能的中间件，用来处理某些响应以及给请求对象 req、响应对象 res 添加属性或方法，我们接下来就通过分析常用的 body-parser 中间件的原理来了解如何开发 Express 中间件。"><meta property="og:type" content="article"><meta property="og:title" content="Express 中间件 body-parser 原理分析"><meta property="og:url" content="https://www.overtaking.top/20180828022147/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言Express 是基于 Node.js 平台的 Web 框架，应用广泛，在 Express 社区中有着大量的开发者通过 Express 中间件的特性，开发了各种功能的中间件，用来处理某些响应以及给请求对象 req、响应对象 res 添加属性或方法，我们接下来就通过分析常用的 body-parser 中间件的原理来了解如何开发 Express 中间件。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180828022147/express-middleware.png"><meta property="article:published_time" content="2018-08-27T18:21:47.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="源码分析"><meta property="article:tag" content="中间件"><meta property="article:tag" content="Express"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180828022147/express-middleware.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Express 中间件 body-parser 原理分析</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Express 中间件 body-parser 原理分析</h1><h5 class="subtitle"><time datetime="2018-08-27T18:21:47.000Z" itemprop="datePublished" class="page-time">2018-08-28</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#body-parser-的基本使用"><span class="post-toc-number">2.</span> <span class="post-toc-text">body-parser 的基本使用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#body-parser-的实现"><span class="post-toc-number">3.</span> <span class="post-toc-text">body-parser 的实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#原理分析"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">原理分析</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#分析-urlencoded、json-公共逻辑"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">分析 urlencoded、json 公共逻辑</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#模块的创建"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">模块的创建</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#acceptPost-的实现"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">acceptPost 的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#urlencoded-和-json-方法的实现"><span class="post-toc-number">3.5.</span> <span class="post-toc-text">urlencoded 和 json 方法的实现</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180828022147" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Express 中间件 body-parser 原理分析</h1><div class="post-meta"><time class="post-time" title="2018-08-28 02:21:47" datetime="2018-08-27T18:21:47.000Z" itemprop="datePublished">2018-08-28</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180828022147/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Express 中间件 body-parser 原理分析"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180828022147/express-middleware.png" title="Express 中间件"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote info"><p><strong><code>Express</code> 是基于 <code>Node.js</code> 平台的 <code>Web</code> 框架，应用广泛，在 <code>Express</code> 社区中有着大量的开发者通过 <code>Express</code> 中间件的特性，开发了各种功能的中间件，用来处理某些响应以及给请求对象 <code>req</code>、响应对象 <code>res</code> 添加属性或方法，我们接下来就通过分析常用的 <code>body-parser</code> 中间件的原理来了解如何开发 <code>Express</code> 中间件。</strong></p></blockquote><a id="more"></a><h2 id="body-parser-的基本使用"><a href="#body-parser-的基本使用" class="headerlink" title="body-parser 的基本使用"></a>body-parser 的基本使用</h2><p>想分析一个中间件的原理，首先应该从使用入手，在足够了解用法的基础上去分析，现在搭建一个简易的 <code>Express</code> 服务，并使用 <code>body-parser</code> 中间件，使用前需安装。</p><pre><code class="lang-bash">$ npm install express body-parser
+</code></pre><p><strong>使用 <code>body-parser</code> 代码如下：</strong></p><pre><code class="lang-js">/* 使用 body-parser 中间件 */
+const express = require(&#39;express&#39;);
+const bodyParser = require(&#39;body-parser&#39;);
+
+// 创建服务
+const app = express();
+
+// 使用 body-parser 中间
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// 创建路由
+app.post(&#39;/login&#39;, function (req, res) {
+  console.log(req.body);
+  res.send(req.body);
+});
+
+// 监听服务
+app.listen(3000, function () {
+  console.log(&#39;server start 3000&#39;);
+});
+</code></pre><p>启动上面的服务器，通过 <code>postman</code> 工具分别通过表单提交和 <code>json</code> 的格式访问 <a href="javascript:;">http://localhost:3000/login</a>，查看服务器控制后台的打印结果和 <code>postman</code> 的返回结果。</p><h2 id="body-parser-的实现"><a href="#body-parser-的实现" class="headerlink" title="body-parser 的实现"></a>body-parser 的实现</h2><h3 id="原理分析"><a href="#原理分析" class="headerlink" title="原理分析"></a>原理分析</h3><blockquote class="pullquote default"><p><strong>从上面的使用案例我们可以分析出一下几点：</strong></p><ul><li><strong>首先，<code>body-parser</code> 中间件的作用是给 <code>req</code> 添加属性 <code>body</code>，值为对象，以键值对的形式存储请求体中的参数；</strong></li><li><strong>其次，<code>body-parser</code> 只处理 <code>POST</code> 请求；</strong></li><li><strong>最后，<code>body-parser</code> 模块导出一个对象，上面有两个方法 <code>urlencoded</code> 和 <code>json</code>，分别处理表单提交和 <code>json</code> 格式的请求体参数。</strong></li></ul></blockquote><h3 id="分析-urlencoded、json-公共逻辑"><a href="#分析-urlencoded、json-公共逻辑" class="headerlink" title="分析 urlencoded、json 公共逻辑"></a>分析 urlencoded、json 公共逻辑</h3><blockquote class="pullquote default"><p><strong>在实现之前我们先分析一下两个方法：</strong></p><ul><li><strong>首先都需要先读取请求体中的内容，数据传输的类型为 <code>Buffer</code>，转换成字符串后会根据提交方式不同而导致请求体中的内容是查询字符串或者是 <code>json</code> 字符串的区别；</strong></li><li><strong>当解析失败时都需要做错误处理；</strong></li><li><strong>当不是 <code>POST</code> 请求时都需要向下执行其他中间件；</strong></li><li><strong>而最核心的事就是把请求体中的数据转换成对象挂在 <code>req.body</code> 上。</strong></li></ul></blockquote><p>使用的转换数据的方法不同是唯一的区别，能区分两者的就是请求头 <code>Content-Type</code> 的值，因此我们可以把所有的公共逻辑抽取出来用一个 <code>acceptPost</code> 函数来执行。</p><h3 id="模块的创建"><a href="#模块的创建" class="headerlink" title="模块的创建"></a>模块的创建</h3><p>我们下面创建自己的 <code>body-parser</code> 模块，防止命名冲突，模块命名为 <code>my-body-parser</code>，处理参数需要使用 <code>querystring</code> 和 <code>qs</code> 两个模块，其中 <code>qs</code> 是第三方模块，使用前需安装。</p><pre><code class="lang-bash">$ npm install qs
+</code></pre><p><code>qs</code> 和 <code>querystring</code> 作用基本相同，就是处理查询字符串格式的参数，但是也有一点小小的区别，<code>querystring</code> 只能处理一级，而 <code>qs</code> 可以处理多级。</p><pre><code class="lang-js">/* 文件：my-body-parser.js */
+const querystring = require(&#39;querystring&#39;);
+const qs = require(&#39;qs&#39;);
+
+// urlencoded 和 json 公共逻辑
+function acceptPost() {
+  // ...
+}
+
+// 处理表单提交的方法
+function urlencoded() {
+  // ...
+}
+
+// 处理请求体 json 的方法
+function json() {
+  // ...
+}
+
+// 导出对象
+module.exports = { urlencoded, json };
+</code></pre><p>在把基本模块搭建好后，我们下面就实现 <code>body-parser</code> 模块内的公共逻辑函数 <code>acceptPost</code>。</p><h3 id="acceptPost-的实现"><a href="#acceptPost-的实现" class="headerlink" title="acceptPost 的实现"></a>acceptPost 的实现</h3><p>为了兼容 <code>urlencoded</code> 方法和 <code>json</code> 方法设计了两个参数，一个是区分当前调用方法的 <code>type</code>，一个是针对 <code>urlencoded</code> 方法的 <code>options</code>。</p><pre><code class="lang-js">/* acceptPost 的实现 */
+// urlencoded 方法和 json 方法的公共逻辑函数
+function acceptPost(type, options) {
+  // 返回一个中间件函数
+  return function (req, res, next) {
+    // 获取请求头
+    const contentType = req.headers[&#39;content-type&#39;];
+
+    // 判断如果不符合两种提交的请求头直接交给其他中间件处理
+    if (
+      contentType === &#39;application/x-www-form-urlencoded&#39; ||
+      contentType === &#39;application/json&#39;
+    ) {
+      // 存储数据的数组
+      const buffers = [];
+
+      req.on(&#39;data&#39;, function (data) {
+        // 接收数据并存入数组中
+        buffers.push(data);
+      });
+
+      req.on(&#39;end&#39;, function () {
+        // 组合数据并转换成字符串
+        const result = Buffer.concat(buffers).toString();
+
+        // 处理数据并挂载 req.body 属性上
+        // 如果是表单提交则使用 querystring 或 qs，否则使用 JSON.parse
+        if (type === &#39;form&#39;) {
+          // 如果配置 extended 值为 true 使用 qs，否则使用 querystring
+          req.body = options.extended ? qs.parse(result) : querystring.parse(result);
+        } else if (type === &#39;json&#39;) {
+          req.body = JSON.parse(result);
+        }
+
+        next(); // 向下执行
+      });
+
+      // 错误处理
+      req.on(&#39;err&#39;, function (err) {
+        next(err);
+      });
+    } else {
+      next();
+    }
+  }
+}
+</code></pre><h3 id="urlencoded-和-json-方法的实现"><a href="#urlencoded-和-json-方法的实现" class="headerlink" title="urlencoded 和 json 方法的实现"></a>urlencoded 和 json 方法的实现</h3><pre><code class="lang-js">// 处理表单提交的方法
+function urlencoded(options) {
+  // 定义 type 值
+  const type = &#39;form&#39;;
+  return acceptPost(type, options)
+}
+
+// 处理请求体 json 的方法
+function json() {
+  // 定义 type 值
+  const type = &#39;json&#39;;
+  return acceptPost(type);
+}
+</code></pre><p>当我们把所有的公共逻辑都抽取出去后发现，<code>urlencoded</code> 和 <code>json</code> 方法内部只需要定义不同的类型就可以执行自己的中间件逻辑。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>上面分析 <code>body-parse</code> 中间件的原理的目的在于理解 <code>Express</code> 中间件开发的模式，在此总结一下，<code>Express</code> 中间件返回的是一个函数，形参为 <code>req</code>、<code>res</code> 和 <code>next</code>，当功能无法处理某些情况时需要调用 <code>next</code>，当出现错误时调用 <code>next</code> 并传递错误，则交给 <code>Express</code> 内置的错误处理中间件，在中间件内部代码涉及异步操作时，须在异步完成的回调当中调用 <code>next</code>，这是不如 <code>Koa</code> 方便的一点，同时也是两者的区别，因为 <code>Koa</code> 中已经大量使用 <code>async/await</code>，在执行异步代码时可以等待。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180828022147/" target="_blank" rel="external">https://www.overtaking.top/20180828022147/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Express/" rel="tag">Express</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180828022147/&title=《Express 中间件 body-parser 原理分析》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180828022147/&title=《Express 中间件 body-parser 原理分析》 — Shen's Blog&source=前言Express 是基于 Node.js 平台的 Web 框架，应用广泛，在 Express 社区中有着大量的开发者通过 Express 中间件的特性，..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180828022147/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Express 中间件 body-parser 原理分析》 — Shen's Blog&url=https://www.overtaking.top/20180828022147/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180828022147/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180902141819/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Node.js 进阶 —— Koa2 源码分析</h4></a></div><div class="waves-block waves-effect next"><a href="/20180825162129/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Express 源码分析及简易封装</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180828022147/&title=《Express 中间件 body-parser 原理分析》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180828022147/&title=《Express 中间件 body-parser 原理分析》 — Shen's Blog&source=前言Express 是基于 Node.js 平台的 Web 框架，应用广泛，在 Express 社区中有着大量的开发者通过 Express 中间件的特性，..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180828022147/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Express 中间件 body-parser 原理分析》 — Shen's Blog&url=https://www.overtaking.top/20180828022147/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180828022147/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAAByklEQVR42u3aSYrDMBAFUN//0mnIqiFt+5dKUtzwtDJk0JMXRQ06jni93uv38+f6/PTst5/PkxcuLm6b+7pcZ3+dEK+hySv440i4uLgbuUnwuj5kfrA8qOHi4j6fexZcrg9TTX1wcXH/F3dWPZKEP1xc3Cdw82ZHEtSSlGh5rYaLi9vgjjVM5z4v7+/i4uJOmkpURyZ502RwX1xc3C3cZOO5c89qu+RmM1xc3AXcvPXZaafmYe7GgIuLu4Wbj0vzZKVarVQHMLi4uDu5/XFpddxSTX1wcXH3cKvty+vkY2x8kn8fFxd3D3dWczMvivKC5+hHRFxc3DY3v0Ixdm1rbN+bjAwXF3c7tzMCSQ5TfSm4uLjf4g6ON+KLXNXSKKrYcHFxF3BXtEHzFCdvl+Di4n6XW22e9ken5ZeFi4u7kZsnPdVrGdUwNzgZxsXFncrNWxvVKxRHe+Hi4u7kvoqr2vioDnFvfoWLi7uF24l8SfDKkxtcXNyncZPgVS1v8sZKXj7h4uLu586Ni62oeb07Li7uI7n52KPaMI3arLi4uA/jdi5Y5KCbwIeLi7uRmxQzswYqOTS6koWLi7uA2ypFOhPdoYYsLi7uYu4P6KYlC5YZYDsAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

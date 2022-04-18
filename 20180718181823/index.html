@@ -1,0 +1,155 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Node.js 服务器实现 gzip 压缩 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,HTTP,http-headers,gzip"><meta name="description" content="概述在浏览器向服务器请求静态资源时，服务器为了减小在网络传输过程中消耗的流量和时间，都是将静态资源经过压缩后返回给服务器的，实现压缩的算法有 deflate 和 gzip 等，最常用的是 gzip 压缩。"><meta property="og:type" content="article"><meta property="og:title" content="Node.js 服务器实现 gzip 压缩"><meta property="og:url" content="https://www.overtaking.top/20180718181823/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="概述在浏览器向服务器请求静态资源时，服务器为了减小在网络传输过程中消耗的流量和时间，都是将静态资源经过压缩后返回给服务器的，实现压缩的算法有 deflate 和 gzip 等，最常用的是 gzip 压缩。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180718181823/gzip.png"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180718181823/how-gzip-works.png"><meta property="article:published_time" content="2018-07-18T10:18:23.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="HTTP"><meta property="article:tag" content="http-headers"><meta property="article:tag" content="gzip"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180718181823/gzip.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Node.js 服务器实现 gzip 压缩</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Node.js 服务器实现 gzip 压缩</h1><h5 class="subtitle"><time datetime="2018-07-18T10:18:23.000Z" itemprop="datePublished" class="page-time">2018-07-18</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概述"><span class="post-toc-number">1.</span> <span class="post-toc-text">概述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#gzip-简介"><span class="post-toc-number">2.</span> <span class="post-toc-text">gzip 简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#zlib-模块的使用"><span class="post-toc-number">3.</span> <span class="post-toc-text">zlib 模块的使用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#压缩"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">压缩</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#解压"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">解压</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#服务器的实现"><span class="post-toc-number">4.</span> <span class="post-toc-text">服务器的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#测试服务器压缩"><span class="post-toc-number">5.</span> <span class="post-toc-text">测试服务器压缩</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">6.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180718181823" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Node.js 服务器实现 gzip 压缩</h1><div class="post-meta"><time class="post-time" title="2018-07-18 18:18:23" datetime="2018-07-18T10:18:23.000Z" itemprop="datePublished">2018-07-18</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180718181823/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js 服务器实现 gzip 压缩"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180718181823/gzip.png" title="Node.js 实现 gzip 压缩"><p><br></p><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote class="pullquote success"><p><strong>在浏览器向服务器请求静态资源时，服务器为了减小在网络传输过程中消耗的流量和时间，都是将静态资源经过压缩后返回给服务器的，实现压缩的算法有 <code>deflate</code> 和 <code>gzip</code> 等，最常用的是 <code>gzip</code> 压缩。</strong></p></blockquote><a id="more"></a><h2 id="gzip-简介"><a href="#gzip-简介" class="headerlink" title="gzip 简介"></a>gzip 简介</h2><p>在浏览器和服务器之间通过 <code>gzip</code> 压缩流实现传输的过程可以用下图表示。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180718181823/how-gzip-works.png" alt="gzip 压缩工作原理"></div><div class="image-caption">gzip 压缩工作原理</div></figure><p><br></p><p>当浏览器向服务器请求静态资源，服务器会将静态资源经过处理转换为压缩流，大大减小文件体积，然后将压缩流返回给浏览器，浏览器通过压缩的类型重新将压缩流解析成静态文件。</p><h2 id="zlib-模块的使用"><a href="#zlib-模块的使用" class="headerlink" title="zlib 模块的使用"></a>zlib 模块的使用</h2><h3 id="压缩"><a href="#压缩" class="headerlink" title="压缩"></a>压缩</h3><p>在 Node.js 中通过 <code>zlib</code> 模块帮助我们实现不同类型的压缩，其实压缩的过程就是创建流的过程，创建的压缩流是 Transform 类型（转化流），读取文件的内容经过转化流创建一个新类型的文件。</p><pre><code class="lang-js">/* 文件：gzip.js */
+const zlib = require(&#39;zlib&#39;);
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 压缩
+function gzip(source) {
+  // 处理输入和输出的文件路径
+  const sourcePath = path.join(__dirname, source);
+  const gzipPath = sourcePath + &#39;.gz&#39;;
+
+  // 创建转化流
+  const gzip = zlib.createGzip();
+
+  // 创建可读流
+  const rs = fs.createReadStream(sourcePath);
+
+  // 创建可写流
+  const ws = fs.createWriteStream(gzipPath);
+
+  // 实现转化
+  rs.pipe(gzip).pipe(ws);
+}
+
+gzip(&#39;index.html&#39;);
+</code></pre><p>执行上面代码查看根目路是否出现 <code>index.gz</code> 压缩包。</p><h3 id="解压"><a href="#解压" class="headerlink" title="解压"></a>解压</h3><p>压缩的过程是可逆的，可以压缩就可以解压，无论是在浏览器还是在服务器，我们下面实现解压的方法。</p><pre><code class="lang-js">/* 文件：gunzip.js */
+const zlib = require(&#39;zlib&#39;);
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 解压
+function gunzip(source) {
+  // 处理输入和输出的文件路径
+  const sourcePath = path.join(__dirname, source);
+  const filePath = path.join(__dirname, path.basename(source, &#39;.gz&#39;));
+
+  // 创建转化流
+  const unzip = zlib.createGunzip();
+
+  // 创建可读流
+  const rs = fs.createReadStream(sourcePath);
+
+  // 创建可写流
+  const ws = fs.createWriteStream(filePath);
+
+  // 实现转化
+  rs.pipe(unzip).pipe(ws);
+}
+
+gunzip(&#39;index.html.gz&#39;);
+</code></pre><p>删除原来 <code>index.html</code>，执行解压代码，查看文件根目录是否生成 <code>index.html</code>。</p><h2 id="服务器的实现"><a href="#服务器的实现" class="headerlink" title="服务器的实现"></a>服务器的实现</h2><p>在浏览器与服务器的交互中，浏览器其实会通过请求头 <code>Accept-Encoding</code> 告诉服务器当前支持解压的压缩格式，值为 <code>gzip, deflate, br</code>，多个压缩格式用 <code>,</code> 隔开，服务器在接收到浏览器请求后，会按照请求头的格式压缩资源，将压缩后的资源返回，并通过响应头 <code>Content-Encoding</code> 告诉浏览器当前服务器压缩的格式。</p><pre><code class="lang-js">/* 文件：server.js */
+// 引入依赖
+const http = require(&#39;http&#39;);
+const url = require(&#39;url&#39;);
+const path = require(&#39;path&#39;);
+const fs = require(&#39;fs&#39;);
+const zlib = require(&#39;zlib&#39;);
+
+// 创建服务器
+const server = http.createServer((req, res) =&gt; {
+  // 处理 pathname，&#39;/&#39; 时默认读取 &#39;/index.html&#39;
+  let { pathname } = url.parse(req.url, true);
+  pathname = pathname !== &#39;/&#39; ? pathname : &#39;/index.html&#39;;
+
+  // 获取读取文件的绝对路径
+  const filePath = path.join(__dirname, pathname);
+
+  // 查看路径是否合法
+  fs.access(filePath, err =&gt; {
+    // 路径不合法则直接中断连接
+    if (err) return res.end(&#39;Not Found&#39;);
+
+    // 创建压缩流变量，压缩类型变量
+    let compress, compressType
+
+    // 获取浏览器支持的压缩格式
+    const encoding = req.headers[&#39;accept-encoding&#39;];
+
+    // 创建可读流
+    const rs = fs.createReadStream(filePath);
+
+    // 支持 gzip 使用 gzip 压缩，支持 deflate 使用 deflate 压缩
+    if (encoding &amp;&amp; encoding.match(/\bgzip\b/)) {
+      compress = zlib.createGzip();
+      compressType = &#39;gzip&#39;;
+    } else if (encoding &amp;&amp; encoding.match(/\bdeflate\b/)) {
+      compress = zlib.createDeflate();
+      compressType = &#39;deflate&#39;;
+    } else {
+      // 否则直接返回可读流
+      return rs.pipe(res);
+    }
+
+    // 将压缩流返回并设置响应头
+    res.setHeader(&#39;Content-Encoding&#39;, compressType);
+    rs.pipe(compress).pipe(res);
+  });
+});
+
+server.listen(3000, () =&gt; {
+  console.log(&#39;server start 3000&#39;);
+});
+</code></pre><p>在上面服务器代码中如果不通过响应头通知浏览器当前资源的压缩格式，浏览器会不知道该如何解压，默认会当成文件下载，如 <code>Chrome</code>，所以在返回压缩流时必须通过 <code>Content-Encoding</code> 响应头通知浏览器当前的压缩格式。</p><h2 id="测试服务器压缩"><a href="#测试服务器压缩" class="headerlink" title="测试服务器压缩"></a>测试服务器压缩</h2><p>我们在文件根目录创建一个 <code>index.html</code> 文件，代码如下。</p><pre><code class="lang-html">&lt;!-- 文件：index.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot;&gt;
+  &lt;title&gt;gzip&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div&gt;Hello GZIP!&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p>启动服务器 <code>server.js</code>，然后通过浏览器访问 <a href="javascript:;">localhost:3000</a>，查看页面能否正确返回，并查看开发者工具 Network 中的响应头 <code>Content-Encoding</code> 的值是否正确。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote info"><p><strong>服务器压缩其实是客户端与服务器在网络传输时的一种优化手段，可以大大减小流量的消耗和响应时间，而 <code>gzip</code> 只是目前最常用的一种压缩格式，即压缩算法。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180718181823/" target="_blank" rel="external">https://www.overtaking.top/20180718181823/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gzip/" rel="tag">gzip</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http-headers/" rel="tag">http-headers</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180718181823/&title=《Node.js 服务器实现 gzip 压缩》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180718181823/&title=《Node.js 服务器实现 gzip 压缩》 — Shen's Blog&source=概述在浏览器向服务器请求静态资源时，服务器为了减小在网络传输过程中消耗的流量和时间，都是将静态资源经过压缩后返回给服务器的，实现压缩的算法有 deflat..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180718181823/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 服务器实现 gzip 压缩》 — Shen's Blog&url=https://www.overtaking.top/20180718181823/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180718181823/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180719190551/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Node.js 加密 —— crypto 模块</h4></a></div><div class="waves-block waves-effect next"><a href="/20180717111807/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Node.js 实现简易的多语言服务</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180718181823/&title=《Node.js 服务器实现 gzip 压缩》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180718181823/&title=《Node.js 服务器实现 gzip 压缩》 — Shen's Blog&source=概述在浏览器向服务器请求静态资源时，服务器为了减小在网络传输过程中消耗的流量和时间，都是将静态资源经过压缩后返回给服务器的，实现压缩的算法有 deflat..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180718181823/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 服务器实现 gzip 压缩》 — Shen's Blog&url=https://www.overtaking.top/20180718181823/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180718181823/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABw0lEQVR42u3ay47CMAwFUP7/p5kt0qjh2m4CSCerqlTNKQsrfjwe8Xq+rP93Xu9fPZ//esPCxcUdc5/LlW9QJa4//vJtuLi4B7lXG6yv82CXv/+NDRcX90e41Y9ZBzVcXNxf5K4RCe5oIMPFxR1we4Gmh64+iYuLe56bVyn3XW+p7+Li4ra4z+JaFzsmDZVod1xc3CPcPKDkzdQ81Wnui4uLu5mblEF7h5JJ6hKFMFxc3G3cXuEyGaG4d/yi8B/j4uKOub0SZ++4M2mu4OLinuT2Up28tJokP9W/ABcX9wx3/VAv3MzDVpT84OLibuP2yhlJwKomS+W4i4uLu4Gb4PKDTj7UlY95vcnVcHFxt3EnTdDeuFX1w3BxcU9yJ8eOvPDRa7Je7oWLi3uQOxmt6LVge3dwcXE/xa2OYOaF10mzFhcX9zx3UgzNk59JKRYXF/cMtzeGlZc7k/cUDli4uLhHuNVSxaSQ2iuzNj8GFxd3zO0FrzxB6jVlmwcdXFzcW7l5oElwefp0Q66Gi4v7Ndyk+XFvWoWLi/vN3HnwGiVRuLi4B7mT4uZk9LM6xoGLi3uGWw0lvYHO6jM31HdxcXE73D/vCs0cKUOvkAAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Webpack4 —— 优化篇 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,Webpack,构建,性能优化"><meta name="description" content="系列文章链接：Webpack4 —— 基础篇Webpack4 —— 应用篇文件指纹“文件指纹” 就是打包后的文件名的后缀，文件指纹的好处如下：版本管理，文件发生变化，文件指纹发生变化，只将发生变化的文件进行发布；没有修改文件指纹的文件可以继续使用浏览器缓存，减少网络带宽，加速页面访问。"><meta property="og:type" content="article"><meta property="og:title" content="Webpack4 —— 优化篇"><meta property="og:url" content="https://www.overtaking.top/20181110203121/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="系列文章链接：Webpack4 —— 基础篇Webpack4 —— 应用篇文件指纹“文件指纹” 就是打包后的文件名的后缀，文件指纹的好处如下：版本管理，文件发生变化，文件指纹发生变化，只将发生变化的文件进行发布；没有修改文件指纹的文件可以继续使用浏览器缓存，减少网络带宽，加速页面访问。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Compile/20181110203121/webpack-optimization.png"><meta property="article:published_time" content="2018-11-10T12:31:21.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="Webpack"><meta property="article:tag" content="构建"><meta property="article:tag" content="性能优化"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Compile/20181110203121/webpack-optimization.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Webpack4 —— 优化篇</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Webpack4 —— 优化篇</h1><h5 class="subtitle"><time datetime="2018-11-10T12:31:21.000Z" itemprop="datePublished" class="page-time">2018-11-10</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Webpack/">Webpack</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#文件指纹"><span class="post-toc-number">1.</span> <span class="post-toc-text">文件指纹</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#代码压缩"><span class="post-toc-number">2.</span> <span class="post-toc-text">代码压缩</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#JS-压缩"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">JS 压缩</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#CSS-压缩"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">CSS 压缩</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Html-压缩"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">Html 压缩</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#资源内联"><span class="post-toc-number">3.</span> <span class="post-toc-text">资源内联</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Html-和-JS-的内联"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">Html 和 JS 的内联</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#CSS-内联"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">CSS 内联</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#图片、字体的内联"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">图片、字体的内联</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#抽取公共依赖"><span class="post-toc-number">4.</span> <span class="post-toc-text">抽取公共依赖</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#基础库分离"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">基础库分离</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#代码分割"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">代码分割</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#tree-shaking-优化"><span class="post-toc-number">5.</span> <span class="post-toc-text">tree-shaking 优化</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配置-tree-shaking"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">配置 tree-shaking</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#tree-shaking-原理简介"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">tree-shaking 原理简介</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#深度-tree-shaking"><span class="post-toc-number">5.3.</span> <span class="post-toc-text">深度 tree-shaking</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Scope-Hoisting-优化"><span class="post-toc-number">6.</span> <span class="post-toc-text">Scope Hoisting 优化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#资源懒加载"><span class="post-toc-number">7.</span> <span class="post-toc-text">资源懒加载</span></a></li></ol></nav></aside><article id="post-Compile/20181110203121" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Webpack4 —— 优化篇</h1><div class="post-meta"><time class="post-time" title="2018-11-10 20:31:21" datetime="2018-11-10T12:31:21.000Z" itemprop="datePublished">2018-11-10</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Webpack/">Webpack</a></li></ul><span id="/20181110203121/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Webpack4 —— 优化篇"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Compile/20181110203121/webpack-optimization.png" title="webpack optimization"><p><br></p><blockquote class="pullquote default"><p><strong>系列文章链接：</strong></p><ul><li><a href="/20181002041434/" target="_blank">Webpack4 —— 基础篇</a></li><li><a href="/20181115105656/" target="_blank">Webpack4 —— 应用篇</a></li></ul></blockquote><h2 id="文件指纹"><a href="#文件指纹" class="headerlink" title="文件指纹"></a>文件指纹</h2><blockquote class="pullquote info"><p><strong>“文件指纹” 就是打包后的文件名的后缀，文件指纹的好处如下：</strong></p><ul><li><strong>版本管理，文件发生变化，文件指纹发生变化，只将发生变化的文件进行发布；</strong></li><li><strong>没有修改文件指纹的文件可以继续使用浏览器缓存，减少网络带宽，加速页面访问。</strong></li></ul></blockquote><a id="more"></a><blockquote class="pullquote success"><p><strong>“文件指纹” 的种类：</strong></p><ul><li><strong><code>Hash</code>：和整个项目的构建有关，只要项目中有文件发生变化，使用该配置的文件名的 “指纹” 就会发生变化；</strong></li><li><strong><code>ChunkHash</code>：和 <code>Webpack</code> 打包的 <code>chunk</code> 有关，不同的 <code>entry</code>（多页应用时）会生成不同的 “指纹”，页面对应的文件发生变化才会影响该页面的 “指纹”；</strong></li><li><strong><code>ContentHash</code>：根据具体文件的内容生成 “指纹”，在具体某一个页面下引用的多个文件中，如果使用 <code>ChunkHash</code> 会导致一个文件变化其他的文件 “指纹” 也发生变化，使用 <code>ContentHash</code> 可以保证文件内容不变不会 “指纹” 不会发生变化。</strong></li></ul></blockquote><p><strong>合理使用 “文件指纹”：</strong></p><pre><code class="lang-js">const MiniCssExtractPlugin = require(&#39;mini-css-extract-plugin&#39;);
+
+module.exports = {
+  entry: {
+    app: &#39;./pages/app.js&#39;,
+    appAdmin: &#39;./pages/appAdmin.js&#39;
+  },
+  output: {
+    // 不同页面出口文件使用 chunkhash
+    filename: &#39;[name][chunkhash:8].js&#39;,
+    path: __dirname + &#39;dist&#39;
+  },
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          &#39;css-loader&#39;,
+        ],
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        loader: &#39;url-loader&#39;,
+        options: {
+          limit: 10000,
+          // MD5 根据文件内容生成，字体文件同理
+          name: &#39;[name].[hash:8].[ext]&#39;
+        }
+      }
+      // ...
+    ]
+  }
+  plugins: [
+    // 使用该插件将 CSS 文件单独提取
+    new MiniCssExtractPlugin({
+      // 该 contenthash 同图片的 hash
+      filename: &#39;[name][contenthash:8].css&#39;
+    })
+  ]
+  // ...
+}
+</code></pre><blockquote class="pullquote danger"><p><strong>“指纹” 配置不能和热更新插件 <code>HotModuleReplacementPlugin</code> 同时使用，因此也突出了 <code>Webpack</code> 配置根据环境（<code>mode</code>）区分的重要性。</strong></p></blockquote><h2 id="代码压缩"><a href="#代码压缩" class="headerlink" title="代码压缩"></a>代码压缩</h2><p>在项目正式上线时，代码压缩是非常必要的，因为代码压缩后资源的字节会更少，文件大小会更小，这样在文件传输过程中也会节约带宽进而加快文件的访问速度。</p><h3 id="JS-压缩"><a href="#JS-压缩" class="headerlink" title="JS 压缩"></a>JS 压缩</h3><p>在 <code>Webpack4</code> 中内置了 <code>uglifyjs-webpacl-plugin</code> 插件，在 <code>mode</code> 配置为 <code>production</code> 时会默认实现 <code>.js</code> 文件的压缩，也可以手动安装该插件去配置关于压缩的其他参数，如并行压缩等（非必要）。</p><h3 id="CSS-压缩"><a href="#CSS-压缩" class="headerlink" title="CSS 压缩"></a>CSS 压缩</h3><p>在 <code>Webpack</code> 旧版本中可以通过 <code>css-loader</code> 中配置参数来实现压缩，但是后来 <code>css-loader</code> 去掉了这个配置，所以在 <code>Webpack4</code> 中可以通过 <code>OptimizeCssAssetsWebpackPlugin</code> 插件来实现对 <code>.css</code> 文件的压缩。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install cssnano optimize-css-assets-webpack-plugin -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-js">/* 在 plugins 中配置 */
+const OptimizeCssPlugin = require(&#39;optimize-css-assets-webpack-plugin&#39;);
+
+// 用于匹配 CSS 文件的处理器（默认）
+const Cssnano = require(&#39;cssnano&#39;);
+
+module.exports = {
+  // ...
+  plugins: [
+    new OptimizeCssPlugin({
+      assetNameRegExp: /\.css$/g,
+      cssProcessor: Cssnano,
+      cssProcessorOptions: {
+        // 注释处理
+        discardComments: {
+          removeAll: true // 移除所有注释
+        },
+        normalizeUnicode: false // 防止 unicode-range 时产生乱码
+      }
+    })
+  ]
+}
+</code></pre><pre><code class="lang-js">/* 在 optimization 中配置 */
+const OptimizeCssPlugin = require(&#39;optimize-css-assets-webpack-plugin&#39;);
+
+// 用于匹配 CSS 文件的处理器（默认）
+const Cssnano = require(&#39;cssnano&#39;);
+
+module.exports = {
+  // ...
+  optimization: {
+    // ...
+    minimizer: [
+      new OptimizeCssPlugin({
+        assetNameRegExp: /\.css$/g,
+        cssProcessor: Cssnano,
+        cssProcessorOptions: {
+          // 注释处理
+          discardComments: {
+            removeAll: true // 移除所有注释
+          },
+          normalizeUnicode: false // 防止 unicode-range 时产生乱码
+        }
+      })
+    ]
+    // ...
+  }
+}
+</code></pre><h3 id="Html-压缩"><a href="#Html-压缩" class="headerlink" title="Html 压缩"></a>Html 压缩</h3><p>压缩 <code>.html</code> 文件主要还是依靠 <code>HtmlWebpackPlugin</code> 插件，通过生产环境构建时配置一些参数来实现。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install html-webpack-plugin -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-js">const HtmlWebpackPlugin = require(&#39;html-webpack-plugin&#39;);
+
+module.exports = {
+  // ...
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: &#39;./src/index.html&#39;, // 模板文件路径
+      filename: &#39;index.html&#39;, // 输出文件名称
+      inject: true, // 将 js 资源放在 body 底部
+      minify: {
+        collapseWhitespace: true, // 是否删除空白符与换行符
+        removeAttributeQuotes: true, // 是否移除引号
+        minifyCSS: true, // 压缩 CSS
+        minifyJS: true, // 压缩 JS
+        removeComments: true // 是否移除 HTML 中的注释
+      }
+    })
+  ]
+  // ...
+}
+</code></pre><h2 id="资源内联"><a href="#资源内联" class="headerlink" title="资源内联"></a>资源内联</h2><blockquote class="pullquote default"><p><strong>资源内联就是将资源的代码放在 <code>.html</code> 文件中一起请求回来，资源内联优化的意义大致可以分为两个层面，代码层面和网络层面。</strong></p><ul><li><strong>在代码层面可以内联一些 <code>meta</code> 标签，便于维护管理文件，可以内联一些页面框架的初始化脚本、上报埋点相关的脚本，也可以将首屏使用的 <code>CSS</code> 内联，防止网络不好的情况下页面闪动；</strong></li><li><strong>从网络层面，对一些小图片和字体资源进行内联可以减少请求次数，增加页面的响应速度。</strong></li></ul></blockquote><h3 id="Html-和-JS-的内联"><a href="#Html-和-JS-的内联" class="headerlink" title="Html 和 JS 的内联"></a>Html 和 JS 的内联</h3><p>内联 <code>Html</code> 和 <code>JS</code> 文件需要依赖 <code>raw-loader</code> 加载器，<code>raw-loader</code> 的功能其实就是读取一个文件，然后把文件读取的内容以字符串形式返回并插入到对应的位置。</p><p><strong>安装依赖（0.5.1 版本比较稳定）：</strong></p><pre><code class="lang-bash">$ npm install raw-loader@0.5.1 -D
+</code></pre><p><strong>使用示例：</strong></p><pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;!-- html 内联可以直接放在对应位置 --&gt;
+  ${ require(&#39;raw-loader!./meta.html&#39;) }
+  &lt;!-- js 内联需要包裹在 script 标签中，防止存在 ES6 代码需要添加 babel-loader --&gt;
+  &lt;script&gt;${ require(&#39;raw-loader!babel-loader!./xxx.js&#39;) }&lt;/script&gt;
+  &lt;title&gt;注入 Html 和 JS&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id=&quot;root&quot;&gt;&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><blockquote class="pullquote info"><p><strong>由于 <code>Webpack</code> 使用编译模板的插件是 <code>HtmlWebpackPlugin</code>，默认模板使用的是 <code>ejs</code>，所以支持上面 <code>${}</code> 的模板语法。</strong></p></blockquote><h3 id="CSS-内联"><a href="#CSS-内联" class="headerlink" title="CSS 内联"></a>CSS 内联</h3><blockquote class="pullquote primary"><p><strong><code>CSS</code> 内联需要两个步骤：</strong></p><ul><li><strong>如果直接使用 <code>style-loader</code> 会把所有打包后的 <code>CSS</code> 样式都动态的注入 <code>.html</code> 文件中，所以需要使用 <code>MiniCssExtractPlugin</code> 插件优先对 <code>CSS</code> 进行抽离；</strong></li><li><strong>将抽离后首屏的 <code>.css</code> 文件注入到 <code>.html</code> 文件中，借助 <code>HtmlInlineCssWebpackPlugin</code> 插件来实现。</strong></li></ul></blockquote><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install mini-css-extract-plugin html-webpack-plugin html-inline-css-webpack-plugin -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-js">const HtmlWebpackPlugin = require(&#39;html-webpack-plugin&#39;);
+const MiniCssExtractPlugin = require(&#39;mini-css-extract-plugin&#39;);
+const HtmlInlineCssWebpackPlugin = require(&#39;html-inline-css-webpack-plugin&#39;);
+
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          &#39;css-loader&#39;
+        ]
+      }
+      // ...
+    ]
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: &#39;[name][contenthash:8].css&#39;
+    }),
+    new HtmlWebpackPlugin({
+      template: &#39;./src/index.html&#39;,
+      filename: &#39;index.html&#39;
+    }),
+    new HtmlInlineCssWebpackPlugin()
+    // ...
+  ]
+  // ...
+}
+</code></pre><blockquote class="pullquote warning"><p><strong>需要注意的是 <code>HtmlWebpackPlugin</code> 插件应该在 <code>HtmlInlineCssWebpackPlugin</code> 之前，因为这两个插件的执行顺序有所依赖，必须先产生 <code>index.html</code> 文件后才能对 <code>CSS</code> 进行注入。</strong></p></blockquote><h3 id="图片、字体的内联"><a href="#图片、字体的内联" class="headerlink" title="图片、字体的内联"></a>图片、字体的内联</h3><p>一些小图标和字体如果体积非常小的情况下发出多个请求是没有必要的，所以最好是转换成 <code>Base64</code> 直接内联在 <code>.html</code> 和 <code>.css</code> 文件中，可以通过 <code>url-loader</code> 在构建中实现。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install url-loader -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.(png|svg|gif|jpe?g)$/,
+        use: [
+          {
+            loader: &#39;url-loader&#39;,
+            options: {
+              limit: 10240 // 图片小于 10k 转为 Base64
+            }
+          }
+        ]
+      },
+      {
+        test: /\.(woff2?|eot|ttf|otf)$/,
+        use: [
+          {
+            loader: &#39;url-loader&#39;, // 字体小于 10k 转为 Base64
+            options: {
+              limit: 10240
+            }
+          }
+        ]
+      }
+      // ...
+    ]
+  }
+  // ...
+}
+</code></pre><blockquote class="pullquote default"><p><strong>这样的方式最大的问题是只能根据图片大小控制所有满足条件的图片和字体资源，而不能单独控制某一个资源，想要单独控制某一个资源可以使用自己编写 <code>Webpack</code> 插件或类似功能的第三方插件。</strong></p></blockquote><h2 id="抽取公共依赖"><a href="#抽取公共依赖" class="headerlink" title="抽取公共依赖"></a>抽取公共依赖</h2><p>在开发中的很多页面使用了相同的基础库，或者这些基础库之间引用了相同的依赖，或不同的组件中使用了相同的模块，以及 <code>node_modules</code> 中有些模块使用相同的依赖，这样直接打包会对公共部分重复打包，造成打包后的文件体积非常的大，这也是一个可以优化的点，可以将公共的部分按照优先级、权重、同步异步加载的方式进行抽取，进而对文件进行拆分，减小打包后文件的体积。</p><h3 id="基础库分离"><a href="#基础库分离" class="headerlink" title="基础库分离"></a>基础库分离</h3><p>假如我们是做 <code>React</code> 开发，默认情况下是会对 <code>react</code> 和 <code>react-dom</code> 构建并打包到 <code>bundle</code> 中去，可以通过 <code>CDN</code> 的方式进行引入，在打包的时候每一次都忽略 <code>react</code> 和 <code>react-dom</code> 文件，以减小 <code>bundle</code> 的体积，我们可以通过 <code>HtmlWebpackExternalsPlugin</code> 插件来实现。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install html-webpack-externals-plugin -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-js">const HtmlWebpackExternalsPlugin = require(&#39;html-webpack-externals-plugin&#39;);
+
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new HtmlWebpackExternalsPlugin({
+      externals: [
+        {
+          module: &#39;react&#39;, // 模块名称
+          entry: &#39;//xxcnd.com/boudle/react.min.js&#39;, // cdn 地址
+          global: &#39;React&#39; // 全局变量名
+        },
+        {
+          module: &#39;react-dom&#39;,
+          entry: &#39;//xxcnd.com/boudle/react-dom.min.js&#39;,
+          global: &#39;ReactDom&#39;
+        }
+      ]
+    })
+    // ...
+  ]
+  // ...
+}
+</code></pre><h3 id="代码分割"><a href="#代码分割" class="headerlink" title="代码分割"></a>代码分割</h3><p>在 <code>Webpack4</code> 中内置了代码分割的功能插件，非常强大，可以通过将公共依赖抽离成单独文件的方式减小 <code>bundle</code> 的体积，这也是官方建议使用的方式。</p><p><strong>配置示例：</strong></p><pre><code class="lang-js">/* 默认参数 */
+module.exports = {
+  // ...
+  optimization: {
+    // ...
+    splitChunks: {
+      chunks: &#39;all&#39;,
+      minSize: 30000,
+      maxSize: 0,
+      minChunks: 1,
+      maxAsyncRequests: 5,
+      maxInitalRequests: 3,
+      automaticNameDelimiter: &#39;~&#39;,
+      name: true
+    }
+    // ...
+  }
+  // ...
+}
+</code></pre><blockquote class="pullquote success"><p><strong><code>splitChunks</code> 参数详解：</strong></p><ul><li><strong><code>chunks</code>：</strong><ul><li><strong><code>async</code>：异步引入的库进行分离（默认）；</strong></li><li><strong><code>inital</code>：同步引入的库进行分离；</strong></li><li><strong><code>all</code>：所有引入的库进行分离（推荐）。</strong></li></ul></li><li><strong><code>minSize</code>：抽离公共包最小字节数；</strong></li><li><strong><code>maxSize</code>：抽离公共包最大字节数；</strong></li><li><strong><code>minChunks</code>：抽离公共包最小使用次数；</strong></li><li><strong><code>maxAsyncRequests</code>：浏览器同时请求同步资源的个数；</strong></li><li><strong><code>maxInitalRequests</code>：浏览器同时请求异步资源的个数；</strong></li><li><strong><code>automaticNameDelimiter</code>：抽离插件的文件名间隔符；</strong></li><li><strong><code>name</code>：值为 <code>true</code> 根据模块名称和缓存组（<code>cacheGroups</code>）的键自动选择名称。</strong></li></ul></blockquote><p><strong>使用自定义缓存组 <code>cacheGroups</code> 配置示例：</strong></p><pre><code class="lang-js">/* 自定义缓存组拆分同步异步模块 */
+module.exports = {
+  // ...
+  optimization: {
+    // ...
+    splitChunks: {
+      chunks: &#39;all&#39;,
+      cacheGroups: {
+        &#39;commons&#39;: {
+          chunks: &#39;initial&#39;,
+          name: &#39;commons&#39;,
+          minChunks: 2,
+          minSize: 0,
+          reuseExistingChunk: true,
+          priority: -5
+        },
+        &#39;async-commons&#39;: {
+          chunks: &#39;async&#39;,
+          name: &#39;async-commons&#39;,
+          minChunks: 2,
+          minSize: 0,
+          reuseExistingChunk: true,
+          priority: 5
+        },
+        &#39;vendors&#39;: {
+          test: /[\\/]node_modules[\\/]/,
+          name: &#39;vendors&#39;,
+          chunks: &#39;initial&#39;,
+          minChunks: 2,
+          priority: 10,
+          enforce: true,
+          reuseExistingChunk: true
+        },
+        &#39;async-vendors&#39;: {
+          test: /[\\/]node_modules[\\/]/,
+          minChunks: 2,
+          chunks: &#39;async&#39;,
+          name: &#39;async-vendors&#39;,
+          priority: 15,
+          enforce: true,
+          reuseExistingChunk: true
+        }
+      }
+    }
+    // ...
+  }
+  // ...
+}
+</code></pre><blockquote class="pullquote info"><p><strong><code>cacheGroups</code> 参数详解：</strong></p><ul><li><strong><code>commons</code>：所有代码中的公共依赖（同步）；</strong><ul><li><strong><code>test</code>：匹配依赖代码的文件夹，通常匹配 <code>node_modules</code>；</strong></li><li><strong><code>reuseExistingChunk</code>：允许重用现有模块，而不是在模块完全匹配时创建新模块；</strong></li><li><strong><code>priority</code>：权重，当被多个规则重用时会根据权重打包到对应策略的文件中；</strong></li><li><strong><code>enforce</code>：设置为 <code>true</code> 强制按照该规则拆分出一个文件，忽略文件大小；</strong></li></ul></li><li><strong><code>async-commons</code>：所有代码中的公共依赖（异步）；</strong></li><li><strong><code>vendors</code>：依赖代码（<code>node_modules</code>）中的公共依赖（同步）；</strong></li><li><strong><code>async-vendors</code>：依赖代码（<code>node_modules</code>）中的公共依赖（异步）；</strong></li></ul></blockquote><blockquote class="pullquote warning"><p><strong>注意：在使用 <code>cacheGroups</code> 属性进行代码分割后，产生的新 <code>chunks</code> 名称必须在页面 <code>HtmlWebpackPlugin</code> 实例的 <code>chunks</code> 属性中进行一一对应的配置。</strong></p></blockquote><p><strong><code>HtmlWebpackPlugin</code> 配置：</strong></p><pre><code class="lang-js">/* HtmlWebpackPlugin 使用前需安装 */
+const HtmlWebpackPlugin = require(&#39;html-webpack-plugin&#39;);
+
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new HtmlWebPackPlugin({
+      template: &#39;./src/index.html&#39;,
+      filename: &#39;index.html&#39;,
+      // 包含 splitChunks.cacheGroups 中 key 值和页面的出口文件名称
+      chunks: [
+        &#39;commons&#39;,
+        &#39;async-commons&#39;,
+        &#39;vendors&#39;,
+        &#39;async-vendors&#39;,
+        &#39;index&#39;
+      ]
+      // ...
+    })
+    // ...
+  ]
+  // ...
+}
+</code></pre><h2 id="tree-shaking-优化"><a href="#tree-shaking-优化" class="headerlink" title="tree-shaking 优化"></a>tree-shaking 优化</h2><h3 id="配置-tree-shaking"><a href="#配置-tree-shaking" class="headerlink" title="配置 tree-shaking"></a>配置 tree-shaking</h3><p>这个优化的名字是非常形象的，像摇晃树一样，把多余的枯叶都晃掉，其实指的就是一个模块中有多个方法，在打包的 <code>uglify</code> 阶段擦除掉没有使用（被标记）的方法，通过不打包无用代码的方式来减小 <code>bundle</code> 的体积，进而减小资源的加载时间。</p><p>这个优化的思想借鉴了 <code>rollup</code>，并在 <code>Webpack2</code> 中进行了实现，通过插件配置，目前 <code>Webpack4</code> 版本已经内置了 <code>tree-shaking</code> 优化，在 <code>mode</code> 被配置为 <code>production</code>（生产环境）时默认生效，如果需要在开发环境中使用配置如下。</p><pre><code class="lang-json">/* .babelrc */
+{
+  &quot;presets&quot;: [
+    &quot;@babel/preset-env&quot;,
+  ]
+}
+</code></pre><blockquote class="pullquote success"><p><strong>想要使 <code>tree-shaking</code> 生效的注意点：</strong></p><ul><li><strong>引入模块必须使用 <code>ES6</code> 的模块化语法，因为 <code>tree-shaking</code> 的实现依赖于 <code>ES6</code> 模块化的静态特性；</strong></li><li><strong>导出的函数不能存在 “副作用”，即导出的函数需要是纯函数，否则默认的 <code>tree-shaking</code> 也会失效。</strong></li></ul></blockquote><h3 id="tree-shaking-原理简介"><a href="#tree-shaking-原理简介" class="headerlink" title="tree-shaking 原理简介"></a>tree-shaking 原理简介</h3><p>说到 <code>tree-shaking</code> 的原理是应该先了解 <code>DCE</code>（<code>dead code elimination</code>）的概念，就是指 “死” 代码消除。</p><blockquote class="pullquote default"><p><strong><code>DCE</code> 有以下情况：</strong></p><ul><li><strong>代码不会被执行，不可到达；</strong></li><li><strong>代码只会影响死变量，只写不读；</strong></li><li><strong>代码执行的结果不会被用到。</strong></li></ul></blockquote><pre><code class="lang-js">/* 代码不会被执行，不可到达 */
+if (false) {
+  console.log(&#39;dead code&#39;);
+}
+</code></pre><pre><code class="lang-js">/* 代码只会影响死变量，只写不读 */
+let hello = &#39;nihao&#39;;
+</code></pre><pre><code class="lang-js">/* 代码执行的结果不会被用到 */
+// tool.js
+export const fn1 = () =&gt; {
+  return &#39;hello&#39;;
+}
+
+fn1();
+
+export const fn2 = () =&gt; {
+  return &#39;world&#39;;
+}
+
+// main.js
+import { fn2 } from &#39;./tool.js&#39;;
+
+fn2();
+</code></pre><p><code>tree-shaking</code> 就是通过检查具有上面特性的代码并做相应处理来达到擦除多余代码的目的，并且依赖 <code>ES6</code> 模块化的静态特性，原因是哪些代码是多余的哪些代码是有用的在编译阶段就需要确定下来，<code>ES6</code> 模块的静态特性正好符合编译阶段对代码的分析，<code>CommonJS</code> 的模块化规范就明显不适合，因为模块的引入是动态的，由运行时决定。</p><blockquote class="pullquote primary"><p><strong>依赖模块静态化特性的原因：</strong></p><ul><li><strong>只能在顶层使用 <code>import</code> 引用模块；</strong></li><li><strong>引用的变量都是常量；</strong></li><li><strong>引入的模块对象的不可更改（<code>immutable</code>）特性。</strong></li></ul></blockquote><h3 id="深度-tree-shaking"><a href="#深度-tree-shaking" class="headerlink" title="深度 tree-shaking"></a>深度 tree-shaking</h3><p>如果函数中存在副作用，默认的 <code>tree-shaking</code> 之所以失效了是因为只能够在编译阶段做词法分析，而不能做作用域（<code>scope</code>）分析，如下面代码。</p><pre><code class="lang-js">// tool.js
+import lodash from &#39;lodash-es&#39;;
+
+export const fn1 = () =&gt; {
+  console.log(&#39;hello&#39;);
+}
+
+export const fn2 = (arg) =&gt; {
+  console.log(lodash.isArray(arg));
+}
+
+// main.js
+import { fn1 } from &#39;./tool.js&#39;;
+
+fn1();
+</code></pre><p>在上面案例中并没有使用 <code>fn2</code>，但是由于 <code>fn2</code> 函数中有副作用，即引用了 <code>lodash</code>，所以还是对 <code>lodash</code> 和 <code>fn2</code> 进行了打包，这种情况下如果想要继续实现 <code>tree-shaking</code>，需要借助 <code>WebpackDeepScopePlugin</code> 插件来实现。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install webpack-deep-scope-plugin -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-js">const WebpackDeepScopePlugin = require(&#39;webpack-deep-scope-plugin&#39;);
+
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new WebpackDeepScopePlugin()
+    // ...
+  ]
+  // ...
+}
+</code></pre><h2 id="Scope-Hoisting-优化"><a href="#Scope-Hoisting-优化" class="headerlink" title="Scope Hoisting 优化"></a>Scope Hoisting 优化</h2><p>由于浏览器对模块化语法支持依然不好，为了保证代码可以在各个浏览器中可执行，所以使用 <code>Webpack</code> 进行构建。</p><pre><code class="lang-js">/* 构建前 */
+// a.js
+export default &#39;xxx&#39;;
+
+// b.js
+import index from &#39;./a.js&#39;;
+console.log(index);
+</code></pre><pre><code class="lang-js">/* 构建后 */
+(function (module, __webpack_exports__, __webpack_require__) {
+  &quot;use strict&quot;
+  // 模块 b 构建内容，省略...
+})
+
+(function (module, __webpack_exports__, __webpack_require__) {
+  &quot;use strict&quot;
+  // 模块 a 构建内容，省略...
+})
+</code></pre><p>被 <code>Webpack</code> 转换后的模块会包裹一层自执行函数，构建后的代码会存在大量的闭包，其中 <code>import</code> 会被转换成 <code>__webpack_require__</code> 的调用，<code>export</code> 会被转换成 <code>__webpack_exports__</code> 对象属性的的赋值。</p><blockquote class="pullquote warning"><p><strong>会导致的问题：</strong></p><ul><li><strong>大量函数闭包包裹的代码会导致体积增大，模块越多越明显；</strong></li><li><strong>运行代码时创建的函数作用域变多，内存开销变大。</strong></li></ul></blockquote><p><code>Scope Hoisting</code> 又被称为作用域提升，借鉴于 <code>rollup</code>，在 <code>Webpack3</code> 中被提出，将所有模块的代码按照引用顺序存放在一个函数作用域里，然后适当的重命名来防止变量命名冲突，用来减少函数声明代码，减小内存开销。</p><p>在 <code>Webpack4</code> 中当 <code>mode</code> 为 <code>production</code>（生产环境）时会默认开启 <code>Scope Hoisting</code>，当想在开发环境或 <code>Webpack3</code> 中配置开启，需要依赖 <code>Webpack</code> 的内置插件 <code>ModuleConcatenationPlugin</code> 来实现。</p><p><strong>配置示例：</strong></p><pre><code class="lang-js">const Webpack = require(&#39;webpack&#39;);
+
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new Webpack.optimize.ModuleConcatenationPlugin()
+    // ...
+  ]
+  // ...
+}
+</code></pre><blockquote class="pullquote info"><p><strong>开启 <code>Scope Hoisting</code> 后，在多个模块中都会引用的模块会单独提取出来形成闭包函数，否则会将多个引用的模块按照引用顺序放在同一个闭包函数中。</strong></p></blockquote><h2 id="资源懒加载"><a href="#资源懒加载" class="headerlink" title="资源懒加载"></a>资源懒加载</h2><p><code>Webpack</code> 所特有的 <code>require.ensure()</code> 可以实现懒加载，符合 <code>CommonJS</code> 规范，目前已经被 <code>ES6+</code> 的动态 <code>import()</code> 取代，属于代码分割的一部分，对于大型 <code>Web</code> 单页面应用来讲，将所有代码都放在一个 <code>bundle</code> 文件中是没有必要的，特别是某些代码块不是经常被用到，大大降低了首屏的加载速度，使用动态 <code>import</code> 优化可以使类似这样的代码在使用时才去加载，使得初始化的时候代码体积更小。</p><p>在 <code>Webpack</code> 中要解析动态 <code>import()</code> 语法需要依赖 <code>babel</code> 中的 <code>@babel/plugin-syntax-dynamic-import</code> 插件。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install @babel/preset-env @babel/plugin-syntax-dynamic-import -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-json">/* .babelrc */
+{
+  &quot;presets&quot;: [
+    &quot;@babel/preset-env&quot;
+  ],
+  &quot;plugins&quot;: [
+    &quot;@babel/plugin-syntax-dynamic-import&quot;
+  ]
+}
+</code></pre><blockquote class="pullquote default"><p><strong>只要使用了动态 <code>import()</code> 语法加载的模块，在 <code>Webpack</code> 构建时都会打包出单独的 <code>chunk</code>，构建的代码内当需要加载模块时是通过 <code>JSONP</code> 的方式去加载的。</strong></p></blockquote><blockquote class="pullquote success"><p><strong>未完待续…</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20181110203121/" target="_blank" rel="external">https://www.overtaking.top/20181110203121/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Webpack/" rel="tag">Webpack</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" rel="tag">性能优化</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9E%84%E5%BB%BA/" rel="tag">构建</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20181110203121/&title=《Webpack4 —— 优化篇》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20181110203121/&title=《Webpack4 —— 优化篇》 — Shen's Blog&source=系列文章链接：Webpack4 —— 基础篇Webpack4 —— 应用篇文件指纹“文件指纹” 就是打包后的文件名的后缀，文件指纹的好处如下：版本管理，文..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20181110203121/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Webpack4 —— 优化篇》 — Shen's Blog&url=https://www.overtaking.top/20181110203121/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20181110203121/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20181115105656/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Webpack4 —— 应用篇</h4></a></div><div class="waves-block waves-effect next"><a href="/20181006014812/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">设计模式 JS 表现 —— 策略模式</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20181110203121/&title=《Webpack4 —— 优化篇》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20181110203121/&title=《Webpack4 —— 优化篇》 — Shen's Blog&source=系列文章链接：Webpack4 —— 基础篇Webpack4 —— 应用篇文件指纹“文件指纹” 就是打包后的文件名的后缀，文件指纹的好处如下：版本管理，文..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20181110203121/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Webpack4 —— 优化篇》 — Shen's Blog&url=https://www.overtaking.top/20181110203121/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20181110203121/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABw0lEQVR42u3awW6FIBAFUP//p23SXfOC3gGZ2uawaqxPDy4mcJnjiMf5Pa6vfF6//tXoCQ8MXFzcZe55OT7vqT5zBB1dGRlwcXH7uUlJSgpTcmde1HBxcd/PzUtSXrBwcXH/E3eutOHi4v4tbv64ETGBzk0MFxe3n1sNTHf8vTHfxcXFLXLP4qgud5JYpPB2XFzcFu5cVJEsYpJlUPUwBhcXt5M7twXKA9Pk02xswsDFxX1085MflOZNG/nBbXlKuLi427gr7VnJl8iD0ei74uLibuNWFzTVILVatm4kuLi4v8Rdj0G3VFlcXNwW7lz8kS90qhuhm8+Bi4vbwp2LOKsNWPk0ogKKi4u7mVuNOaptGetLoh/34OLitnCfaqpYKYv5tgoXF7eHu9IslRegpNhFBREXF7edO/f66rSXNlG4uLgt3LnV0NJ2JR4FNC4u7qPcszjywrTy3+GvcHFxW7jVspLHH3lLVvmQFRcXt4WbFK+VV1bD05sFEy4ubiN3vWHieHTcZDm4uLiv4c41W1QbtqKUFxcX92Xc6qFszlpKc3FxcTdw5zY/c5Ovxi64uLj93GcD0+qCJtn2lOm4uLjz3C/oODPSrPGLvQAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

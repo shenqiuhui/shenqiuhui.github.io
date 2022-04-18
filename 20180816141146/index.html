@@ -1,0 +1,421 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>通过一个案例理解 JWT | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="源码分析,HTTP,cookie/session,JWT,Vue"><meta name="description" content="JWT 简述JWT（json web token）是为了在网络应用环境之间传递声明而基于 json 的开放标准，JWT 的声明一般被采用在身份提供者和服务器提供者间传递被认证的身份信息，以便于从资源服务器获取资源。"><meta property="og:type" content="article"><meta property="og:title" content="通过一个案例理解 JWT"><meta property="og:url" content="https://www.overtaking.top/20180816141146/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="JWT 简述JWT（json web token）是为了在网络应用环境之间传递声明而基于 json 的开放标准，JWT 的声明一般被采用在身份提供者和服务器提供者间传递被认证的身份信息，以便于从资源服务器获取资源。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/HTTP/20180816141146/jwt.png"><meta property="article:published_time" content="2018-08-16T06:11:46.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="源码分析"><meta property="article:tag" content="HTTP"><meta property="article:tag" content="cookie&#x2F;session"><meta property="article:tag" content="JWT"><meta property="article:tag" content="Vue"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/HTTP/20180816141146/jwt.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">通过一个案例理解 JWT</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">通过一个案例理解 JWT</h1><h5 class="subtitle"><time datetime="2018-08-16T06:11:46.000Z" itemprop="datePublished" class="page-time">2018-08-16</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/HTTP/">HTTP</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#JWT-简述"><span class="post-toc-number">1.</span> <span class="post-toc-text">JWT 简述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#JWT-的应用场景"><span class="post-toc-number">2.</span> <span class="post-toc-text">JWT 的应用场景</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#JWT-对比-cookie-session"><span class="post-toc-number">3.</span> <span class="post-toc-text">JWT 对比 cookie&#x2F;session</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#JWT-的结构"><span class="post-toc-number">4.</span> <span class="post-toc-text">JWT 的结构</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Header"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">Header</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Payload"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">Payload</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#标准中注册的声明"><span class="post-toc-number">4.2.1.</span> <span class="post-toc-text">标准中注册的声明</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#公共声明"><span class="post-toc-number">4.2.2.</span> <span class="post-toc-text">公共声明</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#私有声明"><span class="post-toc-number">4.2.3.</span> <span class="post-toc-text">私有声明</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Signature"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">Signature</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#文件目录"><span class="post-toc-number">5.</span> <span class="post-toc-text">文件目录</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#服务端的实现"><span class="post-toc-number">6.</span> <span class="post-toc-text">服务端的实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配置文件"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">配置文件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建数据库模型"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">创建数据库模型</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实现基本服务"><span class="post-toc-number">6.3.</span> <span class="post-toc-text">实现基本服务</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#添加中间件"><span class="post-toc-number">6.4.</span> <span class="post-toc-text">添加中间件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#注册接口的实现"><span class="post-toc-number">6.5.</span> <span class="post-toc-text">注册接口的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#登录接口的实现"><span class="post-toc-number">6.6.</span> <span class="post-toc-text">登录接口的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#token-校验接口"><span class="post-toc-number">6.7.</span> <span class="post-toc-text">token 校验接口</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前端的实现"><span class="post-toc-number">7.</span> <span class="post-toc-text">前端的实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#入口文件"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">入口文件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#主组件-App"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">主组件 App</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#路由配置"><span class="post-toc-number">7.3.</span> <span class="post-toc-text">路由配置</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#登录组件-Login"><span class="post-toc-number">7.4.</span> <span class="post-toc-text">登录组件 Login</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#订单组件-Order"><span class="post-toc-number">7.5.</span> <span class="post-toc-text">订单组件 Order</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#axios-配置"><span class="post-toc-number">7.6.</span> <span class="post-toc-text">axios 配置</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#jwt-simple-模块的实现原理"><span class="post-toc-number">8.</span> <span class="post-toc-text">jwt-simple 模块的实现原理</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建模块"><span class="post-toc-number">8.1.</span> <span class="post-toc-text">创建模块</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#字符串和-Base64-互相转换"><span class="post-toc-number">8.2.</span> <span class="post-toc-text">字符串和 Base64 互相转换</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#生成签名的方法"><span class="post-toc-number">8.3.</span> <span class="post-toc-text">生成签名的方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#encode"><span class="post-toc-number">8.4.</span> <span class="post-toc-text">encode</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#decode"><span class="post-toc-number">8.5.</span> <span class="post-toc-text">decode</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">9.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-HTTP/20180816141146" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">通过一个案例理解 JWT</h1><div class="post-meta"><time class="post-time" title="2018-08-16 14:11:46" datetime="2018-08-16T06:11:46.000Z" itemprop="datePublished">2018-08-16</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/HTTP/">HTTP</a></li></ul><span id="/20180816141146/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="通过一个案例理解 JWT"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/HTTP/20180816141146/jwt.png" title="JWT"><p><br></p><h2 id="JWT-简述"><a href="#JWT-简述" class="headerlink" title="JWT 简述"></a>JWT 简述</h2><blockquote class="pullquote default"><p><strong><code>JWT</code>（<code>json web token</code>）是为了在网络应用环境之间传递声明而基于 <code>json</code> 的开放标准，<code>JWT</code> 的声明一般被采用在身份提供者和服务器提供者间传递被认证的身份信息，以便于从资源服务器获取资源。</strong></p></blockquote><a id="more"></a><h2 id="JWT-的应用场景"><a href="#JWT-的应用场景" class="headerlink" title="JWT 的应用场景"></a>JWT 的应用场景</h2><p><code>JWT</code> 一般用于用户登录上，身份认证在这种场景下，一旦用户登录完成，在接下来的每个涉及用户权限的请求中都包含 <code>JWT</code>，可以对用户身份、路由、服务和资源的访问权限进行验证。</p><p>举一个例子，假如一个电商网站，在用户登录以后，需要验证用户的地方其实有很多，比如购物车，订单页，个人中心等等，访问这些页面正常的逻辑是先验证用户权限和登录状态，如果验证通过，则进入访问的页面，否则重定向到登录页。</p><p>而在 <code>JWT</code> 之前，这样的验证我们大多都是通过 <code>cookie</code> 和 <code>session</code> 去实现的，我们接下来就来对比以下这两种方式的不同。</p><h2 id="JWT-对比-cookie-session"><a href="#JWT-对比-cookie-session" class="headerlink" title="JWT 对比 cookie/session"></a>JWT 对比 cookie/session</h2><p><strong><code>cookie/session</code> 的过程：</strong></p><p>由于浏览器的请求是无状态的，<code>cookie</code> 的存在就是为了带给服务器一些状态信息，服务器在接收到请求时会对其进行验证（其实是在登录时，服务器发给浏览器的），如果验证通过则正常返回结果，如果验证不通过则重定向到登录页，而服务器是根据 <code>session</code> 中存储的结果和收到的信息进行对比决定是否验证通过，当然这里只是简述过程。</p><p><strong><code>cookie/session</code> 的问题：</strong></p><p>从上面可以看出服务器植入 <code>cookie</code> 后每次请求都会带上 <code>cookie</code>，浪费带宽，而且 <code>cookie</code> 不支持跨域，不方便与其他的系统之间进行跨域访问，同时服务器会用 <code>session</code> 来存储这些用户验证的信息，这样浪费了服务器的内存，当多个服务器想要共享 <code>session</code> 需要都拷贝过去。</p><p><strong>JWT 的过程：</strong></p><p>当用户发送请求，将用户信息带给服务器的时候，服务器不再像过去一样存储在 <code>session</code> 中，而是将浏览器发来的内容通过内部的密钥加上这些信息，使用 <code>sha256</code> 和 <code>RSA</code> 等加密算法生成一个 <code>token</code> 令牌和用户信息一起返回给浏览器，当涉及验证用户的所有请求只需要将这个 <code>token</code> 和用户信息发送给服务器，而服务器将用户信息和自己的密钥通过既定好的算法进行签名，然后将发来的签名和生成的签名比较，严格相等则说明用户信息没被篡改和伪造，验证通过。</p><blockquote class="pullquote info"><p><strong><code>JWT</code> 的过程中，服务器不再需要额外的内存存储用户信息，和多个服务器之间只需要共享密钥就可以让多个服务器都有验证能力，同时也解决了 <code>cookie</code> 不能跨域的问题。</strong></p></blockquote><h2 id="JWT-的结构"><a href="#JWT-的结构" class="headerlink" title="JWT 的结构"></a>JWT 的结构</h2><p><code>JWT</code> 之所以能被作为一种声明传递的标准是因为它有自己的结构，并不是随便的发个 <code>token</code> 就可以的，<code>JWT</code> 用于生成 <code>token</code> 的结构有三个部分，使用 <code>.</code> 隔开。</p><h3 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h3><p><code>Header</code> 头部中主要包含两部分，<code>token</code> 类型和加密算法，如 <code>{typ: &#39;jwt&#39;, alg: &#39;HS256&#39;}</code>，<code>HS256</code> 就是指 <code>sha256</code> 算法，会将这个对象转成 <code>base64</code>。</p><h3 id="Payload"><a href="#Payload" class="headerlink" title="Payload"></a>Payload</h3><p><code>Payload</code> 负载就是存放有效信息的地方，有效信息被分为标准中注册的声明、公共的声明和私有的声明。</p><h4 id="标准中注册的声明"><a href="#标准中注册的声明" class="headerlink" title="标准中注册的声明"></a>标准中注册的声明</h4><p>下面是标准中注册的声明，建议但不强制使用。</p><blockquote class="pullquote danger"><ul><li><strong><code>iss</code>：<code>jwt</code> 签发者；</strong></li><li><strong><code>sub</code>：<code>jwt</code> 所面向的用户；</strong></li><li><strong><code>aud</code>：接收 <code>jwt</code> 的一方；</strong></li><li><strong><code>exp</code>：<code>jwt</code> 的过期时间，这个过期时间必须要大于签发时间，这是一个秒数；</strong></li><li><strong><code>nbf</code>：定义在什么时间之前，该 <code>jwt</code> 都是不可用的；</strong></li><li><strong><code>iat</code>：<code>jwt</code> 的签发时间。</strong></li></ul></blockquote><p>上面的标准中注册的声明中常用的有 <code>exp</code> 和 <code>nbf</code>。</p><h4 id="公共声明"><a href="#公共声明" class="headerlink" title="公共声明"></a>公共声明</h4><p>公共的声明可以添加任何的信息，一般添加用户的相关信息或其他业务需要的必要信息，但不建议添加敏感信息，因为该部分在客户端可解密，如 <code>{&#39;id&#39;, username: &#39;panda&#39;, adress: &#39;Beijing&#39;}</code>，会将这个对象转成 <code>base64</code>（可逆）。</p><h4 id="私有声明"><a href="#私有声明" class="headerlink" title="私有声明"></a>私有声明</h4><p>私有声明是提供者和消费者所共同定义的声明，一般不建议存放敏感信息，因为 <code>base64</code> 是对称解密的，意味着该部分信息可以归类为明文信息。</p><h3 id="Signature"><a href="#Signature" class="headerlink" title="Signature"></a>Signature</h3><p><code>Signature</code> 这一部分指将 <code>Header</code> 和 <code>Payload</code> 通过密钥 <code>secret</code> 和加盐算法进行加密后生成的签名，<code>secret</code> 密钥保存在服务端，不会发送给任何人，所以 <code>JWT</code> 的传输方式是很安全的。</p><p>最后将三部分使用 <code>.</code> 连接成字符串，就是要返回给浏览器的 <code>token</code> 浏览器一般会将这个 <code>token</code> 存储在 <code>localStorge</code> 以备其他需要验证用户身份的请求使用。</p><blockquote class="pullquote warning"><p><strong>经过上面对 <code>JWT</code> 的叙述可能还是没有完全的理解什么是 <code>JWT</code>，具体怎么操作的，我们接下来实现一个小的案例，为了方便，服务端使用 <code>express</code> 框架，数据库使用 <code>mongo</code> 来存储用户信息，前端使用 <code>Vue</code> 来实现，做一个登录页登录后进入订单页验证 <code>token</code> 的功能。</strong></p></blockquote><h2 id="文件目录"><a href="#文件目录" class="headerlink" title="文件目录"></a>文件目录</h2><pre class="language-treeview">
+  <code class="language-treeview">
+    jwt-apply
+      |- jwt-client
+      | |- src
+      | | |- views
+      | | | |- Login.vue
+      | | | |- Order.vue
+      | | |- App.vue
+      | | |- axios.js
+      | | |- main.js
+      | | |- router.js
+      | |- .gitignore
+      | |- babel.config
+      | |- package.json
+      |- jwt-server
+      | |- model
+      | | |- user.js
+      | |- app.js
+      | |- config.js
+      | |- jwt-simple.js
+      | |- package.json
+  </code>
+</pre><h2 id="服务端的实现"><a href="#服务端的实现" class="headerlink" title="服务端的实现"></a>服务端的实现</h2><p>在搭建服务端之前需要安装我们使用的依赖，这里我们使用 <code>yarn</code> 来安装，命令如下：</p><pre><code class="lang-bash">$ yarn add express body-parse mongoose jwt-simple
+</code></pre><h3 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/config.js */
+module.exports = {
+  // 操作 mongo 自动生成这个数据库
+  &#39;db_url&#39;: &#39;mongodb://localhost:27017/jwt&#39;,
+  &#39;secret&#39;: &#39;pandashen&#39; // 密钥
+};
+</code></pre><p>上面配置文件中，<code>db_url</code> 存储的是 <code>mango</code> 数据库的地址，操作数据库自动创建，<code>secret</code> 是用来生成 <code>token</code> 的密钥。</p><h3 id="创建数据库模型"><a href="#创建数据库模型" class="headerlink" title="创建数据库模型"></a>创建数据库模型</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/model/user.js */
+// 操作数据库的逻辑
+const mongoose = require(&#39;mongoose&#39;);
+const { db_url } = require(&#39;../config&#39;);
+
+// 连接数据库，端口默认 27017
+mongoose.connect(db_url, {
+  useNewUrlParser: true // 去掉警告
+});
+
+// 创建一个骨架 Schema，数据会按照这个骨架格式存储
+const UserSchema = new mongoose.Schema({
+  username: String,
+  password: String
+});
+
+// 创建一个模型
+module.exports = mongoose.model(&#39;User&#39;, UserSchema);
+</code></pre><p>我们将连接数据库、定义数据库字段和值类型以及创建数据模型的代码统一放在了 <code>model</code> 文件夹下的 <code>user.js</code> 当中，将数据模型导出方便在服务器的代码中进行查找操作。</p><h3 id="实现基本服务"><a href="#实现基本服务" class="headerlink" title="实现基本服务"></a>实现基本服务</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/app.js */
+const express = require(&#39;express&#39;);
+const bodyParser = require(&#39;body-parser&#39;);
+const jwt = require(&#39;jwt-simple&#39;);
+const User = require(&#39;./model/user&#39;);
+const { secret } = require(&#39;./config&#39;);
+
+// 创建服务器
+const app = express();
+
+/**
+* 设置中间件
+*/
+
+/**
+* 注册接口
+*/
+
+/**
+* 登录接口
+*/
+
+/**
+* 验证 token 接口
+*/
+
+// 监听端口号
+app.listen(3000);
+</code></pre><p>上面是一个基本的服务器，引入了相关的依赖，能保证启动，接下来添加处理 <code>post</code> 请求的中间件和实现 <code>cors</code> 跨域的中间件。</p><h3 id="添加中间件"><a href="#添加中间件" class="headerlink" title="添加中间件"></a>添加中间件</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/app.js */
+// 设置跨域中间件
+app.use((req, res, next) =&gt; {
+  // 允许跨域的头
+  res.setHeader(&#39;Access-Control-Allow-Origin&#39;, &#39;*&#39;);
+
+  // 允许浏览器发送的头
+  res.setHeader(&#39;Access-Control-Allow-Headers&#39;, &#39;Content-Type,Authorization&#39;);
+
+  // 允许哪些请求方法
+  res.setHeader(&#39;Access-Control-Allow-Methods&#39;, &#39;GET,POST,PUT,DELETE,OPTIONS&#39;);
+
+  // 如果当前请求是 OPTIONS 直接结束，否则继续执行
+  req.method === &#39;OPTIONS&#39; ? res.end() : next();
+});
+
+// 设置处理 post 请求参数的中间件
+app.use(bodyParser.json());
+</code></pre><p>之所以设置处理 <code>post</code> 请求参数中间件是因为注册和登录都需要使用 <code>post</code> 请求，设置跨域中间件是因为我们项目虽小也是前后端分离的，需要用前端的 <code>8080</code> 端口访问服务器的 <code>3000</code> 端口，所以需要服务端使用 <code>cors</code> 处理跨域问题。</p><h3 id="注册接口的实现"><a href="#注册接口的实现" class="headerlink" title="注册接口的实现"></a>注册接口的实现</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/app.js */
+// 注册接口的实现
+app.post(&#39;/reg&#39;, async (req, res, next) =&gt; {
+  // 获取 post 请求的数据
+  let user = req.body;
+
+  // 错误验证
+  try {
+    // 存入数据库，添加成功后返回的就是添加后的结果
+    user = await User.create(user);
+
+    // 返回注册成功的信息
+    res.json({
+      code: 0,
+      data: {
+        user: {
+          id: user._id,
+          username: user.username
+        }
+      }
+    });
+  } catch (e) {
+    // 返回注册失败的信息
+    res.json({ code: 1, data: &#39;注册失败&#39; });
+  }
+});
+</code></pre><p>上面将用户注册的信息存入了 <code>mongo</code> 数据库，返回值为存入的数据，如果存入成功，则返回注册成功的信息，否则返回注册失败的信息。</p><h3 id="登录接口的实现"><a href="#登录接口的实现" class="headerlink" title="登录接口的实现"></a>登录接口的实现</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/app.js */
+// 用户能登录
+app.post(&#39;/login&#39;, async (req, res, next) =&gt; {
+  let user = req.body;
+  try {
+    // 查找用户是否存在
+    user = await User.findOne(user);
+
+    if (user) {
+      // 生成 token
+      const token = jwt.encode({
+        id: user._id,
+        username: user.username,
+        exp: Date.now() + 1000 * 10
+      }, secret);
+
+      res.json({
+        code: 0,
+        data: { token }
+      });
+    } else {
+      res.json({ code: 1, data: &#39;用户不存在&#39; });
+    }
+  } catch (e) {
+    res.json({ code: 1, data: &#39;登录失败&#39; });
+  }
+});
+</code></pre><p>登录的过程中会先拿用户的账号和密码进数据库中进行验重和查找，如果存在，则登录成功并返回 <code>token</code>，如果不存在则登录失败。</p><h3 id="token-校验接口"><a href="#token-校验接口" class="headerlink" title="token 校验接口"></a>token 校验接口</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/app.js */
+// 只针对 token 校验接口的中间件
+const auth = (req, res, next) =&gt; {
+  // 获取请求头 authorization
+  const authorization = req.headers[&#39;authorization&#39;];
+  // 如果存在，则获取 token
+  if (authorization) {
+    const token = authorization.split(&#39; &#39;)[1];
+    try {
+      // 对 token 进行校验
+      req.user = jwt.decode(token, secret);
+      next();
+    } catch (e) {
+      res.status(401).send(&#39;Not Allowed&#39;);
+    }
+  } else {
+    res.status(401).send(&#39;Not Allowed&#39;);
+  }
+}
+
+// 用户可以校验是否登录过，通过请求头 authorization: Bearer token
+app.get(&#39;/order&#39;, auth, (req, res, next) =&gt; {
+  res.json({
+    code: 0,
+    data: {
+      user: req.user
+    }
+  });
+});
+</code></pre><p>在校验过程中，每次浏览器都会将 <code>token</code> 通过请求头 <code>authorization</code> 带给服务器，请求头的值为 <code>Bearer token</code>，这是 <code>JWT</code> 规定的，服务器取出 <code>token</code> 使用 <code>decode</code> 方法进行解码，并使用 <code>try...catch</code> 进行捕获，如果解码失败则会触发 <code>try...catch</code>，说明 <code>token</code> 过期、被篡改、或被伪造，返回 <code>401</code> 响应。</p><h2 id="前端的实现"><a href="#前端的实现" class="headerlink" title="前端的实现"></a>前端的实现</h2><p>我们使用 <code>3.0</code> 版本的 <code>vue-cli</code> 脚手架生成 <code>Vue</code> 项目，并安装 <code>axios</code> 发送请求。</p><pre><code class="lang-bash">$ yarn add global @vue/cli
+$ yarn add axios
+</code></pre><h3 id="入口文件"><a href="#入口文件" class="headerlink" title="入口文件"></a>入口文件</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-client/src/main.js */
+import Vue from &#39;vue&#39;;
+import App from &#39;./App.vue&#39;;
+import router from &#39;./router&#39;;
+
+// 是否为生产模式
+Vue.config.productionTip = false
+
+new Vue({
+  router,
+  render: h =&gt; h(App)
+}).$mount(&#39;#app&#39;);
+</code></pre><p>上面这个文件是 <code>vue-cli</code> 自动生成的，我们并没有做改动，但是为了方便查看我们会将主要文件的代码一一贴出来。</p><h3 id="主组件-App"><a href="#主组件-App" class="headerlink" title="主组件 App"></a>主组件 App</h3><pre><code class="lang-html">&lt;!-- 文件位置：~jwt-apply/jwt-client/src/App.vue --&gt;
+&lt;template&gt;
+  &lt;div id=&#39;app&#39;&gt;
+    &lt;div id=&#39;nav&#39;&gt;
+      &lt;router-link to=&quot;/login&quot;&gt;登录&lt;/router-link&gt; |
+      &lt;router-link to=&quot;/order&quot;&gt;订单&lt;/router-link&gt;
+    &lt;/div&gt;
+    &lt;router-view/&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+</code></pre><p>在主组件中我们将 <code>router-link</code> 分别对应了 <code>/login</code> 和 <code>/order</code> 两个路由。</p><h3 id="路由配置"><a href="#路由配置" class="headerlink" title="路由配置"></a>路由配置</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-client/src/router.js */
+import Vue from &#39;vue&#39;;
+import Router from &#39;vue-router&#39;;
+import Login from &#39;./views/Login.vue&#39;;
+import Order from &#39;./views/Order.vue&#39;;
+
+Vue.use(Router);
+
+export default new Router({
+  mode: &#39;history&#39;,
+  base: process.env.BASE_URL,
+  routes: [
+    {
+      path: &#39;/login&#39;,
+      name: &#39;login&#39;,
+      component: Login
+    },
+    {
+      path: &#39;/order&#39;,
+      name: &#39;order&#39;,
+      component: Order
+    }
+  ]
+});
+</code></pre><p>我们定义了两个路由，一个对应登录页，一个对应订单页，并引入了组件 <code>Login</code> 和 <code>Order</code>，前端并没有写注册模块，可以使用 <code>postman</code> 发送注册请求生成一个账户以备后面验证使用。</p><h3 id="登录组件-Login"><a href="#登录组件-Login" class="headerlink" title="登录组件 Login"></a>登录组件 Login</h3><pre><code class="lang-html">&lt;!-- 文件位置：~jwt-apply/jwt-client/src/views/Login.vue --&gt;
+&lt;template&gt;
+  &lt;div class=&quot;login&quot;&gt;
+    用户名
+    &lt;input type=&quot;text&quot; v-model=&quot;user.username&quot;&gt;
+    密码
+    &lt;input type=&quot;text&quot; v-model=&quot;user.password&quot;&gt;
+    &lt;button @click=&quot;login&quot;&gt;提交&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import axios from &#39;../axios&#39;
+export default {
+  data() {
+    return {
+      user: {
+        username: &#39;&#39;,
+        password: &#39;&#39;
+      }
+    }
+  },
+  methods: {
+    login() {
+      // 发送请求访问服务器的登录接口
+      axios.post(&#39;/login&#39;, this.user).then(res =&gt; {
+        // 将返回的 token 存入 localStorage，并跳转订单页
+        localStorage.setItem(&#39;token&#39;, res.data.token);
+        this.$router.push(&#39;/order&#39;);
+      }).catch(err =&gt; {
+        // 弹出错误
+        alert(err.data);
+      });
+    }
+  }
+}
+&lt;/script&gt;
+</code></pre><p><code>Login</code> 组件中将两个输入框的值同步到 <code>data</code> 中，用来存放账号和密码，当点击提交按钮时，触发点击事件 <code>login</code> 发送请求，请求成功后将返回的 <code>token</code> 存入 <code>localStorage</code>，并跳转路由到订单页，请求错误时弹出错误信息。</p><h3 id="订单组件-Order"><a href="#订单组件-Order" class="headerlink" title="订单组件 Order"></a>订单组件 Order</h3><pre><code class="lang-html">&lt;!-- 文件位置：~jwt-apply/jwt-client/src/views/Order.vue --&gt;
+&lt;template&gt;
+  &lt;div class=&quot;order&quot;&gt;
+    {{username}} 的订单
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import axios from &#39;../axios&#39;
+export default {
+  data() {
+    return {
+      username: &#39;&#39;
+    }
+  },
+  mounted() {
+    axios.get(&#39;/order&#39;).then(res =&gt;{
+      this.username = res.data.user.username;
+    }).catch(err =&gt; {
+      alert(err);
+    });
+  }
+}
+&lt;/script&gt;
+</code></pre><p><code>Order</code> 页面显示的内容是 “XXX 的订单”，在加载 <code>Order</code> 组件被挂载时发送请求获取用户名，即访问服务器的验证 <code>token</code> 接口，因为订单页就是一个涉及到验证用户的页面，当请求成功时，将用户名同步到 <code>data</code>，否则弹出错误信息。</p><p>在 <code>Login</code> 和 <code>Order</code> 两个组件中对请求的回调内似乎写的太简单了，其实是因为 <code>axios</code> 的返回值会在服务器返回的返回值外面包了一层，存放一些 <code>http</code> 响应的相关信息，两个接口访问时请求地址也是同一个服务器，而且在服务器响应时的错误处理都是对状态吗 <code>401</code> 的处理，在涉及验证用户信息的请求中需要设置请求头 <code>Authorization</code> 发送 <code>token</code>。</p><p>这些逻辑我们似乎在组件请求相关的代码中都没有看到，是因为我们使用 <code>axios</code> 的 <code>API</code> 设置了 <code>baseURL</code> 请求拦截和响应拦截，细心可以发现其实引入的 <code>axios</code> 并不是直接从 <code>node_modules</code> 引入，而是引入了我们自己的导出的 <code>axios</code>。</p><h3 id="axios-配置"><a href="#axios-配置" class="headerlink" title="axios 配置"></a>axios 配置</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-client/src/axios.js */
+import axios from &#39;axios&#39;;
+import router from &#39;./router&#39;;
+
+// 设置默认访问地址
+axios.defaults.baseURL = &#39;http://localhost:3000&#39;;
+
+// 响应拦截
+axios.interceptors.response.use(res =&gt; {
+  // 报错执行 axios then 方法错误的回调，成功返回正确的数据
+  return res.data.code !== 0 ? Promise.reject(res.data) : res.data;
+}, res =&gt; {
+  // 如果 token 验证失败则跳回登陆页，并执行 axios then 方法错误的回调
+  if (res.response.status === 401) {
+    router.history.push(&#39;/login&#39;);
+  }
+  return Promise.reject(&#39;Not Allowed&#39;);
+});
+
+// 请求拦截，用于将请求统一带上 token
+axios.interceptors.request.use(config =&gt; {
+  // 在 localStorage 获取 token
+  const token = localStorage.getItem(&#39;token&#39;);
+
+  // 如果存在则设置请求头
+  if (token) {
+    config.headers.Authorization = &#39;Bearer &#39; + token;
+  }
+
+  return config;
+});
+
+export default axios;
+</code></pre><p>访问服务器时会将 <code>axios</code> 中的第一个参数拼接在 <code>axios.defaults.baseURL</code> 的后面作为请求地址。</p><p><code>axios.interceptors.response.use</code> 为响应拦截，<code>axios</code> 发送请求后所有的响应都会先执行这个方法内部的逻辑，返回值为数据，作为参数传递给 <code>axios</code> 返回值的 <code>then</code> 方法。</p><p><code>axios.interceptors.request.use</code> 为请求拦截，<code>axios</code> 发送的所有请求都会先执行这个方法的逻辑，然后发送给服务器，一般用来设置请求头。</p><h2 id="jwt-simple-模块的实现原理"><a href="#jwt-simple-模块的实现原理" class="headerlink" title="jwt-simple 模块的实现原理"></a>jwt-simple 模块的实现原理</h2><p>相信通过上面的过程已经非常清楚 <code>JWT</code> 如何生成的，<code>token</code> 的格式是怎样的，如何跟前端交互去验证 <code>token</code>，我们在这些基础上再深入的研究一下 <code>token</code> 的整个生成过程和验证过程，我们使用的 <code>jwt-simple</code> 模块的 <code>encode</code> 方法如何生成 <code>token</code>，使用 <code>decode</code> 方法如何验证 <code>token</code>，下面就看看一看 <code>jwt-simple</code> 的实现原理。</p><h3 id="创建模块"><a href="#创建模块" class="headerlink" title="创建模块"></a>创建模块</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/jwt-simple.js */
+const crypto = require(&#39;crypto&#39;);
+
+/**
+* 其他方法
+*/
+
+// 创建对象
+module.exports = {
+  encode,
+  decode
+};
+</code></pre><p>我们知道 <code>jwt-simple</code> 我们使用的有两个方法 <code>encode</code> 和 <code>decode</code>，所以最后导出的对象上有这两个方法，使用加盐算法进行签名需要使用 <code>crypto</code>，所以我们提前引入。</p><h3 id="字符串和-Base64-互相转换"><a href="#字符串和-Base64-互相转换" class="headerlink" title="字符串和 Base64 互相转换"></a>字符串和 Base64 互相转换</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/jwt-simple.js */
+// 将子子符串转换成 Base64
+function stringToBase64(str) {
+  return Buffer.from(str).toString(&#39;base64&#39;);
+}
+
+// 将 Base64 转换成字符串
+function base64ToString(base64) {
+  return Buffer.from(base64, &#39;base64&#39;).toString(&#39;utf8&#39;);
+}
+</code></pre><p>从方法的名字相信很容易看出用途和参数，所以就一起放在这了，其实本质是在两种编码之间进行转换，所以转换之前都应该先转换成 <code>Buffer</code>。</p><h3 id="生成签名的方法"><a href="#生成签名的方法" class="headerlink" title="生成签名的方法"></a>生成签名的方法</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/jwt-simple.js */
+function createSign(str, secret) {
+  // 使用加盐算法进行加密
+  return crypto.createHmac(&#39;sha256&#39;, secret).update(str).digest(&#39;base64&#39;);
+}
+</code></pre><p>这一步就是通过加盐算法使用 <code>sha256</code> 和密钥 <code>secret</code> 进行生成签名，但是为了方便我们把使用的加密算法给写死了，正常情况下是应该根据 <code>Header</code> 中 <code>alg</code> 字段的值去检索 <code>alg</code> 的值与加密算法名称对应的 <code>map</code>，去使用设置的算法生成签名。</p><h3 id="encode"><a href="#encode" class="headerlink" title="encode"></a>encode</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/jwt-simple.js */
+function encode(payload, secret) {
+  // 头部
+  const = stringToBase64(JSON.stringify({
+    typ: &#39;JWT&#39;,
+    alg: &#39;HS256&#39;
+  }));
+
+  // 负载
+  const content = stringToBase64(JSON.stringify(payload));
+
+  // 签名
+  const sign = createSign([header, content].join(&#39;.&#39;), secret);
+
+  // 生成签名
+  return [header, content, sign].join(&#39;.&#39;);
+}
+</code></pre><p>在 <code>encode</code> 中将 <code>Header</code>、<code>Payload</code> 转换成 <code>base64</code>，通过 <code>.</code> 连接在一起，然后使用 <code>secret</code> 密钥生成签名，最后将 <code>Header</code> 和 <code>Payload</code> 的 <code>base64</code> 通过 <code>.</code> 和生成的签名连接在一起，这就形成了 “明文” + “明文” + “暗文” 三段格式的 <code>token</code>。</p><h3 id="decode"><a href="#decode" class="headerlink" title="decode"></a>decode</h3><pre><code class="lang-js">/* 文件位置：~jwt-apply/jwt-server/jwt-simple.js */
+function decode(token, secret) {
+  let [header, content, sign] = token.split(&#39;.&#39;);
+
+  // 将接收到的 token 的前两部分（base64）重新签名并验证，验证不通过抛出错误
+  if (sign !== createSign([header, content].join(&#39;.&#39;), secret)) {
+    throw new Error(&#39;Not Allow&#39;);
+  }
+
+  // 将 content 转成对象
+  content = JSON.parse(base64ToString(content));
+
+  // 检测过期时间，如果过去抛出错误
+  if (content.exp &amp;&amp; content.exp &lt; Date.now()) {
+    throw new Error(&#39;Not Allow&#39;);
+  }
+
+  return content;
+}
+</code></pre><p>在验证方法 <code>decode</code> 中，首先将 <code>token</code> 的三段分别取出，并用前两段重新生成签名，并与第三段 <code>sign</code> 对比，相同通过验证，不同说明篡改过并抛出错误，将 <code>Payload</code> 的内容重新转换成对象，也就是将 <code>content</code> 转换成对象，取出 <code>exp</code> 字段与当前时间对比来验证是否过期，如果过期抛出错误。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>在 <code>JWT</code> 生成的 <code>token</code> 中，前两段明文可解，这样别人拦截后知道了我们的加密算法和规则，也知道我们传输的信息，也可以使用 <code>jwt-simple</code> 加密一段暗文拼接成 <code>token</code> 的格式给服务器去验证，为什么 <code>JWT</code> 还这么安全呢，这就说到了最最重点的地方，无论别人知道多少我们在传输的信息，篡改和伪造后都不能通过服务器的验证是因为无法获取服务器的密钥 <code>secret</code>，真正能保证安全的就是 <code>secret</code>，同时证明了 <code>Header</code> 和 <code>Payload</code> 并不安全，可以被破解，所以不能存放敏感信息。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180816141146/" target="_blank" rel="external">https://www.overtaking.top/20180816141146/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JWT/" rel="tag">JWT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cookie-session/" rel="tag">cookie/session</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180816141146/&title=《通过一个案例理解 JWT》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180816141146/&title=《通过一个案例理解 JWT》 — Shen's Blog&source=JWT 简述JWT（json web token）是为了在网络应用环境之间传递声明而基于 json 的开放标准，JWT 的声明一般被采用在身份提供者和服务..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180816141146/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《通过一个案例理解 JWT》 — Shen's Blog&url=https://www.overtaking.top/20180816141146/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180816141146/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180817153635/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Node.js 使用 cookie 和 session</h4></a></div><div class="waves-block waves-effect next"><a href="/20180814131241/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">MySQL —— 简单聊一聊数据库设计</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180816141146/&title=《通过一个案例理解 JWT》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180816141146/&title=《通过一个案例理解 JWT》 — Shen's Blog&source=JWT 简述JWT（json web token）是为了在网络应用环境之间传递声明而基于 json 的开放标准，JWT 的声明一般被采用在身份提供者和服务..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180816141146/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《通过一个案例理解 JWT》 — Shen's Blog&url=https://www.overtaking.top/20180816141146/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180816141146/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABvklEQVR42u3aQW4DIQwF0Nz/0lOp+6HfeHBG6mMVJQQeG8vYfD7xuH7H3TfJ5+TXxwYuLm6bey3H3Zw1KIGu179bBxcXd5K7Dl5rxB8bNIIaLi7u+7lJAlQNWLi4uP+Zm6RQuLi4b+NWl0sSmnXqc/yuhouL2+BWC6YnPh+s7+Li4ha5V3HsFViTUBjtjouLO8Ltlyqq7dU8eBUyMlxc3APc9aSnDrNerZV54eLiHuP2z1pNdPLGLS4u7iQ3IVbbJJ3KxmbPBxcX9wA3SWI6F6Fq2LqV4OLiDnLzDart2FbY6tyrcHFxG9xq26P6r3z+5sMsXFzcA9y9xKVa5ti7RBXuari4uI9y83bmXrBL4mi5bYOLizvIrW6wV0zJC6ybPR9cXNw2d+/BZZ7W5EXV6MC4uLhf4ubFzeSQSZO10LLFxcUd4XYaLf351Y4JLi7uDPcqjvwKlFx18qCGi4s7yX0qf6gWW1s9YVxc3BFu/tyqGuyqhdeobYOLizvI7TzCODEOvhnBxcV9lFs9QBLmNqu8uLi4L+YOPdPExcX9Eje//FTLpnnpJJqPi4s7wq0WTDtN1nxOq2WLi4u7z/0BxO+kU1NGeF0AAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

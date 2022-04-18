@@ -1,0 +1,409 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>MySQL —— SQL 语句总结 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="MySQL,数据库"><meta name="description" content="前言这是关于 MySQL 系列文章的第二篇，本篇大部分内容都贴近开发中的实际操作，，还有一句话不得不再次赘述，数据库博大精深，本系列文章内容较浅，适合于前端的同学们对 MySQL 的入门，这也是我的学习笔记，希望可以帮助大家。"><meta property="og:type" content="article"><meta property="og:title" content="MySQL —— SQL 语句总结"><meta property="og:url" content="https://www.overtaking.top/20180809115245/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言这是关于 MySQL 系列文章的第二篇，本篇大部分内容都贴近开发中的实际操作，，还有一句话不得不再次赘述，数据库博大精深，本系列文章内容较浅，适合于前端的同学们对 MySQL 的入门，这也是我的学习笔记，希望可以帮助大家。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/SQL/20180809115245/sql.png"><meta property="og:image" content="https://static.overtaking.top/images/SQL/20180809115245/student-score-course.png"><meta property="og:image" content="https://static.overtaking.top/images/SQL/20180809115245/tables.png"><meta property="og:image" content="https://static.overtaking.top/images/SQL/20180809115245/group.jpg"><meta property="og:image" content="https://static.overtaking.top/images/SQL/20180809115245/table-join.jpg"><meta property="og:image" content="https://static.overtaking.top/images/SQL/20180809115245/inner-join-result.png"><meta property="og:image" content="https://static.overtaking.top/images/SQL/20180809115245/left-join-result.png"><meta property="og:image" content="https://static.overtaking.top/images/SQL/20180809115245/right-join-result.png"><meta property="article:published_time" content="2018-08-09T03:52:45.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="MySQL"><meta property="article:tag" content="数据库"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/SQL/20180809115245/sql.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">MySQL —— SQL 语句总结</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">MySQL —— SQL 语句总结</h1><h5 class="subtitle"><time datetime="2018-08-09T03:52:45.000Z" itemprop="datePublished" class="page-time">2018-08-09</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SQL/">SQL</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#准备数据"><span class="post-toc-number">2.</span> <span class="post-toc-text">准备数据</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQL-的组成"><span class="post-toc-number">3.</span> <span class="post-toc-text">SQL 的组成</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#DDL"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">DDL</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#DML"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">DML</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#DCL"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">DCL</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQL-运算符"><span class="post-toc-number">4.</span> <span class="post-toc-text">SQL 运算符</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#算术运算符"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">算术运算符</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#逻辑运算符"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">逻辑运算符</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#比较运算符"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">比较运算符</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQL-语句之数据增、删、改"><span class="post-toc-number">5.</span> <span class="post-toc-text">SQL 语句之数据增、删、改</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#插入数据行"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">插入数据行</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#更新数据行"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">更新数据行</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#删除数据行"><span class="post-toc-number">5.3.</span> <span class="post-toc-text">删除数据行</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQL-语句之数据查询"><span class="post-toc-number">6.</span> <span class="post-toc-text">SQL 语句之数据查询</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#查询简介"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">查询简介</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#查询语法"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">查询语法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#别名"><span class="post-toc-number">6.3.</span> <span class="post-toc-text">别名</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#查询空行"><span class="post-toc-number">6.4.</span> <span class="post-toc-text">查询空行</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#常量列"><span class="post-toc-number">6.5.</span> <span class="post-toc-text">常量列</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#查询列的不重复数据"><span class="post-toc-number">6.6.</span> <span class="post-toc-text">查询列的不重复数据</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#限制查询条数"><span class="post-toc-number">6.7.</span> <span class="post-toc-text">限制查询条数</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#运算符在查询中的使用"><span class="post-toc-number">6.8.</span> <span class="post-toc-text">运算符在查询中的使用</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#查询语句练习案例"><span class="post-toc-number">6.9.</span> <span class="post-toc-text">查询语句练习案例</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQL-语句之模糊查询"><span class="post-toc-number">7.</span> <span class="post-toc-text">SQL 语句之模糊查询</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#通配符"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">通配符</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#BETWEEN…AND…"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">BETWEEN…AND…</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#IN"><span class="post-toc-number">7.3.</span> <span class="post-toc-text">IN</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#截断表"><span class="post-toc-number">8.</span> <span class="post-toc-text">截断表</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#函数"><span class="post-toc-number">9.</span> <span class="post-toc-text">函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#字符函数"><span class="post-toc-number">9.1.</span> <span class="post-toc-text">字符函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#LENGTH"><span class="post-toc-number">9.1.1.</span> <span class="post-toc-text">LENGTH</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#CONCAT-和-CONCAT-WS"><span class="post-toc-number">9.1.2.</span> <span class="post-toc-text">CONCAT 和 CONCAT_WS</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#UPPER-和-LOWER"><span class="post-toc-number">9.1.3.</span> <span class="post-toc-text">UPPER 和 LOWER</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#SUBSTR"><span class="post-toc-number">9.1.4.</span> <span class="post-toc-text">SUBSTR</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#LEFT-和-RIGHT"><span class="post-toc-number">9.1.5.</span> <span class="post-toc-text">LEFT 和 RIGHT</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#INSTR"><span class="post-toc-number">9.1.6.</span> <span class="post-toc-text">INSTR</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#LTRIM、RTRIM-和-TRIM"><span class="post-toc-number">9.1.7.</span> <span class="post-toc-text">LTRIM、RTRIM 和 TRIM</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#LPAD-和-RPAD"><span class="post-toc-number">9.1.8.</span> <span class="post-toc-text">LPAD 和 RPAD</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#REPLACE"><span class="post-toc-number">9.1.9.</span> <span class="post-toc-text">REPLACE</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#综合练习"><span class="post-toc-number">9.1.10.</span> <span class="post-toc-text">综合练习</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#数学函数"><span class="post-toc-number">9.2.</span> <span class="post-toc-text">数学函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#FORMAT"><span class="post-toc-number">9.2.1.</span> <span class="post-toc-text">FORMAT</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#CEIL-和-FLOOR"><span class="post-toc-number">9.2.2.</span> <span class="post-toc-text">CEIL 和 FLOOR</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#ROUND-和-TRUNCATE"><span class="post-toc-number">9.2.3.</span> <span class="post-toc-text">ROUND 和 TRUNCATE</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#POWER"><span class="post-toc-number">9.2.4.</span> <span class="post-toc-text">POWER</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#MOD"><span class="post-toc-number">9.2.5.</span> <span class="post-toc-text">MOD</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#日期函数"><span class="post-toc-number">9.3.</span> <span class="post-toc-text">日期函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#NOW、CURDATE-和-CURTIME"><span class="post-toc-number">9.3.1.</span> <span class="post-toc-text">NOW、CURDATE 和 CURTIME</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#DATE-ADD"><span class="post-toc-number">9.3.2.</span> <span class="post-toc-text">DATE_ADD</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#STR-TO-DATE"><span class="post-toc-number">9.3.3.</span> <span class="post-toc-text">STR_TO_DATE</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#DATE-FORMAT"><span class="post-toc-number">9.3.4.</span> <span class="post-toc-text">DATE_FORMAT</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#DATEDIFF"><span class="post-toc-number">9.3.5.</span> <span class="post-toc-text">DATEDIFF</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#返回日期中指定的部分"><span class="post-toc-number">9.3.6.</span> <span class="post-toc-text">返回日期中指定的部分</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#综合练习-1"><span class="post-toc-number">9.3.7.</span> <span class="post-toc-text">综合练习</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#数据库辅助函数"><span class="post-toc-number">9.4.</span> <span class="post-toc-text">数据库辅助函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#CONNECTION-ID"><span class="post-toc-number">9.4.1.</span> <span class="post-toc-text">CONNECTION_ID</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#DATABASE"><span class="post-toc-number">9.4.2.</span> <span class="post-toc-text">DATABASE</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#VERSION"><span class="post-toc-number">9.4.3.</span> <span class="post-toc-text">VERSION</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#LAST-INSERT-ID"><span class="post-toc-number">9.4.4.</span> <span class="post-toc-text">LAST_INSERT_ID</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#USER-和-PASSWORD"><span class="post-toc-number">9.4.5.</span> <span class="post-toc-text">USER 和 PASSWORD</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#MD5"><span class="post-toc-number">9.4.6.</span> <span class="post-toc-text">MD5</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#流程控制函数"><span class="post-toc-number">9.5.</span> <span class="post-toc-text">流程控制函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#IF"><span class="post-toc-number">9.5.1.</span> <span class="post-toc-text">IF</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#CASE、WHEN、THEN、ELSE-和-END"><span class="post-toc-number">9.5.2.</span> <span class="post-toc-text">CASE、WHEN、THEN、ELSE 和 END</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#自定义函数"><span class="post-toc-number">9.6.</span> <span class="post-toc-text">自定义函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#规则"><span class="post-toc-number">9.6.1.</span> <span class="post-toc-text">规则</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#语法"><span class="post-toc-number">9.6.2.</span> <span class="post-toc-text">语法</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#实例"><span class="post-toc-number">9.6.3.</span> <span class="post-toc-text">实例</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#聚合函数"><span class="post-toc-number">10.</span> <span class="post-toc-text">聚合函数</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#SUM"><span class="post-toc-number">10.1.</span> <span class="post-toc-text">SUM</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#AVG"><span class="post-toc-number">10.2.</span> <span class="post-toc-text">AVG</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#MAX-和-MIN"><span class="post-toc-number">10.3.</span> <span class="post-toc-text">MAX 和 MIN</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#COUNT"><span class="post-toc-number">10.4.</span> <span class="post-toc-text">COUNT</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQL-语句之分组聚合"><span class="post-toc-number">11.</span> <span class="post-toc-text">SQL 语句之分组聚合</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#分组"><span class="post-toc-number">11.1.</span> <span class="post-toc-text">分组</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#分组筛选"><span class="post-toc-number">11.2.</span> <span class="post-toc-text">分组筛选</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#SQL-语句之子查询"><span class="post-toc-number">12.</span> <span class="post-toc-text">SQL 语句之子查询</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#比较运算符连接子查询"><span class="post-toc-number">12.1.</span> <span class="post-toc-text">比较运算符连接子查询</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#IN-和-NOT-IN"><span class="post-toc-number">12.2.</span> <span class="post-toc-text">IN 和 NOT IN</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#EXISTS-和-NOT-EXISTS"><span class="post-toc-number">12.3.</span> <span class="post-toc-text">EXISTS 和 NOT EXISTS</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#ALL、SOME-和-ANY"><span class="post-toc-number">12.4.</span> <span class="post-toc-text">ALL、SOME 和 ANY</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#表连接"><span class="post-toc-number">13.</span> <span class="post-toc-text">表连接</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#连接类型"><span class="post-toc-number">13.1.</span> <span class="post-toc-text">连接类型</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#连接条件-ON"><span class="post-toc-number">13.2.</span> <span class="post-toc-text">连接条件 ON</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#内连接"><span class="post-toc-number">13.2.1.</span> <span class="post-toc-text">内连接</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#左外连接"><span class="post-toc-number">13.2.2.</span> <span class="post-toc-text">左外连接</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#右外连接"><span class="post-toc-number">13.2.3.</span> <span class="post-toc-text">右外连接</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#多表连接案例"><span class="post-toc-number">13.2.4.</span> <span class="post-toc-text">多表连接案例</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">14.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-SQL/20180809115245" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">MySQL —— SQL 语句总结</h1><div class="post-meta"><time class="post-time" title="2018-08-09 11:52:45" datetime="2018-08-09T03:52:45.000Z" itemprop="datePublished">2018-08-09</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/SQL/">SQL</a></li></ul><span id="/20180809115245/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="MySQL —— SQL 语句总结"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/SQL/20180809115245/sql.png" title="SQL 语句"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote warning"><p><strong>这是关于 <code>MySQL</code> 系列文章的第二篇，本篇大部分内容都贴近开发中的实际操作，，还有一句话不得不再次赘述，数据库博大精深，本系列文章内容较浅，适合于前端的同学们对 <code>MySQL</code> 的入门，这也是我的学习笔记，希望可以帮助大家。</strong></p></blockquote><a id="more"></a><blockquote class="pullquote info"><p><strong>系列文章：</strong></p><ul><li><a href="/20180808012303/" target="_blank">MySQL —— 数据库基础</a></li><li><a href="/20180814131241/" target="_blank">MySQL —— 简单聊一聊数据库设计</a></li></ul></blockquote><h2 id="准备数据"><a href="#准备数据" class="headerlink" title="准备数据"></a>准备数据</h2><p>还记得在上一篇的最后我们使用 <code>DDL</code> 创建了完整的表关系，<code>student</code>、<code>score</code> 和 <code>course</code> 三张表如下图。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/SQL/20180809115245/student-score-course.png" alt="完整表关系图"></div><div class="image-caption">完整表关系图</div></figure><p><br></p><p>其中 <code>score</code> 是外键表，创建外键约束关联了两张主键表 <code>scudent</code> 和 <code>cource</code>，接下来的 <code>SQL</code> 语句都是基于这几张表来进行的。</p><h2 id="SQL-的组成"><a href="#SQL-的组成" class="headerlink" title="SQL 的组成"></a>SQL 的组成</h2><h3 id="DDL"><a href="#DDL" class="headerlink" title="DDL"></a>DDL</h3><p><code>DDL</code>（<code>data definition language</code>）是数据定义语言，主要命令有 <code>CREATE</code>、<code>ALTER</code>、<code>DROP</code> 等，<code>DDL</code> 主要用在定义或改变数据表（<code>TABLE</code>）的结构、数据类型、表之间的链接和约束等初始化工作上，大多数在建立表时使用，在上一篇中 <code>DDL</code> 操作表的部分着重做了介绍并创建数据表，也可以将存储 <code>DDL</code> 语句的文件存储在 <code>.sql</code> 后缀名结尾的文件当中，在 <code>DBMS</code> 数据管理系统中导入，直接创建数据库。</p><h3 id="DML"><a href="#DML" class="headerlink" title="DML"></a>DML</h3><p><code>DML</code>（<code>data manipulation language</code>）是数据操做语言，通过 <code>DML</code> 语句对数据库数据表中的实体进行增、删、改、查，数据量非常大时，我们不可能使用 <code>DBMS</code> 一条一条的操作数据，所以都是通过代码完成操作，<code>DML</code> 是在学习 <code>MySQL</code> 数据库中最最重要的内容，也是本篇的重点，后面会非常详细的说明。</p><h3 id="DCL"><a href="#DCL" class="headerlink" title="DCL"></a>DCL</h3><p><code>DCL</code>（<code>data control language</code>）是数据库控制语言，用来设置或更改数据库用户或角色权限的语句，包括 <code>grant</code>、<code>revoke</code> 等，<code>grant</code> 是授权命令，<code>revoke</code> 是收回权限命令。</p><h2 id="SQL-运算符"><a href="#SQL-运算符" class="headerlink" title="SQL 运算符"></a>SQL 运算符</h2><blockquote class="pullquote info"><p><strong><code>SQL</code> 元算符分为算术运算符、逻辑运算符和比较运算符，是用来完成列之间或者变量之间的比较和运算的。</strong></p></blockquote><h3 id="算术运算符"><a href="#算术运算符" class="headerlink" title="算术运算符"></a>算术运算符</h3><table><thead><tr><th style="width:20%">运算符</th><th>说明</th></tr></thead><tbody><tr><td>+</td><td>加运算，求两个数或表达式相加的和，如 1 + 1</td></tr><tr><td>-</td><td>减运算，求两个数或表达式相减的差，如 4 - 1</td></tr><tr><td>\*</td><td>乘运算，求两个数或表达式相乘的积，如 2 * 2</td></tr><tr><td>\</td><td>除运算，求两个数或表达式相除的商，如 6 / 4</td></tr><tr><td>%</td><td>取模运算，求两个数或表达式相除的余数，如 6 % 4</td></tr></tbody></table><p><br></p><h3 id="逻辑运算符"><a href="#逻辑运算符" class="headerlink" title="逻辑运算符"></a>逻辑运算符</h3><table><thead><tr><th style="width:20%">运算符</th><th>说明</th></tr></thead><tbody><tr><td>AND</td><td>当且仅当两个布尔表达式都为 true 时，返回 true</td></tr><tr><td>OR</td><td>当且仅当两个布尔表达式都为 false 时，返回 false</td></tr><tr><td>NOT</td><td>布尔表达式的值取反</td></tr></tbody></table><p><br></p><h3 id="比较运算符"><a href="#比较运算符" class="headerlink" title="比较运算符"></a>比较运算符</h3><table><thead><tr><th style="width:20%">运算符</th><th>说明</th></tr></thead><tbody><tr><td>=</td><td>等于</td></tr><tr><td>&gt;</td><td>大于</td></tr><tr><td>&lt;</td><td>小于</td></tr><tr><td>&gt;=</td><td>大于等于</td></tr><tr><td>&lt;=</td><td>小于等于</td></tr><tr><td>&lt;&gt;</td><td>不等于</td></tr><tr><td>!=</td><td>不等于</td></tr><tr><td>&lt;=&gt;</td><td>安全不等于</td></tr></tbody></table><p><br></p><h2 id="SQL-语句之数据增、删、改"><a href="#SQL-语句之数据增、删、改" class="headerlink" title="SQL 语句之数据增、删、改"></a>SQL 语句之数据增、删、改</h2><h3 id="插入数据行"><a href="#插入数据行" class="headerlink" title="插入数据行"></a>插入数据行</h3><p><strong>语法：</strong></p><pre><code class="lang-sql">INSERT [INTO] 表名 [(列名)] VALUES (值列表)
+</code></pre><p>给上面的 <code>student</code> 表插入一条数据，姓名为张三，卡号为 <code>100</code>，年龄为 <code>20</code>，城市默认为北京。</p><pre><code class="lang-sql">INSERT INTO `student` (`name`, `idcard`, `age`, `city`)
+VALUES (&quot;张三&quot;, &quot;100&quot;, 20, NULL);
+</code></pre><blockquote class="pullquote danger"><p><strong>注意事项：</strong></p><ul><li><strong>每次插入一行数据，不能只插入一部分数据，即不能只插入了一个实体的某几列，插入的数据是否有效将严格按照实体的完整性要求来检验；</strong></li><li><strong>每个数据值的数据类型、精度、位数必须要与对应的列名精确匹配，严格按照域的完整性要求来检验；</strong></li><li><strong>不能为标识符指定值（规定），例如作为主键自增的标识列；</strong></li><li><strong>如果某字段设置非空约束，则该列必须插入不为 <code>null</code> 的数据；</strong></li><li><strong>插入数据时还要符合检查性约束的要求，如非空约束、唯一约束等；</strong></li><li><strong>设置了默认值的列，有缺省值时，可以使用 <code>DEFAULT</code> 关键字来代替插入的实际值。</strong></li></ul></blockquote><h3 id="更新数据行"><a href="#更新数据行" class="headerlink" title="更新数据行"></a>更新数据行</h3><p><strong>语法：</strong></p><pre><code class="lang-sql">UPDATE 表名 SET 列名 = 更新值 [WHERE &lt;更新条件&gt;]
+</code></pre><p>将 <code>student</code> 表中 <code>id</code> 为 <code>1</code> 的实体的 <code>idcard</code> 列值改为 <code>200</code>，<code>age</code> 列值改为 <code>24</code>。</p><pre><code class="lang-sql">UPDATE `student`
+SET `idcard` = &quot;200&quot;, `age` = 24
+WHERE `id` = 1 AND `name` = &quot;张三&quot;;
+</code></pre><p>将 <code>student</code> 表中 <code>city</code> 列为空的实体 <code>city</code> 列的值设置为 “上海”。</p><pre><code class="lang-sql">UPDATE `student`
+SET `city` = &quot;上海&quot;
+WHERE `city` IS NULL;
+</code></pre><blockquote class="pullquote primary"><p><strong>注意事项：</strong></p><ul><li><strong>更新多列时，列赋值语句之间使用逗号分隔，一定要加更新条件，否则会更新所有的行；</strong></li><li><strong>多个联合条件根据逻辑关系使用 <code>AND</code> 或 <code>OR</code> 连接。</strong></li></ul></blockquote><h3 id="删除数据行"><a href="#删除数据行" class="headerlink" title="删除数据行"></a>删除数据行</h3><p><strong>语法：</strong></p><pre><code class="lang-sql">DELETE [FROM] 表名 [WHERE &lt;删除条件&gt;]
+</code></pre><p>删除 <code>student</code> 表中 <code>age</code> 列值为 <code>24</code> 或者 <code>idcard</code> 列值为 <code>200</code> 的实体。</p><pre><code class="lang-sql">DELETE FROM `student`
+WHERE `age` = 24 OR `idcard` = 200;
+</code></pre><blockquote class="pullquote warning"><p><strong>注意事项：</strong></p><ul><li><strong>删除的是一整行的数据，所以不需要提供列名；</strong></li><li><strong>如果要删除主表数据，则要先删除外键连接对应的子表数据。</strong></li></ul></blockquote><h2 id="SQL-语句之数据查询"><a href="#SQL-语句之数据查询" class="headerlink" title="SQL 语句之数据查询"></a>SQL 语句之数据查询</h2><blockquote class="pullquote default"><p><strong>在 <code>SQL</code> 语句的增、删、改、查中，最繁琐和复杂的就是查询语句，在实际开发中七分查询三分增、删、改的说法一点也不为过，查询语句是在业务中使用最多的语句，所以我们将查询语句与增、删、改分离出来，用这单独的一节来叙述。</strong></p></blockquote><h3 id="查询简介"><a href="#查询简介" class="headerlink" title="查询简介"></a>查询简介</h3><p>查询就是从客户端发出查询，请求数据库服务器，并从数据库返回查询结果的过程，每次执行查询只是从数据表中提取数据，并按照表的方式呈现出来，查询产生的虚拟表并不会保存。</p><h3 id="查询语法"><a href="#查询语法" class="headerlink" title="查询语法"></a>查询语法</h3><pre><code class="lang-sql">SELECT &lt;列名&gt;
+FROM &lt;表名&gt;
+[WHERE &lt;查询条件表达式&gt;]
+[ORDER BY &lt;排序的列名&gt; [ASC 或 DESC]]
+LIMIT &lt;起始索引&gt;, &lt;查询条数&gt;;
+</code></pre><p>我们继续操作之前的三张表，查询 “北京” 的学生并按 <code>id</code> 的正序排序。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE `city` = &quot;北京&quot;
+ORDER BY `id` ASC;
+</code></pre><p>上面 <code>SQL</code> 语句中的 <code>*</code> 代表查询表中所有的列，如果查找某些列，列名之间用 <code>,</code> 分隔。</p><h3 id="别名"><a href="#别名" class="headerlink" title="别名"></a>别名</h3><p>在查询数据表的某个列的时候可以通过别名改变查询到虚拟表列的名称，在列的后面使用 <code>AS</code> 关键字加上别名，<code>AS</code> 可以省略。</p><pre><code class="lang-sql">SELECT `name`, `age`, `city` AS `城市`
+FROM `student`
+WHERE `city` = &quot;北京&quot;
+ORDER BY `id` DESC;
+</code></pre><h3 id="查询空行"><a href="#查询空行" class="headerlink" title="查询空行"></a>查询空行</h3><p>假设表中的某一列值为 <code>null</code>，我们可以通过 <code>IS</code> 关键字查询这一列值为空的数据。</p><pre><code class="lang-sql">SELECT `name`, `age`, `city`
+FROM `student`
+WHERE `city` IS NULL
+ORDER BY `id` DESC;
+</code></pre><h3 id="常量列"><a href="#常量列" class="headerlink" title="常量列"></a>常量列</h3><p>查询一个数据表中没有的列，我们可以在查询时将这一列增加为常量列，如 <code>city</code> 的值都是中国的，我们可以增加一个常量列值都为 “中国”，列名为 <code>country</code>。</p><pre><code class="lang-sql">SELECT `name`, `age`, `city`, &quot;中国&quot; AS `country`
+FROM `student`;
+</code></pre><h3 id="查询列的不重复数据"><a href="#查询列的不重复数据" class="headerlink" title="查询列的不重复数据"></a>查询列的不重复数据</h3><p>假设查询 <code>student</code> 表中同学们来自那些城市，正常按照 <code>city</code> 列查询，有多条数据的 <code>city</code> 列都来自同一个城市，我们可以使用 <code>DISTINCT</code> 关键字，只保留一个。</p><pre><code class="lang-sql">SELECT DISTINCT `city`
+FROM `student`;
+</code></pre><h3 id="限制查询条数"><a href="#限制查询条数" class="headerlink" title="限制查询条数"></a>限制查询条数</h3><p><code>LIMIT</code> 关键字用来限制查询返回的条数，后面的值为数字，下面查询 <code>student</code> 表，只返回 <code>3</code> 条数据。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+LIMIT 3;
+</code></pre><p>当 <code>LIMIT</code> 参数大于一个时，第一个参数代表起始的索引（跳过的条数），第二个参数代表返回的条数，中间用 <code>,</code> 隔开，还是查询 <code>student</code> 表，返回第 <code>4</code> 到 <code>6</code> 条数据。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+LIMIT 3, 3;
+</code></pre><h3 id="运算符在查询中的使用"><a href="#运算符在查询中的使用" class="headerlink" title="运算符在查询中的使用"></a>运算符在查询中的使用</h3><pre><code class="lang-sql">SELECT 1 + 1; -- 2
+SELECT 1 + &quot;1&quot;; -- 2
+SELECT 1 + &quot;panda&quot;; -- 1
+SELECT 1 + NULL; -- NULL
+</code></pre><p>通过上面的例子可以看出在 <code>SQL</code> 语句中，使用算术运算符相加无法起到字符串拼接的作用，会将值转化为数字进行计算，字符串转为数字 <code>0</code>，数字与 <code>null</code> 相加结果为 <code>null</code>，没意义。</p><h3 id="查询语句练习案例"><a href="#查询语句练习案例" class="headerlink" title="查询语句练习案例"></a>查询语句练习案例</h3><p>首先我们将上面的三张表 <code>student</code>，<code>cource</code> 和 <code>score</code> 三张表插入数据。</p><pre><code class="lang-sql">-- 给 student 表插入数据
+INSERT INTO `student`
+VALUES (&quot;1&quot;, &quot;郭靖&quot;, &quot;1&quot;, &quot;40&quot;, &quot;济南&quot;, &quot;山东省&quot;, &quot;1978-09-03&quot;, 1, &quot;1@qq.com&quot;);
+INSERT INTO `student`
+VALUES (&quot;2&quot;, &quot;黄蓉&quot;, &quot;2&quot;, &quot;36&quot;, &quot;济南&quot;, &quot;山东省&quot;, &quot;1982-09-03&quot;, 0, &quot;2@qq.com&quot;);
+INSERT INTO `student`
+VALUES (&quot;3&quot;, &quot;杨过&quot;, &quot;3&quot;, &quot;22&quot;, &quot;终南山&quot;, &quot;陕西省&quot;, &quot;1996-09-03&quot;, 1, &quot;3@qq.com&quot;);
+INSERT INTO `student`
+VALUES (&quot;4&quot;, &quot;小龙女&quot;, &quot;4&quot;, &quot;28&quot;, &quot;终南山&quot;, &quot;陕西省&quot;, &quot;1990-09-03&quot;, 0, &quot;4@qq.com&quot;);
+INSERT INTO `student`
+VALUES (&quot;5&quot;, &quot;欧阳锋&quot;, &quot;5&quot;, &quot;70&quot;, &quot;白驼山&quot;, &quot;新疆&quot;, &quot;1948-09-03&quot;, 1, &quot;5@qq.com&quot;);
+
+-- 给 cource 表插入数据
+INSERT INTO `course` VALUES (&quot;1&quot;, &quot;语文&quot;);
+INSERT INTO `course` VALUES (&quot;2&quot;, &quot;数学&quot;);
+INSERT INTO `course` VALUES (&quot;3&quot;, &quot;英语&quot;);
+
+-- 给 score 表插入数据
+INSERT INTO `score` VALUES (&quot;1&quot;, &quot;1&quot;, &quot;100&quot;);
+INSERT INTO `score` VALUES (&quot;1&quot;, &quot;2&quot;, &quot;90&quot;);
+INSERT INTO `score` VALUES (&quot;1&quot;, &quot;3&quot;, &quot;70&quot;);
+INSERT INTO `score` VALUES (&quot;2&quot;, &quot;1&quot;, &quot;100&quot;);
+INSERT INTO `score` VALUES (&quot;2&quot;, &quot;2&quot;, &quot;40&quot;);
+INSERT INTO `score` VALUES (&quot;2&quot;, &quot;3&quot;, &quot;80&quot;);
+INSERT INTO `score` VALUES (&quot;3&quot;, &quot;1&quot;, &quot;100&quot;);
+INSERT INTO `score` VALUES (&quot;3&quot;, &quot;2&quot;, &quot;60&quot;);
+INSERT INTO `score` VALUES (&quot;3&quot;, &quot;3&quot;, &quot;80&quot;);
+</code></pre><p><strong>添加数据后的三张表如下图：</strong></p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/SQL/20180809115245/tables.png" alt="表的具体数据"></div><div class="image-caption">表的具体数据</div></figure><p><br></p><p><strong>查询山东省学生的全部信息：</strong></p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE `province` = &quot;山东&quot;;
+</code></pre><p><strong>查询山东省男学生的全部信息：</strong></p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE `province` = &quot;山东&quot; AND `gender` = 1;
+</code></pre><p><strong>查询没填写电子邮箱学生的姓名和身份证号：</strong></p><pre><code class="lang-sql">SELECT `name`, `idcard`
+FROM `student`
+WHERE `email` IS NULL;
+</code></pre><p><strong>把学生的成绩按升序排列：</strong></p><pre><code class="lang-sql">SELECT *
+FROM `score`
+ORDER BY `grade` ASC;
+</code></pre><p><strong>课程编号升序排列，成绩降序排列：</strong></p><pre><code class="lang-sql">SELECT *
+FROM `score`
+ORDER BY `course_id` ASC, `grade` DESC;
+</code></pre><h2 id="SQL-语句之模糊查询"><a href="#SQL-语句之模糊查询" class="headerlink" title="SQL 语句之模糊查询"></a>SQL 语句之模糊查询</h2><blockquote class="pullquote primary"><p><strong>在上一节中我们所使用的查询叫 “完整查询” 或 “精准查询”，而本节的 “模糊查询” 是指查询条件不明确，可以尽量多的匹配满足查询条件的数据。</strong></p></blockquote><h3 id="通配符"><a href="#通配符" class="headerlink" title="通配符"></a>通配符</h3><p>“通配符” 用于代替一个或多个真正的字符，与 <code>LIKE</code> 关键字一起使用，通配符的解释、示例如下表。</p><table><thead><tr><th style="width:15%">通配符</th><th>解释</th><th style="width:20%">示例</th><th style="width:25%">符合条件的值</th></tr></thead><tbody><tr><td>_</td><td>一个任意字符</td><td>LIKE "a_"</td><td>as、ad 等</td></tr><tr><td>%</td><td>任意长度的字符串</td><td>LIKE "c%"</td><td>code、cat 等</td></tr><tr><td>[ ]</td><td>括号中所指定范围内的一个字符</td><td>LIKE "1[35]5"</td><td>135 或 155</td></tr><tr><td>[^]</td><td>不再括号中所指定范围内的一个字符</td><td>LIKE "1[^1-2]5"</td><td>135 或 155 等</td></tr></tbody></table><p>查询 <code>student</code> 表中 <code>email</code> 列是 <code>qq</code> 邮箱的学生信息。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE `emai` LIKE `%qq%`;
+</code></pre><p>查询 <code>student</code> 表中姓杨的名字为两个字的所有学生信息。</p><pre><code class="lang-sql">SELECT * FROM `student`
+WHERE `name` LIKE &quot;杨_&quot;;
+</code></pre><h3 id="BETWEEN…AND…"><a href="#BETWEEN…AND…" class="headerlink" title="BETWEEN…AND…"></a>BETWEEN…AND…</h3><p><code>BETWEEN...AND...</code> 用于查询某一列在指定范围内的记录，包括两个边界。</p><p>查询 <code>score</code> 表中成绩在 <code>80</code> 到 <code>90</code> 范围内的所有学生信息。</p><pre><code class="lang-sql">-- 精准查询
+SELECT *
+FROM `score`
+WHERE `grade` &gt;= 80 AND `grade` &lt;= 90;
+
+-- 模糊查询
+SELECT *
+FROM `score`
+WHERE `grade` BETWEEN 80 AND 90;
+</code></pre><h3 id="IN"><a href="#IN" class="headerlink" title="IN"></a>IN</h3><p>查询某一列中的值在列出的内容列表中。</p><p>查询 <code>student</code> 表中 <code>city</code> 列为 “北京” 或 “上海” 或 “杭州” 所有学生的信息。</p><pre><code class="lang-sql">-- 精准查询
+SELECT *
+FROM `student`
+WHERE `city` = &quot;北京&quot; OR `city` = &quot;上海&quot; OR `city` = &quot;杭州&quot;;
+
+-- 模糊查询
+SELECT *
+FROM `student`
+WHERE `city` IN (&quot;北京&quot;, &quot;上海&quot;, &quot;杭州&quot;);
+</code></pre><h2 id="截断表"><a href="#截断表" class="headerlink" title="截断表"></a>截断表</h2><p>作为主键的标识列，值是会随着数据的增加，自动递增的，且具有 “断号保留” 的特性，随着表中数据的增删，标识列的值会非常混乱，我们可以通过截断表来解决该问题。</p><blockquote class="pullquote success"><p><strong>截断表有两个作用如下：</strong></p><ul><li><strong>使表中数据的标识列的值重新从 <code>1</code> 开始计数；</strong></li><li><strong>清空表中数据。</strong></li></ul></blockquote><blockquote class="pullquote warning"><p><strong>使用截断表时，表的列和约束不会改动，使用的前提是表与表之间不能存在外键约束，表之间如果通过外键进行关联，无法清空主表中数据，即无法截断表。</strong></p></blockquote><p><strong>语法：</strong></p><pre><code class="lang-sql">TRUNCATE TABLE 表名
+</code></pre><p><strong>截断 student 表：</strong></p><pre><code class="lang-sql">TRUNCATE TABLE `student`;
+</code></pre><blockquote class="pullquote danger"><p><strong>截断表操作轻易不要使用，因为普通的 <code>SQL</code> 操作会记录日志，并且可以还原，而 <code>TRUNCATE</code> 操作不会记录日志，并且不可还原，万一删错，彻底完蛋。</strong></p></blockquote><h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><blockquote class="pullquote default"><p><strong>在 <code>MySQL</code> 中有很多内置的函数帮我们实现一些功能，函数大类可分为普通函数和聚合函数，我们本节主要介绍普通函数，常用的普通函数大概可分为字符函数、数字函数、日期函数和流程控制函数等，还有一些与数据库相关的辅助函数以及自定义函数，都会在本节一一介绍。</strong></p></blockquote><h3 id="字符函数"><a href="#字符函数" class="headerlink" title="字符函数"></a>字符函数</h3><h4 id="LENGTH"><a href="#LENGTH" class="headerlink" title="LENGTH"></a>LENGTH</h4><p><code>LENGTH</code> 函数的作用是返回输入字符串的长度。</p><pre><code class="lang-sql">SELECT LENGTH(&quot;panda&quot;); -- 5
+SELECT LENGTH(&quot;你好啊&quot;); -- 9
+</code></pre><h4 id="CONCAT-和-CONCAT-WS"><a href="#CONCAT-和-CONCAT-WS" class="headerlink" title="CONCAT 和 CONCAT_WS"></a>CONCAT 和 CONCAT_WS</h4><p><code>CONCAT</code> 函数用于将多个字符串拼接成一个字符串，<code>CONCAT_WS</code> 函数用于使用分隔符将多个字符串拼接成一个字符串，第一个参数为分隔符。</p><pre><code class="lang-sql">SELECT CONCAT(&quot;Panda&quot;, &quot;Shen&quot;); -- PandaShen
+SELECT CONCAT_WS(&quot;-&quot;, &quot;Hello&quot;, &quot;Panda&quot;, &quot;Shen&quot;); -- Hello-Panda-Shen
+</code></pre><h4 id="UPPER-和-LOWER"><a href="#UPPER-和-LOWER" class="headerlink" title="UPPER 和 LOWER"></a>UPPER 和 LOWER</h4><p><code>UPPER</code> 函数用于将字符串转换为大写，<code>LOWER</code> 函数用于将字符串转换为小写。</p><pre><code class="lang-sql">SELECT UPPER(&quot;panda&quot;); -- PANDA
+SELECT LOWER(&quot;PANDA&quot;); -- panda
+</code></pre><h4 id="SUBSTR"><a href="#SUBSTR" class="headerlink" title="SUBSTR"></a>SUBSTR</h4><p><code>SUBSTR</code> 函数用于截取字符串，第一个参数为源字符串，第二个参数为起始的索引（从 <code>1</code> 开始），第三个参数为截取的长度，不传默认截取后面全部字符串。</p><pre><code class="lang-sql">SELECT SUBSTR(&quot;panda&quot;, 3); -- nda
+SELECT SUBSTR(&quot;panda&quot;, 3, 2); -- nd
+</code></pre><h4 id="LEFT-和-RIGHT"><a href="#LEFT-和-RIGHT" class="headerlink" title="LEFT 和 RIGHT"></a>LEFT 和 RIGHT</h4><p><code>LEFT</code> 函数和 <code>RIGHT</code> 函数分别代表在字符串取左边或右边的规定位数，第一个参数为源字符串，第二个参数为规定的位数。</p><pre><code class="lang-sql">SELECT LEFT(&quot;panda12345&quot;, 5); -- panda
+SELECT RIGHT(&quot;panda12345&quot;, 5); -- 12345
+</code></pre><h4 id="INSTR"><a href="#INSTR" class="headerlink" title="INSTR"></a>INSTR</h4><p><code>INSTR</code> 函数用于查找某个字符串在一个源字符串中的起始（第一个匹配到的）索引，第一个参数为源字符串，第二个参数为查询字符串，查询不到返回 <code>0</code>。</p><pre><code class="lang-sql">SELECT INSTR(&quot;panda&quot;, &quot;a&quot;); -- 2
+SELECT INSTR(&quot;panda&quot;, &quot;x&quot;); -- 0
+</code></pre><h4 id="LTRIM、RTRIM-和-TRIM"><a href="#LTRIM、RTRIM-和-TRIM" class="headerlink" title="LTRIM、RTRIM 和 TRIM"></a>LTRIM、RTRIM 和 TRIM</h4><p><code>LTRIM</code> 函数用于去掉字符串左侧空格，<code>RTRIM</code> 用于去掉字符串右侧空格，<code>TRIM</code> 用于去掉字符串两侧的空格，如果 <code>TRIM</code> 的参数将两个字符串使用 <code>FROM</code> 连接，则代表去掉右侧字符串左右两侧的左侧字符串（说的有点绕，看例子）。</p><pre><code class="lang-sql">SELECT LTRIM(&quot;  panda&quot;); -- panda
+SELECT RTRIM(&quot;panda  &quot;); -- panda
+SELECT TRIM(&quot;  panda  &quot;); -- panda
+SELECT TRIM(&quot;@&quot; FROM &quot;@@panda@@&quot;); -- panda
+</code></pre><h4 id="LPAD-和-RPAD"><a href="#LPAD-和-RPAD" class="headerlink" title="LPAD 和 RPAD"></a>LPAD 和 RPAD</h4><p><code>LPAD</code> 函数和 <code>RPAD</code> 函数分别用于向源字符串的左、右按照规定字符串的长度填充定义的字符。</p><pre><code class="lang-sql">SELECT LPAD(&quot;panda&quot;, 10, &quot;@&quot;); -- @@@@@panda
+SELECT RPAD(&quot;panda&quot;, 10, &quot;@&quot;); -- panda@@@@@
+</code></pre><h4 id="REPLACE"><a href="#REPLACE" class="headerlink" title="REPLACE"></a>REPLACE</h4><p><code>REPLACE</code> 函数用于替换某字符串的部分字符，第一个参数为源字符串，第二个参数为被替换字符，第三个参数为替换字符。</p><pre><code class="lang-sql">SELECT REPLACE(&quot;panda&quot;, &quot;a&quot;, &quot;e&quot;); -- pende
+</code></pre><h4 id="综合练习"><a href="#综合练习" class="headerlink" title="综合练习"></a>综合练习</h4><p>查询 <code>id</code> 为 <code>3</code> 学生的邮箱域名。</p><pre><code class="lang-sql">SELECT SUBSTR(`email`, INSTR(`email`, &quot;@&quot;) + 1)
+FROM `student`
+WHERE `id` = 3;
+
+-- qq.com
+</code></pre><p>将 <code>student</code> 表中的邮箱地址全部由小写改成大写。</p><pre><code class="lang-sql">UPDATE `student`
+SET `email` = UPPER(`email`);
+</code></pre><p>给 <code>student</code> 表新增一列 <code>level</code>，类型为 <code>varchar</code>，值为 <code>1-1</code>、<code>1-2</code>、<code>1-3</code>、<code>2-1</code>、<code>2-2</code> 等，按照 <code>level</code> 列值中 <code>-</code> 的前半段正序排列，后半段逆序排列。</p><pre><code class="lang-sql">SELECT `level`,
+SUBSTR(`level`, 1, INSTR(`level`, &quot;-&quot;) - 1),
+SUBSTR(`level`, INSTR(`level`, &quot;-&quot;) + 1)
+FROM `student`
+ORDER BY
+SUBSTR(`level`, 1, INSTR(`level`, &quot;-&quot;) - 1) ASC,
+SUBSTR(`level`, INSTR(`level`, &quot;-&quot;) + 1) DESC;
+</code></pre><p>将 <code>pandashen</code> 转换成 <code>Panda_Shen</code>，将两个单词拆开，并实现首字母大写，其他字符小写，然后用 <code>_</code> 拼接。</p><pre><code class="lang-sql">SELECT
+CONCAT(
+  CONCAT(
+    UPPER(SUBSTR(SUBSTR(&quot;pandashen&quot;, 1, 5), 1, 1)),
+    SUBSTR(SUBSTR(&quot;pandashen&quot;, 1, 5), 2)
+  ),
+  &quot;_&quot;,
+  CONCAT(
+    UPPER(SUBSTR(SUBSTR(&quot;pandashen&quot;, 6), 1, 1)),
+    SUBSTR(SUBSTR(&quot;pandashen&quot;, 6), 2)
+  )
+);
+
+-- Panda_Shen
+</code></pre><h3 id="数学函数"><a href="#数学函数" class="headerlink" title="数学函数"></a>数学函数</h3><h4 id="FORMAT"><a href="#FORMAT" class="headerlink" title="FORMAT"></a>FORMAT</h4><p><code>FORMAT</code> 函数用于将数字格式化，第一个参数为要格式化的数字，第二个参数为保留的小数位数，返回值为字符串，整数部分每三位使用 <code>,</code> 分隔。</p><pre><code class="lang-sql">SELECT FORMAT(100000, 2); -- 100,000.00
+SELECT FORMAT(100.31111, 3); -- 100.311
+SELECT FORMAT(100.31111, 0); -- 100
+SELECT FORMAT(423423234.65534453, 2); -- 423,423,234.66
+</code></pre><h4 id="CEIL-和-FLOOR"><a href="#CEIL-和-FLOOR" class="headerlink" title="CEIL 和 FLOOR"></a>CEIL 和 FLOOR</h4><p><code>CEIL</code> 函数为向上取整，<code>FLOOR</code> 函数为向下取整。</p><pre><code class="lang-sql">SELECT CEIL(2.4); -- 3
+SELECT FLOOR(2.4); -- 2
+</code></pre><h4 id="ROUND-和-TRUNCATE"><a href="#ROUND-和-TRUNCATE" class="headerlink" title="ROUND 和 TRUNCATE"></a>ROUND 和 TRUNCATE</h4><p><code>ROUND</code> 函数为四舍五入，<code>TRUNCATE</code> 函数为小数截断，第一个参数为截断的数字，第二个参数为保留的小数位数。</p><pre><code class="lang-sql">SELECT ROUND(2.1); -- 2
+SELECT ROUND(2.5); -- 3
+SELECT TRUNCATE(1.66, 0); -- 1
+SELECT TRUNCATE(1.66, 1); -- 1.6
+SELECT TRUNCATE(1.66, 2); -- 1.66
+SELECT TRUNCATE(1.66, 3); -- 1.66
+</code></pre><h4 id="POWER"><a href="#POWER" class="headerlink" title="POWER"></a>POWER</h4><p><code>POWER</code> 函数用于幂运算，第一个参数为底数，第二个参数为指数。</p><pre><code class="lang-sql">SELECT POWER(2, 3); -- 8
+</code></pre><h4 id="MOD"><a href="#MOD" class="headerlink" title="MOD"></a>MOD</h4><p><code>MOD</code> 函数用于取余运算，第一个参数为被除数，第二个参数为除数。</p><pre><code class="lang-sql">SElECT MOD(10, 3); -- 1
+</code></pre><h3 id="日期函数"><a href="#日期函数" class="headerlink" title="日期函数"></a>日期函数</h3><h4 id="NOW、CURDATE-和-CURTIME"><a href="#NOW、CURDATE-和-CURTIME" class="headerlink" title="NOW、CURDATE 和 CURTIME"></a>NOW、CURDATE 和 CURTIME</h4><p><code>NOW</code> 函数用于获取当前的时间，格式为 <code>yyyy-mm-dd hh:mm:ss</code>，<code>CURDATE</code> 函数用于获取当前日期，格式为 <code>yyyy-mm-dd hh:mm:ss</code>，<code>CURTIME</code> 函数用于获取当前时间，格式为 <code>hh:mm:ss</code>，返回类型均为日期格式。</p><pre><code class="lang-sql">SELECT NOW(); -- 2018-08-09 19:23:18
+SELECT CURDATE(); -- 2018-08-09
+SELECT CURTIME(); -- 19:25:31
+</code></pre><h4 id="DATE-ADD"><a href="#DATE-ADD" class="headerlink" title="DATE_ADD"></a>DATE_ADD</h4><p><code>DATE_ADD</code> 函数用于增加时间，即将时间求和，第一个参数为 <code>yyyy-mm-dd hh:mm:ss</code> 格式的时间，第二个参数为时间间隔，<code>INTERVAL</code> 关键字代表时间间隔，后面跟上数字，单位为 <code>DAY</code>、<code>MONTH</code>、<code>YEAR</code> 等，返回类型为字符串。</p><pre><code class="lang-sql">SELECT DATE_ADD(NOW(), INTERVAL 365 DAY); -- 2019-08-09 19:30:15
+SELECT DATE_ADD(NOW(), INTERVAL 1 MONTH); -- 2018-09-09 19:30:15
+SELECT DATE_ADD(NOW(), INTERVAL 1 YEAR); -- 2019-08-09 19:30:15
+</code></pre><h4 id="STR-TO-DATE"><a href="#STR-TO-DATE" class="headerlink" title="STR_TO_DATE"></a>STR_TO_DATE</h4><p><code>STR_TO_DATE</code> 函数可以将一个日期格式的字符串转换成日期，第一个参数为日期格式的字符串，第二个参数为日期的格式描述，如 <code>%Y-%m-%d</code>，传入的日期字符串的格式与日期格式描述必须保持一致。</p><pre><code class="lang-sql">SELECT STR_TO_DATE(&quot;2018-08-09&quot;, &quot;%Y-%m-%d&quot;); -- 2018-08-09
+SELECT STR_TO_DATE(&quot;2018/08/09&quot;, &quot;%Y/%m/%d&quot;); -- 2018-08-09
+SELECT STR_TO_DATE(&quot;2018.08.09&quot;, &quot;%Y.%m.%d&quot;); -- 2018-08-09
+</code></pre><p>从 <code>student</code> 表中查询一个生日（列名为 <code>birthday</code>）为 <code>1982</code> 年 <code>9</code> 月 <code>3</code> 的学生信息。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE `birthday` = STR_TO_DATE(&#39;09-03 1982&#39;,&#39;%m-%d %Y&#39;);
+
+-- 结果查到了黄蓉的信息
+</code></pre><p><strong>格式描述参考下表：</strong></p><table><thead><tr><th style="width:20%">序号</th><th style="width:20%">格式符</th><th>功能</th></tr></thead><tbody><tr><td>1</td><td>%Y</td><td>4 位的年份</td></tr><tr><td>2</td><td>%y</td><td>2 位的年份</td></tr><tr><td>3</td><td>%m</td><td>月份（01，02）</td></tr><tr><td>4</td><td>%c</td><td>月份（1，2）</td></tr><tr><td>5</td><td>%d</td><td>日（01，02）</td></tr><tr><td>6</td><td>%H</td><td>小时（24 小时制）</td></tr><tr><td>7</td><td>%h</td><td>小时（12 小时制）</td></tr><tr><td>8</td><td>%i</td><td>分钟（00，01）</td></tr><tr><td>9</td><td>%s</td><td>秒（00，01）</td></tr></tbody></table><p><br></p><h4 id="DATE-FORMAT"><a href="#DATE-FORMAT" class="headerlink" title="DATE_FORMAT"></a>DATE_FORMAT</h4><p><code>DATE_FORMAT</code> 函数与 <code>STR_TO_DATE</code> 作用正好相反，是将一个日期类型按照格式描述转换成日期字符串，第一个参数为日期对象，第二个参数为日期的格式描述。</p><pre><code class="lang-sql">SELECT DATE_FORMAT(STR_TO_DATE(&quot;2018-08-09&quot;, &quot;%Y-%m-%d&quot;), &quot;%Y年%m月%d日&quot;);
+
+-- 2018年08月09日
+</code></pre><h4 id="DATEDIFF"><a href="#DATEDIFF" class="headerlink" title="DATEDIFF"></a>DATEDIFF</h4><p><code>DATEDIFF</code> 函数用于计算时间间隔，两个参数均为日期对象，得到的结果为第一个与第二个的差值，单位为 “天”。</p><pre><code class="lang-sql">SELECT DATEDIFF(NOW(), STR_TO_DATE(&quot;2018-08-08&quot;, &quot;%Y-%m-%d&quot;)); -- 1
+</code></pre><p>通过查询 <code>student</code> 的 <code>birthday</code> 列计算每个人的年龄（周岁）。</p><pre><code class="lang-sql">SELECT FLOOR(DATEDIFF(NOW(), `birthday`) / 365)
+FROM `student`;
+</code></pre><h4 id="返回日期中指定的部分"><a href="#返回日期中指定的部分" class="headerlink" title="返回日期中指定的部分"></a>返回日期中指定的部分</h4><blockquote class="pullquote info"><p><strong>下面方法传入参数均为日期对象，返回的时间中对应的部分均为字符串：</strong></p><ul><li><strong><code>YEAR</code>：返回年；</strong></li><li><strong><code>MONTH</code>：返回月；</strong></li><li><strong><code>DAY</code>：返回日；</strong></li><li><strong><code>HOUR</code>：返回小时；</strong></li><li><strong><code>MINUTE</code>：返回分钟；</strong></li><li><strong><code>SECOND</code>：返回秒；</strong></li><li><strong><code>MONTHNAME</code>：返回月份名称（英文）。</strong></li></ul></blockquote><pre><code class="lang-sql">SELECT YEAR(NOW()); -- 2018
+SELECT MONTH(NOW()); -- 8
+SELECT DAY(NOW()); -- 9
+SELECT HOUR(NOW()); -- 19
+SELECT MINUTE(NOW()); -- 48
+SELECT SECOND(NOW()); -- 53
+SELECT MONTHNAME(NOW()); -- August
+</code></pre><h4 id="综合练习-1"><a href="#综合练习-1" class="headerlink" title="综合练习"></a>综合练习</h4><p>查询 <code>student</code> 表中出生月份是 <code>9</code> 月的学生。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE MONTH(`birthday`) = 9;
+</code></pre><p>查询 <code>student</code> 表中生日是今天的学生。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE MONTH(NOW()) = MONTH(`birthday`) AND DAY(NOW()) = DAY(`birthday`);
+</code></pre><p>在 <code>student</code> 表中查询年龄超过 <code>18</code> 岁的男同学。</p><pre><code class="lang-sql">-- 写法 1：求生日与现在时间的差值转换成年与年龄比较
+SELECT *
+FROM `student`
+WHERE DATEDIFF(NOW(), `birthday`) / 365 &gt; 18;
+</code></pre><pre><code class="lang-sql">-- 写法 2：给生日加上 18 年看看是否大于今天的时间
+SELECT *
+FROM `student`
+WHERE DATE_ADD(`birthday`, INTERVAL 18 YEAR) &lt; NOW();
+</code></pre><pre><code class="lang-sql">-- 写法 3：获取今天时间的年份和生日的年份做差，看是否大于 18
+SELECT *
+FROM `student`
+WHERE YEAR(NOW()) - YEAR(`birthday`) &gt; 18;
+</code></pre><h3 id="数据库辅助函数"><a href="#数据库辅助函数" class="headerlink" title="数据库辅助函数"></a>数据库辅助函数</h3><h4 id="CONNECTION-ID"><a href="#CONNECTION-ID" class="headerlink" title="CONNECTION_ID"></a>CONNECTION_ID</h4><p>连接每个数据库都会分配对应的连接号，我们称为连接 <code>ID</code>，<code>CONNECTION_ID</code> 函数可以帮我们获取连接 <code>ID</code>。</p><pre><code class="lang-sql">SELECT CONNECTION_ID(); -- 10
+</code></pre><h4 id="DATABASE"><a href="#DATABASE" class="headerlink" title="DATABASE"></a>DATABASE</h4><p><code>DATABASE</code> 函数用于查看当前的连接的数据库，返回数据库名称。</p><pre><code class="lang-sql">SELECT DATABASE(); -- school
+</code></pre><h4 id="VERSION"><a href="#VERSION" class="headerlink" title="VERSION"></a>VERSION</h4><p><code>VERSION</code> 函数用来查看当前 <code>MySQL</code> 数据库的版本号。</p><pre><code class="lang-sql">SELECT VERSION(); -- 5.5.61
+</code></pre><h4 id="LAST-INSERT-ID"><a href="#LAST-INSERT-ID" class="headerlink" title="LAST_INSERT_ID"></a>LAST_INSERT_ID</h4><p><code>LAST_INSERT_ID</code> 可以获取上次向表中（任意表）插入数据时，插入数据的 <code>id</code> 号。</p><pre><code class="lang-sql">select LAST_INSERT_ID(); -- 0
+</code></pre><h4 id="USER-和-PASSWORD"><a href="#USER-和-PASSWORD" class="headerlink" title="USER 和 PASSWORD"></a>USER 和 PASSWORD</h4><p><code>USER</code> 用于查询当前数据库登录的用户。</p><pre><code class="lang-sql">SELECT USER(); -- root@
+</code></pre><p>在 <code>MySQL</code> 数据库中存在一张表存放着 <code>MySQL</code> 当前所有的用户，可以通过下面命令查询。</p><pre><code class="lang-sql">SELECT * FROM mysql.user;
+</code></pre><p>通过查询结果可以看出密码的位置存储的是密文，如果要修改密码需要将设置的密码转换成密文进行存储，<code>PASSWORD</code> 函数就是来做这件事的，修改密码命令如下。</p><pre><code class="lang-sql">UPDATE FROM mysql.user
+SET `password` = PASSWORD(&quot;123456&quot;);
+</code></pre><h4 id="MD5"><a href="#MD5" class="headerlink" title="MD5"></a>MD5</h4><p><code>MD5</code> 可以将传入的字符串进行一个 <code>MD5</code> 散列算法的转换并输出。</p><pre><code class="lang-sql">SELECT MD5(&quot;panda&quot;); -- ce61649168c4550c2f7acab92354dc6e
+</code></pre><h3 id="流程控制函数"><a href="#流程控制函数" class="headerlink" title="流程控制函数"></a>流程控制函数</h3><h4 id="IF"><a href="#IF" class="headerlink" title="IF"></a>IF</h4><p><code>IF</code> 函数可以根据传入的判断条件在两个结果中进行选择输出。</p><pre><code class="lang-sql">SELECT IF(1 &gt; 2, &quot;yes&quot;, &quot;no&quot;); -- no
+</code></pre><h4 id="CASE、WHEN、THEN、ELSE-和-END"><a href="#CASE、WHEN、THEN、ELSE-和-END" class="headerlink" title="CASE、WHEN、THEN、ELSE 和 END"></a>CASE、WHEN、THEN、ELSE 和 END</h4><p><code>CASE</code>、<code>WHEN</code>、<code>THEN</code>、<code>ELSE</code> 和 <code>END</code> 共同组成了一个流程控制函数，可以代替多个 <code>IF</code>，<code>CASE</code> 为条件判断起始关键字，<code>WHEN</code> 为判断条件关键字（可以有多个），<code>THEN</code> 为输出结果关键字，<code>ELSE</code> 为默认输出关键字，<code>END</code> 为流程结束关键字。</p><pre><code class="lang-sql">SELECT `grade`,
+CASE
+WHEN `grade` &gt; 90 THEN &quot;优&quot;
+WHEN `grade` &gt; 80 THEN &quot;良&quot;
+WHEN `grade` &gt; 70 THEN &quot;中&quot;
+WHEN `grade` &gt; 60 THEN &quot;及格&quot;
+ELSE &quot;不及格&quot;
+END
+FROM `score`;
+</code></pre><h3 id="自定义函数"><a href="#自定义函数" class="headerlink" title="自定义函数"></a>自定义函数</h3><h4 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h4><blockquote class="pullquote default"><ul><li><strong>自定义函数是对 <code>MySQL</code> 的扩展，使用方式和内置函数相同；</strong></li><li><strong>函数必须要有参数和返回值，函数可以接收任意类型的值和参数，返回值只能有一个；</strong></li><li><strong>函数体由合法的 <code>SQL</code> 语句组成，可以包含声明、循环和流程控制，也可以是 <code>SELECT</code> 或 <code>INSERT</code> 语句，如果函数体是复合结构（多条语句）要用 <code>BEGIN...END</code>。</strong></li></ul></blockquote><h4 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h4><pre><code class="lang-sql">CREATE FUNCTION FUNC_NAME RETURNS {String|Integer}
+BODY
+RETURN VALUE
+</code></pre><p><code>CREATE FUNCTION</code> 为创建函数关键字，<code>FUNC_NAME</code> 为函数的名字，<code>RETURNS</code> 为返回类型关键字，<code>{ }</code> 中的内容为返回值类型，如 <code>varchar</code> 等，<code>BODY</code> 代表函数体，<code>RETURN VALUE</code> 代表返回值。</p><h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4><p>写一个自定义函数用于获取中文格式的当前时间。</p><pre><code class="lang-sql">-- 函数 ZHNOW
+CREATE FUNCTION ZHNOW() RETURNS VARCHAR(64)
+RETURN DATE_FORMAT(NOW(), &quot;%Y年%m月%d日&quot;);
+
+-- 使用 ZHNOW
+SELECT ZHNOW(); -- 2018年08月10日
+</code></pre><p>实现一个自定义函数对两个数字进行相乘运算并将结果返回。</p><pre><code class="lang-sql">-- 函数 MYPRODUCT，参数为两个数字
+CREATE FUNCTION MYPRODUCT(n INT, m INT) RETURNS INT
+RETURN n * m;
+
+-- 使用 MYPRODUCT
+SELECT MYPRODUCT(2, 5); -- 10
+</code></pre><p>针对上面的 <code>course</code> 学科表，写一个自定义函数用来增加学科并返回增加数据的 <code>id</code> 值。</p><pre><code class="lang-sql">-- 函数 ADD_COURSE，参数为添加课程的名称
+CREATE FUNCTION ADD_COURSE(name VARCHAR(32)) RETURNS INT
+BEGIN
+INSERT INTO `course` (`name`)
+VALUES (name);
+RETURN LAST_INSERT_ID();
+END
+
+-- 使用 ADD_COURSE
+SELECT ADD_COURSE(&quot;体育&quot;); -- 4
+</code></pre><h2 id="聚合函数"><a href="#聚合函数" class="headerlink" title="聚合函数"></a>聚合函数</h2><blockquote class="pullquote info"><p><strong>上一节中的函数都是普通函数，多用于操作表达式后返回结果，而聚合函数更多是对一组值进行计算，并返回计算后的值，一般用来统计数据，使用难度要大于普通函数。</strong></p></blockquote><h3 id="SUM"><a href="#SUM" class="headerlink" title="SUM"></a>SUM</h3><p><code>SUM</code> 函数用于累加所有行的值。</p><p>还是以上面的 <code>score</code> 表为例，我们取出 <code>student_id</code> 值为 <code>1</code> 的学生全部科目的总成绩。</p><pre><code class="lang-sql">SELECT SUM(`grade`)
+FROM `score`
+WHERE `student_id` = 1; -- 260
+</code></pre><p>其实上面的操作是分为两部分进行，首先先查出 <code>student_id</code> 为 <code>1</code> 的所有学科的成绩，在对这些成绩进行求和计算后返回。</p><h3 id="AVG"><a href="#AVG" class="headerlink" title="AVG"></a>AVG</h3><p><code>AVG</code> 函数用于计算所有行的平均值。</p><p>在 <code>score</code> 表中查询 <code>student_id</code> 值为 <code>3</code> 的学生全部科目成绩的平均值。</p><pre><code class="lang-sql">SELECT AVG(`grade`)
+FROM `score`
+WHERE `student_id` = 3; -- 80
+</code></pre><h3 id="MAX-和-MIN"><a href="#MAX-和-MIN" class="headerlink" title="MAX 和 MIN"></a>MAX 和 MIN</h3><p><code>MAX</code> 和 <code>MIN</code> 分别用于计算所有行的最大值和最小值。</p><p>在 <code>score</code> 表中查询 <code>student_id</code> 值为 <code>2</code> 的学生全部科目成绩的最大值和最小值。</p><pre><code class="lang-sql">SELECT MAX(`grade`), MIN(`grade`)
+FROM `score`
+WHERE `student_id` = 2; -- 100 40
+</code></pre><h3 id="COUNT"><a href="#COUNT" class="headerlink" title="COUNT"></a>COUNT</h3><p><code>COUNT</code> 按照某一列统计所有行的总条数，如果参照的列值为 <code>null</code> 则不统计在内。</p><p>在 <code>score</code> 表中查询 <code>student_id</code> 值为 <code>1</code> 的学生成绩总数。</p><pre><code class="lang-sql">SELECT COUNT(`grade`)
+FROM `score`
+WHERE `student_id` = 1; -- 3
+</code></pre><h2 id="SQL-语句之分组聚合"><a href="#SQL-语句之分组聚合" class="headerlink" title="SQL 语句之分组聚合"></a>SQL 语句之分组聚合</h2><h3 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h3><p>分组查询就是按某一列或某几列的值进行分组，相同的值分为一组，然后可以对组内使用聚合函数分别进行统计。</p><p><strong>以 <code>score</code> 表为例，分组表示图如下：</strong></p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/SQL/20180809115245/group.jpg" alt="成绩表分组数据"></div><div class="image-caption">成绩表分组数据</div></figure><p><br></p><p><strong>语法：</strong></p><pre><code class="lang-sql">SELECT 列名, 查询表达式
+FROM  &lt;表名&gt;
+GROUP BY &lt;分组字段&gt;
+</code></pre><p><code>GROUP BY</code> 关键字用于对筛选后的结果进行分组。</p><p><strong>例子：</strong></p><p>统计 <code>score</code> 表中每位同学的平均成绩（单列分组，对 <code>student_id</code> 进行分组）。</p><pre><code class="lang-sql">SELECT `student_id`, AVG(`grade`)
+FROM `score`
+GROUP BY `student_id`;
+</code></pre><p>统计 <code>score</code> 表中每门课程的最高分（单列分组，对 <code>course_id</code> 进行分组），并按照分数从低到高排序。</p><pre><code class="lang-sql">SELECT `course_id`, MAX(`grade`)
+FROM `score`
+GROUP BY `course_id`
+ORDER BY `grade` ASC;
+</code></pre><p>统计 <code>student</code> 表中各省男女同学人数（多列分组，按照 <code>province</code> 和 <code>gender</code> 进行分组）。</p><pre><code class="lang-sql">SELECT `province`, `gender`, COUNT(*)
+FROM `student`
+GROUP BY `province`, `gender`;
+</code></pre><p><code>COUNT</code> 中的 <code>*</code> 代表任意一列。</p><h3 id="分组筛选"><a href="#分组筛选" class="headerlink" title="分组筛选"></a>分组筛选</h3><p><strong>语法：</strong></p><pre><code class="lang-sql">SELECT 列名, 查询表达式
+FROM  &lt;表名&gt;
+WHERE  &lt;条件&gt;
+GROUP BY &lt;分组字段&gt;
+HAVING 分组后的过滤条件
+ORDER BY 列名 [ASC, DESC]
+LIMIT 偏移量, 条数
+</code></pre><p><code>WHERE</code> 用于过滤掉不符合条件的记录，<code>HAVING</code> 用于过滤分组后的记录。</p><blockquote class="pullquote warning"><p><strong>注意：上面查询的关键字不一定每条查询语句都要有，但是如果有其中的某些关键字，一定要按照上面的顺序进行。</strong></p></blockquote><p><strong>例子：</strong></p><p>统计 <code>student</code> 表中学生人数多于一个的省份。</p><pre><code class="lang-sql">SELECT `province`, COUNT(*)
+FROM `student`
+GROUP BY `province`
+HAVING COUNT(*) &gt; 1;
+</code></pre><p>统计 <code>score</code> 表中不及格次数大于 <code>1</code> 的学生按逆序排列并取前 <code>3</code> 条。</p><pre><code class="lang-sql">SELECT `student_id`, COUNT(*)
+FROM `score`
+WHERE `grade` &lt; 60
+GROUP BY `student_id`
+HAVING COUNT(`grade`) &gt; 1
+ORDER BY COUNT(`grade`) DESC
+LIMIT 0, 3;
+</code></pre><h2 id="SQL-语句之子查询"><a href="#SQL-语句之子查询" class="headerlink" title="SQL 语句之子查询"></a>SQL 语句之子查询</h2><blockquote class="pullquote danger"><p><strong>子查询的注意点：</strong></p><ul><li><strong>子查询是出现在其他 SQL 语句中的 <code>SELECT</code> 语句；</strong></li><li><strong>子查询嵌套在查询内部，且必须写在圆括号中，外层可以是 <code>SELECT</code>、<code>INSERT</code>、<code>UPDATE</code>、<code>SET</code> 等；</strong></li><li><strong>子查询可以包含多个关键字或条件；</strong></li><li><strong>子查询可以返回常量、一行数据、一列数据或其它子查询（返回多行数据需使用其他关键字处理）。</strong></li></ul></blockquote><h3 id="比较运算符连接子查询"><a href="#比较运算符连接子查询" class="headerlink" title="比较运算符连接子查询"></a>比较运算符连接子查询</h3><p>在查询通过 <code>WHERE</code> 进行条件筛选时，可以使用比较运算符连接子查询。</p><p>查询年龄大于平均年龄的学生。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE YEAR(NOW()) - YEAR(`birthday`) &gt; (
+  SELECT AVG(YEAR(NOW()) - YEAR(`birthday`))
+  FROM `student`
+);
+</code></pre><h3 id="IN-和-NOT-IN"><a href="#IN-和-NOT-IN" class="headerlink" title="IN 和 NOT IN"></a>IN 和 NOT IN</h3><p>当查询一张表的数据需要另一张表中的数据作为筛选条件时，可以在查询时通过 <code>IN</code> 和 <code>NOT IN</code> 关键字连接子查询。</p><p>查询 <code>student</code> 有不及格成绩的学生信息。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE `id` IN (
+  SELECT DISTINCT `student_id`
+  FROM `score`
+  WHERE `grade` &lt; 60
+);
+
+-- 结果查到了黄蓉
+</code></pre><p>上面例子查到了 “黄蓉” 同学的信息，如果将 <code>IN</code> 修改为 <code>NOT IN</code> 则会查询到除 “黄蓉” 以外其他同学的信息。</p><p>查询 <code>student</code> 表中在 <code>score</code> 表中有成绩的学生信息。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE student.id IN (
+  SELECT DISTINCT `student_id`
+  FROM `score`
+);
+</code></pre><h3 id="EXISTS-和-NOT-EXISTS"><a href="#EXISTS-和-NOT-EXISTS" class="headerlink" title="EXISTS 和 NOT EXISTS"></a>EXISTS 和 NOT EXISTS</h3><p><code>EXISTS</code> 和 <code>NOT EXISTS</code> 关键字用于连接子查询，代表 “存在” 或 “不存在” 的意思，接收的子查询返回为数据为布尔值。</p><p>拿上面查询 <code>student</code> 表在 <code>score</code> 表中有成绩学生信息的例子，使用 <code>EXISTS</code> 实现查询。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE EXISTS (
+  SELECT `student_id`
+  FROM `score`
+  WHERE score.student_id = student.id
+);
+</code></pre><blockquote class="pullquote success"><p><strong><code>IN</code>、<code>NOT IN</code> 与 <code>EXISTS</code>、<code>NOT EXISTS</code> 比较，后者的性能更高，查询速度更快，因为判断是在子查询内部，<code>EXISTS</code>、<code>NOT EXISTS</code> 只需要判断布尔值就可以了，<code>IN</code>、<code>NOT IN</code> 在子查询返回数据的基础上还要再次过滤。</strong></p></blockquote><h3 id="ALL、SOME-和-ANY"><a href="#ALL、SOME-和-ANY" class="headerlink" title="ALL、SOME 和 ANY"></a>ALL、SOME 和 ANY</h3><p>当子查询返回了多条数据的时候，可以使用 <code>ALL</code>、<code>SOME</code> 和 <code>ANY</code> 关键字作为比较运算符和子查询之间的连接。</p><blockquote class="pullquote warning"><ul><li><strong><code>ALL</code> 关键字代表全部，即查询的数据筛选条件要去和所有子查询返回的比较并都满足；</strong></li><li><strong><code>SOME</code> 关键字代表某些，查询数据筛选条件只要满足子查询返回数据的某些条即可；</strong></li><li><strong><code>ANY</code> 关键字代表任何一个，查询数据的筛选条件只要满足子查询返回数据的任意一条即可。</strong></li></ul></blockquote><p>查询 <code>student</code> 表中年龄大于等于所有人的学生信息。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE `age` &gt;= ALL (
+  SELECT `age`
+  FROM `student`
+);
+
+-- 结果查到了欧阳锋
+</code></pre><p>查询 <code>student</code> 表中年龄大于某些人的学生信息。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE `age` &gt; SOME (
+  SELECT `age`
+  FROM `student`
+);
+
+-- 结果查到除杨过以外的所有人（因为杨过年龄最小）
+</code></pre><p>查询 <code>student</code> 表中年龄大于任意一个人的学生信息。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+WHERE `age` &gt; ANY (
+  SELECT `age`
+  FROM `student`
+);
+
+-- 返回结果同 SOME 没区别
+</code></pre><h2 id="表连接"><a href="#表连接" class="headerlink" title="表连接"></a>表连接</h2><h3 id="连接类型"><a href="#连接类型" class="headerlink" title="连接类型"></a>连接类型</h3><blockquote class="pullquote info"><p><strong>在 MySQL 中的表连接类型：</strong></p><ul><li><strong><code>INNER JOIN</code>：内连接，代表取两张关联表的交集，可以用 <code>JOIN</code> 关键字代替；</strong></li><li><strong><code>LEFT</code>：左外连接，代表取两张表的交集后再和左侧表求并集，即包含左侧表全部数据；</strong></li><li><strong><code>RIGHT</code>：右外连接，代表取两张表的交际后再和右侧表求并集，即包含右侧表全部数据。</strong></li></ul></blockquote><p><strong>三种连接类型表示如下图：</strong></p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/SQL/20180809115245/table-join.jpg" alt="表连接类型韦恩图"></div><div class="image-caption">表连接类型韦恩图</div></figure><p><br></p><h3 id="连接条件-ON"><a href="#连接条件-ON" class="headerlink" title="连接条件 ON"></a>连接条件 ON</h3><p><code>ON</code> 关键字用来设定表的连接条件，也可以使用 <code>WHERE</code> 对结果进行过滤的方式来代替。</p><h4 id="内连接"><a href="#内连接" class="headerlink" title="内连接"></a>内连接</h4><p>对 <code>student</code> 和 <code>score</code> 两张表使用内连接。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+INNER JOIN `score` ON student.id = score.student_id;
+</code></pre><p><strong>查询结果如下：</strong></p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/SQL/20180809115245/inner-join-result.png" alt="内连接查询结果"></div><div class="image-caption">内连接查询结果</div></figure><p><br></p><h4 id="左外连接"><a href="#左外连接" class="headerlink" title="左外连接"></a>左外连接</h4><p>对 <code>student</code> 和 <code>score</code> 两张表使用左外连接。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+LEFT JOIN `score` ON student.id = score.student_id;
+</code></pre><p><strong>查询结果如下：</strong></p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/SQL/20180809115245/left-join-result.png" alt="左外连接查询结果"></div><div class="image-caption">左外连接查询结果</div></figure><p><br></p><h4 id="右外连接"><a href="#右外连接" class="headerlink" title="右外连接"></a>右外连接</h4><p>对 <code>student</code> 和 <code>score</code> 两张表使用右外连接。</p><pre><code class="lang-sql">SELECT *
+FROM `student`
+RIGHT JOIN `score` ON student.id = score.student_id;
+</code></pre><p><strong>查询结果如下：</strong></p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/SQL/20180809115245/right-join-result.png" alt="右外连接查询结果"></div><div class="image-caption">右外连接查询结果</div></figure><p><br></p><h4 id="多表连接案例"><a href="#多表连接案例" class="headerlink" title="多表连接案例"></a>多表连接案例</h4><p>连接 <code>student</code>、<code>score</code> 和 <code>course</code> 三张表，分别查询学生姓名、学科和分数。</p><pre><code class="lang-sql">SELECT student.name, course.name, score.grade
+FROM `score`
+INNER JOIN `student` ON student.id = score.student_id
+INNER JOIN `course` ON course.id = score.course_id;
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>到此 <code>MySQL</code> 系列文章的第二篇就结束了，本篇的大部分都是和操作数据库的 <code>SQl</code> 语句相关的知识点，里面涵盖了基本的增、删、改、查以及函数、聚合函数的应用等，如果记不住的话（当然我也记不住，只是负责替大家和我自己整理）建议收藏，在使用时随时查阅，这一篇的内容对于前端而言，可以说基本够用了。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180809115245/" target="_blank" rel="external">https://www.overtaking.top/20180809115245/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180809115245/&title=《MySQL —— SQL 语句总结》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180809115245/&title=《MySQL —— SQL 语句总结》 — Shen's Blog&source=前言这是关于 MySQL 系列文章的第二篇，本篇大部分内容都贴近开发中的实际操作，，还有一句话不得不再次赘述，数据库博大精深，本系列文章内容较浅，适合于前..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180809115245/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL —— SQL 语句总结》 — Shen's Blog&url=https://www.overtaking.top/20180809115245/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180809115245/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180814131241/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">MySQL —— 简单聊一聊数据库设计</h4></a></div><div class="waves-block waves-effect next"><a href="/20180808012303/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">MySQL —— 数据库基础</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180809115245/&title=《MySQL —— SQL 语句总结》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180809115245/&title=《MySQL —— SQL 语句总结》 — Shen's Blog&source=前言这是关于 MySQL 系列文章的第二篇，本篇大部分内容都贴近开发中的实际操作，，还有一句话不得不再次赘述，数据库博大精深，本系列文章内容较浅，适合于前..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180809115245/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MySQL —— SQL 语句总结》 — Shen's Blog&url=https://www.overtaking.top/20180809115245/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180809115245/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABvElEQVR42u3aQY6EIBAF0Ln/pZ0DTEv/D0Kc5LEyrQ0PFxWqyp+feFx/xt3du1/Gzz88cHFxl7nXcIwXWCHe/Xf8anBxcU9y7xZYmTrZQG7AxcX9j9xktrl/4eLivp+bL5+EOVxc3Ddz20CzHsK252q4uLgL3LxKue96S30XFxd3inuVY3z4mCuLFKvj4uIe4eYBpU1jVpouXzaMi4u7mZs3PpOF50DFq8HFxT3OfbYIkmw+L4vcnshwcXE3c8eT5q2UGpEXX3BxcY9z86DTFkce+7QLFxf3CLeuoJTtlpWwVadPuLi4j3LbA03CnSu7ROvi4uIe5+bly5Wyab7ih+dxcXGPcOfCStuAaef5MhsuLu5mblvoTNKb9SZrHcJwcXG3ccflzvZu26SJto2Li3uc2zZL8kbISvsEFxf3Ddw8LUm2l9+NnsHFxd3MvcrRpj3tk0XXFxcXdxu3LVUkB5S5oDaXdOHi4u7j5kEnv26LKUWxFRcX9yC3DTT5oWdLroaLi/tK7lMJVb0KLi7u67lzwavNwD4kP7i4uEe47YdWeXN0rjgSNVlxcXG3cdtQst4UmTsw4eLiHuH+Aq97uWgiyOFqAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

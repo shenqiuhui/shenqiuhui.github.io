@@ -1,0 +1,429 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>模拟 Vue 手写一个 MVVM | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript,源码分析,Vue,MVVM"><meta name="description" content="MVVM 的前世今生MVVM 设计模式，是由 MVC（最早来源于后端）、MVP 等设计模式进化而来，M - 数据模型（Model），VM - 视图模型（ViewModel），V - 视图层（View）。在 MVC 模式中，除了 Model 和 View 层以外，其他所有的逻辑都在 Controller 中，Controller 负责显示页面、响应用户操作、网络请求及与 Model 的交互，随着业务"><meta property="og:type" content="article"><meta property="og:title" content="模拟 Vue 手写一个 MVVM"><meta property="og:url" content="https://www.overtaking.top/20180328140039/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="MVVM 的前世今生MVVM 设计模式，是由 MVC（最早来源于后端）、MVP 等设计模式进化而来，M - 数据模型（Model），VM - 视图模型（ViewModel），V - 视图层（View）。在 MVC 模式中，除了 Model 和 View 层以外，其他所有的逻辑都在 Controller 中，Controller 负责显示页面、响应用户操作、网络请求及与 Model 的交互，随着业务"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Vue/20180328140039/mvvm.png"><meta property="og:image" content="https://static.overtaking.top/images/Vue/20180328140039/mvvm-content.png"><meta property="og:image" content="https://static.overtaking.top/images/Vue/20180328140039/mvvm-flow.jpg"><meta property="article:published_time" content="2018-03-28T06:00:39.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta property="article:tag" content="源码分析"><meta property="article:tag" content="Vue"><meta property="article:tag" content="MVVM"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Vue/20180328140039/mvvm.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">模拟 Vue 手写一个 MVVM</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">模拟 Vue 手写一个 MVVM</h1><h5 class="subtitle"><time datetime="2018-03-28T06:00:39.000Z" itemprop="datePublished" class="page-time">2018-03-28</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Vue/">Vue</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MVVM-的前世今生"><span class="post-toc-number">1.</span> <span class="post-toc-text">MVVM 的前世今生</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MVVM-的流程分析"><span class="post-toc-number">2.</span> <span class="post-toc-text">MVVM 的流程分析</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#MVVM-类的实现"><span class="post-toc-number">3.</span> <span class="post-toc-text">MVVM 类的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#模板编译-Compile-类的实现"><span class="post-toc-number">4.</span> <span class="post-toc-text">模板编译 Compile 类的实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#解析根节点内的-Dom-结构"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">解析根节点内的 Dom 结构</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#编译文档碎片中的结构"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">编译文档碎片中的结构</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#CompileUtil-对象中指令方法的实现"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">CompileUtil 对象中指令方法的实现</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#观察者-Watcher-类的实现"><span class="post-toc-number">5.</span> <span class="post-toc-text">观察者 Watcher 类的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#发布订阅-Dep-类的实现"><span class="post-toc-number">6.</span> <span class="post-toc-text">发布订阅 Dep 类的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#数据劫持-Observer-类的实现"><span class="post-toc-number">7.</span> <span class="post-toc-text">数据劫持 Observer 类的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#验证-MVVM"><span class="post-toc-number">8.</span> <span class="post-toc-text">验证 MVVM</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">9.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Vue/20180328140039" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">模拟 Vue 手写一个 MVVM</h1><div class="post-meta"><time class="post-time" title="2018-03-28 14:00:39" datetime="2018-03-28T06:00:39.000Z" itemprop="datePublished">2018-03-28</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Vue/">Vue</a></li></ul><span id="/20180328140039/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="模拟 Vue 手写一个 MVVM"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Vue/20180328140039/mvvm.png" title="MVVM"><p><br></p><h2 id="MVVM-的前世今生"><a href="#MVVM-的前世今生" class="headerlink" title="MVVM 的前世今生"></a>MVVM 的前世今生</h2><blockquote class="pullquote info"><p><strong><code>MVVM</code> 设计模式，是由 <code>MVC</code>（最早来源于后端）、<code>MVP</code> 等设计模式进化而来，<code>M</code> - 数据模型（<code>Model</code>），<code>VM</code> - 视图模型（<code>ViewModel</code>），<code>V</code> - 视图层（<code>View</code>）。</strong></p></blockquote><p>在 <code>MVC</code> 模式中，除了 <code>Model</code> 和 <code>View</code> 层以外，其他所有的逻辑都在 <code>Controller</code> 中，<code>Controller</code> 负责显示页面、响应用户操作、网络请求及与 Model 的交互，随着业务的增加和产品的迭代，Controller 中的处理逻辑越来越多、越来越复杂，难以维护。为了更好的管理代码，为了更方便的扩展业务，必须要为 <code>Controller</code> “瘦身”，需要更清晰的将用户界面（UI）开发从应用程序的业务逻辑与行为中分离，<code>MVVM</code> 为此而生。</p><p>很多 <code>MVVM</code> 的实现都是通过数据绑定来将 <code>View</code> 的逻辑从其他层分离，可以用下图来简略的表示。</p><a id="more"></a><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Vue/20180328140039/mvvm-content.png" alt="MVVM 模型图"></div><div class="image-caption">MVVM 模型图</div></figure><p><br></p><p>使用 <code>MVVM</code> 设计模式的前端框架很多，其中渐进式框架 <code>Vue</code> 是典型的代表，并在开发使用中深得广大前端开发者的青睐，我们这篇就根据 <code>Vue</code> 对于 <code>MVVM</code> 的实现方式来简单模拟一版 <code>MVVM</code> 库。</p><h2 id="MVVM-的流程分析"><a href="#MVVM-的流程分析" class="headerlink" title="MVVM 的流程分析"></a>MVVM 的流程分析</h2><p>在 <code>Vue</code> 的 <code>MVVM</code> 设计中，我们主要针对 <code>Compile</code>（模板编译）、<code>Observer</code>（数据劫持）、<code>Watcher</code>（数据监听）和 <code>Dep</code>（发布订阅）几个部分来实现，核心逻辑流程可参照下图：</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Vue/20180328140039/mvvm-flow.jpg" alt="MVVM 流程图"></div><div class="image-caption">MVVM 流程图</div></figure><p><br></p><p>类似这种 “造轮子” 的代码毋庸置疑一定是通过面向对象编程来实现的，并严格遵循开放封闭原则，由于 <code>ES5</code> 的面向对象编程比较繁琐，所以，在接下来的代码中统一使用 <code>ES6</code> 的 <code>class</code> 来实现。</p><h2 id="MVVM-类的实现"><a href="#MVVM-类的实现" class="headerlink" title="MVVM 类的实现"></a>MVVM 类的实现</h2><p>在 <code>Vue</code> 中，对外只暴露了一个名为 <code>Vue</code> 的构造函数，在使用的时候 <code>new</code> 一个 <code>Vue</code> 实例，然后传入了一个 <code>options</code> 参数，类型为一个对象，包括当前 <code>Vue</code> 实例的作用域 <code>el</code>、模板绑定的数据 <code>data</code> 等等。</p><p>我们模拟这种 <code>MVVM</code> 模式的时候也构建一个类，名字就叫 <code>MVVM</code>，在使用时同 <code>Vue</code> 框架类似，需要通过 <code>new</code> 指令创建 <code>MVVM</code> 的实例并传入 <code>options</code>。</p><pre><code class="lang-js">/* 文件：MVVM.js */
+class MVVM {
+  constructor(options) {
+    // 先把 el 和 data 挂在 MVVM 实例上
+    this.$el = options.el;
+    this.$data = options.data;
+
+    // 如果有要编译的模板就开始编译
+    if (this.$el) {
+      // 数据劫持，就是把对象所有的属性添加 get 和 set
+      new Observer(this.$data);
+
+      // 将数据代理到实例上
+      this.proxyData(this.$data);
+
+      // 用数据和元素进行编译
+      new Compile(this.el, this);
+    }
+  }
+  proxyData(data) { // 代理数据的方法
+    Object.keys(data).forEach(key =&gt; {
+      Object.defineProperty(this, key, {
+        get() {
+          return data[key];
+        }
+        set(newVal) {
+          data[key] = newVal;
+        }
+      });
+    });
+  }
+}
+</code></pre><p>通过上面代码，我们可以看出，在我们 <code>new</code> 一个 <code>MVVM</code> 的时候，在参数 <code>options</code> 中传入了一个 <code>Dom</code> 的根元素节点和数据 <code>data</code> 并挂在了当前的 <code>MVVM</code> 实例上。</p><p>当存在根节点的时候，通过 <code>Observer</code> 类对 <code>data</code> 数据进行了劫持，并通过 <code>MVVM</code> 实例的方法 <code>proxyData</code> 把 <code>data</code> 中的数据挂在当前 <code>MVVM</code> 实例上，同样对数据进行了劫持，是因为我们在获取和修改数据的时候可以直接通过 <code>this</code> 或 <code>this.$data</code>，在 Vue 中实现数据劫持的核心方法是 <code>Object.defineProperty</code>，我们也使用这个方式通过添加 <code>getter</code> 和 <code>setter</code> 来实现数据劫持。</p><p>最后使用 <code>Compile</code> 类对模板和绑定的数据进行了解析和编译，并渲染在根节点上，之所以数据劫持和模板解析都使用类的方式实现，是因为代码方便维护和扩展，其实不难看出，<code>MVVM</code> 类其实作为了 <code>Compile</code> 类和 <code>Observer</code> 类的一个桥梁。</p><h2 id="模板编译-Compile-类的实现"><a href="#模板编译-Compile-类的实现" class="headerlink" title="模板编译 Compile 类的实现"></a>模板编译 Compile 类的实现</h2><p><code>Compile</code> 类在创建实例的时候需要传入两个参数，第一个参数是当前 <code>MVVM</code> 实例作用的根节点，第二个参数就是 <code>MVVM</code> 实例，之所以传入 <code>MVVM</code> 的实例是为了更方便的获取 <code>MVVM</code> 实例上的属性。</p><p>在 <code>Compile</code> 类中，我们会尽量的把一些公共的逻辑抽取出来进行最大限度的复用，避免冗余代码，提高维护性和扩展性，我们把 <code>Compile</code> 类抽取出的实例方法主要分为两大类，辅助方法和核心方法，在代码中用注释标明。</p><h3 id="解析根节点内的-Dom-结构"><a href="#解析根节点内的-Dom-结构" class="headerlink" title="解析根节点内的 Dom 结构"></a>解析根节点内的 Dom 结构</h3><pre><code class="lang-js">/* 文件：Compile.js */
+class Compile {
+  constructor(el, vm) {
+    this.el = this.isElementNode(el) ? el : document.querySelector(el);
+    this.vm = vm;
+
+    // 如过传入的根元素存在，才开始编译
+    if (this.el) {
+      // 1、把这些真实的 Dom 移动到内存中，即 fragment（文档碎片）
+      let fragment = this.node2fragment(this.el);
+    }
+  }
+
+  /* 辅助方法 */
+  // 判断是否是元素节点
+  isElementNode(node) {
+    return node.nodeType === 1;
+  }
+
+  /* 核心方法 */
+  // 将根节点转移至文档碎片
+  node2fragment(el) {
+    // 创建文档碎片
+    let fragment = document.createDocumentFragment();
+    // 第一个子节点
+    let firstChild;
+
+    // 循环取出根节点中的节点并放入文档碎片中
+    while (firstChild = el.firstChild) {
+      fragment.appendChild(firstChild);
+    }
+    return fragment;
+  }
+}
+</code></pre><p>上面编译模板的过程中，前提条件是必须存在根元素节点，传入的根元素节点允许是一个真实的 <code>Dom</code> 元素，也可以是一个选择器，所以我们创建了辅助方法 <code>isElementNode</code> 来帮我们判断传入的元素是否是 <code>Dom</code>，如果是就直接使用，是选择器就获取这个 <code>Dom</code>，最终将这个根节点存入 <code>this.el</code> 属性中。</p><p>解析模板的过程中为了性能，我们应取出根节点内的子节点存放在文档碎片中（内存），需要注意的是将一个 <code>Dom</code> 节点内的子节点存入文档碎片的过程中，会在原来的 <code>Dom</code> 容器中删除这个节点，所以在遍历根节点的子节点时，永远是将第一个节点取出存入文档碎片，直到节点不存在为止。</p><h3 id="编译文档碎片中的结构"><a href="#编译文档碎片中的结构" class="headerlink" title="编译文档碎片中的结构"></a>编译文档碎片中的结构</h3><p>在 Vue 中的模板编译的主要就是两部分，也是浏览器无法解析的部分，元素节点中的指令和文本节点中的 Mustache 语法（双大括号）。</p><pre><code class="lang-js">/* 文件：Compile.js —— 完善 */
+class Compile {
+  constructor(el, vm) {
+    this.el = this.isElementNode(el) ? el : document.querySelector(el);
+    this.vm = vm;
+
+    // 如过传入的根元素存在，才开始编译
+    if (this.el) {
+      // 1、把这些真实的 Dom 移动到内存中，即 fragment（文档碎片）
+      let fragment = this.node2fragment(this.el);
+
+      // ********** 以下为新增代码 **********
+      // 2、将模板中的指令中的变量和 {{}} 中的变量替换成真实的数据
+      this.compile(fragment);
+
+      // 3、把编译好的 fragment 再塞回页面中
+      this.el.appendChild(fragment);
+      // ********** 以上为新增代码 **********
+    }
+  }
+
+  /* 辅助方法 */
+  // 判断是否是元素节点
+  isElementNode(node) {
+    return node.nodeType === 1;
+  }
+
+  // ********** 以下为新增代码 **********
+  // 判断属性是否为指令
+  isDirective(name) {
+    return name.includes(&#39;v-&#39;);
+  }
+  // ********** 以上为新增代码 **********
+
+  /* 核心方法 */
+  // 将根节点转移至文档碎片
+  node2fragment(el) {
+    // 创建文档碎片
+    let fragment = document.createDocumentFragment();
+    // 第一个子节点
+    let firstChild;
+
+    // 循环取出根节点中的节点并放入文档碎片中
+    while (firstChild = el.firstChild) {
+      fragment.appendChild(firstChild);
+    }
+    return fragment;
+  }
+
+  // ********** 以下为新增代码 **********
+  // 解析文档碎片
+  compile(fragment) {
+    // 当前父节点节点的子节点，包含文本节点，类数组对象
+    let childNodes = fragment.childNodes;
+
+    // 转换成数组并循环判断每一个节点的类型
+    Array.from(childNodes).forEach(node =&gt; {
+      if (this.isElementNode(node)) { // 是元素节点
+        // 递归编译子节点
+        this.compile(node);
+
+        // 编译元素节点的方法
+        this.compileElement(node);
+      } else { // 是文本节点
+        // 编译文本节点的方法
+        this.compileText(node);
+      }
+    });
+  }
+  // 编译元素
+  compileElement(node) {
+    // 取出当前节点的属性，类数组
+    let attrs = node.attributes;
+    Array.form(attrs).forEach(attr =&gt; {
+      // 获取属性名，判断属性是否为指令，即含 v-
+      let attrName = attr.name;
+
+      if (this.isDirective(attrName)) {
+        // 如果是指令，取到该属性值得变量在 data 中对应得值，替换到节点中
+        let exp = attr.value;
+
+        // 取出方法名
+        let [, type] = attrName.split(&#39;-&#39;);
+
+        // 调用指令对应得方法
+        CompileUtil[type](node, this.vm, exp);
+      }
+    });
+  }
+  // 编译文本
+  compileText(node) {
+    // 获取文本节点的内容
+    let exp = node.contentText;
+
+    // 创建匹配 {{}} 的正则表达式
+    let reg = /\{\{([^}+])\}\}/g;
+
+    // 如果存在 {{}} 则使用 text 指令的方法
+    if (reg.test(exp)) {
+      CompileUtil[&#39;text&#39;](node, this.vm, exp);
+    }
+  }
+  // ********** 以上为新增代码 **********
+}
+</code></pre><p><strong>上面代码新增内容得主要逻辑就是做了两件事：</strong></p><ul><li>调用 <code>compile</code> 方法对 <code>fragment</code> 文档碎片进行编译，即替换内部指令和 Mustache 语法中变量对应的值；</li><li>将编译好的 <code>fragment</code> 文档碎片塞回根节点。</li></ul><p>在第一个步骤当中逻辑是比较繁琐的，首先在 <code>compile</code> 方法中获取所有的子节点，循环进行编译，如果是元素节点需要递归 <code>compile</code>，传入当前元素节点。在这个过程当中抽取出了两个方法，<code>compileElement</code> 和 <code>compileText</code> 用来对元素节点的属性和文本节点进行处理。</p><p><code>compileElement</code> 中的核心逻辑就是处理指令，取出元素节点所有的属性判断是否是指令，是指令则调用指令对应的方法。<code>compileText</code> 中的核心逻辑就是取出文本的内容通过正则表达式匹配出被 Mustache 语法的 “&#123;&#123; &#125;&#125;” 包裹的内容，并调用处理文本的 <code>text</code> 方法。</p><p>文本节点的内容有可能存在 “&#123;&#123; &#125;&#125; &#123;&#123; &#125;&#125; &#123;&#123; &#125;&#125;”，正则匹配默认是贪婪的，为了防止第一个 “&#123;” 和最后一个 “&#125;” 进行匹配，所以在正则表达式中应使用非贪婪匹配。</p><p>在调用指令的方法时都是调用的 <code>CompileUtil</code> 下对应的方法，我们之所以单独把这些指令对应的方法抽离出来存储在 <code>CompileUtil</code> 对象下的目的是为了解耦，因为后面其他的类还要使用。</p><h3 id="CompileUtil-对象中指令方法的实现"><a href="#CompileUtil-对象中指令方法的实现" class="headerlink" title="CompileUtil 对象中指令方法的实现"></a>CompileUtil 对象中指令方法的实现</h3><p><code>CompileUtil</code> 中存储着所有的指令方法及指令对应的更新方法，由于 <code>Vue</code> 的指令很多，我们这里只实现比较典型的 <code>v-model</code> 和 “&#123;&#123; &#125;&#125;” 对应的方法，考虑到后续更新的情况，我们统一把设置值到 <code>Dom</code> 中的逻辑抽取出对应上面两种情况的方法，存放到 <code>CompileUtil</code> 的 <code>updater</code> 对象中。</p><pre><code class="lang-js">/* 文件：CompileUtil.js */
+const CompileUtil = {};
+
+// 更新节点数据的方法
+CompileUti.updater = {
+  // 文本更新
+  textUpdater(node, value) {
+    node.textContent = value;
+  },
+  // 输入框更新
+  modelUpdater(node, value) {
+    node.value = value;
+  }
+};
+</code></pre><p>这部分的整个思路就是在 <code>Compile</code> 编译模板后处理 <code>v-model</code> 和 “&#123;&#123; &#125;&#125;” 时，其实都是用 <code>data</code> 中的数据替换掉 <code>fragment</code> 文档碎片中对应的节点中的变量。因此会经常性的获取 <code>data</code> 中的值，在更新节点时又会重新设置 <code>data</code> 中的值，所以我们抽离出了三个方法 <code>getVal</code>、<code>getTextVal</code> 和 <code>setVal</code> 挂在了 <code>CompileUtil</code> 对象下。</p><pre><code class="lang-js">/* 文件：CompileUtil.js —— 取值方法 */
+// 获取 data 值的方法
+CompileUtil.getVal = function (vm, exp) {
+  // 将匹配的值用 . 分割开，如 vm.data.a.b
+  exp = exp.split(&#39;.&#39;);
+
+  // 归并取值
+  return exp.reduce((prev, next) =&gt; {
+    return prev[next];
+  }, vm.$data);
+};
+
+// 获取文本 {{}} 中变量在 data 对应的值
+CompileUtil.getTextVal = function (vm, exp) {
+  // 使用正则匹配出 {{ }} 间的变量名，再调用 getVal 获取值
+  return exp.replace(/\{\{([^}]+)\}\}/g, (...args) =&gt; {
+    return this.getVal(vm, args[1]);
+  });
+};
+
+// 设置 data 值的方法
+CompileUtil.setVal = function (vm, exp, newVal) {
+  exp = exp.split(&#39;.&#39;);
+  return exp.reduce((prev, next, currentIndex) =&gt; {
+    // 如果当前归并的为数组的最后一项，则将新值设置到该属性
+    if (currentIndex === exp.length - 1) {
+      return prev[next] = newVal
+    }
+
+    // 继续归并
+    return prev[next];
+  }, vm.$data);
+}
+</code></pre><p>获取和设置 <code>data</code> 的值两个方法 <code>getVal</code> 和 <code>setVal</code> 思路相似，由于获取的变量层级不定，可能是 <code>data.a</code>，也可能是 <code>data.obj.a.b</code>，所以都是使用归并的思路，借用 <code>reduce</code> 方法实现的，区别在于 <code>setVal</code> 方法在归并过程中需要判断是不是归并到最后一级，如果是则设置新值，而 <code>getTextVal</code> 就是在 <code>getVal</code> 外包了一层处理 “&#123;&#123; &#125;&#125;” 的逻辑。</p><p>在这些准备工作就绪以后就可以实现我们的主逻辑，即对 <code>Compile</code> 类中解析的文本节点和元素节点指令中的变量用 <code>data</code> 值进行替换，还记得前面说针对 <code>v-model</code> 和 “&#123;&#123; &#125;&#125;” 进行处理，因此设计了 <code>model</code> 和 <code>text</code> 两个核心方法。</p><p><code>CompileUtil.model</code> 方法的实现：</p><pre><code class="lang-js">/* 文件：CompileUtil.js —— model 方法 */
+// 处理 v-model 指令的方法
+CompileUtil.model = function (node, vm, exp) {
+  // 获取赋值的方法
+  const updateFn = this.updater[&#39;modelUpdater&#39;];
+
+  // 获取 data 中对应的变量的值
+  let value = this.getVal(vm, exp);
+
+  // 添加观察者，作用与 text 方法相同
+  new Watcher(vm, exp, newValue =&gt; {
+    updateFn &amp;&amp; updateFn(node, newValue);
+  });
+
+  // v-model 双向数据绑定，对 input 添加事件监听
+  node.addEventListener(&#39;input&#39;, e =&gt; {
+    // 获取输入的新值
+    let newValue = e.target.value;
+
+    // 更新到节点
+    this.setVal(vm, exp, newValue);
+  });
+
+  // 第一次设置值
+  updateFn &amp;&amp; updateFn(vm, value);
+};
+</code></pre><p><code>CompileUtil.text</code> 方法的实现：</p><pre><code class="lang-js">/* 文件：CompileUtil.js —— text 方法 */
+// 处理文本节点 {{}} 的方法
+CompileUtil.text = function (node, vm, exp) {
+  // 获取赋值的方法
+  const updateFn = this.updater[&#39;textUpdater&#39;];
+
+  // 获取 data 中对应的变量的值
+  let value = this.getTextVal(vm, exp);
+
+  // 通过正则替换，将取到数据中的值替换掉 {{ }}
+  exp.replace(/\{\{([^}]+)\}\}/g, (...args) =&gt; {
+    // 解析时遇到了模板中需要替换为数据值的变量时，应该添加一个观察者
+    // 当变量重新赋值时，调用更新值节点到 Dom 的方法
+    new Watcher(vm, arg[1], newValue =&gt; {
+      // 如果数据发生变化，重新获取新值
+      updateFn &amp;&amp; updateFn(node, newValue);
+    });
+  });
+
+  // 第一次设置值
+  updateFn &amp;&amp; updateFn(vm, value);
+};
+</code></pre><p>上面两个方法逻辑相似，都获取了各自的 <code>updater</code> 中的方法，对值进行设置，并且在设置的同时为了后续 <code>data</code> 中的数据修改，视图的更新，创建了 <code>Watcher</code> 的实例，并在内部用新值重新更新节点，不同的是 <code>Vue</code> 的 <code>v-model</code> 指令在表单中实现了双向数据绑定，只要表单元素的 <code>value</code> 值发生变化，就需要将新值更新到 <code>data</code> 中，并响应到页面上。</p><p>所以我们的实现方式是给这个绑定了 <code>v-model</code> 的表单元素监听了 <code>input</code> 事件，并在事件中实时的将新的 <code>value</code> 值更新到 <code>data</code> 中，至于 <code>data</code> 中的改变后响应到页面中需要另外三个类 <code>Watcher</code>、<code>Observer</code> 和 <code>Dep</code> 共同实现，我们下面就来实现 <code>Watcher</code> 类。</p><h2 id="观察者-Watcher-类的实现"><a href="#观察者-Watcher-类的实现" class="headerlink" title="观察者 Watcher 类的实现"></a>观察者 Watcher 类的实现</h2><p>在 <code>CompileUtil</code> 对象的方法中创建 <code>Watcher</code> 实例的时候传入了三个参数，即 <code>MVVM</code> 的实例、模板绑定数据的变量名 <code>exp</code> 和一个 <code>callback</code>，这个 <code>callback</code> 内部逻辑是为了更新数据到 <code>Dom</code>，所以我们的 <code>Watcher</code> 类内部要做的事情就清晰了，获取更改前的值存储起来，并创建一个 <code>update</code> 实例方法，在值被更改时去执行实例的 <code>callback</code> 以达到视图的更新。</p><pre><code class="lang-js">/* 文件：Watcher.js */
+class Watcher {
+  constructor(vm, exp, callback) {
+    this.vm = vm;
+    this.exp = exp;
+    this.callback = callback;
+
+    // 更改前的值
+    this.value = this.get();
+  }
+  get() {
+    // 将当前的 watcher 添加到 Dep 类的静态属性上
+    Dep.target = this;
+
+    // 获取值触发数据劫持
+    let value = CompileUtil.getVal(this.vm, this.exp);
+
+    // 清空 Dep 上的 Watcher，防止重复添加
+    Dep.target = null;
+    return value;
+  }
+  update() {
+    // 获取新值
+    let newValue = CompileUtil.getVal(this.vm, this.exp);
+    // 获取旧值
+    let oldValue = this.value;
+
+    // 如果新值和旧值不相等，就执行 callback 对 dom 进行更新
+    if (newValue !== oldValue) {
+      this.callback(newValue);
+    }
+  }
+}
+</code></pre><p><strong>看到上面代码一定有两个疑问：</strong></p><ul><li>使用 <code>get</code> 方法获取旧值得时候为什么要将当前的实例挂在 <code>Dep</code> 上，在获取值后为什么又清空了；</li><li><code>update</code> 方法内部执行了 <code>callback</code> 函数，但是 <code>update</code> 在什么时候执行。</li></ul><p>这就是后面两个类 <code>Dep</code> 和 <code>observer</code> 要做的事情，我们首先来介绍 <code>Dep</code>，再介绍 <code>Observer</code> 最后把他们之间的关系整个串联起来。</p><h2 id="发布订阅-Dep-类的实现"><a href="#发布订阅-Dep-类的实现" class="headerlink" title="发布订阅 Dep 类的实现"></a>发布订阅 Dep 类的实现</h2><p>其实发布订阅说白了就是把要执行的函数统一存储在一个数组中管理，当达到某个执行条件时，循环这个数组并执行每一个成员。</p><pre><code class="lang-js">/* 文件：Dep.js */
+class Dep {
+  constructor() {
+    this.subs = [];
+  }
+  // 添加订阅
+  addSub(watcher) {
+    this.subs.push(watcher);
+  }
+  // 通知
+  notify() {
+    this.subs.forEach(watcher =&gt; watcher.update());
+  }
+}
+</code></pre><p>在 <code>Dep</code> 类中只有一个属性，就是一个名为 <code>subs</code> 的数组，用来管理每一个 <code>watcher</code>，即 <code>Watcher</code> 类的实例，而 <code>addSub</code> 就是用来将 <code>watcher</code> 添加到 <code>subs</code> 数组中的，我们看到 <code>notify</code> 方法就解决了上面的一个疑问，<code>Watcher</code> 类的 <code>update</code> 方法是怎么执行的，就是这样循环执行的。</p><p><strong>接下来我们整合一下盲点：</strong></p><ul><li><code>Dep</code> 实例在哪里创建声明，又是在哪里将 <code>watcher</code> 添加进 <code>subs</code> 数组的；</li><li><code>Dep</code> 的 <code>notify</code> 方法应该在哪里调用；</li><li><code>Watcher</code> 内容中，使用 <code>get</code> 方法获取旧值得时候为什么要将当前的实例挂在 <code>Dep</code> 上，在获取值后为什么又清空了。</li></ul><p>这些问题在最后一个类 <code>Observer</code> 实现的时候都将清晰，下面我们重点来看最后一部分核心逻辑。</p><h2 id="数据劫持-Observer-类的实现"><a href="#数据劫持-Observer-类的实现" class="headerlink" title="数据劫持 Observer 类的实现"></a>数据劫持 Observer 类的实现</h2><p>还记得实现 <code>MVVM</code> 类的时候就创建了这个类的实例，当时传入的参数是 <code>MVVM</code> 实例的 <code>data</code> 属性，在 <code>MVVM</code> 中把数据通过 <code>Object.defineProperty</code> 挂到了实例上，并添加了 <code>getter</code> 和 <code>setter</code>，其实 <code>Observer</code> 类主要目的就是给 <code>data</code> 内的所有层级的数据都进行这样的操作。</p><pre><code class="lang-js">/* 文件：Observer.js */
+class Observer {
+  constructor (data) {
+    this.observe(data);
+  }
+  // 添加数据监听
+  observe(data) {
+    // 验证 data
+    if (!data || typeof data !== &#39;object&#39;) return;
+
+    // 要对这个 data 数据将原有的属性改成 set 和 get 的形式
+    // 要将数据一一劫持，先获取到 data 的 key 和 value
+    Object.keys(data).forEach(key =&gt; {
+      // 劫持（实现数据响应式）
+      this.defineReactive(data, key, data[key]);
+      this.observe(data[key]); // 深度劫持
+    });
+  }
+  // 数据响应式
+  defineReactive (object, key, value) {
+    let _this = this;
+    // 每个变化的数据都会对应一个数组，这个数组是存放所有更新的操作
+    const dep = new Dep();
+
+    // 获取某个值被监听到
+    Object.defineProperty(object, key, {
+      enumerable: true,
+      configurable: true,
+      get() { // 当取值时调用的方法
+        Dep.target &amp;&amp; dep.addSub(Dep.target);
+        return value;
+      },
+      set(newValue) { // 当给 data 属性中设置的值适合，更改获取的属性的值
+        if (newValue !== value) {
+          _this.observe(newValue); // 重新赋值如果是对象进行深度劫持
+          value = newValue;
+          dep.notify(); // 通知所有人数据更新了
+        }
+      }
+    });
+  }
+}
+</code></pre><p>在的代码中 <code>observe</code> 的目的是遍历对象，在内部对数据进行劫持，即添加 <code>getter</code> 和 <code>setter</code>，我们把劫持的逻辑单独抽取成 <code>defineReactive</code> 方法，需要注意的是 <code>observe</code> 方法在执行最初就对当前的数据进行了数据类型验证，然后再循环对象每一个属性进行劫持，目的是给同为 <code>Object</code> 类型的子属性递归调用 <code>observe</code> 进行深度劫持。</p><p>在 <code>defineReactive</code> 方法中，创建了 <code>Dep</code> 的实例，并对 <code>data</code> 的数据使用 <code>get</code> 和 <code>set</code> 进行劫持，还记得在模板编译的过程中，遇到模板中绑定的变量，就会解析，并创建 <code>watcher</code>，会在 <code>Watcher</code> 类的内部获取旧值，即当前的值，这样就触发了 <code>get</code>，在 <code>get</code> 中就可以将这个 <code>watcher</code> 添加到 <code>Dep</code> 的 <code>subs</code> 数组中进行统一管理，因为在代码中获取 <code>data</code> 中的值操作比较多，会经常触发 <code>get</code>，我们又要保证 <code>watcher</code> 不会被重复添加，所以在 <code>Watcher</code> 类中，获取旧值并保存后，立即将 <code>Dep.target</code> 赋值为 <code>null</code>，并且在触发 <code>get</code> 时对 <code>Dep.target</code> 进行了短路操作，存在才调用 <code>Dep</code> 的 <code>addSub</code> 进行添加。</p><p>而 <code>data</code> 中的值被更改时，会触发 <code>set</code>，在 <code>set</code> 中做了性能优化，即判断重新赋的值与旧值是否相等，如果相等就不重新渲染页面，不等的情况有两种，如果原来这个被改变的值是基本数据类型没什么影响，如果是引用类型，我们需要对这个引用类型内部的数据进行劫持，因此递归调用了 <code>observe</code>，最后调用 <code>Dep</code> 的 <code>notify</code> 方法进行通知，执行 <code>notify</code> 就会执行 <code>subs</code> 中所有被管理的 <code>watcher</code> 的 <code>update</code>，就会执行创建 <code>watcher</code> 时的传入的 <code>callback</code>，就会更新页面。</p><p>在 <code>MVVM</code> 类将 <code>data</code> 的属性挂在 <code>MVVM</code> 实例上并劫持与通过 <code>Observer</code> 类对 <code>data</code> 的劫持还有一层联系，因为整个发布订阅的逻辑都是在 <code>data</code> 的 <code>get</code> 和 <code>set</code> 上，只要触发了 <code>MVVM</code> 中的 <code>get</code> 和 <code>set</code> 内部会自动返回或设置 <code>data</code> 对应的值，就会触发 <code>data</code> 的 <code>get</code> 和 <code>set</code>，就会执行发布订阅的逻辑。</p><p>通过上面长篇大论的叙述后，这个 MVVM 模式用到的几个类的关系应该完全叙述清晰了，虽然比较抽象，但是细心琢磨还是会明白之间的关系和逻辑，下面我们就来对我们自己实现的这个 MVVM 进行验证。</p><h2 id="验证-MVVM"><a href="#验证-MVVM" class="headerlink" title="验证 MVVM"></a>验证 MVVM</h2><p>我们按照 <code>Vue</code> 的方式根据自己的 <code>MVVM</code> 实现的内容简单的写了一个模板如下：</p><pre><code class="lang-html">&lt;!-- 文件：index.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;MVVM&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id=&quot;app&quot;&gt;
+    &lt;!-- 双向数据绑定 靠的是表单 --&gt;
+    &lt;input type=&quot;text&quot; v-model=&quot;message&quot;&gt;
+    &lt;div&gt;{{message}}&lt;/div&gt;
+    &lt;ul&gt;
+      &lt;li&gt;{{message}}&lt;/li&gt;
+    &lt;/ul&gt;
+    {{message}}
+  &lt;/div&gt;
+
+  &lt;!-- 引入依赖的 js 文件 --&gt;
+  &lt;script src=&quot;./js/Watcher.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;./js/Observer.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;./js/Compile.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;./js/CompileUtil.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;./js/Dep.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;./js/MVVM.js&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+    const vm = new MVVM({
+      el: &#39;#app&#39;,
+      data: {
+        message: &#39;hello world!&#39;
+      }
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p><strong>打开 </strong>Chrom<strong> 浏览器的控制台，在上面通过下面操作来验证：</strong></p><ul><li>输入 <code>vm.message = &#39;hello&#39;</code> 看页面是否更新；</li><li>输入 <code>vm.$data.message = &#39;hello&#39;</code> 看页面是否更新；</li><li>改变文本输入框内的值，看页面的其他元素是否更新。</li></ul><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>通过上面的测试，相信应该理解了 MVVM 模式对于前端开发重大的意义，实现了双向数据绑定，实时保证 View 层与 Model 层的数据同步，并可以让我们在开发时基于数据编程，而最少的操作 <code>Dom</code>，这样大大提高了页面渲染的性能，也可以使我们把更多的精力用于业务逻辑的开发上。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180328140039/" target="_blank" rel="external">https://www.overtaking.top/20180328140039/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MVVM/" rel="tag">MVVM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/" rel="tag">Vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180328140039/&title=《模拟 Vue 手写一个 MVVM》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180328140039/&title=《模拟 Vue 手写一个 MVVM》 — Shen's Blog&source=MVVM 的前世今生MVVM 设计模式，是由 MVC（最早来源于后端）、MVP 等设计模式进化而来，M - 数据模型（Model），VM - 视图模型（V..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180328140039/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《模拟 Vue 手写一个 MVVM》 — Shen's Blog&url=https://www.overtaking.top/20180328140039/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180328140039/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180611010638/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">九种 “姿势” 让你彻底解决跨域问题</h4></a></div><div class="waves-block waves-effect next"><a href="/20180325170208/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">浅析 event-loop 事件轮询</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180328140039/&title=《模拟 Vue 手写一个 MVVM》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180328140039/&title=《模拟 Vue 手写一个 MVVM》 — Shen's Blog&source=MVVM 的前世今生MVVM 设计模式，是由 MVC（最早来源于后端）、MVP 等设计模式进化而来，M - 数据模型（Model），VM - 视图模型（V..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180328140039/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《模拟 Vue 手写一个 MVVM》 — Shen's Blog&url=https://www.overtaking.top/20180328140039/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180328140039/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABu0lEQVR42u3aQY7EIAxE0dz/0pkDtCBVLuxkpM8qatHwkoWFba5LHvdi/M75nb9f7eoYcOHCjbn3dqw20HHuCvuPAhcu3EnuaoP9swJy13+wwYUL98PcfchzD0lw4cL979z8lUYDGVy4cAOuG2jclCmZCRcu3HmuXqXse26p78KFC7fEvc2RhKcDu8OFC3eEqwcUt/SZtGAf9oULF+6rXD2QJSB9X7hw4b7F1Z/dYkpy/WIZyODChTvITbYvpjR6AQUuXLjNXL2cobRV3Has/gJw4cKd5CplkdqiediyczW4cOEe5bqNVXdmLR2yyytw4cI9yt1PchMeJRjpofMhV4MLF24DN7lyoYQtt1li52pw4cJt4CbLucEovx4KFy7cSa5etnALGfrxSP8FLly4k1w9EXKTnFqr1egJw4ULt42bJD+10mpxDly4cJu5tzncomoSBOHChfsW1y1VuIsmrdmovAIXLtyYqwedPcVthOjHpuKJDC5cuDFXDzS1I9HhXA0uXLif5J5KqIodYLhw4X6eqxRQklRq2fmBCxduM1cvbp5KfvSPAhcu3HmuG0qihcx/RfVduHDhVrh/zgiQn0KMFCUAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Git 系列之实战技及巧注意事项总结 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Git,代码管理/版本控制,命令行"><meta name="description" content="前言Git 作为当前应用最广泛的代码管理和版本控制工具，在实际开发时有很多的注意事项，本篇的目的就是在已经会使用 Git 的基础上来详细总结一下这些注意事项。"><meta property="og:type" content="article"><meta property="og:title" content="Git 系列之实战技及巧注意事项总结"><meta property="og:url" content="https://www.overtaking.top/20190315115008/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言Git 作为当前应用最广泛的代码管理和版本控制工具，在实际开发时有很多的注意事项，本篇的目的就是在已经会使用 Git 的基础上来详细总结一下这些注意事项。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Git/20190315115008/git.png"><meta property="article:published_time" content="2019-03-15T03:50:08.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Git"><meta property="article:tag" content="代码管理&#x2F;版本控制"><meta property="article:tag" content="命令行"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Git/20190315115008/git.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Git 系列之实战技及巧注意事项总结</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Git 系列之实战技及巧注意事项总结</h1><h5 class="subtitle"><time datetime="2019-03-15T03:50:08.000Z" itemprop="datePublished" class="page-time">2019-03-15</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Git/">Git</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#分离头指针"><span class="post-toc-number">2.</span> <span class="post-toc-text">分离头指针</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#修改本地-commit"><span class="post-toc-number">3.</span> <span class="post-toc-text">修改本地 commit</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#修改最近一次提交"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">修改最近一次提交</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#修改任意一次提交"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">修改任意一次提交</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#将多个连续的-commit-合并成一个"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">将多个连续的 commit 合并成一个</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#将多个间隔的-commit-合并成一个"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">将多个间隔的 commit 合并成一个</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#删除后提交的-commit"><span class="post-toc-number">3.5.</span> <span class="post-toc-text">删除后提交的 commit</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#忽略上传的文件"><span class="post-toc-number">4.</span> <span class="post-toc-text">忽略上传的文件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#在开发当中处理紧急发布（CR）任务"><span class="post-toc-number">5.</span> <span class="post-toc-text">在开发当中处理紧急发布（CR）任务</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#non-fast-forwards-和-fast-forwards"><span class="post-toc-number">6.</span> <span class="post-toc-text">non-fast-forwards 和 fast-forwards</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Git-多人单分支集成协作"><span class="post-toc-number">7.</span> <span class="post-toc-text">Git 多人单分支集成协作</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#多人协同开发时本地仓库与远端的同步"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">多人协同开发时本地仓库与远端的同步</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#不同人修改不同文件的处理方式"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">不同人修改不同文件的处理方式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#不同的人修改相同文件不同区域的处理方式"><span class="post-toc-number">7.3.</span> <span class="post-toc-text">不同的人修改相同文件不同区域的处理方式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#不同的人修改相同文件相同区域的处理方式"><span class="post-toc-number">7.4.</span> <span class="post-toc-text">不同的人修改相同文件相同区域的处理方式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#不同的人同时变更文件名的处理方式"><span class="post-toc-number">7.5.</span> <span class="post-toc-text">不同的人同时变更文件名的处理方式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#禁止在已共享的集成分支使用强推"><span class="post-toc-number">7.6.</span> <span class="post-toc-text">禁止在已共享的集成分支使用强推</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#禁止在已共享的集成分支上做变基操作"><span class="post-toc-number">7.7.</span> <span class="post-toc-text">禁止在已共享的集成分支上做变基操作</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">8.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Git/20190315115008" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Git 系列之实战技及巧注意事项总结</h1><div class="post-meta"><time class="post-time" title="2019-03-15 11:50:08" datetime="2019-03-15T03:50:08.000Z" itemprop="datePublished">2019-03-15</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Git/">Git</a></li></ul><span id="/20190315115008/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Git 系列之实战技及巧注意事项总结"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Git/20190315115008/git.png" title="Git 实战技及注意事项"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote info"><p><strong><code>Git</code> 作为当前应用最广泛的代码管理和版本控制工具，在实际开发时有很多的注意事项，本篇的目的就是在已经会使用 <code>Git</code> 的基础上来详细总结一下这些注意事项</strong>。</p></blockquote><a id="more"></a><h2 id="分离头指针"><a href="#分离头指针" class="headerlink" title="分离头指针"></a>分离头指针</h2><p>在日常开发时，我们经常都是在某一个分支下进行的，<code>commit</code> 操作也是在某些分支上进行，换句话说我们的每一个提交一般来讲都是与分支挂钩的，在 <code>Git</code> 中有一种情况，我们所修改的代码不与任何一个分支有关连，这种情况下叫做分离头指针。</p><p>那么如何操作才能实现分离头指针呢，在开发时我们可能会对某一个 <code>commit</code> 非常的感兴趣，并希望在这个 <code>commit</code> 下去做一些事情，可以执行下面命令实现。</p><pre><code class="lang-git">$ git checkout ef5aaed0707989ebc069efcd842424f6315ab4e2
+</code></pre><p>当切换分支后对某些文件做一些修改，并重新 <code>commit</code>。</p><pre><code class="lang-git">$ git add .
+$ git commit -m &#39;分离头指针测试&#39;
+$ git log
+</code></pre><p>执行上面命令后我们发现新的 <code>commit</code> 信息后面不在对应某一个分支，而是 <code>HEAD</code>，这种情况下就代表着我们的 <code>Git</code> 目前已经处于分离头指针的状态了。</p><p>分离头指针是 “双刃剑” 有好处也有坏处，在分离头指针的状态下所有的 <code>commit</code> 在重新切换分支时，会被 <code>Git</code> 当作无用提交回收掉，因为这些提交没有跟任何分支有所联系。</p><blockquote class="pullquote warning"><p><strong>分离头指针优缺点：</strong></p><ul><li><strong>优点：尝试性的 <code>commit</code> 可以在分离头指针的状态下进行；</strong></li><li><strong>缺点：当发布需要到其他分支修复问题或紧急发布时，切分支后会导致分离头指针状态下的 <code>commit</code> 丢失。</strong></li></ul></blockquote><p>在切换分支后，如果还想保留分离头指针状态下的提交，可以为这个提交创建一个新的分支。</p><pre><code class="lang-git">$ git branch 分支名 分离头指针状态的提交（哈希值）
+</code></pre><h2 id="修改本地-commit"><a href="#修改本地-commit" class="headerlink" title="修改本地 commit"></a>修改本地 commit</h2><h3 id="修改最近一次提交"><a href="#修改最近一次提交" class="headerlink" title="修改最近一次提交"></a>修改最近一次提交</h3><pre><code class="lang-git">$ git commit --amend
+</code></pre><blockquote class="pullquote primary"><p><strong><code>--amend</code> 可以将暂存区新存入的内容同时提交到最近的一次 <code>commit</code> 中，而不会生成新的 <code>commit</code>，同时也可以修改 <code>commit</code> 时的提交信息。</strong></p></blockquote><h3 id="修改任意一次提交"><a href="#修改任意一次提交" class="headerlink" title="修改任意一次提交"></a>修改任意一次提交</h3><pre><code class="lang-git">$ git rebase -i a4d56bb
+</code></pre><p>该操作为 <code>git rebase</code> 命令的交互模式，即输入 <code>-i</code> 命令，后面所输入的 <code>commit</code> 哈希值并不是要修改的 <code>commit</code>，而是要修改的 <code>commit</code> 的父级 <code>commit</code> 哈希值，在执行命令后会弹出修改的交互界面如下。</p><p><strong>第一个交互界面：</strong></p><pre><code class="lang-diff">pick 52f3935 add css file
+- pick 91bd053 change css
++ reword 91bd053 change css
+
+# Rebase a4d56bb..91bd053 onto a4d56bb (2 commands)
+#
+# Commands:
+# p, pick &lt;commit&gt; = use commit
+# r, reword &lt;commit&gt; = use commit, but edit the commit message
+# e, edit &lt;commit&gt; = use commit, but stop for amending
+# s, squash &lt;commit&gt; = use commit, but meld into previous commit
+# ...
+</code></pre><p>从上面的信息来看第一条代表当前要修改的 <code>commit</code>，第二条代表该分支最新的 <code>commit</code>，下面注释为修改参数，由于要修改提交信息，所以此处将第一行的 <code>pick</code> 修改成 <code>reword</code> 并保存，保存后会弹出下一个修改提交信息的界面如下。</p><p><strong>第二个交互界面：</strong></p><pre><code class="lang-diff">- css content
++ add css content
+
+# Please enter the commit message for your changes. Lines starting
+# with &#39;#&#39; will be ignored, and an empty message aborts the commit.
+#
+# Date:      Tue Mar 19 14:48:22 2019 +0800
+#
+# interactive rebase in progress; onto a4d56bb
+# Last command done (1 command done):
+#    reword 9e4f711 add css content
+# Next command to do (1 remaining command):
+#    pick c220cf2 change css
+# You are currently editing a commit while rebasing branch &#39;test&#39; on &#39;a4d56bb&#39;.
+#
+# Changes to be committed:
+#       new file:   index.css
+</code></pre><p>该界面上为 <code>commit</code> 的 <code>message</code>，修改后保存，就完成了对该 <code>commit</code> 的修改，值得注意的是，使用 <code>git log</code> 查看历史可以发现，修改 <code>commit</code> 时指定的父级 <code>commit</code> 后所有的 <code>commit</code> 哈希值都会发生变化。</p><p><strong>修改 commit 后的提示信息：</strong></p><pre><code class="lang-bash">[detached HEAD de48b04] add css content
+ Date: Tue Mar 19 14:48:22 2019 +0800
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 index.css
+Successfully rebased and updated refs/heads/test.
+</code></pre><blockquote class="pullquote success"><p><strong>可以看出，其实使用 <code>git rebase</code> 命令修改 <code>commit</code> 的原理也是分离头指针，只是在分离头指针修改 <code>commit</code> 后又重新将当前分支的指针指回了最新的 <code>commit</code>。</strong></p></blockquote><h3 id="将多个连续的-commit-合并成一个"><a href="#将多个连续的-commit-合并成一个" class="headerlink" title="将多个连续的 commit 合并成一个"></a>将多个连续的 commit 合并成一个</h3><p>将多个 <code>commit</code> 合并成一个的原理与修改任意一个 <code>commit</code> 的原理相同，都是通过 <code>git rebase</code> 命令的交互模式实现的（<code>-i</code>），参数为合并几个 <code>commit</code> 的父级 <code>commit</code> 哈希值。</p><p><strong>查看历史：</strong></p><pre><code class="lang-git">$ git log --oneline
+</code></pre><pre><code class="lang-bash"># edd2400 (HEAD -&gt; test) add content to readme
+# 50a015c add background css
+# 15237d2 change css
+# 4a8fd80 add css content
+# 5149bad new READ.md
+# 7f73a76 new html
+</code></pre><p>现在我们尝试将 <code>50a015c</code>、<code>15237d2</code> 和 <code>4a8fd80</code> 这三个 <code>commit</code> 合并成一个，与修改 <code>commit</code> 唯一不同的是被修改的 <code>commit</code> 参数不再是 <code>reword</code>，而是 <code>squash</code>，多个要合并的 <code>commit</code> 之中有一个目标 <code>commit</code>，这个 <code>commit</code> 的参数必须是 <code>pick</code>。</p><p><strong>第一个交互界面：</strong></p><pre><code class="lang-diff">pick 4a8fd80 add css content
+- pick 15237d2 change css
+- pick 50a015c add background css
++ squash 15237d2 change css
++ squash 50a015c add background css
+pick edd2400 add content to readme
+
+# Rebase 5149bad..edd2400 onto 5149bad (4 commands)
+#
+# Commands:
+# p, pick &lt;commit&gt; = use commit
+# r, reword &lt;commit&gt; = use commit, but edit the commit message
+# e, edit &lt;commit&gt; = use commit, but stop for amending
+# s, squash &lt;commit&gt; = use commit, but meld into previous commit
+# ...
+</code></pre><p>对上面的交互界面保存后同样会弹出第二个交互界面，合并多个 <code>commit</code> 与修改单个 <code>commit</code> 不同的是，第二个界面会展示所有被合并 <code>commit</code> 的信息，我们可以为合并后的 <code>commit</code> 添加一个新的 <code>message</code>。</p><p><strong>第二个交互界面：</strong></p><pre><code class="lang-diff"># This is a combination of 3 commits.
++
++ css changes
++
+# This is the 1st commit message:
+
+add css content
+
+# This is the commit message #2:
+
+change css
+
+# This is the commit message #3:
+
+add background css
+
+# Please enter the commit message for your changes. Lines starting
+# with &#39;#&#39; will be ignored, and an empty message aborts the commit.
+#
+# Date:      Tue Mar 19 14:48:22 2019 +0800
+#
+# interactive rebase in progress; onto 5149bad
+# Last commands done (3 commands done):
+#    squash 15237d2 change css
+#    squash 50a015c add background css
+# Next command to do (1 remaining command):
+#    pick edd2400 add content to readme
+# You are currently rebasing branch &#39;test&#39; on &#39;5149bad&#39;.
+#
+# Changes to be committed:
+#       new file:   index.css
+</code></pre><p><strong>查看合并提交后的历史：</strong></p><pre><code class="lang-git">$ git log --oneline
+</code></pre><pre><code class="lang-bash"># 2c84584 (HEAD -&gt; test) add content to readme
+# ac001bc css changes
+# 5149bad new READ.md
+# 7f73a76 new html
+</code></pre><h3 id="将多个间隔的-commit-合并成一个"><a href="#将多个间隔的-commit-合并成一个" class="headerlink" title="将多个间隔的 commit 合并成一个"></a>将多个间隔的 commit 合并成一个</h3><p>上面的 <code>commit</code> 合并方式可能满足不了需求，有些时候我们想把对同一个文件的提交或同一类操作的提交合并成一个，但是在历史 <code>commit</code> 中要合并的树是间隔的，使用 <code>git rebase</code> 命令同样可以做到。</p><p><strong>查看历史：</strong></p><pre><code class="lang-git">$ git log --oneline
+</code></pre><pre><code class="lang-bash"># 23d6939 (HEAD -&gt; test) append content into readme
+# 178ea29 link css in html
+# 2c84584 add content to readme
+# ac001bc css changes
+# 5149bad new READ.md
+# 7f73a76 new html
+</code></pre><p>在之前使用 <code>git rebase</code> 命令时都是将操作 <code>commit</code> 的父级 <code>commit</code> 作为参数，如果我们要操作的 <code>commit</code> 已经没有父级 <code>commit</code>，接下来在合并多个间隔的 <code>commit</code> 时来测试一下这样的情况，接下来将 <code>7f73a76</code> 和 <code>178ea29</code> 两个关于 <code>html</code> 文件的操作合并成一个。</p><p><strong>执行命令：</strong></p><pre><code class="lang-git">$ git rebase -i 7f73a76
+</code></pre><p>由于我们要操作的 <code>commit</code> 已经没有了父级，所以我们就在执行命令时传入这个 <code>commit</code>，在弹出的第一个交互界面我么明显能看到其实上面是少了我们要操作的 <code>commit</code>，所以需要手动补上，而间隔的 <code>commit</code> 要移动到和合并的目标 <code>commit</code> 连续的位置。</p><p><strong>第一个交互界面：</strong></p><pre><code class="lang-diff">+ pick 7f73a76
++ squash 178ea29 link css in html
+pick 4a8fd80 add css content
+pick 5149bad new READ.md
+pick ac001bc css changes
+pick 2c84584 add content to readme
+- pick 178ea29 link css in html
+pick 23d6939 append content into readme
+
+# Rebase 7f73a76..23d6939 onto 7f73a76 (5 commands)
+#
+# Commands:
+# p, pick &lt;commit&gt; = use commit
+# r, reword &lt;commit&gt; = use commit, but edit the commit message
+# e, edit &lt;commit&gt; = use commit, but stop for amending
+# s, squash &lt;commit&gt; = use commit, but meld into previous commit
+# ...
+</code></pre><p>在保存后出现如下报错信息，是因为 <code>commit</code> 的父节点是我们新增上去导致的。</p><p><strong>提示信息：</strong></p><pre><code class="lang-bash">The previous cherry-pick is now empty, possibly due to conflict resolution.
+If you wish to commit it anyway, use:
+
+    git commit --allow-empty
+
+Otherwise, please use &#39;git reset&#39;
+interactive rebase in progress; onto 7f73a76
+Last command done (1 command done):
+   pick 7f73a76
+Next commands to do (5 remaining commands):
+   squash 178ea29 link css in html
+   pick 5149bad new READ.md
+You are currently rebasing branch &#39;test&#39; on &#39;7f73a76&#39;.
+
+nothing to commit, working tree clean
+Could not apply 7f73a76...
+</code></pre><p><strong>执行 <code>git status</code> 提示信息：</strong></p><pre><code class="lang-bash">Last command done (1 command done):
+   pick 7f73a76
+Next commands to do (5 remaining commands):
+   squash 178ea29 link css in html
+   pick 5149bad new READ.md
+  (use &quot;git rebase --edit-todo&quot; to view and edit)
+You are currently rebasing branch &#39;test&#39; on &#39;7f73a76&#39;.
+  (all conflicts fixed: run &quot;git rebase --continue&quot;)
+
+nothing to commit, working tree clean
+</code></pre><p><strong>想继续合并：</strong></p><pre><code class="lang-git">$ git rebase --continue
+</code></pre><p><strong>想还原回合并之前：</strong></p><pre><code class="lang-git">$ git rebase --abort
+</code></pre><p>如果在继续合并后没有出现第二个交互界面（与合并连续 <code>commit</code> 类似，用来新增合并后 <code>commit</code> 的信息），说明合并时出现冲突，此时需要解决冲突后将新的变更提交到暂存区，再重新执行合并命令。</p><p><strong>查看合并后的历史：</strong></p><pre><code class="lang-git">$ git log --oneline
+</code></pre><pre><code class="lang-bash"># 4d4f771 (HEAD -&gt; test) append content into readme
+# a83f526 add content to readme
+# 463fd85 css changes
+# 7e44e19 new READ.md
+# 753ebcd about html changes
+</code></pre><blockquote class="pullquote warning"><p><strong>注意：当前对 <code>commit</code> 的变更和合并操作只是对 <code>commit</code> 做了整理，并没有改变文件内容，并且这些操作仅限于要修改或合并的 <code>commit</code> 还没有共享到集成分支上去，如果已经推送到远端，进行上面操作会对其他协同开发的人员造成麻烦和困扰。</strong></p></blockquote><h3 id="删除后提交的-commit"><a href="#删除后提交的-commit" class="headerlink" title="删除后提交的 commit"></a>删除后提交的 commit</h3><p>在开发中有这样一种情景，就是我们在修改代码时提交了一个或者几个新的 <code>commit</code>，但是发现有更好的方案，想要删除这些 <code>commit</code>，这时可以通过将 <code>HEAD</code> 指针重新指向这些 <code>commit</code> 之前的提交，命令如下。</p><pre><code class="lang-git">$ git reset --hard 版本号
+</code></pre><p>这样的操作会导致工作区、暂存区的代码都会到这个 <code>commit</code> 的状态，当然也有 “后悔药”，可以使用 <code>git reflog</code> 找到所有的 <code>commit</code> 版本号 包含已删除），再通过同样的方式将 <code>HEAD</code> 的指针指回去。</p><pre><code class="lang-git">$ git reflog
+$ git reset --hard 已删除的版本号
+</code></pre><h2 id="忽略上传的文件"><a href="#忽略上传的文件" class="headerlink" title="忽略上传的文件"></a>忽略上传的文件</h2><p>在开发过程中，有些文件是不需要我们上传到远端的，可能因为这个文件对于开发项目来讲是无用的，如编辑器自动生成的 <code>.idea</code> 等，或者这个文件夹非常的大，如 <code>node_modules</code>，我们可以通过 <code>.gitignore</code> 文件来配置忽略上传的文件。</p><p>在 <code>.gitignore</code> 文件中有很多规则，在此不去讨论，在这里我们要说的是如果某些想要忽略的文件由于失误没有被写进 <code>.gitignore</code>，被推送到远端后，想忽略这个文件，并在下次推送的时候让远端不再有这个文件该怎么做。</p><p><strong>先将要忽略的文件添加到 <code>.gitignore</code>，然后执行下面命令对之前添加的文件进行删除操作。</strong></p><pre><code class="lang-git">$ git rm --cached 文件名/文件夹
+</code></pre><h2 id="在开发当中处理紧急发布（CR）任务"><a href="#在开发当中处理紧急发布（CR）任务" class="headerlink" title="在开发当中处理紧急发布（CR）任务"></a>在开发当中处理紧急发布（CR）任务</h2><p>在开发时经常有这样一种场景，在上一版本代码上线以后，突然发现线上出现 <code>Bug</code> 需要修复并紧急上线，而这个时候刚好又在同一个分支上已经有了其他的新代码，此时需要将代码还原到线上版本，并保证当前开发代码不丢失，待问题修复后，将新开发的代码合并到修复后的代码上继续开发，当然根据实际情况的不同，复杂程度也会有所差别，下面是一些思路。</p><blockquote class="pullquote success"><p><strong>当前代码跟要修复代码在同一条分支：</strong></p><ul><li><strong>将当前代码暂存；</strong></li><li><strong>修复代码后合并到 dev 发布测试环境验证，通过后发布；</strong></li><li><strong>恢复暂存代码继续开发；</strong></li></ul><pre><code class="lang-git">$ git stash
+$ git stash pop
+</code></pre></blockquote><blockquote class="pullquote info"><p><strong>当前代码跟要修复的代码不在同一条分支：</strong></p><ul><li><strong>提交当前分支代码；</strong></li><li><strong>切换到 <code>master</code> 分支创建一条新分支；</strong></li><li><strong>修复问题并提测；</strong></li><li><strong>验证通过后合并到 <code>master</code> 或 <code>dev</code> 分支发布；</strong></li><li><strong>回到开发新功能 <code>feature</code> 分支将修复代码（<code>hotfix</code>）集成进来并继续开发。</strong></li></ul><pre><code class="lang-git">$ git add .
+$ git commit -m &#39;message&#39;
+
+$ git checkout master
+$ git checkout -b 修复问题分支
+
+$ git checkout 测试分支
+$ git merge 修复问题分支
+
+$ git checkout 开发分支
+$ git rebase 测试分支
+</code></pre></blockquote><p>当然上面的思路仅供参考，因为不同的团队规范有所差异，问题的复杂度也不尽相同，在某些特殊时候可能要本地代码回退版本，需要借助 <code>git reset</code> 命令实现。</p><h2 id="non-fast-forwards-和-fast-forwards"><a href="#non-fast-forwards-和-fast-forwards" class="headerlink" title="non-fast-forwards 和 fast-forwards"></a>non-fast-forwards 和 fast-forwards</h2><p>在实际项目开发中我们将本地代码推送到远端的时候可能会遇到下面这样的报错信息。</p><p><strong>推送代码时的错误信息：</strong></p><pre><code class="lang-bash">error: failed to push some refs to &#39;git@github.yourRepository.git&#39;
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart. Integrate the remote changes (e.g.
+hint: &#39;git pull ...&#39;) before pushing again.
+hint: See the &#39;Note about fast-forwards&#39; in &#39;git push --help&#39; for details.
+</code></pre><p><code>fast-forwards</code> 是指将本地分支推送到远端，<code>tree</code> 上两个分支拥有共同的 “祖先”，可以自动合并成一个 <code>tree</code>，而 <code>non-fast-forwards</code> 正好相反，两个分支的 <code>tree</code> 是完全独立的，没有任何联系，一般会造成这种现象的原因是推送的目标分支和我们当前分支拥有不同的代码，所以我们需要将推送的目标分支和本地分支的 <code>tree</code> 整理成 <code>fast-forwards</code> 的状态。</p><p>实现方式就是先拉取远端分支在本地进行处理（如果有冲突先处理冲突），变成 <code>fast-forwards</code> 状态后再进行推送，拉取远端分支可以使用 <code>fetch</code> 或 <code>pull</code>，区别在于 <code>fetch</code> 拉取回来的代码仍然是 <code>non-fast-forwards</code> 状态，需要手动 <code>merge</code> 进行合并或 <code>rebase</code>（因为有些团队比较喜欢线性的提交记录以便追溯）操作，而 <code>pull</code> 将 <code>fetch</code> 和 <code>merge</code> 这两个步骤合二为一。</p><blockquote class="pullquote default"><p><strong>注意：使用 <code>fetch</code> 拉取代码在进行 <code>merge</code> 时存在一种特殊情况，就是这个仓库的代码是第一次被拉取到本地（与本地分支没有共同的提交），且与本地代码的差异是新建仓库时添加 <code>README.md</code> 等文件造成的，则需要在 <code>merge</code> 时加上 <code>--allow-unrelated-histories</code> 参数去允许历史上完全独立的两棵树进行合并，达到 <code>fast-forwards</code> 的状态。</strong></p></blockquote><p><strong>合并不相关的树：</strong></p><pre><code class="lang-git">$ git merge 本地分支 --allow-unrelated-histories 远端分支
+</code></pre><p>执行命令后会弹出交互界面可以修改本次合并的 <code>message</code>。</p><h2 id="Git-多人单分支集成协作"><a href="#Git-多人单分支集成协作" class="headerlink" title="Git 多人单分支集成协作"></a>Git 多人单分支集成协作</h2><h3 id="多人协同开发时本地仓库与远端的同步"><a href="#多人协同开发时本地仓库与远端的同步" class="headerlink" title="多人协同开发时本地仓库与远端的同步"></a>多人协同开发时本地仓库与远端的同步</h3><p>在项目的开发迭代中，我们习惯每一个版本迭代都新建一个分支开发，并推送到远端，如果多个人同时要在这个分支开发该迭代的新功能，而以前又已经克隆过这个项目到本地，此时除了这条分支的创建者以外，其他人查看远端分支时是看不见这个新建分支的，需要执行以下命令对仓库进行同步并开发。</p><p><strong>同步新分支信息：</strong></p><pre><code class="lang-git">$ git fetch 地址别名
+</code></pre><p><strong>查看新分支：</strong></p><pre><code class="lang-git">$ git branch -av
+</code></pre><p><strong>拉取新分支到本地：</strong></p><pre><code class="lang-git">$ git checkout -b 新分支名 地址别名/新分支名
+</code></pre><p>还有一种场景也需要通过上面的方式来同步仓库信息，就是在 <code>Github</code> 中帮助别人的项目贡献代码或修复 <code>Issue</code> 时，首先需要 <code>Fork</code> 别人的仓库，但是 <code>Fork</code> 过来的仓库代码并不会随着原作者仓库的代码更新而更新，为了在开发之前使 <code>Fork</code> 的仓库和原作者仓库代码及分支保持一致，执行上面命令，开发完毕后再通过给原作者提交 <code>push request</code> 的方式让原作者进行代码审核并合并到原始仓库。</p><h3 id="不同人修改不同文件的处理方式"><a href="#不同人修改不同文件的处理方式" class="headerlink" title="不同人修改不同文件的处理方式"></a>不同人修改不同文件的处理方式</h3><p>在实际开发中，两个人在一条分支开发，当 <code>A</code> 同学修改了 <code>a</code> 文件，<code>B</code> 同学修改了 <code>b</code> 文件时，此时 <code>B</code> 同学先进行了提交，<code>A</code> 同学并不知道的情况下，在 <code>A</code> 同学推送代码到远端时会变成 <code>non-fast-forwards</code> 状态（推送失败），并提示超前一个版本，落后一个版本，意思是本地代码有一个提交远端没有，远端代码有一个提交本地没有，一般情况下大多数的处理是选择先拉去远端代码进行合并，再推送到远端。</p><p>由于两个人修改的是不同文件，在拉取远端代码后合并会比较顺利，并不会产生冲突，但同时产生新的问题，就是多了一条关于合并的提交记录，如果想让提交的历史树更干净整洁，也有另一种做法，就是推送失败的一方主动将本地 <code>commit</code> 回退到与远端完全一致的 <code>commit</code> 版本，主动拉取代码与工作区合并，再重新提交到本地版本库并推送到远端。</p><p><strong>撤销本地新的提交：</strong></p><pre><code class="lang-git">$ git reset 与远端相同的提交
+</code></pre><h3 id="不同的人修改相同文件不同区域的处理方式"><a href="#不同的人修改相同文件不同区域的处理方式" class="headerlink" title="不同的人修改相同文件不同区域的处理方式"></a>不同的人修改相同文件不同区域的处理方式</h3><p>我们将上面 <code>A</code>、<code>B</code> 两个同学的操作场景稍微做些改动，就是两个人同时操作了同一个文件的不同区域，此时如果 <code>B</code> 先提交到远端，<code>A</code> 不知情的情况下推送代码到远端，一样会变成 <code>non-fast-forwards</code>，同样可以通过上面的方式处理，<code>Git</code> 比较智能，可以将两个平行的修改过不同区域的文件进行合并，变成 <code>fast-forwards</code> 状态。</p><h3 id="不同的人修改相同文件相同区域的处理方式"><a href="#不同的人修改相同文件相同区域的处理方式" class="headerlink" title="不同的人修改相同文件相同区域的处理方式"></a>不同的人修改相同文件相同区域的处理方式</h3><p>依然沿用上面 <code>A</code>、<code>B</code> 同学的操作场景，不同的是这次两人修改了相同文件的相同区域，<code>B</code> 先提交到远端，<code>A</code> 在提交到远端时有因为状态为 <code>non-fast-forwards</code> 被拒绝，同样的方式处理时发现了新的问题，代码虽然成功拉合并，但是控制台报错了。</p><p><strong>合并后报错：</strong></p><pre><code class="lang-bash">...
+Auto-merging yourfile
+CONFLICT (content): Merge conflict in yourfile
+Automatic merge failed; fix conflicts and then commit the result.
+</code></pre><p>由于两个人操作了同一个区域导致 <code>Git</code> 无法判断两个内容应该怎样去保留或替换，所以将合并失败的错误抛出让开发者认为的介入。</p><blockquote class="pullquote danger"><p><strong>在解决冲突时可能存在的情况：</strong></p><ul><li><strong>两人将都要保留的功能代码写在了相同文件的相同区域，这种情况需要都保留；</strong></li><li><strong>两个人开发功能重复了，需要进行沟通协商决定保留哪一个。</strong></li></ul></blockquote><p>在手动处理冲突对文件进行合并时，可以通过 <code>git status</code> 查看合并后的状态，如果这个人为的合并是需要的可以创建一个新的提交推送到远端，如果觉得没有处理好，可以执行下面命令还原到合并之前。</p><p><strong>撤销合并：</strong></p><pre><code class="lang-git">$ git merge --abort
+</code></pre><h3 id="不同的人同时变更文件名的处理方式"><a href="#不同的人同时变更文件名的处理方式" class="headerlink" title="不同的人同时变更文件名的处理方式"></a>不同的人同时变更文件名的处理方式</h3><p>在不同人同时修改同一个文件名时，<code>Git</code> 时无法处理的，当然会变成 <code>non-fast-forwards</code> 状态，在通过常规的处理后，本地会出现两个文件，分别为两人所更改的文件名，这时需要两个人进行协商，保留协商后的文件名，删除多余的文件并推送到远端让其他人进行同步。</p><pre><code class="lang-git">$ git rm oldfilename
+$ git add newfilename
+$ git commit -m &#39;merge message&#39;
+$ git push
+</code></pre><blockquote class="pullquote success"><p><strong>在一个人修改文件名，其他人修改内容的情况下，<code>Git</code> 的文件内容都是通过</strong> <a href="/20190310233856/#tree%E3%80%81commit%E3%80%81blob-%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%85%B3%E7%B3%BB" target="_blank">blob</a> <strong>对象进行存储，而非文件的形式，所以当多人协同某个人对文件名进行变更时 <code>Git</code> 可以非常智能的检测并同步。</strong></p></blockquote><h3 id="禁止在已共享的集成分支使用强推"><a href="#禁止在已共享的集成分支使用强推" class="headerlink" title="禁止在已共享的集成分支使用强推"></a>禁止在已共享的集成分支使用强推</h3><p>“强推” 是指使用 <code>git push -f</code> 将本地分支推送到远端，之前在多人写作中远程分支拒绝推送的原因都是因为 <code>non-fast-forwards</code> 状态，我们可以理解为这是 <code>Git</code> 防止代码被推送到远端而产生冲突的一种保护机制，而 “强推” 就是忽略了 <code>non-fast-forwards</code> 状态强行将代码推送到远端。</p><blockquote class="pullquote danger"><p><strong>在大部分团队中都是禁止在集成分支使用这条命令的，可能会在远端产生冲突只是原因之一，操作不正确也可能导致远端集成分支整个团队的提交历史丢失的严重后果，比如当前本地分支版本远远落后于远端，此时直接推送会进入 <code>non-fast-forwards</code> 状态，远端拒绝推送，而向远端 “强推”，远端在这个本地版本库 <code>HEAD</code> 指向的 <code>commit</code> 之后所有的提交历史都将丢失。</strong></p></blockquote><h3 id="禁止在已共享的集成分支上做变基操作"><a href="#禁止在已共享的集成分支上做变基操作" class="headerlink" title="禁止在已共享的集成分支上做变基操作"></a>禁止在已共享的集成分支上做变基操作</h3><p>还记得前面 <a href="/20190315115008/#修改本地-commit">修改本地 commit</a> 一节中强调 <code>rebase</code> 操作只适用于修改本地还未同步到远端的 <code>commit</code>，这是因为如果对已经同步到远端的进行了变基操作会导致 <code>commit</code> 的版本号发生变化，如果推送到远端，此时协同开发的人是基于远端旧的 <code>commit</code> 之上在做新的开发，会导致无法将本地代码推送到远端。</p><blockquote class="pullquote warning"><p><strong>有些团队严令禁止对集成分支做变基操作，被称作 “<code>rebase</code> 黄金定律”，如果一定要对集成分支做变基操作的，一定要在当前远端最后的 <code>commit</code> 之后做变基操作。</strong></p></blockquote><p>如果不幸真的有同事这样去做了，我们虽然会很恼火，但也还是有办法去解决这样的问题，可以直接执行下面命令：</p><pre><code class="lang-git">$ git pull --rebase
+</code></pre><p>或者分为两步走，把远端变基后的分支 <code>fetch</code> 到本地，再把本地的当前分支基于 <code>fetch</code> 下来的远端分支做 <code>rebase</code> 操作，命令如下：</p><pre><code class="lang-git">$ git fetch
+$ git rebase 地址别名/分支名
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote info"><p><strong>本文内容是自己在对 <code>Git</code> 的学习和工作中总结的笔记，另外想了解 <code>rebase</code> 和 <code>merge</code> 更详细的信息推荐阅读</strong> <a href="https://www.cnblogs.com/kidsitcn/p/5339382.html" target="_blank">git rebase vs git merge 详解</a><strong>。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20190315115008/" target="_blank" rel="external">https://www.overtaking.top/20190315115008/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/" rel="tag">Git</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86-%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" rel="tag">代码管理/版本控制</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/" rel="tag">命令行</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20190315115008/&title=《Git 系列之实战技及巧注意事项总结》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20190315115008/&title=《Git 系列之实战技及巧注意事项总结》 — Shen's Blog&source=前言Git 作为当前应用最广泛的代码管理和版本控制工具，在实际开发时有很多的注意事项，本篇的目的就是在已经会使用 Git 的基础上来详细总结一下这些注意事项。" data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20190315115008/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Git 系列之实战技及巧注意事项总结》 — Shen's Blog&url=https://www.overtaking.top/20190315115008/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20190315115008/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20190327025116/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Git 系列之 Github 团队协作</h4></a></div><div class="waves-block waves-effect next"><a href="/20190310233856/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Git 系列之 .git 内部刨析</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20190315115008/&title=《Git 系列之实战技及巧注意事项总结》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20190315115008/&title=《Git 系列之实战技及巧注意事项总结》 — Shen's Blog&source=前言Git 作为当前应用最广泛的代码管理和版本控制工具，在实际开发时有很多的注意事项，本篇的目的就是在已经会使用 Git 的基础上来详细总结一下这些注意事项。" data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20190315115008/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Git 系列之实战技及巧注意事项总结》 — Shen's Blog&url=https://www.overtaking.top/20190315115008/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20190315115008/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABv0lEQVR42u3aS44DIQwFwNz/0hlptqNOP9tAWqNiFeVDF1lY4MfrFY/37/j8ev7psoGLizvmvj+Ov9+5eueKdQW9eufKgIuLe56bFK8qsbqAaE5cXNyHcasPTgoWLi7uf+Imi3kHAxcX98ncfLpVx6TtZzVcXNwBd1XDdPL6C/1dXFzcViqRlKp5rFJ4Oi4u7hFur1VRPQIl0UsyPy4u7hluXozyEGU+26v3D+Hi4m7j7jt3JI3XmyXh4uIe5K46nCSLz391k/ng4uJu5vYK2WSr1AxycHFxj3DnwUkvjo3K1o6cBxcXN+DO45MePQ9cb0IUXFzcDdy8kK3aBm25koWLi7uNu6ptWi1MvYsduLi4Z7j5jyftjGprtVlxcXFxB9wkFq3GpdXNTeECBy4u7pe4SamqcvMGys08uLi4R7jzu5F5yNqLc8oRCy4u7pjbu26VB6WTAAYXF/db3FUXMvJNUjLnglskuLi4Y+6keOX/RK+Qle+M4OLiLuXmxWvZRqR3AMPFxX0Yt3pEyb9T7vLi4uI+kptvYnJW+YYILi7uZm718NOLW3pLxcXFPc+dNEwLW5Nik3QU2eLi4va5P4/cmnmaOYUTAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

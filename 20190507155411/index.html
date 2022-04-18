@@ -1,0 +1,1183 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>React 基础篇 —— React Hooks | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Hooks,React"><meta name="description" content="React Hooks 简介React Hooks 是 16.8 版本中正式加入的特性，配合函数组件使用，在没有 Hooks 之前，函数组件使用场景非常有限，只适合编写纯展示性的 UI 组件，其余复杂的场景不得不使用类组件，而 Hooks 的主要作用是在函数组件中使用原本所不具备的 React 特性。"><meta property="og:type" content="article"><meta property="og:title" content="React 基础篇 —— React Hooks"><meta property="og:url" content="https://www.overtaking.top/20190507155411/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="React Hooks 简介React Hooks 是 16.8 版本中正式加入的特性，配合函数组件使用，在没有 Hooks 之前，函数组件使用场景非常有限，只适合编写纯展示性的 UI 组件，其余复杂的场景不得不使用类组件，而 Hooks 的主要作用是在函数组件中使用原本所不具备的 React 特性。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/React/20190507155411/react-hooks.jpeg"><meta property="og:image" content="https://static.overtaking.top/images/React/20190507155411/usedebugvalue.png"><meta property="article:published_time" content="2019-05-07T07:54:11.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Hooks"><meta property="article:tag" content="React"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/React/20190507155411/react-hooks.jpeg"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">React 基础篇 —— React Hooks</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">React 基础篇 —— React Hooks</h1><h5 class="subtitle"><time datetime="2019-05-07T07:54:11.000Z" itemprop="datePublished" class="page-time">2019-05-07</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/React/">React</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#React-Hooks-简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">React Hooks 简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#React-Hooks-产生的动机"><span class="post-toc-number">2.</span> <span class="post-toc-text">React Hooks 产生的动机</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#React-Hooks-分类"><span class="post-toc-number">3.</span> <span class="post-toc-text">React Hooks 分类</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#React-Hooks-使用规则"><span class="post-toc-number">4.</span> <span class="post-toc-text">React Hooks 使用规则</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#React-Hooks-API"><span class="post-toc-number">5.</span> <span class="post-toc-text">React Hooks API</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#useState"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">useState</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#useEffect"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">useEffect</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#useReducer"><span class="post-toc-number">5.3.</span> <span class="post-toc-text">useReducer</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#useContext"><span class="post-toc-number">5.4.</span> <span class="post-toc-text">useContext</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#useCallback"><span class="post-toc-number">5.5.</span> <span class="post-toc-text">useCallback</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#useMemo"><span class="post-toc-number">5.6.</span> <span class="post-toc-text">useMemo</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#useRef"><span class="post-toc-number">5.7.</span> <span class="post-toc-text">useRef</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#useImperativeHandle"><span class="post-toc-number">5.8.</span> <span class="post-toc-text">useImperativeHandle</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#useLayoutEffect"><span class="post-toc-number">5.9.</span> <span class="post-toc-text">useLayoutEffect</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#useDebugValue"><span class="post-toc-number">5.10.</span> <span class="post-toc-text">useDebugValue</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#自定义-Hook"><span class="post-toc-number">6.</span> <span class="post-toc-text">自定义 Hook</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">7.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-React/20190507155411" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">React 基础篇 —— React Hooks</h1><div class="post-meta"><time class="post-time" title="2019-05-07 15:54:11" datetime="2019-05-07T07:54:11.000Z" itemprop="datePublished">2019-05-07</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/React/">React</a></li></ul><span class="stick-container"><i class="icon icon-thumb-tack icon-pr"></i><span class="stick">置顶</span></span> <span id="/20190507155411/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="React 基础篇 —— React Hooks"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/React/20190507155411/react-hooks.jpeg" title="React Hooks"><p><br></p><h2 id="React-Hooks-简介"><a href="#React-Hooks-简介" class="headerlink" title="React Hooks 简介"></a>React Hooks 简介</h2><blockquote class="pullquote default"><p><strong><code>React Hooks</code> 是 <code>16.8</code> 版本中正式加入的特性，配合函数组件使用，在没有 <code>Hooks</code> 之前，函数组件使用场景非常有限，只适合编写纯展示性的 <code>UI</code> 组件，其余复杂的场景不得不使用类组件，而 <code>Hooks</code> 的主要作用是在函数组件中使用原本所不具备的 <code>React</code> 特性。</strong></p></blockquote><a id="more"></a><h2 id="React-Hooks-产生的动机"><a href="#React-Hooks-产生的动机" class="headerlink" title="React Hooks 产生的动机"></a>React Hooks 产生的动机</h2><p>在业务开发中，数据主要存在两种形式，业务数据和 <code>UI</code> 数据，我们需要将这两种数据区分开，而有时数据又在组件之间存在共用关系，情况稍微复杂，参数传递的方式就无法满足需求，于是就会有状态管理进入到项目中（<code>Redux</code>、<code>Mobx</code> 等），会增加开发者的学习成本和项目的维护成本。</p><p>使用 <code>React</code> 的开发者都知道，<code>React</code> 主张组件化，就是把业务页面拆分成多个组件进行组合、嵌套、渲染，为了保证项目质量，开发者会花费大量精力在项目的模块化、状态数据最小化以及功能解耦上，而一部分组件会因为数据状态的共享耦合在一起，这时需要使用高阶组件（<code>HOC</code>）、属性渲染（<code>Render props</code>）、渲染回调（<code>Prop callback</code>）等更高级的 <code>React</code> 特性去解耦，但是会增加代码的复杂程度、降低代码的可读性，在渲染时也会增加 <code>DOM</code> 的层级。</p><p>上面这些实际问题促成了 <code>React Hooks</code> 的诞生，而在有 <code>Hooks</code> 后官方也越来越推荐使用函数组件。</p><blockquote class="pullquote success"><p><strong>推荐使用函数组件主要原因总结如下：</strong></p><ul><li><strong>为了状态相关逻辑的提取和复用；</strong></li><li><strong>解决复杂组件代码变得难以理解的问题；</strong></li><li><strong>解决类组件带给开发者一些容易混淆的点，比如 <code>this</code> 指向问题；</strong></li><li><strong>由于 <code>JS</code> 解释器在解释 <code>class</code> 关键字时的性能问题，使用函数组件代替。</strong></li></ul></blockquote><blockquote class="pullquote info"><p><strong><code>React</code> 没有重大变化，完全兼容类组件，可以让开发者不必完全重写现有代码，而是在后续开发中逐步尝试使用 <code>Hooks</code>。</strong></p></blockquote><h2 id="React-Hooks-分类"><a href="#React-Hooks-分类" class="headerlink" title="React Hooks 分类"></a>React Hooks 分类</h2><blockquote class="pullquote danger"><p><strong><code>React</code> 官方主要给 <code>Hooks</code> 分为两大类：</strong></p><ul><li><strong>基础 <code>Hooks API</code>：<code>useState</code>、<code>useEffect</code>、<code>useContext</code>；</strong></li><li><strong>其他 <code>Hooks API</code>：<code>useReducer</code>、<code>useCallback</code>、<code>useImperativeHandle</code>、<code>useMemo</code>、<code>useRef</code>、<code>useLayoutEffect</code>、<code>useDebugValue</code>。</strong></li></ul></blockquote><h2 id="React-Hooks-使用规则"><a href="#React-Hooks-使用规则" class="headerlink" title="React Hooks 使用规则"></a>React Hooks 使用规则</h2><p>为了保证 <code>Hooks</code> 在使用时不会出现不可预测的问题，官方制定了一定要遵循的两条使用规则（强制遵守），在此提前声明。</p><blockquote class="pullquote warning"><ul><li><strong>只在函数组件内部最顶层调用 <code>Hook</code>，不要在循环、条件判断或者嵌套函数中调用；</strong></li><li><strong>只能在函数组件中调用 <code>Hook</code>（自定义 <code>Hook</code> 中可以调用 <code>Hook</code>），不要在其他 <code>JavaScript</code> 函数中调用。</strong></li></ul></blockquote><h2 id="React-Hooks-API"><a href="#React-Hooks-API" class="headerlink" title="React Hooks API"></a>React Hooks API</h2><h3 id="useState"><a href="#useState" class="headerlink" title="useState"></a>useState</h3><p><code>useState</code> 方法用于在函数组件内部实现组件的状态管理，可以起到类组件中 <code>state</code> 一样的作用。</p><pre><code class="lang-jsx">/* 类组件实现的计数器 */
+import React, { Components } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Components {
+  constructor() {
+    super();
+    this.state = { count: 0 };
+  }
+  handleClick = () =&gt; {
+    this.setState({ count: this.state.count + 1 })
+  }
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;p&gt;You clicked {this.state.count} times&lt;/p&gt;
+        &lt;button onClick={this.handleClick}&gt;
+          Click!
+        &lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, root);
+</code></pre><p>上面是一个类组件实现的计数器，当前计数器的值在类组件的 <code>state</code> 中进行管理。</p><pre><code class="lang-jsx">/* Hooks 实现的计数器 */
+import React, { useState } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+function Counter() {
+  const [ count, setCount ] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Click!
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;Counter /&gt;, root);
+</code></pre><p>使用 <code>React Hooks</code> 的 <code>useState</code> 实现的计数器和类组件实现的功能完全相同，从 <code>useState</code> 实现的代码可以看出 <code>useState</code> 是一个函数，传入的参数是状态的初始值，返回值是一个数组，数组的第一项是当前状态的值，数组的第二项是改变状态值的方法。</p><pre><code class="lang-jsx">/* 实现每次加 2 的计数器 */
+import React, { useState } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+function Counter() {
+  const [ count, setCount ] = useState(0);
+  const countAction = (preCount, n) =&gt; preCount + n;
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(countAction(count, 2))}&gt;
+        Click!
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;Counter /&gt;, root);
+</code></pre><p>上面计数器功能的实现逻辑比较简单，下面来看一个类组件实现的稍微复杂的案例，然后再通过 <code>useState</code> 进行重构。</p><pre><code class="lang-jsx">/* 类组件实现的模态切换功能 */
+import React, { Component, Fragment } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+import { Button, Modal } from &#39;antd&#39;;
+import &#39;antd/dist/antd.css&#39;;
+
+// Toggle 组件专门提供切换状态和切换方法
+class Toggle extends Component {
+  constructor(props) {
+    super(props);
+
+    // 初始化 on 的值
+    this.state.on = this.props.initial;
+  }
+  state = { on: false }
+  toggle = () =&gt; {
+    this.setState({ on: !this.state.on });
+  }
+  render() {
+    return this.props.children(this.state.on, this.toggle);
+  }
+}
+
+function App() {
+  return (
+    &lt;Toggle initial={false}&gt;
+      {
+        (on, toggle) =&gt; (
+          &lt;Fragment&gt;
+            &lt;Button type=&quot;primary&quot; onClick={toggle}&gt;
+              Open Model
+            &lt;/Button&gt;
+            &lt;Modal visible={on} onCancel={toggle} /&gt;
+          &lt;/Fragment&gt;
+        )
+      }
+    &lt;/Toggle&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面代码中的类组件 <code>Toggle</code> 主要的作用就是管理模态框显示的状态和对状态的控制，选择使用 <code>children</code> 并传入一个函数，目的是函数可以在类组件内部通过 <code>children</code> 属性调用，并将 <code>Toggle</code> 内部的状态和方法作为参数传入，进而将功能提供给函数组件，这种高级的用法叫做 “渲染回调”，可以成功的将组件进行解耦，但是这样的方式缺点也显而易见，就是代码的逻辑抽象，可读性差，下面来使用 <code>useState</code> 进行重构。</p><pre><code class="lang-jsx">/* useState 重构切换模态的功能 */
+import React, { useState, Fragment } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+import { Button, Modal } from &#39;antd&#39;;
+import &#39;antd/dist/antd.css&#39;;
+
+function App() {
+  const [ on, setOn ] = useState(false);
+
+  return (
+    &lt;Fragment&gt;
+      &lt;Button type=&quot;primary&quot; onClick={() =&gt; setOn(true)}&gt;
+        Open Model
+      &lt;/Button&gt;
+      &lt;Modal visible={on} onCancel={() =&gt; setOn(false)}/&gt;
+    &lt;/Fragment&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><blockquote class="pullquote success"><p><strong>因为 <code>React Hooks</code> 的 <code>useState</code> 让函数组件具备了管理组件状态的能力，所以不需要单独实现 <code>Toggle</code> 组件，代码变得更精简、清晰，更函数式编程，更新的粒度更细。</strong></p></blockquote><p><code>useState</code> 解构出的用来更改状态的函数传入的参数支持函数类型，传入函数的参数为上一次的状态值，也就是说当更新状态的新值依赖于上一次的值时，会通过这样的方式解决。</p><pre><code class="lang-jsx">/* 当 useState 更新的状态依赖于上一次的值 */
+import React, { useState } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+function Counter() {
+  const [ count, setCount ] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(prev =&gt; prev + 1)}&gt;
+        Click!
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;Counter /&gt;, root);
+</code></pre><h3 id="useEffect"><a href="#useEffect" class="headerlink" title="useEffect"></a>useEffect</h3><p>正如 <code>useEffect</code> 钩子的命名一样，是在函数组件中专门用来处理副作用的，这个副作用是指某些操作使用了函数组件作用域外的变量，而且这个操作的结果会影响函数组件外部的环境。</p><pre><code class="lang-jsx">import React, { useState, useEffect } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+function App() {
+  const [ count, setCount ] = useState(0);
+
+  // 每次渲染后执行
+  useEffect(() =&gt; {
+    document.title = `You clicked ${count} times`;
+  });
+
+  // 初次渲染后执行
+  useEffect(() =&gt; {
+    console.log(&#39;Execute once&#39;);
+  }, []);
+
+  // 当 count 更改时才执行
+  useEffect(() =&gt; {
+    console.log(&#39;count changed&#39;);
+  }, [ count ]);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Click!
+      &lt;/button&gt;
+      &lt;button onClick={() =&gt; setCount(count)}&gt;
+        Click no change!
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面案例是通过 <code>useState</code> 一节中的计数器案例改编，我们增加了每次点击计数器将计数器状态同步到页面标题上的功能，并使用 <code>useEffect</code> 实现，<code>useEffect</code> 函数的参数为回调函数，并在每次页面渲染之后执行（包含首次渲染和更新渲染）。</p><blockquote class="pullquote primary"><p><strong>可以使用 <code>useEffect</code> 替代类组件的生命周期 <code>componentDidMount</code>、<code>componentDidUpdate</code> 和 <code>componentWillUnmount</code>。</strong></p></blockquote><p><code>useEffect</code> 还支持传入第二个参数，类型为数组，数组的值为被监听的状态（被 <code>useState</code> 监听），此时 <code>useEffect</code> 内部会做一次比较，数组中变量的值没发生变化时，传入对应 <code>useEffect</code> 的回调不会执行，当传入 <code>useEffect</code> 的数组为空时，则传入的回调只在函数组件首次渲染时执行一次，作用相当于类组件的生命周期 <code>componentDidMount</code>。</p><pre><code class="lang-jsx">import React, { useState, useEffect, Component, Fragment } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 使用 Hooks 的函数组件
+function HooksCom() {
+  const [ count, setCount ] = useState(0);
+
+  useEffect(() =&gt; {
+    document.title = `You clicked ${count} times (hooks)`;
+  });
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Click!
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+// 类组件
+class ClassCom extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 1 };
+  }
+  componentDidMount() {
+    document.title = `You clicked ${this.state.count} times (class)`;
+  }
+  componentDidUpdate() {
+    document.title = `You clicked ${this.state.count} times (class)`;
+  }
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;p&gt;You clicked {this.state.count} times&lt;/p&gt;
+        &lt;button onClick={() =&gt; this.setState({
+          count: this.state.count + 1
+        })}&gt;
+          Click!
+        &lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+function App() {
+  return (
+    &lt;Fragment&gt;
+      &lt;HooksCom /&gt;
+      &lt;ClassCom /&gt;
+    &lt;/Fragment&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><blockquote class="pullquote info"><p><strong>通过上面案例，对于使用了 <code>componentDidMount</code> 生命周期的类组件和使用了 <code>useEffect</code> 的函数组件对于页面标题更改的对比，<code>useEffect</code> 的执行会晚于 <code>componentDidMount</code>。</strong></p></blockquote><pre><code class="lang-jsx">import React, { useState, useEffect, Fragment } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const ChatAPI = {
+  handle: null,
+  isOnline: false,
+  login() {
+    this.isOnline = true;
+    this.handle &amp;&amp; this.handle({ isOnline: true });
+  },
+  logout() {
+    this.isOnline = false;
+    this.handle &amp;&amp; this.handle({ isOnline: false });
+  },
+  subscribeToFriendStatus(id, handle) {
+    console.log(`订阅好友：${id}`);
+    this.handle = handle;
+  },
+  unsubscribeToFriendStatus(id, handle) {
+    console.log(`清理好友：${id}`);
+    this.handle = null;
+  }
+};
+
+// 用于渲染好友在线状态的函数组件
+function FriendStatus(props) {
+  // 控制好友在线的变量和方法
+  const [ isOnline, setIsOnline ] = useState(null);
+
+  // 设置好友状态的函数
+  const handleStatusChange = (status) =&gt; setIsOnline(status.isOnline);
+
+  useEffect(() =&gt; {
+    // 订阅好友状态
+    ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);
+
+    return () =&gt; {
+      // 清除好友状态
+      ChatAPI.unsubscribeToFriendStatus(props.friend.id);
+    }
+  }, [ props.friend.id ]);
+
+  if (isOnline === null) {
+    return &#39;Loading...&#39;
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;span&gt;计数器：{props.friend.count}&lt;/span&gt;
+      &lt;br/&gt;
+      &lt;span&gt;
+        登录状态：
+        {
+          isOnline ? &#39;Online&#39; : &#39;Offline&#39;
+        }
+      &lt;/span&gt;
+    &lt;/div&gt;
+  )
+}
+
+function App() {
+  const [ show, setShow ] = useState(true);
+  const [ count, setCount ] = useState(0);
+  const [ userId, setUserId ] = useState(1);
+
+  return (
+    &lt;div&gt;
+      &lt;span&gt;用户ID：{userId}&lt;/span&gt;
+      &lt;br/&gt;
+      {
+        show &amp;&amp; &lt;FriendStatus friend={{ id: userId, name: 'Hello' }}/&gt;
+      }
+      &lt;button onClick={() =&gt; setShow(!show)}&gt;显示/关闭&lt;/button&gt;
+      &lt;button onClick={() =&gt; setUserId(userId + 1)}&gt;增加用户ID&lt;/button&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;增加计数器&lt;/button&gt;
+      &lt;button onClick={ChatAPI.login.bind(ChatAPI)}&gt;登录&lt;/button&gt;
+      &lt;button onClick={ChatAPI.logout.bind(ChatAPI)}&gt;退出&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面是一个覆盖比较全的 <code>useEffect</code> 案例，用来实现组件 <code>FriendStatus</code> 内对用户的订阅和取消订阅，其中 <code>App</code> 组件中的 <code>show</code> 状态用来控制 <code>FriendStatus</code> 组件是否渲染，<code>显示/关闭</code> 按钮用来控制 <code>show</code> 的值，<code>FriendStatus</code> 默认登录状态显示 <code>Loading...</code>，<code>登录</code> 和 <code>退出</code> 按钮用来空登录状态的显示（<code>Online</code> 或 <code>Offline</code>），<code>增加用户ID</code> 和 <code>增加计数器</code> 按钮分别用来更改当前用户 <code>ID</code> 和计数器的值，计数器的 <code>count</code> 属性和 <code>setUserId</code> 通过 <code>Props</code> 的方式传递给 <code>FriendStatus</code>，我们将使用到的方法统一都放在 <code>ChatAPI</code> 对象上。</p><p>默认渲染 <code>FriendStatus</code> 在控制台发现 <code>useEffect</code> 执行了，并订阅了当前传入的用户，而点击 <code>显示/关闭</code> 按钮时发现取消订阅了用户，这说明组件卸载之前执行了 <code>useEffect</code> 回调内部返回的函数，点击增加计数器按钮，<code>FriendStatus</code> 组件发生了重新渲染，而 <code>useEffect</code> 内部并没有再次对用户进行订阅，原因是指定了 <code>useEffect</code> 的第二个参数，并将用户的 <code>ID</code> 作为元素存入数组内，也就是用户 <code>ID</code> 不发生变化的时候就不会重新执行这个 <code>useEffect</code> 去订阅用户，当点击 <code>增加用户ID</code> 按钮时，控制台首先取消订阅了上一个用户，又订阅了新的用户，这说明 <code>FriendStatus</code> 组件重新渲染时，如果需要执行 <code>useEffect</code>，则会优先执行回调内返回的取消订阅的函数。</p><blockquote class="pullquote default"><p><strong>如果在 <code>useEffect</code> 方法传入的回调中返回一个函数，这个函数会在组件卸载之前执行，或重新渲染需时要执行对应的 <code>useEffect</code> 时优先执行。</strong></p></blockquote><pre><code class="lang-jsx">/* 频繁更新未被监听的变量不变 */
+import React, { useState, useEffect } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+function Counter() {
+  const [ count, setCount ] = useState(0);
+
+  useEffect(() =&gt; {
+    const id = setInterval(() =&gt; setCount(count + 1), 1000);
+    return () =&gt; clearInterval(id);
+  }, []);
+
+  return &lt;h1&gt;{count}&lt;/h1&gt;;
+}
+
+ReactDOM.render(&lt;Counter /&gt;, root);
+</code></pre><p>上面的案例是一个状态频繁变化的组件，但是我们给 <code>useEffect</code> 传入的第二个参数为空数组，这就会产生一个 <code>Bug</code>，由于 <code>useEffect</code> 默认只执行一次，并没有执行清除定时器的返回函数，所以导致取到的依然是初始的状态值，还记得上面一节 <code>useState</code> 中提到使用上一次的状态去更新状态，这里我们可以通过这种方式修复这个 <code>Bug</code>。</p><pre><code class="lang-jsx">/* 解决频繁更新未被监听变量不变的问题 */
+import React, { useState, useEffect } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+function Counter() {
+  const [ count, setCount ] = useState(0);
+
+  useEffect(() =&gt; {
+    const id = setInterval(() =&gt; setCount(prev =&gt; prev + 1), 1000);
+    return () =&gt; clearInterval(id);
+  }, []);
+
+  return &lt;h1&gt;{count}&lt;/h1&gt;;
+}
+
+ReactDOM.render(&lt;Counter /&gt;, root);
+</code></pre><blockquote class="pullquote warning"><p><strong>所以说在有些时候，对于 <code>useEffect</code> 第二个参数传入 <code>[ ]</code> 的行为不是绝对安全的，并且不建议这样使用。</strong></p></blockquote><h3 id="useReducer"><a href="#useReducer" class="headerlink" title="useReducer"></a>useReducer</h3><p><code>useReducer</code> 是 <code>useState</code> 的替代方案，用来处理复杂的 <code>state</code> 更新，看到这个名字大家可能会想到 <code>Redux</code> 中的 <code>reducer</code>，其实 <code>useReducer</code> 就是 <code>React Hooks</code> 中用来替代 <code>Redux</code> 解决问题的，让我们从此不需要 <code>Redux</code>。</p><pre><code class="lang-jsx">import React, { useReducer, Fragment } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 初始 state
+const initalCountState = { count: 0 };
+
+// reducer 函数
+function reducer(state, action) {
+  switch (action.type) {
+    case &#39;reset&#39;:
+      return { count: action.payload };
+    case &#39;increment&#39;:
+      return { count: state.count + 1 };
+    case &#39;decrement&#39;:
+      return { count: state.count - 1 };
+    default:
+      return state;
+  }
+}
+
+// 默认初始 state 函数
+function init(initalCountState) {
+  return { count: initalCountState.count + 1 };
+}
+
+function Counter({ initalCount }) {
+  const [ state, dispatch ] = useReducer(reducer, initalCountState, init);
+
+  return (
+    &lt;Fragment&gt;
+      count: { state.count }
+      &lt;button onClick={() =&gt; dispatch({
+        type: &#39;reset&#39;,
+        payload: initalCount
+      })}&gt;
+        Reset
+      &lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: &#39;increment&#39; })}&gt;+&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: &#39;decrement&#39; })}&gt;-&lt;/button&gt;
+    &lt;/Fragment&gt;
+  )
+}
+
+function App() {
+  return &lt;Counter initalCount={0} /&gt;
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><blockquote class="pullquote primary"><p><strong><code>useReducer</code> 有三个参数：</strong></p><ul><li><strong>第一个参数为 <code>reducer</code> 函数（根据 <code>action</code> 的类型匹配新的 <code>state</code> 值）；</strong></li><li><strong>第二个参数为监听状态对象 <code>state</code> 的初始值；</strong></li><li><strong>第三个参数是一个函数，参数为初始的 <code>state</code>，作用是输出一个新的 <code>state</code> 替换初始的 <code>state</code>，只在最初执行一次。</strong></li></ul><p><strong><code>useReducer</code> 的返回值为数组：</strong></p><ul><li><strong>数组第一项是监听的 <code>state</code> 对象；</strong></li><li><strong>数组第二项是用来触发 <code>state</code> 更新的函数，参数为 <code>action</code>。</strong></li></ul></blockquote><pre><code class="lang-jsx">/* useReducer 不传第三个参数 */
+import React, { useReducer, Fragment } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+function reducer(state, action) {
+  switch (action.type) {
+    case &#39;reset&#39;:
+      return { count: action.payload };
+    case &#39;increment&#39;:
+      return { count: state.count + 1 };
+    case &#39;decrement&#39;:
+      return { count: state.count - 1 };
+    default:
+      return state;
+  }
+}
+
+function Counter({ initalCount }) {
+  const [ state, dispatch ] = useReducer(reducer, initalCount);
+
+  return (
+    &lt;Fragment&gt;
+      count: { state.count }
+      &lt;button onClick={() =&gt; dispatch({
+        type: &#39;reset&#39;,
+        payload: initalCount.count
+      })}&gt;
+        Reset
+      &lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: &#39;increment&#39; })}&gt;+&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: &#39;decrement&#39; })}&gt;-&lt;/button&gt;
+    &lt;/Fragment&gt;
+  )
+}
+
+function App() {
+  return &lt;Counter initalCount={{ count: 0 }} /&gt;
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>这个案例跟之前的稍有差别，去掉了 <code>useReducer</code> 的第三个参数，并将 <code>Counter</code> 组件的入参 <code>initalCount</code> 作为了初始 <code>state</code>。</p><blockquote class="pullquote success"><p><strong>使用 <code>React</code> 进行过项目开发应该都是用过 <code>Redux</code> 和 <code>Mobx</code> 之类的状态管理工具，但其实他们并不是专门针对 <code>React</code> 所设计的，里面都蕴含了一些关于状态管理的编程思想和自己独立的逻辑，也可以在其他框架技术栈中使用，只是和 <code>React</code> 搭配使用时更舒适，而 <code>React hooks</code> 中提供了官方自身的状态管理解决方案，避免依赖第三方库，所以 <code>Facebook</code> 挖来了 <code>Redux</code> 的作者开发了 <code>React hooks</code> 中状态管理相关的 <code>API</code>。</strong></p></blockquote><h3 id="useContext"><a href="#useContext" class="headerlink" title="useContext"></a>useContext</h3><p>想了解 <code>useContext</code> 首先要了解 <code>context API</code>，即 <code>React.createContext</code> 方法，执行后返回一个对象，其中包含两个属性分别为 <code>Provider</code> 和 <code>Consumer</code>，都为组件，<code>Provider</code> 用于包裹提供状态的容器组件，<code>Consumer</code> 用于包裹消费这个状态的组件，更详细的用法不在这里过多赘述，可以查看 <a href="https://react.docschina.org/docs/context.html" target="_blank">React 官方文档</a>。</p><pre><code class="lang-jsx">import React, { useState, useContext } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const myContext = React.createContext();
+
+// 子组件
+function Com() {
+  const { count, setCount } = useContext(myContext);
+
+  return (
+    &lt;div&gt;
+      子组件：{count}
+      &lt;br /&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;count + 1&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+// 父组件
+function App() {
+  const [ count, setCount ] = useState(0);
+
+  return (
+    &lt;myContext.Provider value={{ count, setCount }}&gt;
+      父组件：{count}
+      &lt;br /&gt;
+      &lt;Com /&gt;
+    &lt;/myContext.Provider&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面是 <code>useContext</code> 的一个简单用法，我们创建了 <code>context</code>，在父组件 <code>App</code> 中创建了 <code>count</code> 和更改 <code>count</code> 的函数 <code>setCount</code>，并将它们通过 <code>context</code> 的 <code>Provider</code> 组件提供给子组件 <code>Com</code>，子组件中调用 <code>useContext</code> 并传入这个创建的 <code>context</code> 对象，返回了父组件所提供的状态数据，并在子组件中点击的方式来更改，此时父、子组件中渲染的 <code>count</code> 都发生了变化。</p><p>上面说 <code>React hooks</code> 中提供了自己的状态管理解决方案，也就是说可以替代 <code>Redux</code> 的工作，实现整个项目的状态管理以及相关状态逻辑的复用，下面就使用 <code>useContext</code> 和 <code>useReducer</code> 来实现一个简单的状态管理逻辑。</p><pre><code class="lang-jsx">/* reducer.js */
+import React, { useReducer } from &#39;react&#39;;
+
+// 初始状态（默认值）
+const initalState = { count: 0 };
+
+// 导出共用的上下文
+export const myContext = React.createContext();
+
+// 导出 reducer 函数
+export function reducer(state, action) {
+  switch (action.type) {
+    case &#39;reset&#39;:
+      return initalState;
+    case &#39;increment&#39;:
+      return { count: state.count + 1 };
+    case &#39;decrement&#39;:
+      return { count: state.count - 1 };
+    default:
+      return state;
+  }
+}
+
+// 导出提供状态的函数组件
+export const ContextProvider = props =&gt; {
+  const [ state, dispatch ] = useReducer(reducer, initalState);
+
+  return (
+    &lt;myContext.Provider value={{ state, dispatch }}&gt;
+      {props.children}
+    &lt;/myContext.Provider&gt;
+  )
+}
+</code></pre><p>上面的 <code>reducer.js</code> 文件用来提供整个状态管理的核心逻辑，创建了初始的 <code>state</code>，创建了共用的上下文对象，创建了 <code>reducer</code> 函数（通过 <code>action</code> 来匹配并返回新的 <code>state</code>），创建了用来提供 <code>state</code> 和 <code>dispatch</code> 的公共组件 <code>ContextProvider</code>，该组件内部通过创建上下文的 <code>Provider</code> 组件给该组件中间包裹的所有子组件 <code>children</code> 通过 <code>value</code> 提供 <code>state</code> 和 <code>dispatch</code>（通过 <code>useReducer</code> 创建）。</p><pre><code class="lang-jsx">/* App.js */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+import { ContextProvider } from &#39;./reducer&#39;;
+import Counter from &#39;./Counter&#39;;
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;ContextProvider&gt;
+        &lt;Counter /&gt;
+      &lt;/ContextProvider&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p><code>App</code> 组件，是提供状态的容器（一般使用根组件），根据 <code>reducer.js</code> 的用法，只需要引入 <code>ContextProvider</code> 组件包裹需要使用状态的子组件，与 <code>react-redux</code> 的 <code>Provider</code> 组件提供 <code>store</code> 的模式相似，这样被 <code>ContextProvider</code> 组件包裹的子组件就可以使用 <code>reducer.js</code> 中所 <code>useReducer</code> 所提供的 <code>state</code> 和 <code>dispatch</code>，<code>Counter</code> 子组件代码如下。</p><pre><code class="lang-jsx">import React, { useContext } from &#39;react&#39;;
+import { myContext } from &#39;./reducer&#39;;
+
+function Counter() {
+  const { state, dispatch } = useContext(myContext);
+
+  return (
+    &lt;div&gt;
+      Counter count: {state.count}
+      &lt;button onClick={() =&gt; dispatch({ type: &#39;reset&#39; })}&gt;Reset&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: &#39;increment&#39; })}&gt;+&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: &#39;decrement&#39; })}&gt;-&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+export default Counter;
+</code></pre><p>在使用 <code>reducer.js</code> 中实现的状态管理逻辑的组件中，只需要引入 <code>reducer.js</code> 提供的 <code>context</code>，并使用 <code>useContext</code> 就可以解构出 <code>state</code> 和 <code>dispatch</code>，并通过 <code>action</code> 实现三种不同的对状态的 <code>state</code> 的操作。</p><h3 id="useCallback"><a href="#useCallback" class="headerlink" title="useCallback"></a>useCallback</h3><p><code>useCallback</code> 是 <code>React</code> 针对函数组件的优化考虑所设计的 <code>Hook API</code>，在函数被渲染时，<code>React</code> 底层是通过调用的方式去创建的，如果函数组件作用域中创建了实现某些功能的函数，则底层每次调用函数组件时，这些函数都会被重新创建，也就是指向新的引用，有了 <code>React Hooks</code> 以后，函数组件中需要的函数可以通过 <code>useCallback</code> 创建。</p><pre><code class="lang-jsx">import React, { useCallback, Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 用来存储 useCallback 返回的函数
+let fn = null;
+
+// 使用 useCallback 的函数组件
+function TestUseCallback({ nums, name }) {
+  const memoizedCallback = useCallback(() =&gt; {
+    console.log(nums, &#39;Hello world!&#39;);
+  }, [ nums ]);
+
+  console.log(&#39;callback 是否相同：&#39;, Object.is(fn, memoizedCallback));
+  console.log(&#39;nums &gt; &#39;, nums, &#39;name &gt; &#39;, name);
+  fn = memoizedCallback;
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={memoizedCallback}&gt;TestUseCallback&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+// 用来触发重新 render 的类组件
+class App extends Component {
+  state = {
+    nums: [1, 2, 3],
+    count: 0,
+    name: &#39;hello&#39;
+  };
+
+  componentDidMount() {
+    setInterval(() =&gt; {
+      this.setState((state) =&gt; ({ count: state.count + 1 }));
+    }, 3000);
+  }
+
+  handleChangeNum = () =&gt; this.setState({ nums: [4, 5, 6], name: &#39;world&#39; });
+
+  render() {
+    const { nums, name } = this.state;
+
+    return (
+      &lt;div className=&quot;App&quot;&gt;
+        &lt;h2&gt;Start editing to see some magic happen!&lt;/h2&gt;
+        &lt;button onClick={this.handleChangeNum}&gt;修改传入的 nums 值&lt;/button&gt;
+        &lt;TestUseCallback nums={nums} name={name} /&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>在上面的案例中渲染的组件 <code>App</code> 是一个类组件，该组件在挂载后会创建一个定时器，每 <code>3s</code> 更新 <code>state</code> 的 <code>count</code> 值，来完成重渲染，内部的 <code>TestUseCallback</code> 组件也会跟着重渲染，在内部检测 <code>useCallback</code> 创建的函数是否每次都会创建新的，同时打印父组件传递的参数，在通过父组件的点击事件更改的依赖的时候，观察 <code>useCallback</code> 是否会新创建返回的值。</p><blockquote class="pullquote info"><p><strong>执行 <code>useCallback</code> 方法传入的的参数为回调函数和依赖列表（数组），返回值为传入的函数，<code>React</code> 已经将传入的函数注入，只要依赖列表中的依赖没有发生变化，就不会创建新的函数返回，这样就大大减小了每次都在内存中创建新的引用来存储新函数的开销，也同时减少了 <code>GC</code> 的压力。</strong></p></blockquote><pre><code class="lang-jsx">/* 组件中不同方式事件处理函数的区别 */
+class Com1 extends Component {
+  handleClick() {
+    console.log(&#39;click happened&#39;);
+  }
+  render() {
+    return &lt;button onClick={() =&gt; this.handleClick()}&gt;Click me&lt;/button&gt;
+  }
+}
+
+class Com2 extends Component {
+  constructor(props) {
+    super(props);
+    this.handleClick = this.handleClick.bind(this);
+  }
+  handleClick() {
+    console.log(&#39;click happened&#39;);
+  }
+  render() {
+    return &lt;button onClick={this.handleClick}&gt;Click me&lt;/button&gt;
+  }
+}
+
+function Com3() {
+  const handleClick = () =&gt; {
+    console.log(&#39;click happened&#39;);
+  }
+  return &lt;button onClick={handleClick}&gt;Click me&lt;/button&gt;
+}
+
+function Com4() {
+  const memoizedHandleClick = useCallback(() =&gt; {
+    console.log(&#39;click happened&#39;);
+  }, []);
+
+  return &lt;button onClick={memoizedHandleClick}&gt;Click me&lt;/button&gt;
+}
+</code></pre><blockquote class="pullquote warning"><ul><li><strong><code>Com1</code>：类组件，直接使用箭头函数，每次重新渲染都产生新的函数；</strong></li><li><strong><code>Com2</code>：类组件，在 <code>constructor</code> 中使用 <code>bind</code> 绑定 <code>this</code>，每次重新渲染都使用同一个函数；</strong></li><li><strong><code>Com3</code>：函数组件，直接创建函数，每次重新渲染都产生新的函数；</strong></li><li><strong><code>Com4</code>：函数组件，使用 <code>useCallback</code> 创建函数，每次重新渲染都使用同一个函数；</strong></li></ul></blockquote><pre><code class="lang-jsx">import React, { useState, useCallback } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const Child = React.memo(({ a, memo }) =&gt; {
+  return (
+    &lt;div&gt;
+      {console.log(&#39;Child 渲染&#39;)}
+      &lt;span&gt;a: {a}&lt;/span&gt;
+      &lt;button onClick={memo}&gt;Click in child&lt;/button&gt;
+    &lt;/div&gt;
+  )
+});
+
+const App = props =&gt; {
+  const [ a, setA ] = useState(0);
+  const [ b, setB ] = useState(0);
+
+  // 直接创建的函数
+  // const handleClick = () =&gt; console.log(&#39;click&#39;);
+
+  // 使用 useCallback 创建的函数
+  const handleClick = useCallback(() =&gt; console.log(&#39;click&#39;), []);
+
+  return (
+    &lt;div&gt;
+      {console.log(&#39;App 渲染&#39;)}
+      &lt;Child a={a} memo={handleClick} /&gt;
+      &lt;button onClick={() =&gt; setA(a + 1)}&gt;改变 a&lt;/button&gt;
+      &lt;button onClick={() =&gt; setB(b + 1)}&gt;改变 b&lt;/button&gt;
+      &lt;button onClick={handleClick}&gt;Click&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面案例中使用了 <code>React.memo</code> 的函数组件优化方法来进一步验证了 <code>useCallback</code> 的作用，方法 <code>React.memo</code> 的参数为一个函数组件，会返回一个高阶组件，作用是当传入的函数组件内部的 <code>props</code> 不发生变化时，则不会重新渲染。</p><p>父组件 <code>App</code> 中使用 <code>useCallback</code> 创建的函数和使用 <code>useState</code> 创建的状态 <code>a</code> 作为参数传递给子组件 <code>Child</code>，并通过点击事件改变 <code>a</code> 和 <code>b</code> 的状态，初次渲染时控制台打印 <code>App 渲染</code> 和 <code>Child 渲染</code>，当点击 <code>改变 a</code> 时，父、子组件同时渲染，是因为子组件 <code>props</code> 中的 <code>a</code> 发生变化，当点击 <code>改变 b</code> 时，父组件重新渲染，但是子组件并没有，说明 <code>useCallback</code> 并没有产生新的函数传递给子组件，当使用 <code>App</code> 组件注释中直接创建的函数时，则点击 <code>改变 b</code>，子组件也会重新渲染，是因为父组件重渲染创建了新的函数，导致子组件的参数发生变化。</p><pre><code class="lang-jsx">import React, { useState, useCallback } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 存储两个组件的函数
+let fun1 = null;
+let fun2 = null;
+
+// 使用 React.memo 改写的一个渲染耗时的组件（假设很耗时）
+const ExpensiveCom = React.memo(({ onClick }) =&gt; {
+  const date = new Date();
+  return (
+    &lt;h1 onClick={onClick}&gt;
+      {console.log(&#39;昂贵组件渲染了！&#39;)}
+      {date.getSeconds()}
+      我是一个昂贵的组件！渲染耗时！
+    &lt;/h1&gt;
+  )
+});
+
+function Com1({ p1 }) {
+  const fn = () =&gt; console.log(&#39;fn&#39;, p1);
+  console.log(&#39;Com1&#39;, Object.is(fun1, fn));
+  fun1 = fn;
+  return (
+    &lt;ExpensiveCom onClick={fn} /&gt;
+  )
+}
+
+function Com2({ p2 }) {
+  const fn = useCallback(() =&gt; console.log(&#39;fn&#39;, p2), [ p2 ]);
+  console.log(&#39;Com2&#39;, Object.is(fun2, fn));
+  fun2 = fn;
+  return (
+    &lt;ExpensiveCom onClick={fn} /&gt;
+  )
+}
+
+function App() {
+  const [ p1, setP1 ] = useState(0);
+  const [ p2, setP2 ] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;每次点击 fn 都是新的&lt;/h2&gt;
+      &lt;Com1 p1={p1} /&gt;
+      &lt;button onClick={() =&gt; setP1({ p1: p1 + 1 })}&gt;p1 + 1&lt;/button&gt;
+      &lt;br/&gt;
+      &lt;h2&gt;不用重复生成 fn&lt;/h2&gt;
+      &lt;Com2 p2={p2} /&gt;
+      &lt;button onClick={() =&gt; setP2({ p2: p2 + 1 })}&gt;p2 + 1&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面例子中假设 <code>ExpensiveCom</code> 是一个渲染非常耗时的 “昂贵” 组件，并在两个不同的容器组件 <code>Com1</code> 和 <code>Com2</code> 中对比，<code>ExpensiveCom</code> 参数是在父组件 <code>Com1</code> 和 <code>Com2</code> 中创建的函数，前者直接创建，后者使用 <code>useCallback</code> 创建，在 <code>App</code> 组件中渲染 <code>Com1</code> 和 <code>Com2</code>，分别传入状态 <code>p1</code> 和 <code>p2</code>，并在 <code>Com1</code> 和 <code>Com2</code> 内部的函数中进行打印，而创建的函数作为 “昂贵” 组件的参数，并作为内部点击的执行函数。</p><p>当在页面点击 <code>p1 + 1</code> 或 <code>p2 + 1</code> 时，都会导致 <code>App</code> 的状态变化，也就是 <code>App</code> 的重渲染，而作为 <code>App</code> 的子组件, <code>Com1</code> 和 <code>Com2</code>，也会跟着重新渲染，点击 <code>p1 + 1</code>，从控制台打印结果看，只有 <code>Com1</code> 内部的 “昂贵” 组件重新渲染，而 <code>Com2</code> 中并没有，是因为 <code>useCallback</code> 中依赖的 <code>p2</code> 没有改变，没有生成新的函数，当点击 <code>p2 + 1</code> 时，<code>Com2</code> 内部的 “昂贵” 组件重新渲染，同时 <code>Com1</code> 内部的 “昂贵” 组件也重新渲染，由此可以看出 <code>Com2</code> 的性能是要优于 <code>Com1</code> 的。</p><blockquote class="pullquote default"><p><strong>在大型的项目中，可能在内层组件中存在非常耗时耗性能的 “昂贵” 组件，如果因为在外层组件中一个函数的更新导致的所有组件重新渲染，显然性能代价是非常大的，所以合理的使用 <code>useCallback</code> 对函数组件进行优化是非常有必要的。</strong></p></blockquote><h3 id="useMemo"><a href="#useMemo" class="headerlink" title="useMemo"></a>useMemo</h3><p><code>useMemo</code> 是一种优化手段，接收两个参数，第一个参数是一个函数，第二个参数是依赖列表，返回值是第一个参数传入函数执行后的返回结果，在函数组件渲染时，其中的 <code>useMemo</code> 只有在依赖列表中的依赖发生变化，才会重新计算函数的结果。</p><pre><code class="lang-jsx">import React, { useState, useMemo } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 存储 useMemo 的返回结果
+let ch = null;
+
+// 用于观察是否重渲染的组件
+const Com = ({ val }) =&gt; {
+  console.log(&#39;Com 重新渲染了&#39;);
+  return &lt;h2&gt;{val}&lt;/h2&gt;
+}
+
+// 父组件
+function Parent({ a, b }) {
+  const child1 = useMemo(() =&gt; (
+    &lt;div&gt;
+      {console.log(&#39;child1 重新计算&#39;)}
+      &lt;Com val={b} /&gt;
+    &lt;/div&gt;
+  ), [ a ]);
+
+  console.log(&#39;child1 是否和之前相等&#39;, child1 === ch);
+  ch = child1;
+
+  const child2 = (
+    &lt;div&gt;
+      {console.log(&#39;child2 重新计算&#39;)}
+      &lt;Com val={b} /&gt;
+    &lt;/div&gt;
+  )
+
+  return (
+    &lt;div&gt;
+      {child1}
+      {child2}
+    &lt;/div&gt;
+  )
+}
+
+// 提供状态的容器组件
+const App = props =&gt; {
+  const [ a, setA ] = useState(0);
+  const [ b, setB ] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;Parent a={a} b={b} /&gt;
+      &lt;button onClick={() =&gt; setA(a + 1)}&gt;改变 a&lt;/button&gt;
+      &lt;button onClick={() =&gt; setB(b + 1)}&gt;改变 b&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面例子中 <code>App</code> 组件提供状态 <code>a</code> 和 <code>b</code> 作为参数提供给 <code>Parent</code> 组件，<code>App</code> 中可以通过 <code>改变 a</code> 和 <code>改变 b</code> 按钮更新状态 <code>a</code> 和 <code>b</code>，当 <code>a</code> 和 <code>b</code> 发生变化时导致 <code>Parent</code> 组件重新渲染，内部的 <code>child1</code> 和 <code>child2</code> 分别是通过 <code>useMemo</code> 和直接创建的组件，其中分别渲染 <code>Com</code> 组件，默认情况下 <code>child1</code> 和 <code>child2</code> 都会渲染，点击 <code>改变 a</code>，<code>child1</code> 和 <code>child2</code> 重新渲染，因为 <code>child1</code> 的依赖 <code>a</code> 发生变化，点击 <code>改变 b</code>，发现只有 <code>child2</code> 重新渲染，而再此点击 <code>改变 a</code>，由于都重新渲染导致 <code>child1</code> 和 <code>child2</code> 渲染的值同步了。</p><blockquote class="pullquote primary"><p><strong><code>useMemo</code> 不仅仅可以优化耗时的复杂计算程序，同时可以优化渲染耗时且页面不要求更新的复杂组件，但有一点需要注意，就是不要在传入 <code>useMemo</code> 的函数中执行与渲染无关的操作，如副作用，这类的操作属于 <code>useEffect</code> 的范畴，而不是 <code>useMemo</code>。</strong></p></blockquote><h3 id="useRef"><a href="#useRef" class="headerlink" title="useRef"></a>useRef</h3><p>在 <code>React</code> 组件中有一个区分方式，受控组件和非受控组件，大多场景应用于表单元素，受控组件就是通过 <code>onChange</code> 事件和 <code>state</code> 实现双向绑定，这里不过多赘述，非受控组件是通过元素的 <code>ref</code> 属性获取 <code>Dom</code> 的引用，进而对表单进行操作，在 <code>React 16.3</code> 以后推荐使用 <code>React.createRef</code> 方法创建。</p><p>类组件中使用 <code>ref</code> 通常是将引用关联到类组件的实例属性上，方便操作，而 <code>useRef</code> 就是为了在函数组件中实现这个功能而存在的。</p><pre><code class="lang-jsx">import React, { useState, useRef, Fragment } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+function TextInputWithFocusButton() {
+  const inputEl = useRef();
+  const onButtonClick = () =&gt; {
+    inputEl.current.focus();
+  }
+
+  return (
+    &lt;Fragment&gt;
+      &lt;input ref={inputEl} type=&quot;text&quot; /&gt;
+      &lt;button onClick={onButtonClick}&gt;获取焦点&lt;/button&gt;
+    &lt;/Fragment&gt;
+  )
+}
+
+const App = props =&gt; {
+  const [ count, setCount ] = useState(0);
+
+  return (
+    &lt;div&gt;
+      {count}
+      &lt;TextInputWithFocusButton /&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;count + 1&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><blockquote class="pullquote success"><p><strong>在函数组件中同样可以 <code>React.createRef</code> 来实现，但是函数组件的每一次重新渲染都会导致 <code>ref</code> 对象的重新创建，浪费内存和性能，<code>useRef</code> 的参数为创建 <code>ref</code> 对象 <code>current</code> 属性的初始值，<code>ref</code> 对象创建后会作为函数组件的实例属性，除非组件卸载，否则不会重新创建。</strong></p></blockquote><h3 id="useImperativeHandle"><a href="#useImperativeHandle" class="headerlink" title="useImperativeHandle"></a>useImperativeHandle</h3><p>在介绍 <code>useImperativeHandle</code> 之前一定要清楚 <code>React</code> 关于 <code>ref</code> 转发（也叫透传）的知识点，是使用 <code>React.forwardRef</code> 方法实现的，该方法返回一个组件，参数为函数（<code>Prop callback</code>，并不是函数组件），函数的第一个参数为父组件传递的 <code>props</code>，第二给参数为父组件传递的 <code>ref</code>，其目的就是希望可以在封装组件时，外层组件可以通过 <code>ref</code> 直接控制内层组件或元素的行为。</p><pre><code class="lang-jsx">/* 一个关于 ref 转发的例子 */
+import React, { useCallback, useRef } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 实现 ref 的转发
+const FancyButton = React.forwardRef((props, ref) =&gt; (
+  &lt;div&gt;
+    &lt;input ref={ref} type=&quot;text&quot; /&gt;
+    &lt;button&gt;{props.children}&lt;/button&gt;
+  &lt;/div&gt;
+));
+
+// 父组件中使用子组件的 ref
+function App() {
+  const ref = useRef();
+  const handleClick = useCallback(() =&gt; ref.current.focus(), [ ref ]);
+
+  return (
+    &lt;div&gt;
+      &lt;FancyButton ref={ref}&gt;Click Me&lt;/FancyButton&gt;
+      &lt;button onClick={handleClick}&gt;获取焦点&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面例子中创建了一个 <code>FancyButton</code> 组件，内部渲染了一个 <code>button</code> 元素，我们希望在父元素 <code>App</code> 中渲染 <code>FancyButton</code>，并通过传递给 <code>FancyButton</code> 的 <code>ref</code> 直接操作内部的 <code>button</code>。</p><pre><code class="lang-jsx">/* 一个官方的 useImperativeHandle 例子 */
+import React, { useRef, useImperativeHandle } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const FancyInput = React.forwardRef((props, ref) =&gt; {
+  const inputRef = useRef();
+  useImperativeHandle(ref, () =&gt; ({
+    focus: () =&gt; {
+      inputRef.current.focus();
+    }
+  }));
+
+  return &lt;input ref={inputRef} type=&quot;text&quot; /&gt;
+});
+
+const App = (props) =&gt; {
+  const fancyInputRef = useRef();
+
+  return (
+    &lt;div&gt;
+      &lt;FancyInput ref={fancyInputRef} /&gt;
+      &lt;button onClick={() =&gt; fancyInputRef.current.focus()}&gt;
+        父组件调用子组件的 focus
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面这个例子中与直接转发 <code>ref</code> 不同，直接转发 <code>ref</code> 是将 <code>React.forwardRef</code> 中函数上的 <code>ref</code> 参数直接应用在了返回元素的 <code>ref</code> 属性上，其实父、子组件引用的是同一个 <code>ref</code> 的 <code>current</code> 对象，官方不建议使用这样的 <code>ref</code> 透传，而使用 <code>useImperativeHandle</code> 后，可以让父、子组件分别有自己的 <code>ref</code>，通过 <code>React.forwardRef</code> 将父组件的 <code>ref</code> 透传过来，通过 <code>useImperativeHandle</code> 方法来自定义开放给父组件的 <code>current</code>。</p><p><code>useImperativeHandle</code> 的第一个参数是定义 <code>current</code> 对象的 <code>ref</code>，第二个参数是一个函数，返回值是一个对象，即这个 <code>ref</code> 的 <code>current</code> 对象，这样可以像上面的案例一样，通过自定义父组件的 <code>ref</code> 来使用子组件 <code>ref</code> 的某些方法，进而将子组件的 <code>ref</code> 保护起来，符合开放封闭原则。</p><blockquote class="pullquote warning"><p><strong><code>useImperativeHandle</code> 和 <code>React.forwardRef</code> 是需要配合使用的，这也是为什么在开头要介绍 <code>ref</code> 的转发。</strong></p></blockquote><pre><code class="lang-jsx">import React, { useState, useRef, useImperativeHandle, useCallback } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const FancyInput = React.forwardRef((props, ref) =&gt; {
+  const [ fresh, setFresh ] = useState(false)
+  const attRef = useRef(0);
+  useImperativeHandle(ref, () =&gt; ({
+    attRef,
+    fresh
+  }), [ fresh ]);
+
+  const handleClick = useCallback(() =&gt; {
+    attRef.current++;
+  }, []);
+
+  return (
+    &lt;div&gt;
+      {attRef.current}
+      &lt;button onClick={handleClick}&gt;Fancy&lt;/button&gt;
+      &lt;button onClick={() =&gt; setFresh(!fresh)}&gt;刷新&lt;/button&gt;
+    &lt;/div&gt;
+  )
+});
+
+const App = props =&gt; {
+  const fancyInputRef = useRef();
+
+  return (
+    &lt;div&gt;
+      &lt;FancyInput ref={fancyInputRef} /&gt;
+      &lt;button onClick={() =&gt; console.log(fancyInputRef.current)}&gt;
+        父组件访问子组件的实例属性
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面的案例相对于官方的例子意图更明显一些，通过 <code>useImperativeHandle</code> 将子组件的实例属性输出到父组件，而子组件内部通过 <code>ref</code> 更改 <code>current</code> 对象后，组件不会重新渲染，需要改变 <code>useState</code> 设置的状态才能更改。</p><blockquote class="pullquote info"><p><strong><code>useImperativeHandle</code> 方法还支持传入第三个参数，即依赖列表，当监听的依赖发生变化时，<code>useImperativeHandle</code> 才会重新将子组件的实例属性输出到父组件 <code>ref</code> 的 <code>current</code> 属性上，如果为空数组，则不会重新输出。</strong></p></blockquote><h3 id="useLayoutEffect"><a href="#useLayoutEffect" class="headerlink" title="useLayoutEffect"></a>useLayoutEffect</h3><p><code>useLayoutEffect</code> 的使用方法和 <code>useEffect</code> 相同，唯一的区别就是执行时机不一样。</p><pre><code class="lang-jsx">/* 对比 useLayoutEffect 与 useEffect 的执行时机 */
+import React, { useState, useEffect, useLayoutEffect } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+function Com() {
+  useEffect(() =&gt; {
+    console.log(&#39;useEffect 执行...&#39;);
+    return () =&gt; {
+      console.log(&#39;useEffect 销毁...&#39;);
+    }
+  });
+
+  useLayoutEffect(() =&gt; {
+    console.log(&#39;useLayoutEffect 执行...&#39;);
+    return () =&gt; {
+      console.log(&#39;useLayoutEffect 销毁...&#39;);
+    }
+  });
+
+  return (
+    &lt;div&gt;
+      {console.log(&#39;Com 渲染&#39;)}
+      &lt;h2&gt;Com1&lt;/h2&gt;
+    &lt;/div&gt;
+  )
+}
+
+const App = props =&gt; {
+  const [ count, setCount ] = useState(0)
+  return (
+    &lt;div&gt;
+      &lt;Com /&gt;
+      {count}
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;count + 1&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面的例子中在 <code>Com</code> 组件中同时使用了 <code>useLayoutEffect</code> 和 <code>useEffect</code>，在页面初次渲染时可以看到控制台打印顺序为 <code>Com 渲染</code> → <code>useLayoutEffect 执行...</code> → <code>useEffect 执行...</code>。</p><p>当点击 <code>App</code> 组件按钮更新状态导致 <code>Com</code> 重新渲染，打印顺序为 <code>Com 渲染</code> → <code>useLayoutEffect 销毁...</code> → <code>useLayoutEffect 执行...</code> → <code>useEffect 销毁...</code> → <code>useEffect 执行...</code>。</p><p>在刚接触 <code>React Hooks</code> 时，说到执行时机我们一般会和类组件的生命周期去类比，下面是一个 <code>useLayoutEffect</code>、<code>useEffect</code> 与类组件生命周期配合使用的例子。</p><pre><code class="lang-jsx">/* 对比 useLayoutEffect、useEffect 与类组件生命周期的执行时机 */
+import React, { useEffect, useLayoutEffect, Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 使用 useLayoutEffect 和 useEffect 的函数组件
+function Com() {
+  useEffect(() =&gt; {
+    console.log(&#39;useEffect 执行...&#39;);
+    return () =&gt; {
+      console.log(&#39;useEffect 销毁...&#39;);
+    }
+  });
+
+  useLayoutEffect(() =&gt; {
+    console.log(&#39;useLayoutEffect 执行...&#39;);
+    return () =&gt; {
+      console.log(&#39;useLayoutEffect 销毁...&#39;);
+    }
+  });
+
+  return (
+    &lt;div&gt;
+      {console.log(&#39;Com 渲染&#39;)}
+      &lt;h2&gt;Com1&lt;/h2&gt;
+    &lt;/div&gt;
+  )
+}
+
+// 使用生命周期的类组件
+class App extends Component {
+  state = { count: 0 }
+
+  setCount = () =&gt; {
+    this.setState({ count: this.state.count + 1 });
+  }
+
+  componentDidMount() {
+    console.log(&#39;App componentDidMount&#39;);
+  }
+
+  componentDidUpdate() {
+    console.log(&#39;App componentDidUpdate&#39;);
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        {this.state.count}
+        &lt;Com /&gt;
+        {console.log(&#39;App 渲染&#39;)}
+        &lt;button onClick={this.setCount}&gt;count + 1&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面例子中 <code>useLayoutEffect</code> 和 <code>useEffect</code> 依然在 <code>Com</code> 组件中使用，<code>App</code> 组件为类组件，<code>Com</code> 作为 <code>App</code> 的子组件，在首次渲染时控制台的打印顺序为 <code>App 渲染</code> → <code>Com 渲染</code> → <code>useLayoutEffect 执行...</code> → <code>App componentDidMount</code> → <code>useEffect 执行...</code>。</p><p>而点击按钮更改状态触发重渲染时，打印顺序为 <code>App 渲染</code> → <code>Com 渲染</code> → <code>useLayoutEffect 销毁...</code> → <code>useLayoutEffect 执行...</code> → <code>App componentDidUpdate</code> → <code>useEffect 销毁...</code> → <code>useEffect 执行...</code>。</p><blockquote class="pullquote default"><p><strong><code>useLayoutEffect</code> 的执行时机要早于 <code>useEffect</code>，<code>useLayoutEffect</code> 的执行在类组件生命周期前，<code>useEffect</code> 的执行在类组件生命周期后，官方的建议是要求我们尽量使用 <code>useEffect</code>，以避免阻塞视觉更新，如果是将代码从类组件重构为 <code>React Hooks</code>，并且使用 <code>useEffect</code> 出现问题，再考虑使用 <code>useLayoutEffect</code>，服务端渲染时使用 <code>useLayoutEffect</code> 会触发警告。</strong></p></blockquote><h3 id="useDebugValue"><a href="#useDebugValue" class="headerlink" title="useDebugValue"></a>useDebugValue</h3><p><code>useDebugValue</code> 用于在 <code>React</code> 开发者工具（如果已安装，在浏览器控制台 <code>React</code> 选项查看）中显示 <a href="/20190507155411/#%E8%87%AA%E5%AE%9A%E4%B9%89-Hook" target="_blank">自定义 Hook</a> 的标签。</p><pre><code class="lang-jsx">import React, { useState, useDebugValue } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 自定义 Hook
+function useMyCount(num) {
+  const [ count, setCount ] = useState(0);
+
+  // 调试自定义 Hook，显示在 devtools 上
+  useDebugValue(count &gt; num ? &#39;溢出&#39; : &#39;不足&#39;);
+
+  const myCount = () =&gt; {
+    setCount(count + 2);
+  }
+
+  return [ count, myCount ];
+}
+
+function App() {
+  const [ count, setCount ] = useMyCount(10);
+
+  return (
+    &lt;div&gt;
+      {count}
+      &lt;button onClick={() =&gt; setCount()}&gt;setCount&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面例子中创建了 <code>useMyCount</code> 自定义 <code>Hook</code>，在内部使用 <code>useDebugValue</code> 对 <code>count</code> 的状态进行了调试，在开发工具中显示如下图。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/React/20190507155411/usedebugvalue.png" alt="useDebugValue 调试效果图"></div><div class="image-caption">useDebugValue 调试效果图</div></figure><p><br></p><p><code>useDebugValue</code> 还支持第二个参数，类型为函数，函数的默认参数为 <code>debug</code> 的状态，作用是对 <code>debug</code> 的值进行格式化，官方叫做 “延迟格式化”。</p><pre><code class="lang-jsx">/* 延迟格式化 */
+import React, { useState, useDebugValue } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 自定义 Hook
+function useMyCount(num) {
+  const [ count, setCount ] = useState(0);
+
+  // 延迟格式化
+  useDebugValue(count &gt; num ? &#39;溢出&#39; : &#39;不足&#39;, (status) =&gt; {
+    return status === &#39;溢出&#39; ? 1 : 0;
+  });
+
+  const myCount = () =&gt; {
+    setCount(count + 2);
+  }
+
+  return [ count, myCount ];
+}
+
+function App() {
+  const [ count, setCount ] = useMyCount(10);
+
+  return (
+    &lt;div&gt;
+      {count}
+      &lt;button onClick={() =&gt; setCount()}&gt;setCount&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面的例子只是做了小小的改动，增加了一个格式化函数作为 <code>useDebugValue</code> 的第二个参数，当状态为 <code>不足</code> 时显示 <code>0</code>，为 <code>溢出</code> 时显示 <code>1</code>。</p><blockquote class="pullquote info"><p><strong>提示：我们不推荐你向每个自定义 <code>Hook</code> 使用 <code>useDebugValue</code>，只有自定义 <code>Hook</code> 被复用时才最有意义。</strong></p></blockquote><h2 id="自定义-Hook"><a href="#自定义-Hook" class="headerlink" title="自定义 Hook"></a>自定义 Hook</h2><p>在开篇介绍 <code>React Hooks</code> 产生的动机时，提到了在类组件中使用 “高阶组件”（<code>HOC</code>）和 “渲染回调”（<code>Prop callback</code>）的方式对状态逻辑进行复用和解耦会导致渲染嵌套的层级增多以及代码可读性差的问题，在 <code>React 16.8</code> 以后可以通过自定义 <code>Hook</code> 来解决这些问题。</p><pre><code class="lang-jsx">/* 一个没有解决问题的例子 */
+import React, { useState, useEffect, Fragment } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 计数器 1
+function Counter1() {
+  const [ count, setCount ] = useState(0);
+
+  useEffect(() =&gt; {
+    console.log(&#39;开启一个新的定时器&#39;)
+    const timer = setInterval(() =&gt; {
+      setCount(count + 1);
+    }, 1000);
+
+    return () =&gt; {
+      console.log(&#39;销毁老的定时器&#39;)
+      clearInterval(timer);
+    }
+  });
+
+  return &lt;p&gt;{count}&lt;/p&gt;
+}
+
+// 计数器 2
+function Counter2() {
+  const [ count, setCount ] = useState(0);
+
+  useEffect(() =&gt; {
+    console.log(&#39;开启一个新的定时器&#39;)
+    const timer = setInterval(() =&gt; {
+      setCount(count + 1);
+    }, 1000);
+    return () =&gt; {
+      console.log(&#39;销毁老的定时器&#39;)
+      clearInterval(timer);
+    }
+  });
+
+  return &lt;p&gt;{count}&lt;/p&gt;
+}
+
+function App() {
+  return (
+    &lt;Fragment&gt;
+      &lt;Counter1 /&gt;
+      &lt;Counter2 /&gt;
+    &lt;/Fragment&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>上面实现了两个计数器，都有自动增加状态的更新数组的功能，并且都是使用 <code>React Hooks</code> 实现的，很明显我们可以将更新状态的逻辑抽离出来，下面是通过自定义 <code>Hook</code> 改写的例子。</p><pre><code class="lang-jsx">/* 使用自定义 Hook 对状态逻辑进行抽离 */
+import React, { useState, useEffect, Fragment } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 自定义 Hook
+function useNumber() {
+  const [ count, setCount ] = useState(0);
+
+  useEffect(() =&gt; {
+    console.log(&#39;开启一个新的定时器&#39;)
+    const timer = setInterval(() =&gt; {
+      setCount(count + 1);
+    }, 1000);
+    return () =&gt; {
+      console.log(&#39;销毁老的定时器&#39;)
+      clearInterval(timer);
+    }
+  });
+
+  return count;
+}
+
+// 计数器 1
+function Counter1() {
+  let number = useNumber();
+  return &lt;p&gt;{number}&lt;/p&gt;
+}
+
+// 计数器 2
+function Counter2() {
+  let number = useNumber();
+  return &lt;p&gt;{number}&lt;/p&gt;
+}
+
+function App() {
+  return (
+    &lt;Fragment&gt;
+      &lt;Counter1 /&gt;
+      &lt;Counter2 /&gt;
+    &lt;/Fragment&gt;
+  )
+}
+
+ReactDOM.render(&lt;App /&gt;, root);
+</code></pre><p>使用自定义 <code>Hook</code> 就很容易的实现了状态逻辑的复用和解耦，代码简单易读，也避免了 “高阶组件” 和 “渲染回调” 造成渲染层级增加的问题。</p><blockquote class="pullquote primary"><p><strong>注意：官方建议在创建自定义 <code>Hook</code> 时，也采用 <code>use</code> 开头的命名方式，以保持命名的默认约定，便于识别，非强制，所以项目中可以使用 <code>ESlint</code> 进行检查和约束。</strong></p></blockquote><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong><code>React Hooks</code> 出现后让我们对使用 <code>React</code> 编程如释重负，好的技术就是应该尽量减小学习坡度和上手难度，越用越简单，编写大家都读得懂又直观的代码才是优秀的代码，上面就是在学习完 <code>React Hooks</code> 后的一些总结，最后附上相关案例的</strong> <a href="https://github.com/shenqiuhui/react-hooks-examples" target="_blank">Guthub 地址</a><strong>。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20190507155411/" target="_blank" rel="external">https://www.overtaking.top/20190507155411/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hooks/" rel="tag">Hooks</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/" rel="tag">React</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20190507155411/&title=《React 基础篇 —— React Hooks》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20190507155411/&title=《React 基础篇 —— React Hooks》 — Shen's Blog&source=React Hooks 简介React Hooks 是 16.8 版本中正式加入的特性，配合函数组件使用，在没有 Hooks 之前，函数组件使用场景非常有..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20190507155411/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《React 基础篇 —— React Hooks》 — Shen's Blog&url=https://www.overtaking.top/20190507155411/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20190507155411/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between flex-row-reverse"><div class="waves-block waves-effect next"><a href="/20190417112536/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">JavaScript 获取对象属性名的方法和区别</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20190507155411/&title=《React 基础篇 —— React Hooks》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20190507155411/&title=《React 基础篇 —— React Hooks》 — Shen's Blog&source=React Hooks 简介React Hooks 是 16.8 版本中正式加入的特性，配合函数组件使用，在没有 Hooks 之前，函数组件使用场景非常有..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20190507155411/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《React 基础篇 —— React Hooks》 — Shen's Blog&url=https://www.overtaking.top/20190507155411/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20190507155411/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABzElEQVR42u3awW4DIQxF0fz/T1Opq0op0/swOKi6rEZJMz50YWGb1wuv8b3I5+PHev+b2fPmJVeu3DJ3PK40zPtvZ2+YfTIzyJUrt5/7nKRIeJIE03+BXLly7+fyYM+pSq5cuf+JS575IUmuXLn3c0mwaUFSKG8O1mpy5cotcNOG6Ynng/1duXLlhtyxaZHhSj2iXLlye7jPw4+1YQkvjdJCSK5cuT3cXYkp3fZiRLly5TZySariG0sPNMEARq5cue3cNXqanngrdlr2yJUrt5GbHj7SxESKHNQQkStX7mEuv4Rxoj1KoqPZjly5co9x0wtSabJbeyfq9cqVK3crl4fk4fkxJY0uV67cHm69jOGDk3Rmiq5fyJUr9xg3HXvw485aWYVKI7ly5bZw04EKb2qQMQkf2MiVK/ezXF7A1EsgvlW5cuX2c8nP+Kh1cUASbkmuXLl7uSNca4lmrfHxy7dy5cpt4VYyX3roIccpuXLl3sNNm6QbbnkUjk1y5crt5PJEQ1ilrEnujMiVK/cyLk9eacMUFV1y5cq9jPuczviWSENkcQ4sV67crVx+gXKNSNqsG26QyZUrdxO30jDlG6i8f1t/V65cuX9zvwAjJgYcLeJtAQAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

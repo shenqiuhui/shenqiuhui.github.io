@@ -1,0 +1,167 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Node.js 加密 —— crypto 模块 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,加密,crypto"><meta name="description" content="加密简介加密是以某种算法改变原有的信息数据，使得未授权用户即使获得了已加密信息，因不知解密的方法，无法得知信息真正的含义，通过这种方式提高网络数据传输的安全性，加密算法常见的有哈希算法、HMAC 算法、签名、对称性加密算法和非对称性加密算法，加密算法也分为可逆和不可逆，比如 md5 就是不可逆加密，只能暴力破解（撞库），我们在 Node.js 开发中就可以通过 crypto 模块直接使用这些加密算"><meta property="og:type" content="article"><meta property="og:title" content="Node.js 加密 —— crypto 模块"><meta property="og:url" content="https://www.overtaking.top/20180719190551/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="加密简介加密是以某种算法改变原有的信息数据，使得未授权用户即使获得了已加密信息，因不知解密的方法，无法得知信息真正的含义，通过这种方式提高网络数据传输的安全性，加密算法常见的有哈希算法、HMAC 算法、签名、对称性加密算法和非对称性加密算法，加密算法也分为可逆和不可逆，比如 md5 就是不可逆加密，只能暴力破解（撞库），我们在 Node.js 开发中就可以通过 crypto 模块直接使用这些加密算"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180719190551/crypto.png"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180719190551/sign.png"><meta property="article:published_time" content="2018-07-19T11:05:51.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="加密"><meta property="article:tag" content="crypto"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180719190551/crypto.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Node.js 加密 —— crypto 模块</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Node.js 加密 —— crypto 模块</h1><h5 class="subtitle"><time datetime="2018-07-19T11:05:51.000Z" itemprop="datePublished" class="page-time">2018-07-19</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#加密简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">加密简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#哈希算法"><span class="post-toc-number">2.</span> <span class="post-toc-text">哈希算法</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Hmac-算法"><span class="post-toc-number">3.</span> <span class="post-toc-text">Hmac 算法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Hmac-算法的使用"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">Hmac 算法的使用</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建密钥的方法"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">创建密钥的方法</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#对称性加密"><span class="post-toc-number">4.</span> <span class="post-toc-text">对称性加密</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#非对称性加密"><span class="post-toc-number">5.</span> <span class="post-toc-text">非对称性加密</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#签名"><span class="post-toc-number">6.</span> <span class="post-toc-text">签名</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">7.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180719190551" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Node.js 加密 —— crypto 模块</h1><div class="post-meta"><time class="post-time" title="2018-07-19 19:05:51" datetime="2018-07-19T11:05:51.000Z" itemprop="datePublished">2018-07-19</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180719190551/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js 加密 —— crypto 模块"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180719190551/crypto.png" title="Node.js 加密模块 crypto"><p><br></p><h2 id="加密简介"><a href="#加密简介" class="headerlink" title="加密简介"></a>加密简介</h2><blockquote class="pullquote danger"><p><strong>加密是以某种算法改变原有的信息数据，使得未授权用户即使获得了已加密信息，因不知解密的方法，无法得知信息真正的含义，通过这种方式提高网络数据传输的安全性，加密算法常见的有哈希算法、<code>HMAC</code> 算法、签名、对称性加密算法和非对称性加密算法，加密算法也分为可逆和不可逆，比如 <code>md5</code> 就是不可逆加密，只能暴力破解（撞库），我们在 <code>Node.js</code> 开发中就可以通过 <code>crypto</code> 模块直接使用这些加密算法，是包含对 <code>OpenSSL</code> 的哈希、<code>HMAC</code>、加密、解密、签名以及验证功能的一整套封装，核心模块，使用时不需安装。</strong></p></blockquote><a id="more"></a><h2 id="哈希算法"><a href="#哈希算法" class="headerlink" title="哈希算法"></a>哈希算法</h2><p>哈希算法也叫散列算法，用来把任意长度的输入变换成固定长度的输出，常见的有 <code>md5</code>、<code>sha1</code> 等，这类算法实现对原数据的转化过程是否能被称为加密备受争议，为了后面叙述方便我们姑且先叫做加密。</p><pre><code class="lang-js">/* 查看哈希加密算法的种类 */
+const crypto = require(&#39;crypto&#39;);
+
+// getHashes 方法用于查看支持的加密算法
+console.log(crypto.getHashes());
+
+// [ &#39;DSA&#39;, &#39;DSA-SHA&#39;, &#39;DSA-SHA1&#39;, &#39;DSA-cSHA1-old&#39;,
+//   &#39;RSA-MD4&#39;, &#39;RSA-MD5&#39;, &#39;RSA-MDC2&#39;, &#39;RSA-RIPEMD160&#39;,
+//   &#39;RSA-SHA&#39;, &#39;RSA-SHA1&#39;, &#39;RSA-SHA1-2&#39;, &#39;RSA-SHA224&#39;,
+//   &#39;RSA-SHA256&#39;, &#39;RSA-SHA384&#39;, &#39;RSA-SHA512&#39;,
+//   &#39;dsaEncryption&#39;, &#39;dsaWithSHA&#39;, &#39;dsaWithSHA1&#39;, &#39;dss1&#39;,
+//   &#39;ecdsa-with-SHA1&#39;, &#39;md4&#39;, &#39;md4WithRSAEncryption&#39;,
+//   &#39;md5&#39;, &#39;md5WithRSAEncryption&#39;, &#39;mdc2&#39;, &#39;mdc2WithRSA&#39;,
+//   &#39;ripemd&#39;, &#39;ripemd160&#39;, &#39;ripemd160WithRSA&#39;, &#39;rmd160&#39;,
+//   &#39;sha&#39;, &#39;sha1&#39;, &#39;sha1WithRSAEncryption&#39;, &#39;sha224&#39;,
+//   &#39;sha224WithRSAEncryption&#39;, &#39;sha256&#39;,
+//   &#39;sha256WithRSAEncryption&#39;, &#39;sha384&#39;,
+//   &#39;sha384WithRSAEncryption&#39;, &#39;sha512&#39;,
+//   &#39;sha512WithRSAEncryption&#39;, &#39;shaWithRSAEncryption&#39;,
+//   &#39;ssl2-md5&#39;, &#39;ssl3-md5&#39;, &#39;ssl3-sha1&#39;, &#39;whirlpool&#39; ]
+</code></pre><blockquote class="pullquote info"><p><strong><code>md5</code> 是开发中经常使用的算法之一，官方称为摘要算法，具有以下几个特点：</strong></p><ul><li><strong>不可逆；</strong></li><li><strong>不管加密的内容多长，最后输出的结果长度都是相等的；</strong></li><li><strong>内容不同输出的结果完全不同，内容相同输出的结果完全相同。</strong></li></ul></blockquote><p>由于相同的输入经过 <code>md5</code> 加密后返回的结果完全相同，所以破解时通过 “撞库” 进行暴力破解，当连续被 <code>md5</code> 加密 <code>3</code> 次以上时就很难被破解了，所以使用 <code>md5</code> 一般会进行多次加密。</p><pre><code class="lang-js">/* md5 加密 —— 返回 Buffer */
+const crytpo = require(&#39;crytpo&#39;);
+
+// createHash 创建 MD5，update 传入加密信息并加密，digest 获取加密后结果
+const md5 = crytpo.createHash(&#39;md5&#39;).update(&#39;hello&#39;).digest();
+console.log(md5);
+// &lt;Buffer 5d 41 40 2a bc 4b 2a 76 b9 71 9d 91 10 17 c5 92&gt;
+</code></pre><p><code>digest</code> 方法参数用于指定加密后的返回值的格式，不传参默认返回加密后的 <code>Buffer</code>，常用的参数有 <code>hex</code> 和 <code>Base64</code>，<code>hex</code> 代表十六进制，加密后长度为 <code>32</code>，<code>Base64</code> 的结果长度为 <code>24</code>，以 <code>==</code> 结尾。</p><pre><code class="lang-js">/* md5 加密 —— 返回十六进制 */
+const crypto = require(&#39;crypto&#39;);
+
+const md5 = crypto.createHash(&#39;md5&#39;).update(&#39;hello&#39;).digest(&#39;hex&#39;);
+console.log(md5); // 5d41402abc4b2a76b9719d911017c592
+</code></pre><pre><code class="lang-js">/* md5 加密 —— 返回 Base64 */
+const crypto = require(&#39;crypto&#39;);
+
+const md5 = crypto.createHash(&#39;md5&#39;).update(&#39;hello&#39;).digest(&#39;Base64&#39;);
+console.log(md5); // XUFAKrxLKna5cZ2REBfFkg==
+</code></pre><p><code>update</code> 方法的返回值就是 <code>this</code>，即当前实例，所以支持链式调用，较长的信息也可以多次调用 <code>update</code> 方法进行分段加密，调用 <code>digest</code> 方法同样会返回整个加密后的值。</p><pre><code class="lang-js">/* 链式调用和分段加密 */
+const crypto = require(&#39;crypto&#39;);
+
+const md5 = crypto.createHash(&#39;md5&#39;).update(&#39;he&#39;).update(&#39;llo&#39;).digest(&#39;hex&#39;);
+console.log(md5); // 5d41402abc4b2a76b9719d911017c592
+</code></pre><p>由于可以使用 <code>update</code> 进行分段加密，就可以结合流来使用，其实 <code>crypto</code> 的本质是创建 <code>Transform</code> 类型的转化流，可以将可读流转化成可写流。</p><pre><code class="lang-js">/* 对可读流读取的数据进行 md5 加密 */
+const crypto = require(&#39;crypto&#39;);
+const fs = require(&#39;fs&#39;);
+
+const md5 = crypto.createHash(&#39;md5&#39;);
+const rs = fs.createReadSteam(&#39;./readme.txt&#39;, {
+  highWaterMark: 3
+});
+
+// 连续读取数据并分段加密
+rs.on(&#39;data&#39;, data =&gt; md5.update(data));
+
+rs.on(&#39;end&#39;, () =&gt; {
+  const result = md5.digest(&#39;hex&#39;);
+  console.log(result);
+});
+</code></pre><blockquote class="pullquote info"><p><strong>使用场景：</strong></p><ul><li><strong>经常被使用在数据的校验，比如服务器与服务器之间进行通信发送的明文摘要加 <code>md5</code> 加密摘要后的暗文，接收端拿到数据以后将明文摘要按照相同的 <code>md5</code> 算法加密后与暗文摘要对比验证，目的是防止数据传输过程中被劫持并篡改。</strong></li><li><strong>在浏览器缓存策略中，可以通过对静态资源的信息摘要使用 <code>md5</code> 加密，每次向服务器发送加密后的密钥进行比对就可以了，不至于对整个文件内容进行比较。</strong></li></ul></blockquote><blockquote class="pullquote warning"><p><strong>缺点：由于规定使用 <code>md5</code> 的哈希算法加密，别人可以使用同样的算法对信息进行伪造，安全性不高。</strong></p></blockquote><h2 id="Hmac-算法"><a href="#Hmac-算法" class="headerlink" title="Hmac 算法"></a>Hmac 算法</h2><h3 id="Hmac-算法的使用"><a href="#Hmac-算法的使用" class="headerlink" title="Hmac 算法的使用"></a>Hmac 算法的使用</h3><p><code>Hmac</code> 算法又称加盐算法，是将哈希算法与一个密钥结合在一起，用来阻止对签名完整性的破坏，同样具备 <code>md5</code> 加密的几个特点。</p><pre><code class="lang-js">/* 使用加盐算法加密 */
+const crytpo = require(&#39;crytpo&#39;);
+
+const hmac = crytpo.createHmac(&#39;sha1&#39;, &#39;panda&#39;).update(&#39;hello&#39;).digest(&#39;Base64&#39;);
+console.log(hmac); // 7spMLxN8WJdcEtQ8Hm/LR9pUE3YsIGag9Dcai7lwioo=
+</code></pre><p><code>crytpo.createHmac</code> 第一个参数同 <code>crytpo.createHash</code>，为加密的算法，常用 <code>sha1</code> 和 <code>sha256</code>，第二个参数为密钥。</p><p><code>digest</code> 方法生成的加密结果长度要大于 <code>md5</code>，<code>hex</code> 生成的结果长度为 <code>64</code>，<code>Base64</code> 生成的结果长度为 <code>44</code>，以 <code>=</code> 结尾。</p><blockquote class="pullquote success"><p><strong>安全性高于 <code>md5</code>，通过密钥来加密，不知道密钥无法破解，缺点是密钥传输的过程容易被劫持，可以通过一些生成随机密钥的方式避免。</strong></p></blockquote><h3 id="创建密钥的方法"><a href="#创建密钥的方法" class="headerlink" title="创建密钥的方法"></a>创建密钥的方法</h3><p><strong>可以安装 <code>openSSH</code> 客户端，并通过命令行生成存储密钥的文件，命令如下:</strong></p><pre><code class="lang-bash">$ openssl genrsa -out rsa_private.key 1024
+</code></pre><p><code>openssl genrsa</code> 代表生成密钥，<code>-out</code> 代表输出文件，<code>rsa_private.key</code> 代表文件名，<code>1024</code> 代表输出密钥的大小。</p><pre><code class="lang-js">/* 直接读取密钥文件配合加盐算法加密 */
+const fs = require(&#39;fs&#39;);
+const crytpo = require(&#39;crytpo&#39;);
+const path = require(&#39;path&#39;);
+
+const key = fs.readFileSync(path.join(__dirname, &#39;/rsa_private.key&#39;));
+const hmac = crytpo.createHmac(&#39;sha256&#39;, key).update(&#39;hello&#39;).digest(&#39;Base64&#39;);
+
+console.log(hmac); // bmi2N+6kwgwt5b+U+zSgjL/NFs+GsUnZmcieqLKBy4M=
+</code></pre><h2 id="对称性加密"><a href="#对称性加密" class="headerlink" title="对称性加密"></a>对称性加密</h2><p>对称性加密是发送数据时使用密钥和加密算法进行加密，接收数据时需要使用相同的密钥和加密算法的逆算法（解密算法）进行解密，也就是说对称性加密的过程是可逆的，<code>crytpo</code> 中使用的算法为 <code>blowfish</code>。</p><pre><code class="lang-js">/* 对称性加密 */
+const fs = require(&#39;fs&#39;);
+const crypto = require(&#39;crypto&#39;);
+const path = require(&#39;path&#39;);
+
+const key = fs.readFileSync(path.join(__dirname, &#39;/rsa_private.key&#39;));
+
+// 加密
+const cipher = crypto.createCipher(&#39;blowfish&#39;, key);
+cipher.update(&#39;hello&#39;);
+
+// final 方法不能链式调用
+const result = cipher.final(&#39;hex&#39;);
+console.log(result); // 3eb9943113c7aa1e
+
+// 解密
+const decipher = crypto.createDecipher(&#39;blowfish&#39;, key);
+decipher.update(result, &#39;hex&#39;);
+
+const data = decipher.final(&#39;utf8&#39;);
+console.log(data); // hello
+</code></pre><p>加密使用 <code>crypto.createCipher</code> 方法，解密使用 <code>crypto.createDecipher</code> 方法，但是使用的算法和密钥必须相同，需要注意的是解密过程中 <code>update</code> 中需要在第二个参数中指定加密时的格式（其实在加密的时候 <code>update</code> 也存在第二个参数，默认值为 <code>utf8</code>）如 <code>hex</code>，在 <code>final</code> 还原数据时需要指定加密字符的编码格式，如 <code>utf8</code>。</p><blockquote class="pullquote warning"><p><strong>注意：使用对称性加密的字符串有长度限制，不得超过 <code>7</code> 个字符，否则虽然可以加密成功，但是无法解密。</strong></p></blockquote><blockquote class="pullquote danger"><p><strong>缺点：密钥在传输过程中容易被截获，存在安全风险。</strong></p></blockquote><h2 id="非对称性加密"><a href="#非对称性加密" class="headerlink" title="非对称性加密"></a>非对称性加密</h2><p>非对称性加密相也是可逆的，较于对称性加密要更安全，消息传输方和接收方都会在本地创建一对密钥，公钥和私钥，互相将自己的公钥发送给对方，每次消息传递时使用对方的公钥加密，对方接收消息后使用他的的私钥解密，这样在公钥传递的过程中被截获也无法解密，因为公钥加密的消息只有配对的私钥可以解密。</p><p>接下来我们使用 <code>openSSH</code> 对之前生成的私钥 <code>rsa_private.key</code> 产生一个对应的公钥，命令如下。</p><pre><code class="lang-bash">$ openssl rsa -in rsa_private.key -pubout -out rsa_public.key
+</code></pre><p>上面的命令意思根据一个私钥生成对应的公钥，<code>-pubout -out</code> 代表公钥输出，<code>rsa_public.key</code> 为公钥的文件名。</p><pre><code class="lang-js">/* 非对称性加密 */
+const fs = require(&#39;fs&#39;);
+const crypto = require(&#39;crypto&#39;);
+const path = require(&#39;path&#39;);
+
+// 获取公钥和私钥
+const publicKey = fs.readFileSync(path.join(__dirname, &#39;/rsa_public.key&#39;));
+const privateKey = fs.readFileSync(path.join(__dirname, &#39;/rsa_private.key&#39;));
+
+// 加密
+const secret = crytpo.publicEncrypt(publicKey, Buffer.from(&#39;hello&#39;));
+
+// 解密
+const result = crytpo.provateDecrypt(privateKey, secret);
+
+console.log(result); // hello
+</code></pre><p>使用公钥加密的方法是 <code>crytpo.publicEncrypt</code>，第一个参数为公钥，第二个参数为加密信息（必须是 <code>Buffer</code>），使用私钥解密的方法是 <code>crytpo.provateDecrypt</code>，第一个参数为私钥，第二个参数为解密的信息。</p><h2 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h2><p>签名与非对称性加密非常类似，同样有公钥和私钥，不同的是使用私钥加密，对方使用公钥进行解密验证，以确保这段数据是私钥的拥有者所发出的原始数据，且在网络中的传输过程中未被修改。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180719190551/sign.png" alt="签名"></div><div class="image-caption">签名</div></figure><p><br></p><p>我们还使用 <code>rsa_public.key</code> 和 <code>rsa_private.key</code> 作为公钥和私钥，<code>crypto</code> 实现签名代码如下。</p><pre><code class="lang-js">/* 签名 */
+const fs = require(&#39;fs&#39;);
+const crypto = require(&#39;crypto&#39;);
+const path = require(&#39;path&#39;);
+
+// 获取公钥和私钥
+const publicKey = fs.readFileSync(path.join(__dirname, &#39;rsa_public.key&#39;), &#39;ascii&#39;);
+const privateKey = fs.readFileSync(path.join(__dirname, &#39;rsa_private.key&#39;), &#39;ascii&#39;);
+
+// 生成签名
+const signed = crypto.createSign(&#39;RSA-SHA256&#39;).update(&#39;panda&#39;).sign(privateKey, &#39;hex&#39;);
+
+// 验证签名
+const verify = crypto.createVerify(&#39;RSA-SHA256&#39;).update(&#39;panda&#39;).verify(publicKey, signed, &#39;hex&#39;);
+
+console.log(verify); // true
+</code></pre><p>生成签名的 <code>sign</code> 方法有两个参数，第一个参数为私钥，第二个参数为生成签名的格式，最后返回的 <code>signed</code> 为生成的签名（字符串）。</p><p>验证签名的 <code>verify</code> 方法有三个参数，第一个参数为公钥，第二个参数为被验证的签名，第三个参数为生成签名时的格式，返回为布尔值，即是否通过验证。</p><blockquote class="pullquote primary"><p><strong>使用场景：经常用于对 <code>cookie</code> 签名返回浏览器，当浏览器访问同域服务器将 <code>cookie</code> 带过来时再进行验证，防止 <code>cookie</code> 被篡改和 <code>CSRF</code> 跨站请求伪造。</strong></p></blockquote><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>各种项目在数据传输时根据信息的敏感度以及用途进行不同的加密算法和加密方式，在 <code>Node.js</code> 中，<code>crypto</code> 的 <code>API</code> 完全可以实现我们的加密需求，也可以将上面的加密方案组合使用实现更复杂的加密方案。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180719190551/" target="_blank" rel="external">https://www.overtaking.top/20180719190551/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/crypto/" rel="tag">crypto</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8A%A0%E5%AF%86/" rel="tag">加密</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180719190551/&title=《Node.js 加密 —— crypto 模块》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180719190551/&title=《Node.js 加密 —— crypto 模块》 — Shen's Blog&source=加密简介加密是以某种算法改变原有的信息数据，使得未授权用户即使获得了已加密信息，因不知解密的方法，无法得知信息真正的含义，通过这种方式提高网络数据传输的安..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180719190551/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 加密 —— crypto 模块》 — Shen's Blog&url=https://www.overtaking.top/20180719190551/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180719190551/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180720110647/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">HTTP 缓存的那些事儿</h4></a></div><div class="waves-block waves-effect next"><a href="/20180718181823/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Node.js 服务器实现 gzip 压缩</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180719190551/&title=《Node.js 加密 —— crypto 模块》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180719190551/&title=《Node.js 加密 —— crypto 模块》 — Shen's Blog&source=加密简介加密是以某种算法改变原有的信息数据，使得未授权用户即使获得了已加密信息，因不知解密的方法，无法得知信息真正的含义，通过这种方式提高网络数据传输的安..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180719190551/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 加密 —— crypto 模块》 — Shen's Blog&url=https://www.overtaking.top/20180719190551/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180719190551/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABx0lEQVR42u3aQW7DMAwEQP//0+41RWFnSVpKUIxORZrKox4IcenjiNf5sv5+8vr51ffz3z6wcHFxx9zzduXcKrG5Gy4u7kbu1QPuv3NfmJID5AZcXNxv5iYFLr+Z4OLi/idufiW6L3O4uLjfzK0WmvxCMzkeLi7up7h5Srnu5yX5Li4ubot7Flevpan+7eWeuLi4W7h5QckvQHmrU30uLi7uHm7e5FRHKZPW5U0Jw8XF3cLthaRRuPnQ6xe/ChkuLu5ibm/TfBxSRZQDFFxc3O3c3hA0H9nmB8DFxd3JnWyRHG9Stt40P7i4uMu4vdITpbBFViGUwcXF3c6tvpKVD1eeClBwcXFXc/PY4oEIo9Vild8WwcXFHXOTZqMXiMyHrJdPx8XF3cidNDm9F7Z6n+Di4u7kTi46+TF60x5cXNxPcY/BypufvDU6Jlvg4uIOuGdxVa9B+T7RvwwXF3cLt1qq8oikWtR641tcXNx13F7bU21+qgOV5kUHFxf3UW5eaJJItFfaRr0aLi7uR7l5eNprq47eaXBxcb+A24tTex1YNErBxcVdwK2Gm9XSVg1HmjNhXFzch7i9MWpygPlYd5Tv4uLidrg/iLgLCci9MAQAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

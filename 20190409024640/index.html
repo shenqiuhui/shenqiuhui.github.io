@@ -1,0 +1,257 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Node.js 实现一个提交自动检测的 Git Hook | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,Hooks,Git,代码管理/版本控制,命令行"><meta name="description" content="什么是 Git HookGit Hook 是能在 Git 操作的特定重要动作发生时触发自定义脚本，也被称为 “钩子”，这样的脚本被存储在 .git&#x2F;hooks 目录中，脚本分为客户端的和服务端两种，这些钩子文件的后缀名默认为 .sample，其存在的目的就是为了让这些脚本默认不被执行，如果需要其被执行则去掉后缀名，可以通过项目需求制定钩子的功能和程序编写。"><meta property="og:type" content="article"><meta property="og:title" content="Node.js 实现一个提交自动检测的 Git Hook"><meta property="og:url" content="https://www.overtaking.top/20190409024640/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="什么是 Git HookGit Hook 是能在 Git 操作的特定重要动作发生时触发自定义脚本，也被称为 “钩子”，这样的脚本被存储在 .git&#x2F;hooks 目录中，脚本分为客户端的和服务端两种，这些钩子文件的后缀名默认为 .sample，其存在的目的就是为了让这些脚本默认不被执行，如果需要其被执行则去掉后缀名，可以通过项目需求制定钩子的功能和程序编写。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Git/20190409024640/git-hooks-location.png"><meta property="article:published_time" content="2019-04-08T18:46:40.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="Hooks"><meta property="article:tag" content="Git"><meta property="article:tag" content="代码管理&#x2F;版本控制"><meta property="article:tag" content="命令行"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Git/20190409024640/git-hooks-location.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Node.js 实现一个提交自动检测的 Git Hook</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Node.js 实现一个提交自动检测的 Git Hook</h1><h5 class="subtitle"><time datetime="2019-04-08T18:46:40.000Z" itemprop="datePublished" class="page-time">2019-04-09</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Git/">Git</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#什么是-Git-Hook"><span class="post-toc-number">1.</span> <span class="post-toc-text">什么是 Git Hook</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现-Hook-功能介绍"><span class="post-toc-number">2.</span> <span class="post-toc-text">实现 Hook 功能介绍</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#需求的由来"><span class="post-toc-number">3.</span> <span class="post-toc-text">需求的由来</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#目录结构及文件简介"><span class="post-toc-number">4.</span> <span class="post-toc-text">目录结构及文件简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#项目依赖"><span class="post-toc-number">5.</span> <span class="post-toc-text">项目依赖</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#代码设计思路分析"><span class="post-toc-number">6.</span> <span class="post-toc-text">代码设计思路分析</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#GitChecker-类的实现"><span class="post-toc-number">7.</span> <span class="post-toc-text">GitChecker 类的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#默认检测函数的实现"><span class="post-toc-number">8.</span> <span class="post-toc-text">默认检测函数的实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#检测目录是否被-Git-管理"><span class="post-toc-number">8.1.</span> <span class="post-toc-text">检测目录是否被 Git 管理</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#检测邮箱是否合规"><span class="post-toc-number">8.2.</span> <span class="post-toc-text">检测邮箱是否合规</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#检测冲突"><span class="post-toc-number">8.3.</span> <span class="post-toc-text">检测冲突</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#执行-Eslint"><span class="post-toc-number">8.4.</span> <span class="post-toc-text">执行 Eslint</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#关于扩展"><span class="post-toc-number">9.</span> <span class="post-toc-text">关于扩展</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#最后"><span class="post-toc-number">10.</span> <span class="post-toc-text">最后</span></a></li></ol></nav></aside><article id="post-Git/20190409024640" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Node.js 实现一个提交自动检测的 Git Hook</h1><div class="post-meta"><time class="post-time" title="2019-04-09 02:46:40" datetime="2019-04-08T18:46:40.000Z" itemprop="datePublished">2019-04-09</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Git/">Git</a></li></ul><span id="/20190409024640/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js 实现一个提交自动检测的 Git Hook"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Git/20190409024640/git-hooks-location.png" title="Git Hook"><p><br></p><h2 id="什么是-Git-Hook"><a href="#什么是-Git-Hook" class="headerlink" title="什么是 Git Hook"></a>什么是 Git Hook</h2><blockquote class="pullquote info"><p><strong><code>Git Hook</code> 是能在 <code>Git</code> 操作的特定重要动作发生时触发自定义脚本，也被称为 “钩子”，这样的脚本被存储在 <code>.git/hooks</code> 目录中，脚本分为客户端的和服务端两种，这些钩子文件的后缀名默认为 <code>.sample</code>，其存在的目的就是为了让这些脚本默认不被执行，如果需要其被执行则去掉后缀名，可以通过项目需求制定钩子的功能和程序编写。</strong></p></blockquote><a id="more"></a><h2 id="实现-Hook-功能介绍"><a href="#实现-Hook-功能介绍" class="headerlink" title="实现 Hook 功能介绍"></a>实现 Hook 功能介绍</h2><blockquote class="pullquote success"><p><strong>本次将使用 <code>Node.js</code> 实现一个 <code>Git Hook</code>，功能为在提交代码之前检测功能如下：</strong></p><ul><li><strong>检测是否为 <code>Git</code> 项目；</strong></li><li><strong>检测邮箱是否符合规格；</strong></li><li><strong>检测代码是否含有冲突；</strong></li><li><strong>自动执行 <code>Eslint</code>，并检测问题。</strong></li></ul></blockquote><h2 id="需求的由来"><a href="#需求的由来" class="headerlink" title="需求的由来"></a>需求的由来</h2><p>在开始代码的编写之前，一定要清楚，团队开发时为什么需要这样的 <code>hook</code>，下面列举的场景可能都会对团队项目持续集成的历史 “树” 造成污染，或在协同开发时对团队成员造成麻烦。</p><p><strong>邮箱错误：</strong></p><p>当团队 <code>Gitlab</code> 仓库对邮箱格式进行了严格的限制，必须为公司邮箱才可以进行推送，很可能邮箱配置错误进行了提交，而推代码到远端时发现邮箱错了，要对本地的 <code>commit</code> 记录修正，再重新推到远端。</p><blockquote class="pullquote warning"><p><strong>容易造成邮箱设置错误的常见原因：</strong></p><ul><li><strong>新入职员工刚刚领了新的笔记本或老员工电脑重做系统；</strong></li><li><strong>维护不同团队的开源项目太多，不同项目需要配置不同的邮箱，很可能导致邮箱配置错误；</strong></li><li><strong>当团队中有外包开发人员，且由于权限问题同一套代码是存放在两个仓库，正式员工需要在本地项目中通过 <code>remote</code> 来同时指定两个仓库地址，并在本地代码修改后拉取外包仓库的代码进行合并，同时同步到正式仓库和外包仓库，如果正式仓库对推送过来的提交邮箱格式进行了严格的限制，并且外包提交记录的邮箱错误，就导致正式员工合并后的提交被正式仓库拒绝，如果使用 <code>rebase</code> 强行修正错误的邮箱，变基后的 <code>commit</code> 哈希发生变化可能与远端仓库不一致，需要进行强推到两个仓库，并全员的本地回滚到 <code>rebase</code> 之前的公共 <code>commit</code> 节点。</strong></li></ul></blockquote><p><strong>代码冲突：</strong></p><p>开发时和其他人同时修改了相同部分造成冲突，如果冲突不能及时被发现，提交并推送到远端是对远端仓库的污染，也可能其他开发人员正好拉取了这样的代码，会对团队造成麻烦。</p><blockquote class="pullquote danger"><p><strong>容易造成冲突未及时处理的原因：</strong></p><ul><li><strong>项目过大，文件较多；</strong></li><li><strong>编辑器不智能；</strong></li><li><strong>前端项目使用了路由懒加载，不切换到冲突代码所在的路由对组件进行渲染，项目不会报错。</strong></li></ul></blockquote><p><strong><code>Eslint</code> 检查：</strong></p><p>有些团队的项目对代码规范要求高，并为了减小线上 <code>Bug</code> 率，会在项目中集成 <code>Eslint</code> 对代码风格进行检查，通常都是在命令行手动执行检测命令，有些时候可能忘记执行命令进行检测，就将代码进行了提交和推送。</p><blockquote class="pullquote default"><p><strong>为了规避上面的情况，所以才有了这次关于 <code>Git Hook</code> 的需求，以及下面的代码实现，目的是防患于未然，将大家在开发时容易犯的错误或对项目代码持续集成和管理的潜在风险扼杀在摇篮中。</strong></p></blockquote><h2 id="目录结构及文件简介"><a href="#目录结构及文件简介" class="headerlink" title="目录结构及文件简介"></a>目录结构及文件简介</h2><pre class="language-treeview">
+  <code class="language-treeview">
+    git-hooks
+      |- default-events.js
+      |- default-rules.js
+      |- git-checker.js
+      |- pre-commit.js
+  </code>
+</pre><blockquote class="pullquote info"><ul><li><strong><code>default-events.js</code>：用来编写默认的检测事件；</strong></li><li><strong><code>default-rules.js</code>：用来管理默认检测事件用到的规则（正则）；</strong></li><li><strong><code>git-checker.js</code>：用来构建 <code>Hook</code> 的核心逻辑；</strong></li><li><strong><code>pre-commit.js</code>：用来编写执行检测的调用逻辑。</strong></li></ul></blockquote><h2 id="项目依赖"><a href="#项目依赖" class="headerlink" title="项目依赖"></a>项目依赖</h2><p>在编写这个 <code>hook</code> 之前需要用到第三方模块 <a href="https://www.npmjs.com/package/husky" target="_blank">husky</a>，这个模块的作用是根据项目中 <code>package.json</code> 的配置来向 <code>.git/hooks</code> 中的脚本写入我们的逻辑，项目中需要安装。</p><pre><code class="lang-bash">$ npm install husky
+</code></pre><h2 id="代码设计思路分析"><a href="#代码设计思路分析" class="headerlink" title="代码设计思路分析"></a>代码设计思路分析</h2><p>设计这个 <code>hook</code> 时提供了 <code>Git</code> 目录检测、邮箱验证、冲突检测、和执行 <code>Eslint</code> 的功能，当然我们希望检测函数不是强制的，是可以选择性使用，而使用者也可以编写自己需要的检测函数来覆盖其他的场景。</p><p><strong>项目中的 <code>husky</code> 配置如下：</strong></p><pre><code class="lang-json">/* 使用 hook 项目的 package.json */
+{
+  &quot;husky&quot;: {
+    &quot;hooks&quot;: {
+      &quot;pre-commit&quot;: &quot;node git-hooks/pre-commit&quot;
+    }
+  }
+}
+</code></pre><p>可以看出，<code>husky</code> 帮我们执行了 <code>git-hooks/pre-commit.js</code> 文件。</p><p><strong>我们希望使用者的用法如下：</strong></p><pre><code class="lang-js">/* ~git-hooks/pre-commit.js */
+const GitChecker = require(&#39;./git-checker&#39;);
+
+const commitChecker = new GitChecker(&#39;pre-commit&#39;, {
+  // default event names
+  defaultEventNames: [&#39;isGit&#39;, &#39;email&#39;, &#39;conflict&#39;, &#39;eslint&#39;],
+  rules: {
+    // your costom rules
+  },
+  checkEvents: {
+    // your custom check events
+  }
+});
+
+commitChecker.checkStart();
+</code></pre><p>上面的用法通过创建实例来创建 <code>checker</code>，即 “检测者”，调用 <code>checkStart</code> 方法帮助我们检测，创建实例的参数为 <code>options</code>，类型为对象。</p><p>上面的用法既可以让用户通过配置 <code>options</code> 的 <code>defaultEventNames</code> 属性来选择性的使用默认的检测函数，又可以通过 <code>checkEvents</code> 属性来让使用者编写检测函数。</p><p><code>rules</code> 属性是来存放使用者编写检测函数时使用的正则，会和默认检测函数中的正则合并，我们专门用 <code>default-rules.js</code> 文件来管理默认检测函数中使用的正则。</p><pre><code class="lang-js">/* ~git-hooks/default-rules.js */
+module.exports = {
+  emailCheck: /\S+((@youemail\.com)|(@enterprise\.com))(\n|\r\n)*$/,
+  conflictCheck: &#39;^&lt;&lt;&lt;&lt;&lt;&lt;&lt;\\s|^=======$|^&gt;&gt;&gt;&gt;&gt;&gt;&gt;\\s&#39;
+};
+</code></pre><h2 id="GitChecker-类的实现"><a href="#GitChecker-类的实现" class="headerlink" title="GitChecker 类的实现"></a>GitChecker 类的实现</h2><p>我们需要一个工厂创造 “检测者”，取名为 <code>GitChecker</code>，在 <code>GitChecker</code> 中需要使用发布订阅模式，对检测函数进行注册，并在执行实例的 <code>checkStart</code> 方法时依次执行，代码如下：</p><pre><code class="lang-js">/* ~git-hooks/git-checker.js */
+// 引入依赖
+const EventEmitter = require(&#39;events&#39;);
+const exec = require(&#39;child_process&#39;).execSync;
+const chalk = require(&#39;chalk&#39;);
+const defaultRules = require(&#39;./default-rules&#39;);
+const defaultEvents = require(&#39;./default-events&#39;);
+
+const { log } = console;
+
+// 创建 GitChecker 类并继承 EventEmitter，目的是继承 on 和 emit
+class GitChecker extends EventEmitter {
+  constructor(type, options) {
+    super();
+
+    // 防止使用者 options 内部属性传错，进行初始化
+    const {
+      rules = {},
+      defaultEventNames = [],
+      checkEvents = {}
+    } = options;
+
+    // 合并默认检测函数使用的正则和用户自定义检测函数使用的正则统一管理
+    this.rules = Object.assign(defaultRules, rules);
+
+    // 合并用户选择使用的默认检测函数和自定义检测函数
+    this.checkEvents = Object.assign(this.getDefaultEvents(defaultEventNames), checkEvents);
+    this.type = type; // git 操作类型
+    this.isCommit = true; // 当前是否可以被提交
+    this.gitConfigEnvs = [&#39;local&#39;, &#39;global&#39;, &#39;system&#39;]; // 取邮箱时的环境
+
+    // 将提交状态更改为禁止，绑定 this 是为了防止在检测函数内解构更改指向
+    this.forbiddenCommit = this.forbiddenCommit.bind(this);
+    this.init(); // 初始化
+  }
+
+  init() {
+    // 将检测函数常用方法挂载到实例上
+    this.log = log;
+    this.exec = exec;
+    this.chalk = chalk;
+
+    // 注册当前类型 git 操作对应的检测函数
+    this.register(this.type);
+  }
+
+  getDefaultEvents(eventsNames) {
+    return eventsNames.reduce((memo, eventName) =&gt; {
+      memo[eventName + &#39;CheckTask&#39;] = defaultEvents[eventName + &#39;CheckTask&#39;];
+      return memo;
+    }, {});
+  }
+
+  register(type) {
+    Object.keys(this.checkEvents).forEach((event) =&gt; {
+      // 订阅事件，每一个函数传入当前实例，方便取实例上的属性和方法
+      this.on(type, () =&gt; this.checkEvents[event](this));
+    });
+  }
+
+  forbiddenCommit() {
+    this.isCommit = false;
+  }
+
+  async checkStart() {
+    log(chalk.green(&#39;开始代码检测&#39;));
+
+    // 发布执行检测函数
+    await this.emit(this.type);
+
+    // 结束后结束当前 git 操作进程
+    this.checkEnd();
+  }
+
+  checkEnd() {
+    // 如果当前状态为不可提交，则退出进程号不为 0（git 规定）
+    if (!this.isCommit) process.exit(1);
+    log(chalk.green(&#39;检测通过&#39;));
+    process.exit(0);
+  }
+}
+
+module.exports = GitChecker;
+</code></pre><p>在上面的设计中之所以将一些常用方法都挂载在了实例上，目的是为了让使用者编写自定义检测函数时不再需要引入依赖和更方便的获取实例上的属性、方法，当然也方便了我自己编写默认检测函数。</p><h2 id="默认检测函数的实现"><a href="#默认检测函数的实现" class="headerlink" title="默认检测函数的实现"></a>默认检测函数的实现</h2><p>由于检测工厂 <code>GitChecker</code> 已经将自己创建的 “检测者” 塞入了检测函数的参数中去，那就可以把所有的默认检测函数放入一个 <code>default-events.js</code> 文件中统一管理。</p><h3 id="检测目录是否被-Git-管理"><a href="#检测目录是否被-Git-管理" class="headerlink" title="检测目录是否被 Git 管理"></a>检测目录是否被 Git 管理</h3><pre><code class="lang-js">/* ~git-hooks/default-events.js */
+exports.isGitCheckTask = ({ exec, log, chalk, forbiddenCommit }) =&gt; {
+  // 执行 git 命令，如果跑出异常证明不是一个 git 管理的项目
+  try {
+    exec(&#39;git status&#39;);
+  } catch (e) {
+    log(chalk.red(&#39;错误：当前不是一个git项目目录&#39;));
+    forbiddenCommit(); // 更改提交状态太为不能提交
+  }
+};
+</code></pre><p>检测是否为一个 <code>Git</code> 所管理的项目只需执行 <code>git status</code> 来检测一下文件变化，如果抛出异常则说明不被 <code>Git</code> 所管理。</p><h3 id="检测邮箱是否合规"><a href="#检测邮箱是否合规" class="headerlink" title="检测邮箱是否合规"></a>检测邮箱是否合规</h3><blockquote class="pullquote primary"><p><strong>上一个方法使用了从参数解构的方式获取实例属性和方法，为了更便于理解这个方法正常使用参数。</strong></p></blockquote><pre><code class="lang-js">/* ~git-hooks/default-events.js */
+exports.emailCheckTask = (checker) =&gt; {
+  const checkEmailEnvs = (i) =&gt; {
+    // 取出正则和获取 git 邮箱的环境参数集合
+    const gitConfigEnvs = checker.gitConfigEnvs;
+    const rules = checker.rules;
+
+    // 获取邮箱的 git 命令
+    const command = &#39;git config --&#39; + gitConfigEnvs[i] + &#39; user.email&#39;;
+
+    // 如果获取邮箱成功，则校验邮箱是否合规
+    try {
+      const userEmail = checker.exec(command).toString();
+      const isValidate = rules.emailCheck.test(userEmail);
+
+      if (!isValidate) {
+        checker.log(checker.chalk.red(&#39;错误：请使用正确的邮箱提交代码&#39;));
+        checker.log(checker.chalk.yellow(&#39;你当前的邮箱是：&#39; + userEmail));
+        checker.forbiddenCommit();
+      } else {
+        checker.log(checker.chalk.green(&#39;邮箱校验通过&#39;));
+      }
+    } catch (e) {
+      if (i === gitConfigEnvs.length) {
+        checker.log(checker.chalk.red(&#39;错误：请设置git的提交邮箱&#39;));
+        checker.forbiddenCommit();
+      } else {
+        checkEmailEnvs(i + 1);
+      }
+    }
+  };
+  checkEmailEnvs(0);
+};
+</code></pre><blockquote class="pullquote info"><p><strong>在 <code>Git</code> 中有三个参数设置邮箱，分别 <code>--local</code>、<code>--global</code>、<code>--system</code>，分别对应项目、用户和系统三个环境，顺序即为获取优先级，所以获取也是如此。</strong></p></blockquote><p>该方法使用了递归的思想实现，从优先级最高的环境开始获取邮箱，如果取到邮箱则进行验证，没取到则选择优先级次之的环境获取，直到取到邮箱为止，若都取不到则提示用户设置邮箱，如果取到邮箱，校验不通过则提示用户当前邮箱，并提醒用户设置正确的邮箱。</p><h3 id="检测冲突"><a href="#检测冲突" class="headerlink" title="检测冲突"></a>检测冲突</h3><pre><code class="lang-js">/* ~git-hooks/default-events.js */
+exports.conflictCheckTask = (checker) =&gt; {
+  // 对文件进行正则匹配的 git 命令
+  const command = &#39;git grep -n -P -E &quot;&#39; + rules.conflictCheck + &#39;&quot;&#39;;
+
+  // 如果没有成功匹配，则抛出异常，成功匹配打印冲突代码
+  try {
+    const conflicts = checker.exec(command, { encoding: &#39;utf-8&#39; });
+    if (conflicts) {
+      checker.log(checker.chalk.red(&#39;错误：发现冲突，请解决后再提交&#39;));
+      checker.log(checker.chalk.red(&#39;错误代码：&#39;));
+      checker.log(checker.chalk.red(conflicts.trim()));
+      checker.forbiddenCommit();
+    }
+  } catch (e) {
+    checker.log(checker.chalk.green(&#39;未发现冲突&#39;));
+  }
+};
+</code></pre><blockquote class="pullquote warning"><p><strong>在上面的 <code>Git</code> 命令中，<code>-n</code> 为显示匹配文件的行号，因为 <code>shell</code> 的正则支持不全，<code>-P</code> 和 <code>-E</code> 是为了支持正则扩展，保证正则生效。</strong></p></blockquote><h3 id="执行-Eslint"><a href="#执行-Eslint" class="headerlink" title="执行 Eslint"></a>执行 Eslint</h3><pre><code class="lang-js">/* ~git-hooks/default-events.js */
+exports.eslintCheckTask = ({ exec, log, chalk, forbiddenCommit }) =&gt; {
+  try {
+    exec(&#39;lint-staged&#39;);
+    log(chalk.green(&#39;Eslint 校验通过&#39;));
+  } catch (e) {
+    log(chalk.red(&#39;错误：Eslint 校验不通过&#39;));
+    forbiddenCommit();
+  }
+};
+</code></pre><blockquote class="pullquote default"><p><strong><code>Eslint</code> 本身具备检测冲突的功能，检测冲突的函数更适用于没有集成 <code>Eslint</code> 的项目，如果项目已经集成了 <code>Eslint</code> 可以不适用检测冲突函数。</strong></p></blockquote><h2 id="关于扩展"><a href="#关于扩展" class="headerlink" title="关于扩展"></a>关于扩展</h2><p>当需求变更，需要在 <code>push</code> 之前执行某些脚本应该怎么办，可以在 <code>git-hooks</code> 文件夹增加一个 <code>pre-push.js</code> 文件，文件内容如下。</p><pre><code class="lang-js">/* ~git-hooks/pre-push.js */
+const GitChecker = require(&#39;./git-checker&#39;);
+
+const pushChecker = new GitChecker(&#39;pre-push&#39;, {
+  defaultEventNames: [&#39;isGit&#39;, &#39;email&#39;], // default event names
+  rules: {
+    // your costom rules
+  },
+  checkEvents: {
+    myHook: ({ log, chalk, forbiddenCommit }) =&gt; {
+      log(chalk.red(&#39;check prev push&#39;));
+      forbiddenCommit();
+    }
+  }
+});
+
+commitChecker.checkStart();
+</code></pre><p>由于我们的 <code>hook</code> 依赖于 <code>husky</code>，所以项目 <code>package.json</code> 中的 <code>husky</code> 也有所修改如下：</p><pre><code class="lang-json">/* 使用 hook 项目的 package.json */
+{
+  &quot;husky&quot;: {
+    &quot;hooks&quot;: {
+      &quot;pre-commit&quot;: &quot;node git-hooks/pre-commit&quot;,
+      &quot;pre-push&quot;: &quot;node git-hooks/pre-push&quot;
+    }
+  }
+}
+</code></pre><h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><blockquote class="pullquote success"><p><strong>以上就是本次 <code>Git Hook</code> 的使用场景和实现，也希望通过本文，能让大家对 <code>Git Hook</code> 的相关知识有一定了解，另附赠 <code>Github</code> 地址</strong> <a href="https://github.com/shenqiuhui/git-hooks/tree/master" target="_blank">git-hooks</a><strong>。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20190409024640/" target="_blank" rel="external">https://www.overtaking.top/20190409024640/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/" rel="tag">Git</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hooks/" rel="tag">Hooks</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86-%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" rel="tag">代码管理/版本控制</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/" rel="tag">命令行</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20190409024640/&title=《Node.js 实现一个提交自动检测的 Git Hook》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20190409024640/&title=《Node.js 实现一个提交自动检测的 Git Hook》 — Shen's Blog&source=什么是 Git HookGit Hook 是能在 Git 操作的特定重要动作发生时触发自定义脚本，也被称为 “钩子”，这样的脚本被存储在 .git/hoo..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20190409024640/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 实现一个提交自动检测的 Git Hook》 — Shen's Blog&url=https://www.overtaking.top/20190409024640/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20190409024640/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20190416160637/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">TypeScript 基础知识总结</h4></a></div><div class="waves-block waves-effect next"><a href="/20190327025116/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Git 系列之 Github 团队协作</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20190409024640/&title=《Node.js 实现一个提交自动检测的 Git Hook》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20190409024640/&title=《Node.js 实现一个提交自动检测的 Git Hook》 — Shen's Blog&source=什么是 Git HookGit Hook 是能在 Git 操作的特定重要动作发生时触发自定义脚本，也被称为 “钩子”，这样的脚本被存储在 .git/hoo..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20190409024640/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 实现一个提交自动检测的 Git Hook》 — Shen's Blog&url=https://www.overtaking.top/20190409024640/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20190409024640/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABx0lEQVR42u3aW07DQBAEwNz/0uEA4Kh71rsYVP6KiGVX+GjNY1+v+HrH1/f7Pz/ttePCxcVd5ravv/o2+Zx8e/UWXFzc89yrxPh8z9XL8jjLDbi4uM/nJuGVxCUuLu7/4CaBlRQruLi4z+e2QdOG0ay5wsXF/S1uPqXc93nLfBcXF3fEfZdXEmSzhUr0dlxc3CPcPFDaNmZ2T7SOxcXFPcJdCZd8dLJSydxW9ODi4sbcfBjxeZCR398ev/ghd3FxcY9w2yJjfQw6XNzi4uJu5rZB065m8xCMhi+4uLjHue3Qc9/xi6K4wcXF3cwd1kdxGdS2Q1Hu4uLibuDmxcfsuFVbHkU/AxcX9yA3ecSsTcqXJUWQ4eLibubOliX5qPSu46G4uLgnuXmgJCPRttVp/4KLi3uSOxt0JiXLbNV6W6+Gi4t7Ezc/hJEvWdvWaKlgw8XFXXjCu7zatUp7bCvqinBxcTdz21FFPdBcntYMn4+Li7vMnYVX2xS1C5VhoYOLi3srtw2aWclyc6+Gi4v7GO7Kga08LnFxcf8it21gVlqmy1UKLi7uZm570GqlTVr5p+Di4p7hrgw3k+MUsxbohvkuLi7uhPsFs265aNX1SVgAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

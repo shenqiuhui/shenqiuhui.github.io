@@ -1,0 +1,291 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Node.js —— Buffer 解读 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,Buffer"><meta name="description" content="Buffer 概述在 ES6 引入 TypedArray 之前，JavaScript 语言没有读取或操作二进制数据流的机制，Node.js 实现了 Buffer 相关的 API，使其可以在 TCP 流或文件系统操作等场景中处理二进制数据流，Buffer 属于 Global 对象，使用时不需引入，且 Buffer 的大小在创建时确定，无法调整。"><meta property="og:type" content="article"><meta property="og:title" content="Node.js —— Buffer 解读"><meta property="og:url" content="https://www.overtaking.top/20180629115313/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="Buffer 概述在 ES6 引入 TypedArray 之前，JavaScript 语言没有读取或操作二进制数据流的机制，Node.js 实现了 Buffer 相关的 API，使其可以在 TCP 流或文件系统操作等场景中处理二进制数据流，Buffer 属于 Global 对象，使用时不需引入，且 Buffer 的大小在创建时确定，无法调整。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180629115313/buffer.png"><meta property="article:published_time" content="2018-06-29T03:53:13.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="Buffer"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180629115313/buffer.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Node.js —— Buffer 解读</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Node.js —— Buffer 解读</h1><h5 class="subtitle"><time datetime="2018-06-29T03:53:13.000Z" itemprop="datePublished" class="page-time">2018-06-29</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Buffer-概述"><span class="post-toc-number">1.</span> <span class="post-toc-text">Buffer 概述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#创建-Buffer"><span class="post-toc-number">2.</span> <span class="post-toc-text">创建 Buffer</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Buffer-alloc-和-Buffer-allocUnsafe"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">Buffer.alloc 和 Buffer.allocUnsafe</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Buffer-from"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">Buffer.from</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Buffer-的常用方法"><span class="post-toc-number">3.</span> <span class="post-toc-text">Buffer 的常用方法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#fill"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">fill</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#slice"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">slice</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#indexOf"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">indexOf</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#copy"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">copy</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Buffer-concat"><span class="post-toc-number">3.5.</span> <span class="post-toc-text">Buffer.concat</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Buffer-isBuffer"><span class="post-toc-number">3.6.</span> <span class="post-toc-text">Buffer.isBuffer</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#封装一个-split"><span class="post-toc-number">4.</span> <span class="post-toc-text">封装一个 split</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Buffer-的编码转换"><span class="post-toc-number">5.</span> <span class="post-toc-text">Buffer 的编码转换</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#去掉-BOM-头"><span class="post-toc-number">6.</span> <span class="post-toc-text">去掉 BOM 头</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#缓存-Buffer"><span class="post-toc-number">7.</span> <span class="post-toc-text">缓存 Buffer</span></a></li></ol></nav></aside><article id="post-Node.js/20180629115313" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Node.js —— Buffer 解读</h1><div class="post-meta"><time class="post-time" title="2018-06-29 11:53:13" datetime="2018-06-29T03:53:13.000Z" itemprop="datePublished">2018-06-29</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180629115313/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js —— Buffer 解读"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180629115313/buffer.png" title="Buffer"><p><br></p><h2 id="Buffer-概述"><a href="#Buffer-概述" class="headerlink" title="Buffer 概述"></a>Buffer 概述</h2><blockquote class="pullquote warning"><p><strong>在 <code>ES6</code> 引入</strong> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" target="_blank">TypedArray</a> <strong>之前，<code>JavaScript</code> 语言没有读取或操作二进制数据流的机制，<code>Node.js</code> 实现了 <code>Buffer</code> 相关的 <code>API</code>，使其可以在 <code>TCP</code> 流或文件系统操作等场景中处理二进制数据流，<code>Buffer</code> 属于 <code>Global</code> 对象，使用时不需引入，且 <code>Buffer</code> 的大小在创建时确定，无法调整。</strong></p></blockquote><a id="more"></a><h2 id="创建-Buffer"><a href="#创建-Buffer" class="headerlink" title="创建 Buffer"></a>创建 Buffer</h2><p>在 <code>Node.js</code> <code>v6.0.0</code> 版本之前，<code>Buffer</code> 实例是通过 <code>Buffer</code> 构造函数创建的，即使用 <code>new</code> 关键字创建，它根据提供的参数返回不同的 <code>Buffer</code>，但在之后的版本中这种声明方式就被废弃了，替代 <code>new</code> 的创建方式主要有以下几种。</p><h3 id="Buffer-alloc-和-Buffer-allocUnsafe"><a href="#Buffer-alloc-和-Buffer-allocUnsafe" class="headerlink" title="Buffer.alloc 和 Buffer.allocUnsafe"></a>Buffer.alloc 和 Buffer.allocUnsafe</h3><p>用 <code>Buffer.alloc</code> 和 <code>Buffer.allocUnsafe</code> 创建 <code>Buffer</code> 的传参方式相同，参数为创建 <code>Buffer</code> 的长度，数值类型。</p><pre><code class="lang-js">/* Buffer.alloc 和 Buffer.allocUnsafe 创建 Buffer */
+// Buffer.alloc 创建 Buffer
+const buf1 = Buffer.alloc(6);
+
+// Buffer.allocUnsafe 创建 Buffer
+const buf2 = Buffer.allocUnsafe(6);
+
+console.log(buf1); // &lt;Buffer 00 00 00 00 00 00&gt;
+console.log(buf2); // &lt;Buffer 00 e7 8f a0 00 00&gt;
+</code></pre><p>通过打印结果可以看出，用 <code>Buffer.alloc</code> 和 <code>Buffer.allocUnsafe</code> 创建 <code>Buffer</code> 是有区别的，<code>Buffer.alloc</code> 创建的 <code>Buffer</code> 是被初始化过的，<code>Buffer</code> 的每一项都用 <code>00</code> 填充，而 <code>Buffer.allocUnsafe</code> 创建的 <code>Buffer</code> 并没有经过初始化，在内存中只要有闲置的 <code>Buffer</code> 就直接 “抓过来” 使用。</p><p><code>Buffer.allocUnsafe</code> 创建 <code>Buffer</code> 使得内存的分配非常快，但已分配的内存段可能包含潜在的敏感数据，有明显性能优势的同时又是不安全的，所以需谨慎使用。</p><h3 id="Buffer-from"><a href="#Buffer-from" class="headerlink" title="Buffer.from"></a>Buffer.from</h3><blockquote class="pullquote info"><p><strong><code>Buffer.from</code> 支持三种传参方式：</strong></p><ul><li><strong>第一个参数为字符串，第二个参数为字符编码，如 <code>ASCII</code>、<code>UTF-8</code>、<code>Base64</code> 等等;</strong></li><li><strong>传入一个数组，数组的每一项会以十六进制存储为 Buffer 的每一项;</strong></li><li><strong>传入一个 Buffer，会将 Buffer 的每一项作为新返回 Buffer 的每一项。</strong></li></ul></blockquote><p><strong>传入字符串和字符编码：</strong></p><pre><code class="lang-js">/* 传入字符串和字符编码 */
+const buf = Buffer.from(&#39;hello&#39;, &#39;utf8&#39;);
+
+console.log(buf); // &lt;Buffer 68 65 6c 6c 6f&gt;
+</code></pre><p><strong>传入数组：</strong></p><pre><code class="lang-js">/* 数组成员为十进制数 */
+const buf = Buffer.from([1, 2, 3]);
+
+console.log(buf); // &lt;Buffer 01 02 03&gt;
+</code></pre><pre><code class="lang-js">/* 数组成员为十六进制数 */
+let buf = Buffer.from([0xe4, 0xbd, 0xa0, 0xe5, 0xa5, 0xbd]);
+
+console.log(buf); // &lt;Buffer e4 bd a0 e5 a5 bd&gt;
+console.log(buf.toString(&#39;utf8&#39;)); // 你好
+</code></pre><blockquote class="pullquote success"><p><strong>在 <code>Node.js</code> 中不支持 <code>GB2312</code> 编码，默认支持 <code>UTF-8</code>，在 <code>GB2312</code> 中，一个汉字占两个字节，而在 <code>UTF-8</code> 中，一个汉字占三个字节，所以上面 “你好” 的 <code>Buffer</code> 为 <code>6</code> 个十六进制数组成。</strong></p></blockquote><pre><code class="lang-js">/* 数组成员为字符串类型的数字 */
+const buf = Buffer.from([&#39;1&#39;, &#39;2&#39;, &#39;3&#39;]);
+
+console.log(buf); // &lt;Buffer 01 02 03&gt;
+</code></pre><p>传入的数组成员可以是任何进制的数值，当成员为字符串的时候，如果值是数字会被自动识别成数值类型，如果值不是数字或成员为是其他非数值类型的数据，该成员会被初始化为 <code>00</code>。</p><p>创建的 <code>Buffer</code> 可以通过 <code>toString</code> 方法直接指定编码进行转换，默认编码为 <code>UTF-8</code>。</p><p><strong>传入 Buffer：</strong></p><pre><code class="lang-js">/* 传入一个 Buffer */
+const buf1 = Buffer.from(&#39;hello&#39;, &#39;utf8&#39;);
+
+const buf2 = Buffer.from(buf1);
+
+console.log(buf1); // &lt;Buffer 68 65 6c 6c 6f&gt;
+console.log(buf2); // &lt;Buffer 68 65 6c 6c 6f&gt;
+console.log(buf1 === buf2); // true
+console.log(buf1[0] === buf2[0]); // false
+</code></pre><p>当传入的参数为一个 <code>Buffer</code> 的时候，会创建一个新的 <code>Buffer</code> 并复制上面的每一个成员。</p><blockquote class="pullquote warning"><p><strong><code>Buffer</code> 为引用类型，一个 <code>Buffer</code> 复制了另一个 <code>Buffer</code> 的成员，当其中一个 <code>Buffer</code> 复制的成员有更改，另一个 <code>Buffer</code> 对应的成员会跟着改变，因为指向同一个引用，类似于 “二维数组”。</strong></p></blockquote><pre><code class="lang-js">/* Buffer 类比二维数组 */
+const arr1 = [1, 2, [3]];
+const arr2 = arr1.slice();
+
+arr2[2][0] = 5;
+console.log(arr1); // [1, 2, [5]]
+</code></pre><h2 id="Buffer-的常用方法"><a href="#Buffer-的常用方法" class="headerlink" title="Buffer 的常用方法"></a>Buffer 的常用方法</h2><h3 id="fill"><a href="#fill" class="headerlink" title="fill"></a>fill</h3><blockquote class="pullquote primary"><p><strong><code>Buffer</code> 的 <code>fill</code> 方法可以向一个 <code>Buffer</code> 中填充数据，支持传入三个参数：</strong></p><ul><li><strong><code>value</code>：将要填充的数据；</strong></li><li><strong><code>start</code>：填充数据的开始位置，不指定默认为 <code>0</code>；</strong></li><li><strong><code>end</code>：填充数据的结束位置，不指定默认为 <code>Buffer</code> 的长度。</strong></li></ul></blockquote><pre><code class="lang-js">const buf = Buffer.alloc(3);
+
+buf.fill(1);
+console.log(buf); // &lt;Buffer 01 01 01&gt;
+</code></pre><pre><code class="lang-js">const buf = Buffer.alloc(6);
+
+buf.fill(1, 2, 4);
+console.log(buf); // &lt;Buffer 00 00 01 01 00 00&gt;
+</code></pre><p>上面代码可以看出填充数据是 “包前不包后的”，<code>fill</code> 的第一个参数也支持是多个字节，从被填充 <code>Buffer</code> 的起始位置开始，一直到结束，会循环填充这些字节，剩余的位置不够填充这几个字节，会填到哪算哪，有可能不完整，如果 <code>fill</code> 指定的结束位置大于了 <code>Buffer</code> 的长度，会抛出 <code>RangeError</code> 的异常。</p><pre><code class="lang-js">const buf = Buffer.alloc(6);
+
+buf.fill(&#39;abc&#39;, 1, 5);
+console.log(buf); // &lt;Buffer 00 61 62 63 61 00&gt;
+</code></pre><pre><code class="lang-js">const buf = Buffer.alloc(3);
+
+buf.fill(&#39;abc&#39;, 4, 8);
+console.log(buf); // throw new errors.RangeError(&#39;ERR_INDEX_OUT_OF_RANGE&#39;);
+</code></pre><h3 id="slice"><a href="#slice" class="headerlink" title="slice"></a>slice</h3><p><code>Buffer</code> 的 <code>slice</code> 方法与数组的 <code>slice</code> 方法用法完全相同，相信数组的 <code>slice</code> 已经足够熟悉了，这里就不多赘述了，<code>Buffer</code> 中截取出来的都是 <code>Buffer</code>。</p><pre><code class="lang-js">const buf = Buffer.from(&#39;hello&#39;, &#39;utf8&#39;);
+
+const a = buf.slice(0, 2);
+const b = buf.slice(2);
+const c = buf.slice(-2);
+
+console.log(a.toString()); // he
+console.log(b.toString()); // llo
+console.log(c.toString()); // lo
+</code></pre><h3 id="indexOf"><a href="#indexOf" class="headerlink" title="indexOf"></a>indexOf</h3><p><code>Buffer</code> 的 <code>indexOf</code> 用法与数组和字符串的 <code>indexOf</code> 类似，第一个参数为查找的项，第二个参数为查找的起始位置，不同的是，对于 <code>Buffer</code> 而言，查找的可能是一个字符串，代表多个字节，查找的字节在 <code>Buffer</code> 中必须有连续相同的字节，返回连续的字节中第一个字节的索引，没查找到返回 <code>-1</code>。</p><pre><code class="lang-js">const buf = Buffer.from(&#39;你*好*吗&#39;, &#39;utf8&#39;);
+
+console.log(buf); // &lt;Buffer e4 bd a0 2a e5 a5 bd 2a e5 90 97&gt;
+console.log(buf.indexOf(&#39;*&#39;)); // 3
+console.log(buf.indexOf(&#39;好&#39;)); // 4
+console.log(buf.indexOf(&#39;*&#39;, 4)); // 7
+</code></pre><h3 id="copy"><a href="#copy" class="headerlink" title="copy"></a>copy</h3><blockquote class="pullquote default"><p><strong><code>Buffer</code> 的 <code>copy</code> 方法用于将一个 <code>Buffer</code> 的字节复制到另一个 <code>Buffer</code> 中去，有四个参数：</strong></p><ul><li><strong><code>target</code>：目标 <code>Buffer</code>；</strong></li><li><strong><code>targetStart</code>：目标 <code>Buffer</code> 的起始位置；</strong></li><li><strong><code>sourceStart</code>：源 <code>Buffer</code> 的起始位置；</strong></li><li><strong><code>sourceEnd</code>：源 <code>Buffer</code> 的结束位置。</strong></li></ul></blockquote><pre><code class="lang-js">/* 容器 Buffer 长度充足 */
+const targetBuf = Buffer.alloc(6);
+const sourceBuf = Buffer.from(&#39;你好&#39;, &#39;utf8&#39;);
+
+// 将 “你好” 复制到 targetBuf 中
+sourceBuf.copy(targetBuf, 0, 0, 6);
+
+console.log(targetBuf.toString()); // 你好
+</code></pre><pre><code class="lang-js">/* 容器 Buffer 长度不足 */
+const targetBuf = Buffer.alloc(3);
+const sourceBuf = Buffer.from(&#39;你好&#39;, &#39;utf8&#39;);
+
+sourceBuf.copy(targetBuf, 0, 0, 6);
+console.log(targetBuf.toString()); // 你
+</code></pre><p>上面第二个案例中虽然要把整个源 <code>Buffer</code> 都复制进目标 <code>Buffer</code> 中，但是由于目标 <code>Buffer</code> 的长度只有 <code>3</code>，所以最终只能复制进去一个 “你” 字。</p><blockquote class="pullquote warning"><p><strong><code>Buffer</code> 与数组不同，不能通过操作 <code>length</code> 和索引改变 <code>Buffer</code> 的长度，<code>Buffer</code> 一旦被创建，长度将保持不变。</strong></p></blockquote><pre><code class="lang-js">/* 数组对比 Buffer —— 操作 length */
+// 数组
+const arr = [1, 2, 3];
+arr[3] = 4;
+console.log(arr); // [1, 2, 3, 4]
+
+arr.length = 5;
+console.log(arr); // [1, 2, 3, 4, empty]
+
+// Buffer
+const buf = Buffer.alloc(3);
+buf[3] = 0x00;
+console.log(buf); // &lt;Buffer 00 00 00&gt;
+
+buf.length = 5;
+console.log(buf); // &lt;Buffer 00 00 00&gt;
+console.log(buf.length); // 3
+</code></pre><p>通过上面代码可以看出数组可以通过 <code>length</code> 和索引对数组的长度进行改变，但是 <code>Buffer</code> 中类似的操作都是不生效的。</p><p><strong><code>copy</code> 方法的 <code>Polyfill</code>：</strong></p><pre><code class="lang-js">/* 模拟 copy 方法 */
+Buffer.prototype.myCopy = function (target, targetStart, sourceStart, sourceEnd) {
+  for (let i = 0; i &lt; sourceEnd - sourceStart; i++) {
+    target[targetStart + i] = this[sourceStart + i];
+  }
+}
+</code></pre><h3 id="Buffer-concat"><a href="#Buffer-concat" class="headerlink" title="Buffer.concat"></a>Buffer.concat</h3><p>与数组类似，<code>Buffer</code> 也存在用于拼接多个 <code>Buffer</code> 的方法 <code>concat</code>，不同的是 <code>Buffer</code> 中的 <code>concat</code> 不是实例方法，而是静态方法，通过 <code>Buffer.concat</code> 调用，且传入的参数不同。</p><blockquote class="pullquote primary"><p><strong><code>Buffer.concat</code> 有两个参数，返回值是一个新的 <code>Buffer</code>：</strong></p><ul><li><strong>第一个参数为一个数组，数组中的每一个成员都是一个 <code>Buffer</code>；</strong></li><li><strong>第二个参数代表新 <code>Buffer</code> 的长度，默认值为数组中每个 <code>Buffer</code> 长度的总和。</strong></li></ul></blockquote><p><code>Buffer.concat</code> 会将数组中的 <code>Buffer</code> 进行拼接，存入新 <code>Buffer</code> 并返回，如果传入第二个参数规定了返回 <code>Buffer</code> 的长度，那么返回值存储拼接到规定长度个字节。</p><pre><code class="lang-js">const buf1 = Buffer.from(&#39;你&#39;, &#39;utf8&#39;);
+const buf2 = Buffer.from(&#39;好&#39;, &#39;utf8&#39;);
+
+const result1 = Buffer.concat([buf1, buf2]);
+const result2 = Buffer.concat([buf1, buf2], 3);
+
+console.log(result1); // &lt;Buffer e4 bd a0 e5 a5 bd&gt;
+console.log(result1.toString()); // 你好
+
+console.log(result2); // &lt;Buffer e4 bd a0&gt;
+console.log(result2.toString()); // 你
+</code></pre><p><strong><code>Buffer.concat</code> 方法的 <code>Polyfill</code>：</strong></p><pre><code class="lang-js">/* 模拟 Buffer.concat */
+Buffer.myConcat = function (bufferList, len) {
+  // 新 Buffer 的长度
+  len = len || bufferList.reduce((prev, next) =&gt; prev + next.length, 0);
+
+  let index = 0; // 下次开始的索引
+  const newBuf = Buffer.alloc(len); // 创建新 Buffer
+
+  // 循环存储 Buffer 的数组进行复制
+  bufferList.forEach(buf =&gt; {
+    buf.myCopy(newBuf, index, 0, buf.length);
+    index += buf.length;
+  });
+
+  return newBuf;
+}
+</code></pre><h3 id="Buffer-isBuffer"><a href="#Buffer-isBuffer" class="headerlink" title="Buffer.isBuffer"></a>Buffer.isBuffer</h3><p><code>Buffer.isBuffer</code> 是用来判断一个对象是否是一个 <code>Buffer</code>，返回布尔值。</p><pre><code class="lang-js">const obj = {};
+const buf = Buffer.alloc(6);
+
+console.log(Buffer.isBuffer(obj)); // false
+console.log(Buffer.isBuffer(buf)); // true
+</code></pre><h2 id="封装一个-split"><a href="#封装一个-split" class="headerlink" title="封装一个 split"></a>封装一个 split</h2><p>字符串的 <code>split</code> 是经常使用的方法，可以用分隔符将字符串切成几部分存储在数组中，<code>Buffer</code> 本身没有 <code>split</code> 方法，但是也会有类似的使用场景，所以我们在 <code>Buffer</code> 上自己实现一个 <code>split</code>。</p><blockquote class="pullquote warning"><p><strong>功能：<code>Buffer</code> 的 <code>split</code> 方法参数为一个分隔符，这个分隔符可能是一个或多个字节的内容，返回值为一个数组，分隔开的部分作为独立的 <code>Buffer</code> 存储在返回的数组中。</strong></p></blockquote><pre><code class="lang-js">/* 封装 Buffer 的 split 方法 */
+Buffer.prototype.split = function (sep) {
+  const len = Buffer.from(sep).length; // 分隔符所占的字节数
+  const result = []; // 返回的数组
+  let start = 0; // 查找 Buffer 的起始位置
+  let offset = 0; // 偏移量
+
+  // 循环查找分隔符
+  while ((offset = this.indexOf(sep, start)) !== -1) {
+    // 将分隔符之前的部分截取出来存入
+    result.push(this.slice(start, offset));
+    start = offset + len;
+  }
+
+  // 处理剩下的部分
+  result.push(this.slice(start));
+
+  // 返回结果
+  return result;
+}
+</code></pre><p><strong>验证 <code>split</code> 方法：</strong></p><pre><code class="lang-js">/* 验证 split */
+const buf = Buffer.from(&#39;哈登爱篮球爱夜店&#39;, &#39;utf8&#39;);
+const bufs = buf.split(&#39;爱&#39;);
+
+console.log(bufs);
+// [ &lt;Buffer e5 93 88 e7 99 bb&gt;,
+//   &lt;Buffer e7 af ae e7 90 83&gt;,
+//   &lt;Buffer e5 a4 9c e5 ba 97&gt; ]
+
+const newBufs = bufs.map(buf =&gt; buf.toString());
+console.log(newBufs); // [ &#39;哈登&#39;, &#39;篮球&#39;, &#39;夜店&#39; ]
+</code></pre><h2 id="Buffer-的编码转换"><a href="#Buffer-的编码转换" class="headerlink" title="Buffer 的编码转换"></a>Buffer 的编码转换</h2><p>我们知道 <code>Node.js</code> 中的默认编码为 <code>UTF-8</code>，且不支持 <code>GB2312</code> 编码，假如现在有一个编码格式为 <code>GB2312</code> 的 <code>txt</code> 文件，内容为 “你好”，现在我们使用 <code>Node.js</code> 去读取它，由于在 <code>UTF-8</code> 与 <code>GB2312</code> 编码中汉字所占字节数不同，所以读出的内容无法解析，即为乱码。</p><pre><code class="lang-js">// 引入依赖
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+const buf = Buffer.from(&#39;你好&#39;, &#39;utf8&#39;);
+const result = fs.readFileSync(path.resolve(__dirname, &#39;a.txt&#39;));
+
+console.log(buf); // &lt;Buffer e4 bd a0 e5 a5 bd&gt;
+console.log(buf.toString()); // 你好
+console.log(result); // &lt;Buffer c4 e3 ba c3&gt;
+console.log(result.toString()); // ���
+</code></pre><p>如果一定要在 <code>Node.js</code> 中来正确解析这样的内容，这样的问题还是有办法解决的，我们需要借助 <code>iconv-lite</code> 模块，这个模块可以将一个 <code>Buffer</code> 按照指定的编码格式进行编码或解码。</p><p>由于 <code>iconv-lite</code> 是第三方提供的模块，在使用前需要安装，安装命令如下：</p><pre><code class="lang-bash">$ npm install iconv-lite
+</code></pre><p><strong>如果想正确的读出其他编码格式文件的内容，上面代码应该更改为：</strong></p><pre><code class="lang-js">// 引入依赖
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+const iconvLite = require(&#39;iconv-lite&#39;);
+
+const result = fs.readFileSync(path.resolve(__dirname, &#39;a.txt&#39;));
+
+console.log(iconvLite.decode(result, &#39;gb2312&#39;)); // 你好
+</code></pre><h2 id="去掉-BOM-头"><a href="#去掉-BOM-头" class="headerlink" title="去掉 BOM 头"></a>去掉 BOM 头</h2><p>上面读取 <code>GB2312</code> 编码的 <code>txt</code> 文件也可以通过打开文件重新保存为 <code>UTF-8</code> 或用编辑器直接将编码手动修改为 <code>UTF-8</code>，此时读取的文件不需要进行编码转换，但是会产生新的问题。</p><pre><code class="lang-js">/* 产生 BOM 头 */
+// 引入依赖
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+const buf = Buffer.from(&#39;你好&#39;, &#39;utf8&#39;);
+const result = fs.readFileSync(path.resolve(__dirname, &#39;a.txt&#39;));
+
+console.log(buf); // &lt;Buffer e4 bd a0 e5 a5 bd&gt;
+console.log(result); // &lt;Buffer ef bb bf e4 bd a0 e5 a5 bd&gt;
+</code></pre><p>在手动修改 <code>txt</code> 文件编码后执行上面代码，发现读取的 <code>Buffer</code> 与正常情况相比前面多出了三个字节，只要存在文件编码的修改就会在这个文件的前面产生多余的字节，叫做 <code>BOM</code> 头。</p><blockquote class="pullquote info"><p><strong><code>BOM</code> 头是用来判断文本文件是哪一种 <code>Unicode</code> 编码的标记，其本身是一个 <code>Unicode</code> 字符，位于文本文件头部。</strong></p></blockquote><p>虽然 <code>BOM</code> 头起到了标记文件编码的作用，但是它并不属于文件的内容部分，因此会产生一些问题，如文件编码发生变化后无法正确读取文件的内容，或者多个文件在合并的过程中，中间会夹杂着这些多余内容，所以在 <code>Node.js</code> 文件操作的源码中，<code>Buffer</code> 编码转换的模块 <code>iconv-lite</code> 中，以及 <code>Webpack</code> 对项目文件进行打包编译时都进行了去掉 <code>BOM</code> 头的操作。</p><p>为了让上面的代码可以正确的读取并解析编码被手动修改过的文件内容，我们这里也需要进行去掉 <code>BOM</code> 头的操作。</p><pre><code class="lang-js">/* 去掉 BOM 头的方法 */
+function BOMStrip(result) {
+  if (Buffer.isBuffer(result)) {
+    // 如果读取的内容为 Buffer
+    if (result[0] === 0xef &amp;&amp; result[1] === 0xbb &amp;&amp; result[2] === 0xbf) {
+      // 若前三个字节是否和 BOM 头的前三字节相同，去掉 BOM 头
+      return Buffer.slice(3);
+    }
+  } else {
+    // 如果不是 Buffer
+    if (result.charCodeAt(0) === 0xfeff) {
+      // 判断第一项是否和 BOM 头的十六进制相同，去掉 BOM 头
+      return result.slice(1);
+    }
+  }
+}
+</code></pre><p><strong>使用去掉 <code>BOM</code> 头的方法并验证上面读文件的案例：</strong></p><pre><code class="lang-js">/* 验证去 BOM 头的方法 */
+// 引入依赖
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 两种方式读文件
+const result1 = fs.readFileSync(path.resolve(__dirname, &#39;a.txt&#39;));
+const result2 = fs.readFileSync(path.resolve(__dirname, &#39;a.txt&#39;), &#39;utf8&#39;);
+
+console.log(BOMStrip(result1).toString()); // 你好
+console.log(BOMStrip(result2)); // 你好
+</code></pre><h2 id="缓存-Buffer"><a href="#缓存-Buffer" class="headerlink" title="缓存 Buffer"></a>缓存 Buffer</h2><pre><code class="lang-js">/* 产生乱码问题 */
+const buf = Buffer.from(&#39;你好&#39;, &#39;utf8&#39;);
+
+const a = buf.slice(0, 2);
+const b = buf.slice(2, 6);
+
+console.log(a.toString()); // �
+console.log(b.toString()); // �好
+</code></pre><p><code>UTF-8</code> 编码，一个汉字三个字节，使用 <code>slice</code> 方法对一个表达汉字的 <code>Buffer</code> 进行截取，如果截取长度不是 <code>3</code> 的整数倍，此时无法正确解析，会显示乱码，这种情况可以使用模块 <code>string_decoder</code> 对不能组成汉字的 <code>Buffer</code> 进行缓存，<code>string_decoder</code> 是核心模块，不需要安装。</p><pre><code class="lang-js">/* 缓存 Buffer */
+// 引入依赖
+const { StringDecoder } = require(&#39;string_decoder&#39;);
+
+const buf = Buffer.from(&#39;你好&#39;, &#39;utf8&#39;);
+
+const a = buf.slice(0, 2);
+const b = buf.slice(2, 6);
+
+// 创建 StringDecoder 实例
+const sd = new StringDecoder();
+
+console.log(sd.write(a));
+console.log(sd.write(b)); // 你好
+</code></pre><p>上面代码中使用了 <code>string_decoder</code> 后，截取的 <code>Buffer</code> 不能组成一个汉字的时候不打印，进行缓存，等到可以正确解析时取出缓存，重新拼接后打印。</p></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180629115313/" target="_blank" rel="external">https://www.overtaking.top/20180629115313/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Buffer/" rel="tag">Buffer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180629115313/&title=《Node.js —— Buffer 解读》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180629115313/&title=《Node.js —— Buffer 解读》 — Shen's Blog&source=Buffer 概述在 ES6 引入 TypedArray 之前，JavaScript 语言没有读取或操作二进制数据流的机制，Node.js 实现了 Buf..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180629115313/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js —— Buffer 解读》 — Shen's Blog&url=https://www.overtaking.top/20180629115313/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180629115313/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180630172601/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Node.js 文件操作 —— fs 基本使用</h4></a></div><div class="waves-block waves-effect next"><a href="/20180628204755/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">EventEmitter 源码分析与简易实现</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180629115313/&title=《Node.js —— Buffer 解读》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180629115313/&title=《Node.js —— Buffer 解读》 — Shen's Blog&source=Buffer 概述在 ES6 引入 TypedArray 之前，JavaScript 语言没有读取或操作二进制数据流的机制，Node.js 实现了 Buf..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180629115313/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js —— Buffer 解读》 — Shen's Blog&url=https://www.overtaking.top/20180629115313/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180629115313/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABx0lEQVR42u3aSW7DMAwFUN//0u4Bgsif1BAXeFoFjSM9d0Fw0HXF6/5Y3575fH6827Vj4eLiTnPv4RofMP7VmPht/4fdcHFxD3KTwPTt+eRl8v0fbLi4uC/mFg4IQh4uLu5/5yZ/SZIVXFzc93PzQJOnPr3ialmthouLO8HNu5T7Pm/p7+Li4ra4d3FVW6V5CzU6HRcX9wg3DyjVBCgvjfJzcXFxz3Crgab6Ar2c6yGE4eLibubmgaZ6zSLfM093cHFxz3BnBqK91+sNV3BxcU9yqwPOapFTHcFGjRVcXNyD3F4ZUx2aVpOhwkwYFxd3KbfKGoe5XsGT74mLi3uGu+qAqHQJhjcPr4GLi7uZO960WrrMjGyjQIaLi3uEOz/kyJOb+euhuLi4v+VGPyseNj+SwcXFPc9Nkoz5b3vjE1xc3N9yq1cqk9Fs/m30DC4u7mbuXVy9EWk+iC38n3BxcbdxZ4JXcky1CVsNmri4uPu4edAZUwp3PYKBSjPRwcXFXcqtBppeyrKxVsPFxX0BN2+wVsuhq/c2uLi4L+PmDZReBRaNUnBxcTdwq1evdrROks+4uLhnuOVQMjxsQXmzqr+Li4vb4f4Bj7hSweaSEVwAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

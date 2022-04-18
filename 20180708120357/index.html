@@ -1,0 +1,251 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>基于 TCP 实现简易聊天室 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,HTTP,TCP"><meta name="description" content="前言TCP 为传输层协议，在 Node.js 中，基于 TCP 的核心模块为 net，http 和 https 模块都是基于 net 实现的，我们先简单介绍 net 的用法，再根据 net 实现一个简易的聊天室。"><meta property="og:type" content="article"><meta property="og:title" content="基于 TCP 实现简易聊天室"><meta property="og:url" content="https://www.overtaking.top/20180708120357/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言TCP 为传输层协议，在 Node.js 中，基于 TCP 的核心模块为 net，http 和 https 模块都是基于 net 实现的，我们先简单介绍 net 的用法，再根据 net 实现一个简易的聊天室。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180708120357/nodejs-tcp-ip.png"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180708120357/PuTTY.png"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180708120357/PuTTY-window.png"><meta property="article:published_time" content="2018-07-08T04:03:57.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="HTTP"><meta property="article:tag" content="TCP"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180708120357/nodejs-tcp-ip.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">基于 TCP 实现简易聊天室</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">基于 TCP 实现简易聊天室</h1><h5 class="subtitle"><time datetime="2018-07-08T04:03:57.000Z" itemprop="datePublished" class="page-time">2018-07-08</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#net-模块的基本用法"><span class="post-toc-number">2.</span> <span class="post-toc-text">net 模块的基本用法</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-net-创建一个网络服务"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">使用 net 创建一个网络服务</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-TCP-模拟-http"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">使用 TCP 模拟 http</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#server、socket-的属性和方法"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">server、socket 的属性和方法</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#创建客户端"><span class="post-toc-number">3.</span> <span class="post-toc-text">创建客户端</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现简易聊天室"><span class="post-toc-number">4.</span> <span class="post-toc-text">实现简易聊天室</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#定义聊天室规则"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">定义聊天室规则</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#服务搭建"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">服务搭建</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#处理指令模块-process-instructs"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">处理指令模块 process-instructs</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#指令处理方法模块-instructs"><span class="post-toc-number">4.4.</span> <span class="post-toc-text">指令处理方法模块 instructs</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">5.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180708120357" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">基于 TCP 实现简易聊天室</h1><div class="post-meta"><time class="post-time" title="2018-07-08 12:03:57" datetime="2018-07-08T04:03:57.000Z" itemprop="datePublished">2018-07-08</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180708120357/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="基于 TCP 实现简易聊天室"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180708120357/nodejs-tcp-ip.png" title="TCP + Node.js 简易聊天室"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote warning"><p><strong><code>TCP</code> 为传输层协议，在 <code>Node.js</code> 中，基于 <code>TCP</code> 的核心模块为 <code>net</code>，<code>http</code> 和 <code>https</code> 模块都是基于 <code>net</code> 实现的，我们先简单介绍 <code>net</code> 的用法，再根据 <code>net</code> 实现一个简易的聊天室。</strong></p></blockquote><a id="more"></a><h2 id="net-模块的基本用法"><a href="#net-模块的基本用法" class="headerlink" title="net 模块的基本用法"></a>net 模块的基本用法</h2><h3 id="使用-net-创建一个网络服务"><a href="#使用-net-创建一个网络服务" class="headerlink" title="使用 net 创建一个网络服务"></a>使用 net 创建一个网络服务</h3><p><strong>方式 1：</strong></p><pre><code class="lang-js">const net = require(&#39;net&#39;);
+
+// 创建 TCP 服务
+const server = net.createServer(function (socket) {
+  // ......
+});
+
+server.listen(3000);
+</code></pre><p><strong>方式 2：</strong></p><pre><code class="lang-js">const net = require(&#39;net&#39;);
+
+// 创建 TCP 服务
+const server = net.createServer();
+
+// 监听连接
+server.on(&#39;connection&#39;, function (socket) {
+  // ......
+});
+
+server.listen(3000);
+</code></pre><p>上面两种创建网络服务的方式第二种更常用，回调函数的参数都为 <code>socket</code>（套接字），在产生连接时执行，每产生一个连接就会产生一个 <code>socket</code>，我们也可以将 <code>socket</code> 理解为客户端。</p><p>如果现在使用浏览器连接这个服务可以成功接收到请求，但浏览器是 <code>http</code> 协议，不识别，所以不会有任何响应。</p><h3 id="使用-TCP-模拟-http"><a href="#使用-TCP-模拟-http" class="headerlink" title="使用 TCP 模拟 http"></a>使用 TCP 模拟 http</h3><pre><code class="lang-js">const net = require(&#39;net&#39;);
+
+// 创建 TCP 服务
+const server = net.createServer();
+
+// 监听连接
+server.on(&#39;connection&#39;, function (socket) {
+  // 设置编码
+  socket.setEncoding(&#39;utf8&#39;);
+
+  // 读取请求报文
+  socket.on(&#39;data&#39;, function (data) {
+    console.log(data);
+  });
+
+  // 给浏览器返回响应报文
+  socket.write(`
+HTTP/1.1 200 ok
+Content-Length: 5
+
+hello
+  `);
+});
+
+server.listen(3000);
+
+// GET /favicon.ico HTTP/1.1
+// Host: localhost:3000
+// Connection: keep-alive
+// Pragma: no-cache
+// Cache-Control: no-cache
+// ...... 后面省略
+</code></pre><p><code>soket</code> 是一个可读可写流 <code>Duplex</code>（双工流），所以既可以读取来自浏览器的请求信息，又可以写入响应信息，在模拟 <code>http</code> 时需遵循 <code>http</code> 协议规则，每行前面不允许有空格或制表符，响应头与响应正文之间需空一行。</p><p>此时启动服务，使用浏览器访问 <a href="javascript:;">localhost:3000</a> 可以在控制台打印请求报文，并在浏览器中显示 <code>hello</code>。</p><blockquote class="pullquote primary"><p><strong><code>http</code> 的头部信息可以通过命令窗口中使用 <code>curl</code> 发送请求进行查看：</strong></p><ul><li><strong>输入命令：<code>curl -v http://.....</code></strong></li></ul><p><strong><code>Windows</code> 系统中默认命令行窗口不支持 <code>curl</code> 命令，请在</strong> <a href="https://curl.haxx.se/download.html" target="_blank">curl 官网</a> <strong>下载系统对应的版本，下载后的压缩包解压后将 <code>curl.exe</code> 和 <code>ca-bundle.crt</code> 拷贝至 <code>C:\Windows\System32</code> 或将所在文件夹添加至系统环境变量。</strong></p></blockquote><h3 id="server、socket-的属性和方法"><a href="#server、socket-的属性和方法" class="headerlink" title="server、socket 的属性和方法"></a>server、socket 的属性和方法</h3><p>在 TCP 创建的服务 <code>server</code> 和连接中的 <code>socket</code> 本身具有一些属性、方法和事件，我们通过下面这个例子来介绍。</p><pre><code class="lang-js">const net = require(&#39;net&#39;);
+
+// 创建 TCP 服务器
+const server = net.createServer();
+
+server.on(&#39;connection&#39;, function (socket) {
+  // 客户端的 ip + 端口号
+  const key = socket.remoteAddress + socket.remotePort;
+
+  server.getConnetions(function (err, count) {
+    socket.write(&#39;当前有&#39; + count + &#39;人，总人数为&#39; + server.maxConnections + &#39;人。&#39;);
+  });
+
+  socket.on(&#39;data&#39;, function (data) {
+    // 设置编码
+    socket.setEncoding(&#39;utf8&#39;);
+
+    // 关闭客户端
+    // socket.end();
+
+    // 关闭服务器
+    // server.close();
+    server.unref();
+  });
+});
+
+// 最大连接数
+server.maxConnections = 3;
+
+server.on(&#39;close&#39;, function () {
+  console.log(&#39;服务端关闭&#39;);
+});
+
+server.on(&#39;error&#39;, function (err) {
+  if (err.code === &#39;EADDRINUSE&#39;) {
+    server.listen(err.port + 1);
+  }
+});
+
+server.listen(3000, function () {
+  console.log(&#39;server start 3000&#39;);
+});
+</code></pre><p><code>socket.remoteAddress</code> 属性，获取客户端的 IP 地址。</p><p><code>socket.remotePort</code> 属性，获取客户端的端口号。</p><p><code>socket.setEncoding</code> 方法，设置编码格式。</p><p><code>socket.write</code> 方法，向客户端写入内容，写入内容的值只能为字符串或 Buffer。</p><p><code>socket.end</code> 方法，断开对应客户端的连接，并返回信息，返回内容的值只能为字符串或 Buffer，<code>soket</code> 可以监听 <code>end</code> 事件，当关闭客户端时触发并执行回调。</p><p><code>socket.destroy</code> 方法，用于销毁当前客户端对应的 <code>socket</code> 对象。</p><p><code>server.maxConnections</code> 属性，是当前服务器允许的最大连接数，数值类型，当连接数超过设定值时，新的客户端将无法连接服务器。</p><p><code>server.getConnetions</code> 方法，获取当前的连接数，参数为回调函数，回调函数有两个参数 <code>err</code>（错误）和 <code>count</code>（当前连接数），异步执行。</p><p><code>server.close</code> 方法，关闭服务器，并没有真的关闭服务器，而是不允许新的连接，直到所有连接都断开后自动关闭服务器。</p><p><code>server.unref</code> 方法，关闭服务器的另一种形式，不阻止新的连接，当所有连接都断开时自动关闭服务器。</p><p><code>server.listen</code> 方法，监听端口号，支持传入回调，在启动服务后执行。</p><p><code>server</code> 的 <code>close</code> 事件，参数为回调函数，异步执行，当服务器关闭时触发。</p><p><code>server</code> 的 <code>error</code> 事件，参数为回调函数，回调函数的参数为 <code>err</code>（错误对象），异步执行，当启动服务器或服务器运行时出现错误触发。</p><blockquote class="pullquote success"><p><strong>在 <code>Webpack</code> 中如果启动 <code>webpack-dev-server</code> 在端口号被占用时，端口号会自动 <code>+1</code>，我们可以利用 <code>err</code> 错误对象来模拟，在 <code>err</code> 事件对象上有很多属性，其中的 <code>code</code> 属性值为 <code>EADDRINUSE</code> 时代表端口号被占用，所以在判断 <code>code</code> 值后，重新调用了 <code>server.listen</code> 并传入重新计算后的端口号。</strong></p></blockquote><p>想看一看上面代码的效果需要客户端的支持，本文中模拟客户端访问服务器有三种方式，使用一种即可。</p><h2 id="创建客户端"><a href="#创建客户端" class="headerlink" title="创建客户端"></a>创建客户端</h2><blockquote class="pullquote info"><p><strong>验证我们自己实现的 <code>TCP</code> 服务器需要客户端访问，在本文的主题简易聊天室当中也需要用户和客户端，所以介绍一下创建客户端的方式。</strong></p><ul><li><strong>可以使用 <code>net</code> 模块创建客户端，并启访问服务器；</strong></li><li><strong><code>Mac</code> 中可以直接在命令窗口执行 <code>brew install telnet</code> 安装 <code>telnet</code>，安装后输入 <code>telnet localhost 3000</code> 即可以访问上面的服务器；</strong></li><li><strong><code>Windows</code> 中 <code>telnet</code> 接收到的服务器响应会变成乱码，所以可以使用</strong> <a href="http://www.netsarang.com/download/main.html" target="_blank">Xshell</a> <strong>和</strong> <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html" target="_blank">PuTTY</a> <strong>等客户端工具。</strong></li></ul></blockquote><p>使用 <code>net</code> 创建客户端代码如下：</p><pre><code class="lang-js">/* 客户端：client.js */
+const net = require(&#39;net&#39;);
+
+// 创建客户端
+const client = net.createConnection({ port: 3000 });
+
+// 给服务器发送消息
+client.write(&#39;s:username:message&#39;);
+</code></pre><blockquote class="pullquote default"><p><strong>由于本人目前使用 <code>Windows</code> 电脑，文中使用 <code>PuTTY</code> 工具，在使用之前需打开 <code>Telnet</code> 服务端和客户端，步骤如下：</strong></p><ul><li><strong>打开控制面板；</strong></li><li><strong>打开或关闭 <code>Windows</code> 功能；</strong></li><li><strong>勾选 <code>Telnet</code> 服务端和客户端。</strong></li></ul></blockquote><p><code>PuTTY</code> 界面如下，在 <code>Connection type</code>（连接类型）中默认为 <code>SSH</code>，我们之所以使用 <code>Raw</code> 而不使用其他类型是因为其他的方式在连接服务器时会发送窗口信息，我们不需要这些数据。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180708120357/PuTTY.png" alt="PuTTY 界面"></div><div class="image-caption">PuTTY 界面</div></figure><p><br></p><p>点击界面下面的 <code>Open</code> 按钮就可以创建一个客户端连接，客户端窗口如下，可以通过输入并回车确定的方式向服务端发送消息。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180708120357/PuTTY-window.png" alt="PuTTY 客户端窗口"></div><div class="image-caption">PuTTY 客户端窗口</div></figure><p><br></p><p>目前所有的准备工作已经就绪，下面就是我们的正题，用 <code>net</code> 模块实现一个 <code>TCP</code> 服务，并使用 <code>PuTTY</code> 作为客户端，实现一个简易的聊天室。</p><h2 id="实现简易聊天室"><a href="#实现简易聊天室" class="headerlink" title="实现简易聊天室"></a>实现简易聊天室</h2><h3 id="定义聊天室规则"><a href="#定义聊天室规则" class="headerlink" title="定义聊天室规则"></a>定义聊天室规则</h3><blockquote class="pullquote primary"><p><strong>聊天室主要有四个功能，都需要输入对应的命令：</strong></p><ul><li><strong>显示在线用户：命令为 <code>l</code>；</strong></li><li><strong>改名：聊天室默认用户名为匿名，重命名的命令为 <code>r:newname</code>；</strong></li><li><strong>私聊：私聊的参数为聊天对象的名字和消息内容，命令为 <code>s:username:message</code>；</strong></li><li><strong>广播：发送的消息除自己以外的所有人都能接收到，命令为 <code>b:message</code>。</strong></li></ul></blockquote><p>在存储所有的客户端时，都使用客户端的 <code>ip + port</code> 作为用户的唯一标识。</p><h3 id="服务搭建"><a href="#服务搭建" class="headerlink" title="服务搭建"></a>服务搭建</h3><pre><code class="lang-js">/* 服务器：server.js */
+const net = require(&#39;net&#39;);
+
+// 处理输入命令模块
+const processInstructs = require(&#39;./process-instructs&#39;);
+
+const server = net.createServer(); // 创建服务
+const client = {}; // 客户端
+const port = 3000; // 端口号
+
+// 监听连接
+server.on(&#39;connection&#39;, socket =&gt; {
+  // 客户端的 ip + 端口号 作为存储客户端的唯一标识
+  const key = socket.remoteAddress + socket.remotePort;
+
+  // 将客户端添加到 client 存储中
+  client[key] = { username: &#39;匿名&#39;, socket };
+
+  // 欢迎功能
+  server.getConnections((err, count) =&gt; {
+    socket.write(&#39;欢迎加入！目前有 &#39; + count &#39;人。\r\n&#39;);
+  });
+
+  // 设置编码
+  socket.setEncoding(&#39;utf8&#39;);
+
+  // 监听用户输入
+  socket.on(&#39;data&#39;, data =&gt; {
+    // 由于输入消息按回车键确认，所以需处理消息中的回车
+    data = data.replace(/\r\n/, &#39;&#39;);
+
+    // 处理输入并做出响应
+    processInstructs(client, key, data);
+  });
+
+  // 客户端主动关闭后在服务器客户端存储中清除客户端，并销毁对应的 socket
+  socket.on(&#39;end&#39;, () =&gt; {
+    socket.destroy();
+    delete client[key];
+  });
+});
+
+// 监听端口号
+server.listen(port, () =&gt; {
+  console.log(&#39;server start &#39; + port);
+});
+</code></pre><p>在上面的服务搭建当中，创建了 <code>client</code> 对象，专门存储聊天室内的客户端及信息，客户端使用 <code>ip + port</code> 作为存储的唯一标识，用户名默认为 “匿名”，设置了欢迎功能，并显示当前在线人数，监听用户的输入，并处理了消息中的回车，引入 <code>process-instructs</code> 对指令进行处理，最后处理了离开的用户，目的是防止有离开后，其他的人使用了私聊或广播功能通知这个人，因为找不到对应的 <code>socket</code> 而出现错误。</p><h3 id="处理指令模块-process-instructs"><a href="#处理指令模块-process-instructs" class="headerlink" title="处理指令模块 process-instructs"></a>处理指令模块 process-instructs</h3><pre><code class="lang-js">/* 文件：process-instructs.js */
+// 引入处理不同指令的功能函数
+const { list, rename, privateChat, broadcast } = require(&#39;./instructs&#39;);
+
+module.exports = function (client, key, data) {
+  const dataArr = data.split(&#39;:&#39;);
+
+  // 针对不同的指令调用不同的处理方法
+  switch (dataArr[0]) {
+    case &#39;l&#39;:
+      list(client, key);
+      break;
+    case &#39;r&#39;:
+      rename(client, key, dataArr);
+      break;
+    case &#39;s&#39;:
+      privateChat(client, key, dataArr);
+      break;
+    case &#39;b&#39;:
+      broadcast(client, key, dataArr);
+      break;
+    default:
+      socket.write(&#39;命令有误\r\n&#39;);
+  }
+};
+</code></pre><p>在上面对指令的处理中针对不同的指令引入了 <code>instructs</code> 模块对应的处理方法。</p><h3 id="指令处理方法模块-instructs"><a href="#指令处理方法模块-instructs" class="headerlink" title="指令处理方法模块 instructs"></a>指令处理方法模块 instructs</h3><pre><code class="lang-js">/* 文件：instructs.js */
+// 处理 l 指令，显示在线用户
+exports.list = function (client, key) {
+  // 获取当前 socket
+  const socket = client[key].socket;
+
+  // 写入信息
+  soket.write(&#39;当前用户列表:\r\n&#39;);
+  Object.values(client).forEach(path =&gt; {
+    socket.write(path.username + &#39;\r\n&#39;);
+  });
+};
+
+// 处理 r 指令，用户重命名
+exports.rename = function (client, key, dataArr) {
+  const newName = dataArr[1];
+
+  // 更新对应 socket 的新用户名并通知
+  client[key].username = newName;
+  client[key].socket.write(&#39;新用户名是: &#39; + newName + &#39;\r\n&#39;);
+};
+
+// 处理 s 指令，私聊
+exports.privateChat = function (client, key, dataArr) {
+  Object.keys(client).forEach(path =&gt; {
+    if (client[path].username === dataArr[1]) {
+      client[path].socket.write(client[key].username + &#39;: &#39; + dataArr[2] + &#39;\r\n&#39;);
+    }
+  });
+};
+
+// 处理 b 指令，广播
+exports.broadcast = function (client, key, dataArr) {
+  Object.keys(client).forEach(path =&gt; {
+    if (path !== key) {
+      client[path].socket.write(client[key].username + &#39;: &#39; + dataArr[1] + &#39;\r\n&#39;);
+    }
+  });
+};
+</code></pre><p>显示在线用户功能的思路是将 <code>client</code> 内部所有在线用户的用户名循环写入到当前 <code>socket</code> 中。</p><p>重命名功能的思路是获取输入的新用户名替换掉 <code>client</code> 中对应的 <code>username</code> 并将当前新用户名设置成功的消息返回当前 <code>socket</code>。</p><p>私聊功能的思路是循环 <code>client</code> 内的所有客户端，当 <code>username</code> 和发送的用户名相同时，将消息写入这个用户名对应的 <code>socket</code>。</p><p>广播功能思路是循环 <code>client</code>，将消息写入给出自己以外的所有客户端。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote info"><p><strong>本文重点在于理解多人聊天功能的基本开发思路，及 <code>Node.js</code> 中 <code>TCP</code> 传输对应的 <code>net</code> 模块的应用，实际上本文中聊天室的代码在用户重名的情况下并没有做任何处理，正常情况应该使用 <code>id</code> 作为唯一标识，而不是指定用户名，在 <code>Node.js</code> 开发中其实很少直接使用 <code>net</code> 大多情况下使用 <code>http</code> 和 <code>https</code> 来替代，但是我们应该知道他们都是基于 <code>net</code> 封装的，了解 <code>net</code> 会在使用 <code>http</code> 和 <code>https</code> 时更得心应手。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180708120357/" target="_blank" rel="external">https://www.overtaking.top/20180708120357/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TCP/" rel="tag">TCP</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180708120357/&title=《基于 TCP 实现简易聊天室》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180708120357/&title=《基于 TCP 实现简易聊天室》 — Shen's Blog&source=前言TCP 为传输层协议，在 Node.js 中，基于 TCP 的核心模块为 net，http 和 https 模块都是基于 net 实现的，我们先简单介..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180708120357/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《基于 TCP 实现简易聊天室》 — Shen's Blog&url=https://www.overtaking.top/20180708120357/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180708120357/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180709185149/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">HTTP 基础</h4></a></div><div class="waves-block waves-effect next"><a href="/20180706120428/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">使用 Node.js 可读流实现 “行读取器”</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180708120357/&title=《基于 TCP 实现简易聊天室》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180708120357/&title=《基于 TCP 实现简易聊天室》 — Shen's Blog&source=前言TCP 为传输层协议，在 Node.js 中，基于 TCP 的核心模块为 net，http 和 https 模块都是基于 net 实现的，我们先简单介..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180708120357/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《基于 TCP 实现简易聊天室》 — Shen's Blog&url=https://www.overtaking.top/20180708120357/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180708120357/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABu0lEQVR42u3aSW7DMBAEQP//08oDkjDd3CAExZNgw2LRh8Es/Hzi9Xxb+efjt31OLFxc3GXuM1ztBjlxfOxfd8TFxb3IHW+cv7oNZ7kBFxf3zdw8PCXhEhcX979y82D3ikCGi4sbc/NAkyc0c8nQtloNFxd3gZt3Kc89H+nv4uLiTnGfco2Tj5WBSrQ7Li7uFW4eUFbQ4ySp3hcXF/cKd65QWQlhc1c9cHFx73DHr5v7NmmmTA5ucXFxr3PzbfLx6kpB9cMzLi7uRW4yJsnLmPZXyQFwcXFvchNiOyJdv35Rz4RxcXG3chNcPnbdWw79GndxcXEPc3cVKu01i+SP+CNtwsXFPcxdGY20lHG4LIofXFzcw9zk1Xmis2vImh8eFxf3BLc9TZIA5aVO+wkuLu4buO0B2oKqHt/i4uJe57Yzi7mWx0pShYuLe5r7lGt9KNte9cDFxb3PbVsVbeNjrqWy1DDFxcXdxM2DTt7ySI6UX/Mqoi8uLu5Wbhto5lKWI7UaLi7uC7hj4twqJsC4uLiv5OaJUR4ECyEuLu5FbtvcTIJR2zpJnnFxce9w21ByfOq7q7+Li4s7w/0ChNFSwa9x4UoAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

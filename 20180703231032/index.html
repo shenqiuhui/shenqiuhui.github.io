@@ -1,0 +1,320 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Node.js —— Stream 的基本使用 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,Stream"><meta name="description" content="流的介绍在 Node.js 中，我们对文件的操作需要依赖核心模块 fs，fs 中有很基本 API 可以帮助我们读写占用内存较小的文件，如果是大文件或内存不确定也可以通过 open、read、write、close 等方法对文件进行操作，但是这样操作文件每一个步骤都要关心，非常繁琐，fs 中提供了可读流和可写流，让我们通过流来操作文件，方便我们对文件的读取和写入。"><meta property="og:type" content="article"><meta property="og:title" content="Node.js —— Stream 的基本使用"><meta property="og:url" content="https://www.overtaking.top/20180703231032/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="流的介绍在 Node.js 中，我们对文件的操作需要依赖核心模块 fs，fs 中有很基本 API 可以帮助我们读写占用内存较小的文件，如果是大文件或内存不确定也可以通过 open、read、write、close 等方法对文件进行操作，但是这样操作文件每一个步骤都要关心，非常繁琐，fs 中提供了可读流和可写流，让我们通过流来操作文件，方便我们对文件的读取和写入。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180703231032/stream-use.jpg"><meta property="article:published_time" content="2018-07-03T15:10:32.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="Stream"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180703231032/stream-use.jpg"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Node.js —— Stream 的基本使用</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Node.js —— Stream 的基本使用</h1><h5 class="subtitle"><time datetime="2018-07-03T15:10:32.000Z" itemprop="datePublished" class="page-time">2018-07-03</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#流的介绍"><span class="post-toc-number">1.</span> <span class="post-toc-text">流的介绍</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#可读流"><span class="post-toc-number">2.</span> <span class="post-toc-text">可读流</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#createReadStream-创建可读流"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">createReadStream 创建可读流</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#流动状态"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">流动状态</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#暂停状态"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">暂停状态</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#错误监听"><span class="post-toc-number">2.4.</span> <span class="post-toc-text">错误监听</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#打开和关闭文件的监听"><span class="post-toc-number">2.5.</span> <span class="post-toc-text">打开和关闭文件的监听</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#可写流"><span class="post-toc-number">3.</span> <span class="post-toc-text">可写流</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#createWriteStream-创建可写流"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">createWriteStream 创建可写流</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#可写流的-write-方法"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">可写流的 write 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#可写流的-drain-事件"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">可写流的 drain 事件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#可写流的-end-方法"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">可写流的 end 方法</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#可写流与可读流混合使用"><span class="post-toc-number">4.</span> <span class="post-toc-text">可写流与可读流混合使用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">5.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180703231032" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Node.js —— Stream 的基本使用</h1><div class="post-meta"><time class="post-time" title="2018-07-03 23:10:32" datetime="2018-07-03T15:10:32.000Z" itemprop="datePublished">2018-07-03</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180703231032/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js —— Stream 的基本使用"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180703231032/stream-use.jpg" title="流的基本使用"><p><br></p><h2 id="流的介绍"><a href="#流的介绍" class="headerlink" title="流的介绍"></a>流的介绍</h2><blockquote class="pullquote info"><p><strong>在 <code>Node.js</code> 中，我们对文件的操作需要依赖核心模块 <code>fs</code>，<code>fs</code> 中有很基本 <code>API</code> 可以帮助我们读写占用内存较小的文件，如果是大文件或内存不确定也可以通过 <code>open</code>、<code>read</code>、<code>write</code>、<code>close</code> 等方法对文件进行操作，但是这样操作文件每一个步骤都要关心，非常繁琐，<code>fs</code> 中提供了可读流和可写流，让我们通过流来操作文件，方便我们对文件的读取和写入。</strong></p></blockquote><a id="more"></a><h2 id="可读流"><a href="#可读流" class="headerlink" title="可读流"></a>可读流</h2><h3 id="createReadStream-创建可读流"><a href="#createReadStream-创建可读流" class="headerlink" title="createReadStream 创建可读流"></a>createReadStream 创建可读流</h3><blockquote class="pullquote primary"><p><strong><code>createReadStream</code> 方法有两个参数，第一个参数是读取文件的路径，第二个参数为 <code>options</code> 选项，其中有 <code>8</code> 个参数：</strong></p><ul><li><strong><code>flags</code>：标识位，默认为 <code>r</code>；</strong></li><li><strong><code>encoding</code>：字符编码，默认为 <code>null</code>；</strong></li><li><strong><code>fd</code>：文件描述符，默认为 <code>null</code>；</strong></li><li><strong><code>mode</code>：权限位，默认为 <code>0o666</code>；</strong></li><li><strong><code>autoClose</code>：是否自动关闭文件，默认为 <code>true</code>；</strong></li><li><strong><code>start</code>：读取文件的起始位置；</strong></li><li><strong><code>end</code>：读取文件的（包含）结束位置；</strong></li><li><strong><code>highWaterMark</code>：最大读取文件的字节数，默认 <code>64 * 1024</code>。</strong></li></ul></blockquote><p><code>createReadStream</code> 的返回值为 <code>fs.ReadStream</code> 对象，读取文件的数据在不指定 <code>encoding</code> 时，默认为 <code>Buffer</code>。</p><pre><code class="lang-js">// 创建可读流
+const fs = require(&#39;fs&#39;);
+
+// 创建可读流，读取 1.txt 文件
+const rs = fs.creatReadStream(&#39;1.txt&#39;, {
+  start: 0,
+  end: 3,
+  highWaterMark: 2
+});
+</code></pre><p>在创建可读流后默认是不会读取文件内容的，读取文件时，可读流有两种状态，暂停状态和流动状态。</p><blockquote class="pullquote warning"><p><em><strong>注意：本篇的可写流为流动模式，流动模式中有暂停状态和流动状态，而不是暂停模式，暂停模式是另一种可读流 <code>readable</code>。</strong></em></p></blockquote><h3 id="流动状态"><a href="#流动状态" class="headerlink" title="流动状态"></a>流动状态</h3><p>流动状态的意思是，一旦开始读取文件，会按照 <code>highWaterMark</code> 的值一次一次读取，直到读完为止，就像一个打开的水龙头，水不断的流出，直到流干，需要通过监听 <code>data</code> 事件触发。</p><p>假如现在 <code>1.txt</code> 文件中的内容为 <code>0~9</code> 十个数字，我们现在创建可读流并用流动状态读取。</p><pre><code class="lang-js">// 流动状态
+const fs = require(&#39;fs&#39;);
+
+const rs = fs.createReadStream(&#39;1.txt&#39;, {
+  start: 0,
+  end: 3,
+  highWaterMark: 2
+});
+
+// 读取文件
+rs.on(&#39;data&#39;, data =&gt; {
+  console.log(data);
+});
+
+// 监听读取结束
+rs.on(&#39;end&#39;, () =&gt; {
+  console.log(&#39;读完了&#39;);
+});
+
+// &lt;Buffer 30 31&gt;
+// &lt;Buffer 32 33&gt;
+// 读完了
+</code></pre><blockquote class="pullquote default"><p><strong>在上面代码中，返回的 <code>rs</code> 对象监听了两个事件：</strong></p><ul><li><strong><code>data</code>：每次读取 <code>highWaterMark</code> 个字节，触发一次 <code>data</code> 事件，直到读取完成，回调的参数为每次读取的 <code>Buffer</code>；</strong></li><li><strong><code>end</code>：当读取完成时触发并执行回调函数。</strong></li></ul></blockquote><p>我们希望最后读到的结果是完整的，所以我们需要把每一次读到的结果在 <code>data</code> 事件触发时进行拼接，以前我们可能使用下面这种方式。</p><pre><code class="lang-js">/* 错误拼接数据的方式 */
+const fs = require(&#39;fs&#39;);
+
+const rs = fs.createReadStream(&#39;1.txt&#39;, {
+  start: 0,
+  end: 3,
+  highWaterMark: 2
+});
+
+let str = &#39;&#39;;
+
+rs.on(&#39;data&#39;, data =&gt; {
+  str += data;
+});
+
+rs.on(&#39;end&#39;, () =&gt; {
+  console.log(str);
+});
+
+// 0123
+</code></pre><blockquote class="pullquote danger"><p><strong>在上面代码中如果读取的文件内容是中文，每次读取的 <code>highWaterMark</code> 为两个字节，不能组成一个完整的汉字，在每次读取时进行 <code>+=</code> 操作会默认调用 <code>toString</code> 方法，这样会导致最后读取的结果是乱码。</strong></p></blockquote><p>在以后通过流操作文件时，大部分情况下都是在操作 <code>Buffer</code>，所以应该用下面这种方式来获取最后读取到的结果。</p><pre><code class="lang-js">/* 正确拼接数据的方式 */
+const fs = require(&#39;fs&#39;);
+
+const rs = fs.createReadStream(&#39;1.txt&#39;, {
+  start: 0,
+  end: 3,
+  highWaterMark: 2
+});
+
+// 存储每次读取回来的 Buffer
+const bufArr = [];
+
+rs.on(&#39;data&#39;, data =&gt; {
+  bufArr.push(data);
+});
+
+rs.on(&#39;end&#39;, () =&gt; {
+  console.log(Buffer.concat(bufArr).toString());
+});
+
+// 0123
+</code></pre><h3 id="暂停状态"><a href="#暂停状态" class="headerlink" title="暂停状态"></a>暂停状态</h3><p>在流动状态中，一旦开始读取文件，会不断的触发 <code>data</code> 事件，直到读完，暂停状态是我们每读取一次就直接暂停，不再继续读取，即不再触发 <code>data</code> 事件，除非我们主动控制继续读取，就像水龙头打开放水一次后马上关上水龙头，下次使用时再打开。</p><p>类似于开关水龙头的动作，也就是暂停和恢复读取的动作，在可读流返回的 <code>rs</code> 对象上有两个对应的方法，<code>pause</code> 和 <code>resume</code>。</p><p>在下面的场景中我们把创建可读流的结尾位置更改成 <code>9</code>，在每次读两个字节并暂停一秒后恢复读取，直到读完 <code>0~9</code> 十个数字。</p><pre><code class="lang-js">/* 暂停状态 */
+const fs = require(&#39;fs&#39;);
+
+const rs = fs.createReadStream(&#39;1.txt&#39;, {
+  start: 0,
+  end: 9,
+  highWaterMark: 2
+});
+
+const bufArr = [];
+
+rs.on(&#39;data&#39;, data =&gt; {
+  bufArr.push(data);
+  rs.pause(); // 暂停读取
+  console.log(&#39;暂停&#39;, new Date());
+
+  setTimeout(() =&gt; {
+    rs.resume(); // 恢复读取
+  }, 1000)
+});
+
+rs.on(&#39;end&#39;, () =&gt; {
+  console.log(Buffer.concat(bufArr).toString());
+});
+
+// 暂停 2018-07-03T23:52:52.436Z
+// 暂停 2018-07-03T23:52:53.439Z
+// 暂停 2018-07-03T23:52:54.440Z
+// 暂停 2018-07-03T23:52:55.442Z
+// 暂停 2018-07-03T23:52:56.443Z
+// 0123456789
+</code></pre><h3 id="错误监听"><a href="#错误监听" class="headerlink" title="错误监听"></a>错误监听</h3><p>通过可读流读取文件时都是异步读取，在异步读取中如果遇到错误也可以通过异步监听到，可读流返回值 <code>rs</code> 对象可以通过 <code>error</code> 事件来监听错误，在读取文件出错时触发回调函数，回调函数参数为 <code>err</code>，即错误对象。</p><pre><code class="lang-js">/* 错误监听 */
+const fs = require(&#39;fs&#39;);
+
+// 读取一个不存在的文件
+const rs = fs.createReadStream(&#39;xxx.js&#39;, {
+  highWarterMark: 2
+});
+
+const bufArr = [];
+
+rs.on(&#39;data&#39;, data =&gt; {
+  bufArr.push(data);
+});
+
+rs.on(&#39;err&#39;, err =&gt; {
+  console.log(err);
+});
+
+rs.on(&#39;end&#39;, () =&gt; {
+  console.log(Buffer.concat(bufArr).toString());
+});
+
+// { Error: ENOENT: no such file or directory, open &#39;......xxx.js&#39; ......}
+</code></pre><h3 id="打开和关闭文件的监听"><a href="#打开和关闭文件的监听" class="headerlink" title="打开和关闭文件的监听"></a>打开和关闭文件的监听</h3><p>流的适用性非常广，不只是文件读写，也可以用在 <code>http</code> 中数据的请求和响应上，但是在针对文件读取返回的 <code>rs</code> 上有两个专有的事件用来监听文件的打开与关闭。</p><p><code>open</code> 事件用来监听文件的打开，回调函数在打开文件后执行，<code>close</code> 事件用来监听文件的关闭，如果创建的可读流的 <code>autoClose</code> 为 <code>true</code>，在自动关闭文件时触发，回调函数在关闭文件后执行。</p><pre><code class="lang-js">/* 打开和关闭可读流的监听 */
+const fs = require(&#39;fs&#39;);
+
+const rs = fs.createReadStream(&#39;1.txt&#39;, {
+  start: 0,
+  end: 3,
+  highWaterMark: 2
+});
+
+rs.on(&#39;open&#39;, () =&gt; {
+  console.log(&#39;open&#39;);
+});
+
+rs.on(&#39;close&#39;, () =&gt; {
+  console.log(&#39;close&#39;);
+});
+
+// open
+</code></pre><p>在上面代码我们看出只要创建了可读流就会打开文件触发 <code>open</code> 事件，因为默认为暂停状态，没有对文件进行读取，所以不会关闭文件，即不会触发 <code>close</code> 事件。</p><pre><code class="lang-js">/* 暂停状态 */
+const fs = require(&#39;fs&#39;);
+
+const rs = fs.createReadStream(&#39;1.txt&#39;, {
+  start: 0,
+  end: 3,
+  highWaterMark: 2
+});
+
+rs.on(&#39;open&#39;, () =&gt; {
+  console.log(&#39;open&#39;);
+});
+
+rs.on(&#39;data&#39;, data =&gt; {
+  console.log(data);
+});
+
+rs.on(&#39;end&#39;, () =&gt; {
+  console.log(&#39;end&#39;);
+});
+
+rs.on(&#39;close&#39;, () =&gt; {
+  console.log(&#39;close&#39;);
+});
+
+// open
+// &lt;Buffer 30 31&gt;
+// &lt;Buffer 32 33&gt;
+// end
+// close
+</code></pre><p>从上面例子执行的打印结果可以看出只有开始读取文件并读完后，才会关闭文件并触发 <code>close</code> 事件，<code>end</code> 事件的触发要早于 <code>close</code>。</p><h2 id="可写流"><a href="#可写流" class="headerlink" title="可写流"></a>可写流</h2><h3 id="createWriteStream-创建可写流"><a href="#createWriteStream-创建可写流" class="headerlink" title="createWriteStream 创建可写流"></a>createWriteStream 创建可写流</h3><blockquote class="pullquote info"><p><strong><code>createWriteStream</code> 方法有两个参数，第一个参数是读取文件的路径，第二个参数为 <code>options</code> 选项，其中有 <code>7</code> 个参数：</strong></p><ul><li><strong><code>flags</code>：标识位，默认为 <code>w</code>；</strong></li><li><strong><code>encoding</code>：字符编码，默认为 <code>utf8</code>；</strong></li><li><strong><code>fd</code>：文件描述符，默认为 <code>null</code>；</strong></li><li><strong><code>mode</code>：权限位，默认为 <code>0o666</code>；</strong></li><li><strong><code>autoClose</code>：是否自动关闭文件，默认为 <code>true</code>；</strong></li><li><strong><code>start</code>：写入文件的起始位置；</strong></li><li><strong><code>highWaterMark</code>：一个对比写入字节数的标识，默认 <code>16 * 1024</code>。</strong></li></ul></blockquote><p><code>createWriteStream</code> 返回值为 <code>fs.WriteStream</code> 对象，第一次写入时会真的写入文件中，继续写入，会写入到缓存中。</p><pre><code class="lang-js">/* 创建可写流 */
+const fs = require(&#39;fs&#39;);
+
+// 创建可写流，写入 2.txt 文件
+const ws = fs.createWriteStream(&#39;2.txt&#39;, {
+  start: 0,
+  highWaterMark: 3
+});
+</code></pre><h3 id="可写流的-write-方法"><a href="#可写流的-write-方法" class="headerlink" title="可写流的 write 方法"></a>可写流的 write 方法</h3><p>在可写流中将内容写入文件需要使用 <code>ws</code> 的 <code>write</code> 方法，参数为写入的内容，返回值是一个布尔值，代表 <code>highWaterMark</code> 的值是否足够当前的写入，如果足够，返回 <code>true</code>，否则返回 <code>false</code>，换种说法就是写入内容的长度是否超出了 <code>highWaterMark</code>，超出返回 <code>false</code>。</p><pre><code class="lang-js">/* write 方法写入 */
+const fs = require(&#39;fs&#39;);
+
+const ws = fs.createWriteSteam(&#39;2.txt&#39;, {
+  start: 0,
+  highWaterMark: 3
+});
+
+const flag1 = ws.write(&#39;1&#39;);
+console.log(flag1);
+
+const flag2 = ws.write(&#39;2&#39;);
+console.log(flag2);
+
+const flag3 = ws.write(&#39;3&#39;);
+console.log(flag3);
+
+// true
+// true
+// false
+</code></pre><blockquote class="pullquote warning"><p><em><strong>写入不存在的文件时会自动创建文件，如果 <code>start</code> 的值不是 <code>0</code>，在写入不存在的文件时默认找不到写入的位置。</strong></em></p></blockquote><h3 id="可写流的-drain-事件"><a href="#可写流的-drain-事件" class="headerlink" title="可写流的 drain 事件"></a>可写流的 drain 事件</h3><p><code>drain</code> 意为 “吸干”，当前写入的内容已经大于等于了 <code>highWaterMark</code>，会触发 <code>drain</code> 事件，当内容全部从缓存写入文件后，会执行回调函数。</p><pre><code class="lang-js">/* drain 事件 */
+const fs = require(&#39;fs&#39;);
+
+const ws = fs.createWriteStream(&#39;2.txt&#39;, {
+  start: 0,
+  highWaterMark: 3
+});
+
+const flag1 = ws.write(&#39;1&#39;);
+console.log(flag1);
+
+const flag2 = ws.write(&#39;2&#39;);
+console.log(flag2);
+
+const flag3 = ws.write(&#39;3&#39;);
+console.log(flag3);
+
+
+ws.on(&#39;drain&#39;, () =&gt; {
+  console.log(&#39;吸干&#39;);
+});
+
+// true
+// true
+// false
+// 吸干
+</code></pre><h3 id="可写流的-end-方法"><a href="#可写流的-end-方法" class="headerlink" title="可写流的 end 方法"></a>可写流的 end 方法</h3><p><code>end</code> 方法传入的参数为最后写入的内容，<code>end</code> 会将缓存未写入的内容清空写入文件，并关闭文件。</p><pre><code class="lang-js">/* end 方法 */
+const fs = require(&#39;fs&#39;);
+
+const ws = fs.createWriteStream(&#39;2.txt&#39;, {
+  start: 0,
+  highWaterMark: 3
+});
+
+const flag1 = ws.write(&#39;1&#39;);
+console.log(flag1);
+
+const flag2 = ws.write(&#39;2&#39;);
+console.log(flag2);
+
+const flag3 = ws.write(&#39;3&#39;);
+console.log(flag3);
+
+ws.on(&#39;drain&#39;, () =&gt; {
+  console.log(&#39;吸干&#39;);
+});
+
+ws.end(&#39;写完了&#39;);
+
+// true
+// true
+// false
+</code></pre><p>在调用 <code>end</code> 方法后，即使再次写入的值超出了 <code>highWaterMark</code> 也不会再触发 <code>drain</code> 事件了，此时打开 <code>2.txt</code> 后发现文件中的内容为 ‘123写完了’。</p><pre><code class="lang-js">/* 常见报错 */
+const fs = require(&#39;fs&#39;);
+
+const ws = fs.createWriteStream(&#39;2.txt&#39;, {
+  start: 0,
+  highWaterMark: 3
+});
+
+ws.write(&#39;1&#39;);
+ws.end(&#39;写完了&#39;);
+ws.write(&#39;2&#39;);
+
+// Error [ERR_STREAM_WRITE_AFTER_END]: write after end...
+</code></pre><blockquote class="pullquote warning"><p><em><strong>在调用 <code>end</code> 方法后，不可以再调用 <code>write</code> 方法写入，否则会报一个很常见的错误 <code>write after end</code>，文件原有内容会被清空，而且不会被写入新内容。</strong></em></p></blockquote><h2 id="可写流与可读流混合使用"><a href="#可写流与可读流混合使用" class="headerlink" title="可写流与可读流混合使用"></a>可写流与可读流混合使用</h2><p>可写流和可读流一般配合来使用，读来的内容如果超出了可写流的 <code>highWaterMark</code>，则调用可读流的 <code>pause</code> 暂停读取，等待内存中的内容写入文件，未写入的内容小于 <code>highWaterMark</code> 时，调用可写流的 <code>resume</code> 恢复读取，创建可写流返回值 <code>rs</code> 上的 <code>pipe</code> 方法是专门用来连接可读流和可写流的，可以将一个文件读来的内容通过流写到另一个文件中。</p><pre><code class="lang-js">/* pipe 方法使用 */
+const fs = require(&#39;fs&#39;);
+
+// 创建可读流和可写流
+const rs = fs.createReadStream(&#39;1.txt&#39;, {
+  highWaterMark: 3
+});
+const ws = fs.createWriteStream(&#39;2.txt&#39;, {
+  highWaterMark: 2
+});
+
+// 将 1.txt 的内容通过流写入 2.txt 中
+rs.pipe(ws);
+</code></pre><p>通过上面的这种类似于管道的方式，将一个流从一个文件输送到了另一个文件中，而且会根据读流和写流的 <code>highWaterMark</code> 自由的控制写入的 “节奏”，不用担心内存的消耗。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>这篇是关于读流和写流的基本用法，在平时的开发当中，大多数 <code>API</code> 都用的不多，<code>pipe</code> 用的较多，无论是在文件的读写还是请求的响应，其他的 <code>API</code> 虽然用的少，但是确实很多底层的实现，作为一个合格的程序员一定要有所了解。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180703231032/" target="_blank" rel="external">https://www.overtaking.top/20180703231032/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Stream/" rel="tag">Stream</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180703231032/&title=《Node.js —— Stream 的基本使用》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180703231032/&title=《Node.js —— Stream 的基本使用》 — Shen's Blog&source=流的介绍在 Node.js 中，我们对文件的操作需要依赖核心模块 fs，fs 中有很基本 API 可以帮助我们读写占用内存较小的文件，如果是大文件或内存不..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180703231032/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js —— Stream 的基本使用》 — Shen's Blog&url=https://www.overtaking.top/20180703231032/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180703231032/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180704175217/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Node.js —— 流的原理分析与简易实现</h4></a></div><div class="waves-block waves-effect next"><a href="/20180702122923/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Node.js 树结构遍历 —— 深度优先和广度优先</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180703231032/&title=《Node.js —— Stream 的基本使用》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180703231032/&title=《Node.js —— Stream 的基本使用》 — Shen's Blog&source=流的介绍在 Node.js 中，我们对文件的操作需要依赖核心模块 fs，fs 中有很基本 API 可以帮助我们读写占用内存较小的文件，如果是大文件或内存不..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180703231032/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js —— Stream 的基本使用》 — Shen's Blog&url=https://www.overtaking.top/20180703231032/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180703231032/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABxklEQVR42u3aS27DMAwFQN//0u4BUtuP1CcOMFoFjWtNu3gQSR1HvM6PdfXM5/P3bztWLFxc3GHuebvy7ZPPybcP/xpcXNyN3ByRU3p/5IMNFxf3ldz7o0lyrLkPNVxc3F/kVqPtKs5wcXHfz82D5mrje1ZeXE2r1XBxcQe4eZdy3ecl/V1cXNwW9yyuJMiqbZHC7ri4uFu4eaDkh57xEezDOBYXF3cxt9qwyBsfI6XLQ4Th4uIu5lYjJm9qzL1+cZm7uLi4C7jjA4/qJYzeXri4uDu5yag1H5r2ip98DIOLi7uHW25WTiqNqr9b7rDi4uIOcKuXsaqBlbPyIQ0uLu4ebjWAei2P3nHqn+dxcXE3cquHkh4lb7A+BBkuLu4W7qyrErOGrIVWKS4u7mLu3OInH7TkP8HFxf0ut/CKgSFr/h5cXNz93CTCki178Vd4BhcXdzH3LK68PVp9T1Qm4eLibuFWWxXVV+ehlkQnLi7uTu74waV31yMPysnnLFxc3JjbC5pq2E2r1XBxcV/JvY+tkbKqeW7CxcX9KnfW5a1mEYWLi7uR22uSjl/qSi5/4OLi7uf2Wp/5dYpeCTShv4uLi9vh/gFQkMNCFrLHrwAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

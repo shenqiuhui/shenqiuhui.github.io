@@ -1,0 +1,224 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>CommonJS 模块化简易实现 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript,Node.js,源码分析,CommonJS"><meta name="description" content="CommonJS 概述CommonJS 是一种模块化的标准，而 Node.js 是这种标准的实现，每个文件就是一个模块，有自己的作用域，在一个模块里面定义的变量、函数、类，都是私有的，不会和其他模块相互污染。"><meta property="og:type" content="article"><meta property="og:title" content="CommonJS 模块化简易实现"><meta property="og:url" content="https://www.overtaking.top/20180626142825/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="CommonJS 概述CommonJS 是一种模块化的标准，而 Node.js 是这种标准的实现，每个文件就是一个模块，有自己的作用域，在一个模块里面定义的变量、函数、类，都是私有的，不会和其他模块相互污染。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180626142825/commonjs.png"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180626142825/commonjs-arrow.jpg"><meta property="article:published_time" content="2018-06-26T06:28:25.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="源码分析"><meta property="article:tag" content="CommonJS"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180626142825/commonjs.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">CommonJS 模块化简易实现</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">CommonJS 模块化简易实现</h1><h5 class="subtitle"><time datetime="2018-06-26T06:28:25.000Z" itemprop="datePublished" class="page-time">2018-06-26</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#CommonJS-概述"><span class="post-toc-number">1.</span> <span class="post-toc-text">CommonJS 概述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Node-js-模块化的简易实现"><span class="post-toc-number">2.</span> <span class="post-toc-text">Node.js 模块化的简易实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#提前加载需要用到的模块"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">提前加载需要用到的模块</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建-Module-构造函数"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">创建 Module 构造函数</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#定义静态属性存储我们需要使用的一些值"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">定义静态属性存储我们需要使用的一些值</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建引入模块的-req-方法"><span class="post-toc-number">2.4.</span> <span class="post-toc-text">创建引入模块的 req 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#返回文件绝对路径-Module-resolveFileName-方法的实现"><span class="post-toc-number">2.5.</span> <span class="post-toc-text">返回文件绝对路径 Module._resolveFileName 方法的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#加载模块的-load-方法"><span class="post-toc-number">2.6.</span> <span class="post-toc-text">加载模块的 load 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实现加载-js-文件和-json-文件的方法"><span class="post-toc-number">2.7.</span> <span class="post-toc-text">实现加载 .js 文件和 .json 文件的方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#对加载过的模块进行缓存"><span class="post-toc-number">2.8.</span> <span class="post-toc-text">对加载过的模块进行缓存</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#试用-req-加载模块"><span class="post-toc-number">2.9.</span> <span class="post-toc-text">试用 req 加载模块</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#CommonJS-模块查找规范"><span class="post-toc-number">3.</span> <span class="post-toc-text">CommonJS 模块查找规范</span></a></li></ol></nav></aside><article id="post-Node.js/20180626142825" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">CommonJS 模块化简易实现</h1><div class="post-meta"><time class="post-time" title="2018-06-26 14:28:25" datetime="2018-06-26T06:28:25.000Z" itemprop="datePublished">2018-06-26</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180626142825/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="CommonJS 模块化简易实现"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180626142825/commonjs.png" title="Commonjs"><p><br></p><h2 id="CommonJS-概述"><a href="#CommonJS-概述" class="headerlink" title="CommonJS 概述"></a>CommonJS 概述</h2><blockquote class="pullquote warning"><p><strong><code>CommonJS</code> 是一种模块化的标准，而 <code>Node.js</code> 是这种标准的实现，每个文件就是一个模块，有自己的作用域，在一个模块里面定义的变量、函数、类，都是私有的，不会和其他模块相互污染。</strong></p></blockquote><a id="more"></a><h2 id="Node-js-模块化的简易实现"><a href="#Node-js-模块化的简易实现" class="headerlink" title="Node.js 模块化的简易实现"></a>Node.js 模块化的简易实现</h2><blockquote class="pullquote info"><p><strong>在实现模块加载之前，我们需要清除模块的加载过程：</strong></p><ul><li><strong>假设 <code>A</code> 文件夹下有一个 <code>a.js</code>，我们要解析出一个绝对路径来；</strong></li><li><strong>我们写的路径可能没有后缀名 <code>.js</code>、<code>.json</code>；</strong></li><li><strong>得到一个真实的加载路径（模块会被缓存）先去缓存中看一下这个文件是否存在，如果存在返回缓存 没有则创建一个模块；</strong></li><li><strong>得到对应文件的内容，加一个闭包，把内容塞进去，之后执行即可。</strong></li></ul></blockquote><h3 id="提前加载需要用到的模块"><a href="#提前加载需要用到的模块" class="headerlink" title="提前加载需要用到的模块"></a>提前加载需要用到的模块</h3><p>因为我们只是实现 <code>CommonJS</code> 的模块加载方法，并不会去实现整个 <code>Node.js</code>，但在这里我们需要依赖一些 <code>Node.js</code> 的模块，所以我们就暂且使用 <code>Node</code> 自带的 <code>require</code> 方法把模块加载进来（忽略引入核心模块的 <code>require</code>）。</p><pre><code class="lang-js">/* 依赖模块 */
+// 操作文件的模块
+const fs = require(&#39;fs&#39;);
+
+// 处理路径的模块
+const path = require(&#39;path&#39;);
+
+// 虚拟机，帮我们创建一个黑箱执行代码，防止变量污染
+const vm = require(&#39;vm&#39;);
+</code></pre><h3 id="创建-Module-构造函数"><a href="#创建-Module-构造函数" class="headerlink" title="创建 Module 构造函数"></a>创建 Module 构造函数</h3><p>其实 <code>CommonJS</code> 中引入的每一个模块我们都需要通过 <code>Module</code> 构造函数创建一个实例。</p><pre><code class="lang-js">/* 创建 Module 构造函数 */
+/*
+* @param {String} p
+*/
+function Module(p) {
+  this.id = p; // 当前文件的表示（绝对路径）
+  this.exports = {}; // 每个模块都有一个 exports 属性，用来存储模块的内容
+  this.loaded = false; // 标记是否被加载过
+}
+</code></pre><h3 id="定义静态属性存储我们需要使用的一些值"><a href="#定义静态属性存储我们需要使用的一些值" class="headerlink" title="定义静态属性存储我们需要使用的一些值"></a>定义静态属性存储我们需要使用的一些值</h3><pre><code class="lang-js">/* Module 静态变量 */
+// 函数后面需要使用的闭包的字符串
+Module.wrapper = [
+  &#39;(function (exports, require, module, __dirname, __filename) {&#39;,
+  &#39;\n})&#39;
+];
+
+// 根据绝对路径进行缓存的模块的对象
+Module._cacheModule = {};
+
+// 处理不同文件后缀名的方法
+Module._extensions = {
+  &#39;.js&#39;: function () {},
+  &#39;.json&#39;: function () {}
+};
+</code></pre><h3 id="创建引入模块的-req-方法"><a href="#创建引入模块的-req-方法" class="headerlink" title="创建引入模块的 req 方法"></a>创建引入模块的 req 方法</h3><p>为了防止和 <code>Node.js</code> 自带的 <code>require</code> 方法重名，我们将模拟的方法重命名为 <code>req</code>。</p><pre><code class="lang-js">/* 引入模块方法 req */
+/*
+* @param {String} moduleId
+*/
+function req(moduleId) {
+  // 将 req 传入的参数处理成绝对路径
+  const p = Module._resolveFileName(moduleId);
+
+  // 生成一个新的模块
+  const module = new Module(p);
+}
+</code></pre><p>在上面代码中，我们先把传入的参数通过 <code>Module._resolveFileName</code> 处理成了一个绝对路径，并创建模块实例把绝对路径作为参数传入，我们现在实现一下 <code>Module._resolveFileName</code> 方法。</p><h3 id="返回文件绝对路径-Module-resolveFileName-方法的实现"><a href="#返回文件绝对路径-Module-resolveFileName-方法的实现" class="headerlink" title="返回文件绝对路径 Module._resolveFileName 方法的实现"></a>返回文件绝对路径 Module._resolveFileName 方法的实现</h3><p>这个方法的功能就是将 <code>req</code> 方法的参数根据是否有后缀名两种方式处理成带后缀名的文件绝对路径，如果 <code>req</code> 的参数没有后缀名，会去按照 <code>Module._extensions</code> 的键的后缀名顺序进行查找文件，直到找到后缀名对应文件的绝对路径，优先 <code>.js</code>，然后是 <code>.json</code>，这里我们只实现这两种文件类型的处理。</p><pre><code class="lang-js">/* 处理绝对路径 _resolveFileName 方法 */
+/*
+* @param {String} moduleId
+*/
+Module._resolveFileName = function (moduleId) {
+  // 将参数拼接成绝对路径
+  const p = path.resolve(moduleId);
+
+  // 判断是否含有后缀名
+  if (!/\.\w+$/.test(p)) {
+    // 创建规范规定查找文件后缀名顺序的数组 .js .json
+    const arr = Object.keys(Module._extensions);
+
+    // 循环查找
+    for (let i = 0; i &lt; arr.length; i++) {
+      // 将绝对路径与后缀名进行拼接
+      const file = p + arr[i];
+      // 查找不到文件时捕获异常
+      try {
+        // 并通过 fs 模块同步查找文件的方法对改路径进行查找
+        // 文件未找到会直接进入 catch 语句
+        fs.accessSync(file);
+
+        // 如果找到文件将该文件绝对路径返回
+        return file;
+      } catch (e) {
+        // 当后缀名循环完毕都没有找到对应文件时，抛出异常
+        if (i &gt;= arr.length) throw new Error(&#39;not found module&#39;);
+      }
+    }
+  } else {
+    // 有后缀名直接返回该绝对路径
+    return p;
+  }
+};
+</code></pre><h3 id="加载模块的-load-方法"><a href="#加载模块的-load-方法" class="headerlink" title="加载模块的 load 方法"></a>加载模块的 load 方法</h3><pre><code class="lang-js">/* 完善 req 方法 */
+/*
+* @param {String} moduleId
+*/
+function req(moduleId) {
+  // 将 req 传入的参数处理成绝对路径
+  const p = Module._resolveFileName(moduleId);
+
+  // 生成一个新的模块
+  const module = new Module(p);
+
+  // ********** 下面为新增代码 **********
+  // 加载模块
+  const content = module.load(p);
+
+  // 将加载后返回的内容赋值给模块实例的 exports 属性上
+  module.exports = content;
+
+  // 最后返回 模块实例的 exports 属性，即加载模块的内容
+  return module.exports;
+  // ********** 上面为新增代码 **********
+}
+</code></pre><p>上面代码实现了一个实例方法 <code>load</code>，传入文件的绝对路径，为模块加载文件的内容，在加载后将值存入模块实例的 <code>exports</code> 属性上最后返回，其实 <code>req</code> 函数返回的就是模块加载回来的内容。</p><pre><code class="lang-js">/* load 方法 */
+// 模块加载的方法
+Module.prototype.load = function (filepath) {
+  // 判断加载的文件是什么后缀名
+  const ext = path.extname(filepath);
+
+  // 根据不同的后缀名处理文件内容，参数是当前实例
+  const content = Moudule._extensions[ext](this);
+
+  // 将处理后的结果返回
+  return content;
+};
+</code></pre><h3 id="实现加载-js-文件和-json-文件的方法"><a href="#实现加载-js-文件和-json-文件的方法" class="headerlink" title="实现加载 .js 文件和 .json 文件的方法"></a>实现加载 .js 文件和 .json 文件的方法</h3><p>还记得前面准备的静态属性中有 <code>Module._extensions</code> 就是用来存储这两个方法的，下面我们来完善这两个方法。</p><pre><code class="lang-js">/* 处理后缀名方法的 _extensions 对象 */
+Module._extensions = {
+  &#39;.js&#39;: function (module) {
+    // 读取 js 文件，返回文件的内容
+    const script = fs.readFileSync(module.id, &#39;utf8&#39;);
+
+    // 给 js 文件的内容增加一个闭包环境
+    const fn = Module.wrap(script);
+
+    // 创建虚拟机，将我们创建的 js 函数执行，将 this 指向模块实例的 exports 属性
+    vm.runInThisContext(fn).call(
+      module.exports,
+      module.exports,
+      req,
+      module
+    );
+
+    // 返回模块实例上的 exports 属性（即模块的内容）
+    return module.exports;
+  },
+  &#39;.json&#39;: function (module) {
+    // .json 文件的处理相对简单，将读出的字符串转换成对象即可
+    return JSON.parse(fs.readFileSync(module.id, &#39;utf8&#39;));
+  }
+};
+</code></pre><p>我们这里使用了 <code>Module.wrap</code> 方法，代码如下，其实帮助我们加了一个闭包环境（即套了一层函数并传入了我们需要的参数），里面所有的变量都是私有的。</p><pre><code class="lang-js">/* 创建闭包 wrap 方法 */
+Module.wrap = function (content) {
+  return Module.wrapper[0] + content + Module.wrapper[1];
+};
+</code></pre><p><code>Module.wrapper</code> 的两个值其实就是我们需要在外层包了一个函数的前半段和后半段。</p><blockquote class="pullquote warning"><p><strong>这里我们要划重点了，非常重要：</strong></p><ul><li><strong>我们在虚拟机中执行构建的闭包函数时利用执行上/下文 <code>call</code> 将 <code>this</code> 指向了模块实例的 <code>exports</code> 属性上，所以这也是为什么我们用 <code>node</code> 启动一个 <code>js</code> 文件，打印 <code>this</code> 时，不是全局对象 <code>global</code>，而是一个空对象，这个空对象就是我们的 <code>module.exports</code>，即当前模块实例的 <code>exports</code> 属性。</strong></li><li><strong>还是第一条的函数执行，我们传入的第一个参数是改变 <code>this</code> 指向，那第二个参数是 <code>module.exports</code>，所以在每个模块导出的时候，使用 <code>module.exports = xxx</code>，其实直接替换了模块实例的值，即直接把模块的内容存放在了模块实例的 <code>exports</code> 属性上，而 <code>req</code> 最后返回的就是我们模块导出的内容。</strong></li><li><strong>第三个参数之所以传入 <code>req</code> 是因为我们还可能在一个模块中导入其他模块，而 <code>req</code> 会返回其他模块的导出在当前模块使用，这样整个 <code>CommonJS</code> 的规则就这样建立起来了。</strong></li></ul></blockquote><h3 id="对加载过的模块进行缓存"><a href="#对加载过的模块进行缓存" class="headerlink" title="对加载过的模块进行缓存"></a>对加载过的模块进行缓存</h3><p>我们现在的程序是有问题的，当重复加载了一个已经加载过得模块，当执行 <code>req</code> 方法的时候会发现，又创建了一个新的模块实例，这是不合理的，所以我们下面来实现一下缓存机制。</p><p>还记得之前的一个静态属性 <code>Module._cacheModule</code>，它的值是一个空对象，我们会把所有加载过的模块的实例存储到这个对象上。</p><pre><code class="lang-js">/* 完善 req 方法（处理缓存） */
+/*
+* @param {String} moduleId
+*/
+function req(moduleId) {
+  // 将 req 传入的参数处理成绝对路径
+  const p = Module._resolveFileName(moduleId);
+
+  // ********** 下面为新增代码 **********
+  // 判断是否已经加载过
+  if (Module._cacheModule[p]) {
+    // 模块存在，如果有直接把 exports 对象返回即可
+    return Module._cacheModule[p].exprots;
+  }
+  // ********** 上面为新增代码 **********
+
+  // 生成一个新的模块
+  const module = new Module(p);
+
+  // 加载模块
+  const content = module.load(p);
+
+  // ********** 下面为新增代码 **********
+  // 存储时是拿模块的绝对路径作为键与模块内容相对应的
+  Module._cacheModule[p] = module;
+
+  // 是否缓存表示改为 true
+  module.loaded = true;
+  // ********** 上面为新增代码 **********
+
+  // 将加载后返回的内容赋值给模块实例的 exports 属性上
+  module.exports = content;
+
+  // 最后返回 模块实例的 exports 属性，即加载模块的内容
+  return module.exports;
+}
+</code></pre><h3 id="试用-req-加载模块"><a href="#试用-req-加载模块" class="headerlink" title="试用 req 加载模块"></a>试用 req 加载模块</h3><p>在同级目录下新建一个文件 <code>a.js</code>，使用 <code>module.exports</code> 随便导出一些内容，在我们实现模块加载的最下方尝试引入并打印内容。</p><pre><code class="lang-js">/* 导出自定义模块 */
+// a.js
+module.exports = &#39;Hello world&#39;;
+</code></pre><pre><code class="lang-js">/* 检测 req 方法 */
+const a = req(&#39;./a&#39;);
+console.log(a); // Hello world
+</code></pre><h2 id="CommonJS-模块查找规范"><a href="#CommonJS-模块查找规范" class="headerlink" title="CommonJS 模块查找规范"></a>CommonJS 模块查找规范</h2><blockquote class="pullquote primary"><p><strong>其实我们只实现了 <code>CommonJS</code> 规范的一部分，即自定义模块的加载，其实在 <code>CommonJS</code> 的规范当中关于模块查找的规则还有很多，具体的我们就用下面的流程图来表示。</strong></p></blockquote><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180626142825/commonjs-arrow.jpg" alt="CommonJS 模块加载流程图"></div><div class="image-caption">CommonJS 模块加载流程图</div></figure><blockquote class="pullquote success"><p><strong>这篇文章让我们了解了 <code>CommonJS</code> 是什么，主要目的在于理解 <code>Node.js</code> 模块化的实现思路，想要更深入的了解 <code>CommonJS</code> 的实现细节，建议看一看 <code>Node.js</code> 源码对应的部分，如果觉得源码比较多，不容易找到模块化实现的代码，也可以在 <code>VSCode</code> 中通过调用 <code>require</code> 方法引入模块时，打断点调试，一步一步的跟进到 <code>Node.js</code> 源码中查看。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180626142825/" target="_blank" rel="external">https://www.overtaking.top/20180626142825/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CommonJS/" rel="tag">CommonJS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180626142825/&title=《CommonJS 模块化简易实现》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180626142825/&title=《CommonJS 模块化简易实现》 — Shen's Blog&source=CommonJS 概述CommonJS 是一种模块化的标准，而 Node.js 是这种标准的实现，每个文件就是一个模块，有自己的作用域，在一个模块里面定义..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180626142825/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《CommonJS 模块化简易实现》 — Shen's Blog&url=https://www.overtaking.top/20180626142825/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180626142825/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180628204755/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">EventEmitter 源码分析与简易实现</h4></a></div><div class="waves-block waves-effect next"><a href="/20180623084025/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">高阶函数应用 —— 柯里化与反柯里化</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180626142825/&title=《CommonJS 模块化简易实现》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180626142825/&title=《CommonJS 模块化简易实现》 — Shen's Blog&source=CommonJS 概述CommonJS 是一种模块化的标准，而 Node.js 是这种标准的实现，每个文件就是一个模块，有自己的作用域，在一个模块里面定义..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180626142825/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《CommonJS 模块化简易实现》 — Shen's Blog&url=https://www.overtaking.top/20180626142825/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180626142825/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABxUlEQVR42u3aS26EMBAFwLn/pck20sjw2m1bJCqvECBcbFruz+cTr+vX+r4/uv5+P3m6YOHi4ra51+0abTC6k//w6GsjAy4u7nnuaIP76wRU/f6DDRcX95XcPDwl4RIXF/d/cKsHoGrihIuL+x5uHmiqiGpytSxXw8XFbXDzKuW+6y31XVxc3CnuVVyjbTqJTWF3XFzcI9w8oCQHmmoqNbkvLi7uZu59SOocUDqpSyGE4eLibub2Cxx5MWWygIKLi3uc2w9k19QqFF9wcXGPcPM0Jm9vVJOf5AdwcXFPcvOjSZLSrBq/eEh+cHFxN3Or4xdzbdS5pw/1XVxc3CPcuXZpEoDydkv0G7i4uEe41cGs/rjV3GAHLi7uSW4yOJWPVa1qshZKpbi4uJu5+QbVIa08oXr4bVxc3OPc6hEk4c61WqNcDRcXdzO3OlrRKXlUQ2S5aoKLi9vg9oeo7g8leYIUHa1wcXGPcKulirVhKzk8teq7uLi4DW4edNb2bSaLrbi4uAe5eaCpbr8lV8PFxf0j3LmEqtzIwcXFfTE3T4f602GFwSxcXNyl3LniZnXkYi5c4uLinudWQ8lc8bTzJi4u7kHuD05hCwk6ZDZCAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

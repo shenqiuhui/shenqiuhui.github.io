@@ -1,0 +1,977 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>React 基础篇 —— 带你走进 React 世界 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="ES7,React,脚手架"><meta name="description" content="React 介绍React 是前端最流行的框架之一，由 Facebook 产出，由于其独特的 JSX 语法与组件化开发模式，将原本前端基于 DOM 的编程方式变成了基于组件和数据编程，给前端带来的益处是颠覆性的，因为我们知道 DOM 操作是 “昂贵” 的，React 在提高应用性能的同时又大大提高了开发效率，所以受到很多前端开发者的支持，也就有了庞大的生态，如今 React 已经成为前端工程师之必"><meta property="og:type" content="article"><meta property="og:title" content="React 基础篇 —— 带你走进 React 世界"><meta property="og:url" content="https://www.overtaking.top/20180910025959/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="React 介绍React 是前端最流行的框架之一，由 Facebook 产出，由于其独特的 JSX 语法与组件化开发模式，将原本前端基于 DOM 的编程方式变成了基于组件和数据编程，给前端带来的益处是颠覆性的，因为我们知道 DOM 操作是 “昂贵” 的，React 在提高应用性能的同时又大大提高了开发效率，所以受到很多前端开发者的支持，也就有了庞大的生态，如今 React 已经成为前端工程师之必"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/React/20180910025959/react.png"><meta property="og:image" content="https://static.overtaking.top/images/React/20180910025959/error1.png"><meta property="og:image" content="https://static.overtaking.top/images/React/20180910025959/error2.png"><meta property="og:image" content="https://static.overtaking.top/images/React/20180910025959/virtualDOM.png"><meta property="og:image" content="https://static.overtaking.top/images/React/20180910025959/error3.png"><meta property="og:image" content="https://static.overtaking.top/images/React/20180910025959/error4.png"><meta property="og:image" content="https://static.overtaking.top/images/React/20180910025959/error5.png"><meta property="og:image" content="https://static.overtaking.top/images/React/20180910025959/error6.png"><meta property="article:published_time" content="2018-09-09T18:59:59.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="ES7"><meta property="article:tag" content="React"><meta property="article:tag" content="脚手架"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/React/20180910025959/react.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">React 基础篇 —— 带你走进 React 世界</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">React 基础篇 —— 带你走进 React 世界</h1><h5 class="subtitle"><time datetime="2018-09-09T18:59:59.000Z" itemprop="datePublished" class="page-time">2018-09-10</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/React/">React</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#React-介绍"><span class="post-toc-number">1.</span> <span class="post-toc-text">React 介绍</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#创建-React-项目"><span class="post-toc-number">2.</span> <span class="post-toc-text">创建 React 项目</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#create-react-app"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">create-react-app</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#generator-react-webpack"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">generator-react-webpack</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#目录结构"><span class="post-toc-number">3.</span> <span class="post-toc-text">目录结构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#探索-React"><span class="post-toc-number">4.</span> <span class="post-toc-text">探索 React</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#引入-React-变量必须大写"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">引入 React 变量必须大写</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#React-必须有-createElement-方法"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">React 必须有 createElement 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#解析后的-JSX-长什么样"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">解析后的 JSX 长什么样</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#模拟解析和渲染过程"><span class="post-toc-number">4.4.</span> <span class="post-toc-text">模拟解析和渲染过程</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#JSX-最外层只能有一个元素"><span class="post-toc-number">4.5.</span> <span class="post-toc-text">JSX 最外层只能有一个元素</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#React-的基本使用"><span class="post-toc-number">5.</span> <span class="post-toc-text">React 的基本使用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#className-属性"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">className 属性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#htmlFor-属性"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">htmlFor 属性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#style-属性"><span class="post-toc-number">5.3.</span> <span class="post-toc-text">style 属性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#取值表达式"><span class="post-toc-number">5.4.</span> <span class="post-toc-text">取值表达式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#dangerouslySetInnerHTML-属性"><span class="post-toc-number">5.5.</span> <span class="post-toc-text">dangerouslySetInnerHTML 属性</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#JSX-中注释的写法"><span class="post-toc-number">5.6.</span> <span class="post-toc-text">JSX 中注释的写法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Fragment-组件"><span class="post-toc-number">5.7.</span> <span class="post-toc-text">Fragment 组件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#循环动态创建-JSX-结构"><span class="post-toc-number">5.8.</span> <span class="post-toc-text">循环动态创建 JSX 结构</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#组件"><span class="post-toc-number">6.</span> <span class="post-toc-text">组件</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#函数组件"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">函数组件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#类组件"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">类组件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#类组件中添加事件"><span class="post-toc-number">6.3.</span> <span class="post-toc-text">类组件中添加事件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#卸载组件后不能再更新状态"><span class="post-toc-number">6.4.</span> <span class="post-toc-text">卸载组件后不能再更新状态</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#类组件的参数传递"><span class="post-toc-number">6.5.</span> <span class="post-toc-text">类组件的参数传递</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#组件参数的类型校验"><span class="post-toc-number">6.6.</span> <span class="post-toc-text">组件参数的类型校验</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#setState-更新状态"><span class="post-toc-number">6.7.</span> <span class="post-toc-text">setState 更新状态</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#受控组件和非受控组件"><span class="post-toc-number">6.8.</span> <span class="post-toc-text">受控组件和非受控组件</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#受控组件"><span class="post-toc-number">6.8.1.</span> <span class="post-toc-text">受控组件</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#非受控组件"><span class="post-toc-number">6.8.2.</span> <span class="post-toc-text">非受控组件</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#复合组件"><span class="post-toc-number">7.</span> <span class="post-toc-text">复合组件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">8.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-React/20180910025959" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">React 基础篇 —— 带你走进 React 世界</h1><div class="post-meta"><time class="post-time" title="2018-09-10 02:59:59" datetime="2018-09-09T18:59:59.000Z" itemprop="datePublished">2018-09-10</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/React/">React</a></li></ul><span id="/20180910025959/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="React 基础篇 —— 带你走进 React 世界"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/React/20180910025959/react.png" title="React 16"><p><br></p><h2 id="React-介绍"><a href="#React-介绍" class="headerlink" title="React 介绍"></a>React 介绍</h2><blockquote class="pullquote default"><p><strong><code>React</code> 是前端最流行的框架之一，由 <code>Facebook</code> 产出，由于其独特的 <code>JSX</code> 语法与组件化开发模式，将原本前端基于 <code>DOM</code> 的编程方式变成了基于组件和数据编程，给前端带来的益处是颠覆性的，因为我们知道 <code>DOM</code> 操作是 “昂贵” 的，<code>React</code> 在提高应用性能的同时又大大提高了开发效率，所以受到很多前端开发者的支持，也就有了庞大的生态，如今 <code>React</code> 已经成为前端工程师之必备技术栈。</strong></p></blockquote><a id="more"></a><h2 id="创建-React-项目"><a href="#创建-React-项目" class="headerlink" title="创建 React 项目"></a>创建 React 项目</h2><p>在创建 <code>React</code> 项目时，可以使用当下最流行的脚手架 <code>create-react-app</code> 和 <code>generator-react-webpack</code>，前者是由 <code>Facebook</code> 官方出品，后者是社区提供。</p><h3 id="create-react-app"><a href="#create-react-app" class="headerlink" title="create-react-app"></a>create-react-app</h3><p><code>create-react-app</code> 适用于大部分项目，集成了对 <code>React</code>、<code>JSX</code>、<code>ES6</code> 和 <code>Flow</code> 的支持，支持热更新，默认情况下无需对 <code>Webpack</code> 进行配置，如果要单独配置 <code>Webpack</code>，需要执行命令弹出配置项，下面命令分别对应安装脚手架工具、构建项目和弹出配置项。</p><pre><code class="lang-bash"># 安装脚手架
+$ npm install -g create-react-app
+# 创建项目
+$ create-react-app project-name
+# 弹射 Webpack 配置文件
+$ npm run eject
+</code></pre><blockquote class="pullquote warning"><p><strong>注意：创建 <code>React</code> 项目时，项目名称不能含大写字母，使用 <code>eject</code> 命令弹出配置项的过程不可逆。</strong></p></blockquote><h3 id="generator-react-webpack"><a href="#generator-react-webpack" class="headerlink" title="generator-react-webpack"></a>generator-react-webpack</h3><p><code>generator-react-webpack</code> 适用于构建大型项目，它是需要 <code>yeoman</code> 的支持，几乎具备了 <code>create-react-app</code> 的全部功能，不同的是默认可以对 <code>Webpack</code> 进行配置，生成项目需要手动创建项目根目录，安装脚手架工具和构建项目的命令如下：</p><pre><code class="lang-bash"># 安装脚手架及依赖
+$ npm install -g yo generator-react-webpack
+# 创建项目根目录
+$ mkdir project-name
+# 进入项目目录
+$ cd project-name
+# 创建项目
+$ yo react-webpack
+</code></pre><h2 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h2><p>我们本次使用 <code>create-react-app</code> 来构建一个项目，并弹出配置项，<code>src</code> 目录为我们主要的开发文件，必须含有一个入口文件 <code>index.js</code>，所以我们在构建项目后删除 <code>src</code> 中的无用文件，目录结构如下（可以通过 <code>npm run start</code> 启动项目）。</p><pre class="language-treeview">
+  <code class="language-treeview">
+    react-demo
+      |- config
+      | |- jest
+      | | |- cssTransform.js
+      | | |- fileTransform.js
+      | |- env.js.js
+      | |- paths.js
+      | |- webpack.config.dev.js
+      | |- webpack.config.prod.js
+      | |- webpackDevServer.config.js
+      |- public
+      | |- favicon.ico
+      | |- index.html
+      | |- manifest.json
+      |- scripts
+      | |- build.js
+      | |- start.js
+      | |- test.js
+      |- src
+      | |- index.js
+      |- .gitignore
+      |- package.json
+      |- README.md
+      |- yarn.lock
+  </code>
+</pre><h2 id="探索-React"><a href="#探索-React" class="headerlink" title="探索 React"></a>探索 React</h2><h3 id="引入-React-变量必须大写"><a href="#引入-React-变量必须大写" class="headerlink" title="引入 React 变量必须大写"></a>引入 React 变量必须大写</h3><p><code>React</code> 的核心模块分为两个，分别为 <code>react</code> 和 <code>react-dom</code>，前者为 <code>React</code> 的核心逻辑，后者为 <code>React</code> 的渲染逻辑，在 <code>React</code> 中规定引入 <code>react</code> 模块的变量名必须大写。</p><pre><code class="lang-jsx">/* 文件位置：~react-demo/src/index.js */
+import react from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建一个 JSX
+const h1 = (
+  &lt;h1&gt;hello world&lt;/h1&gt;
+)
+
+// 渲染到页面
+ReactDOM.render(h1, window.root);
+</code></pre><p>如果向上面代码中将引入 <code>react</code> 的变量小写，报错信息如下：</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/React/20180910025959/error1.png" alt="React 变量错写报错"></div><div class="image-caption">React 变量错写报错</div></figure><p><br></p><p>该报错信息的意思是当前使用了 <code>JSX</code>，必须要有一个大写的 <code>React</code>，从而可以看出这是 <code>React</code> 所规定的，当将接收 <code>react</code> 的变量改成大写后，页面正常渲染。</p><h3 id="React-必须有-createElement-方法"><a href="#React-必须有-createElement-方法" class="headerlink" title="React 必须有 createElement 方法"></a>React 必须有 createElement 方法</h3><pre><code class="lang-jsx">/* 文件位置：~react-demo/src/index.js */
+// 创建一个大写的 React 对象
+const React = {};
+
+// 创建一个 JSX
+const h1 = (
+  &lt;h1&gt;hello world&lt;/h1&gt;
+)
+</code></pre><p>为了进一步验证，上面代码中创建一个名为 <code>React</code> 的对象，报错信息如下：</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/React/20180910025959/error2.png" alt="React 没有 createElement 方法报错"></div><div class="image-caption">React 没有 createElement 方法报错</div></figure><p><br></p><p>这个报错非常明显的在告诉我们，<code>React</code> 对象中缺少了 <code>createElement</code> 方法，我们将代码修改如下后发现报错信息消失。</p><pre><code class="lang-jsx">/* 文件位置：~react-demo/src/index.js */
+// 创建一个大写的 React 对象
+const React = {
+  createElement() {}
+};
+
+// 创建一个 JSX
+const h1 = (
+  &lt;h1&gt;hello world&lt;/h1&gt;
+)
+</code></pre><p>页面 “白屏” 是因为并没有使用 <code>react-dom</code> 进行渲染，我们定义的 <code>h1</code> 是一个组件，同时也是 <code>JSX</code>，所以会调用 <code>createElement</code> 对 <code>JSX</code> 进行解析。</p><h3 id="解析后的-JSX-长什么样"><a href="#解析后的-JSX-长什么样" class="headerlink" title="解析后的 JSX 长什么样"></a>解析后的 JSX 长什么样</h3><pre><code class="lang-jsx">/* 文件位置：~react-demo/src/index.js */
+import React from &#39;react&#39;;
+
+// 创建一个 JSX
+const h1 = (
+  &lt;h1&gt;hello world&lt;/h1&gt;
+)
+
+// 查看 JSX 解析后的结果
+console.log(h1);
+</code></pre><p>打开 <code>Chorme</code> 浏览器控制台查看打印结果如下：</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/React/20180910025959/virtualDOM.png" alt="JSX 解析后的虚拟 DOM 结构"></div><div class="image-caption">JSX 解析后的虚拟 DOM 结构</div></figure><p><br></p><p>从结果可以看出 <code>createElement</code> 方法最终将 <code>JSX</code> 解析成了一个对象结构，其中 <code>props</code> 带表属性对象，其中的 <code>children</code> 代表子元素，也就是文本节点 <code>hello world</code>，<code>type</code> 代表标签类型为 <code>h1</code>，这样用来表述 <code>DOM</code> 结构的对象被称为虚拟 <code>DOM</code>。</p><h3 id="模拟解析和渲染过程"><a href="#模拟解析和渲染过程" class="headerlink" title="模拟解析和渲染过程"></a>模拟解析和渲染过程</h3><p>在上面我们知道了 <code>React</code> 可以自动将 <code>JSX</code> 转换成虚拟 <code>DOM</code>，而 <code>ReactDOM</code> 的 <code>render</code> 方法将虚拟 <code>DOM</code> 渲染成了真实的 <code>DOM</code>，用法如下：</p><pre><code class="lang-jsx">/* 文件位置：~react-demo/src/index.js */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建 JSX
+const el = (
+  &lt;h1 name=&quot;hi&quot;&gt;
+    hello
+    &lt;span&gt;world&lt;/span&gt;
+  &lt;/h1&gt;
+)
+
+// 渲染到页面
+ReactDOM.render(el, window.root);
+</code></pre><p>查看页面可以看到正常渲染了，现在就用前面对 <code>React</code> 的了解来简单模拟解析与渲染的过程，代码如下：</p><pre><code class="lang-jsx">/* 文件位置：~react-demo/src/index.js */
+// 创建 React 对象和 createElement 方法
+const React = {
+  createElement(type, props, ...children) {
+    return { type, props, children };
+  }
+};
+
+// 创建 JSX
+const el = (
+  &lt;h1 name=&quot;hi&quot;&gt;
+    hello
+    &lt;span&gt;world&lt;/span&gt;
+  &lt;/h1&gt;
+)
+
+// 渲染的 render 方法
+function render(vnode, container) {
+  // 如果是字符串说明是文本节点，创建文本节点并插入到父元素中
+  if (typeof vnode === &#39;string&#39;) {
+    return container.appendChild(document.createTextNode(vnode));
+  }
+
+  // 如果不是字符串说明是元素节点，解构元素类型、属性和子元素的数组
+  const { type, props, children } = vnode;
+
+  // 创建元素
+  const tag = document.createElement(type);
+
+  // 循环添加属性
+  for (let key in props) {
+    tag.setAttribute(key, props[key]);
+  }
+
+  // 循环子元素，并递归创建子元素
+  children.forEach(child =&gt; {
+    render(child, tag);
+  });
+
+  // 将元素插入到容器中，root
+  container.appendChild(tag);
+}
+
+// 渲染虚拟 DOM
+render(el, window.root);
+</code></pre><p>通过上面实现的代码同样可以完成渲染，当然仅限于简单结构，<code>React</code> 内部的实现更为复杂，兼容了多种组件类型和复杂的 <code>DOM</code> 结构。</p><h3 id="JSX-最外层只能有一个元素"><a href="#JSX-最外层只能有一个元素" class="headerlink" title="JSX 最外层只能有一个元素"></a>JSX 最外层只能有一个元素</h3><pre><code class="lang-jsx">/* 文件位置：~react-demo/src/index.js */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建 JSX
+const el = (
+  &lt;h1 name=&quot;hi&quot;&gt;hello&lt;/h1&gt;
+  &lt;div&gt;world&lt;/div&gt;
+)
+
+ReactDOM.render(el, window.root);
+</code></pre><p>在对上面代码中的 <code>JSX</code> 进行渲染时会有如下报错信息。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/React/20180910025959/error3.png" alt="JSX 没有唯一父元素包裹报错"></div><div class="image-caption">JSX 没有唯一父元素包裹报错</div></figure><p><br></p><p>上面的报错信息告诉我们 <code>JSX</code> 元素必须包裹在一个闭合的标签内，所以说在写 <code>JSX</code> 语法的时候我们必须保证最外层只有一个元素节点。</p><h2 id="React-的基本使用"><a href="#React-的基本使用" class="headerlink" title="React 的基本使用"></a>React 的基本使用</h2><blockquote class="pullquote info"><p><strong>在 <code>JSX</code> 全称为 <code>JavaScript XML</code>，但是和普通的 <code>HTML</code> 相比，有一些不同的用法，如元素属性 <code>class</code>、<code>for</code>、<code>style</code>、<code>dangerouslyInnerHTML</code> 以及注释写法等等。</strong></p></blockquote><h3 id="className-属性"><a href="#className-属性" class="headerlink" title="className 属性"></a>className 属性</h3><p>在 <code>JSX</code> 语法中，在标签中应使用 <code>className</code> 替代 <code>HTML</code> 中的 <code>class</code> 属性，因为在 <code>JavaScript</code> 中 <code>class</code> 为关键字。</p><pre><code class="lang-jsx">/* class 属性在 JSX 中的写法 */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+ReactDOM.render(&lt;h1 className=&quot;active&quot;&gt;hello&lt;/h1&gt;, window.root);
+</code></pre><h3 id="htmlFor-属性"><a href="#htmlFor-属性" class="headerlink" title="htmlFor 属性"></a>htmlFor 属性</h3><p>在 <code>HTML</code> 中，通过点击 <code>label</code> 标签让 <code>input</code> 输入框获取焦点是很常见的，只需要让 <code>label</code> 标签 <code>for</code> 属性的值与 <code>input</code> 标签的 <code>id</code> 值相等即可，但是在 <code>JSX</code> 中这这样的写法会报错，必须将 <code>label</code> 标签的 <code>for</code> 属性使用 <code>htmlFor</code> 替代，代码如下：</p><pre><code class="lang-jsx">/* for 属性在 JSX 中的写法 */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const el = (
+  &lt;div&gt;
+    &lt;h1&gt;hello&lt;/h1&gt;
+    &lt;label htmlFor=&quot;username&quot;&gt;用户名&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;username&quot; /&gt;
+  &lt;/div&gt;
+)
+
+ReactDOM.render(el, window.root);
+</code></pre><h3 id="style-属性"><a href="#style-属性" class="headerlink" title="style 属性"></a>style 属性</h3><pre><code class="lang-jsx">/* style 属性错误的写法 */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const el = (
+  &lt;h1 style=&quot;color: red;&quot;&gt;hello&lt;/h1&gt;
+)
+
+ReactDOM.render(el, window.root);
+</code></pre><p>在 <code>JSX</code> 中关于 <code>style</code> 属性的写法发生了变化，如果用 <code>HTML</code> 中的写法会报错，错误信息如下：</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/React/20180910025959/error4.png" alt="JSX 中 style 属性错误写法报错"></div><div class="image-caption">JSX 中 style 属性错误写法报错</div></figure><p><br></p><p>报错信息中明确的告诉我们 <code>style</code> 属性必须是一个含有代表样式键值的对象，而不是一个字符串，并给出正确的结构，正确的写法如下：</p><pre><code class="lang-jsx">/* style 属性在 JSX 中的写法 */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const el = (
+  &lt;h1 style={{color: 'red'}}&gt;hello&lt;/h1&gt;
+)
+
+ReactDOM.render(el, window.root);
+</code></pre><blockquote class="pullquote warning"><p><strong>注意：在解析 <code>JSX</code> 的过程中，<code>&lt;</code> 和 <code>&gt;</code> 包裹 <code>JSX</code> 元素，元素属性中最外层的 <code>{</code> 和 <code>}</code> 包裹 <code>JS</code> 代码，而内层的 <code>{</code> 和 <code>}</code> 则代表一个 <code>JS</code> 对象，所以 <code>style</code> 是被两层 “花括号” 所包裹，并不是 <code>mustache</code> 语法。</strong></p></blockquote><h3 id="取值表达式"><a href="#取值表达式" class="headerlink" title="取值表达式"></a>取值表达式</h3><p>在 <code>JSX</code> 中，所有的 <code>JS</code> 代码都可以写在 <code>JSX</code> 元素起始和闭合标签中间的 <code>{</code> 和 <code>}</code> 内，会将执行结果渲染到该元素上。</p><pre><code class="lang-jsx">/* 取值表达式的使用 */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const str = &#39;world&#39;;
+const obj = { hello: &#39;world&#39; };
+const fn = () =&gt; &lt;p&gt;hello&lt;/p&gt;;
+
+const el = (
+  &lt;div&gt;
+    &lt;h1&gt;{fn()}&lt;/h1&gt;
+    &lt;div&gt;{str}&lt;/div&gt;
+    &lt;div&gt;{JSON.stringify(obj)}&lt;/div&gt;
+    &lt;div&gt;{true ? &lt;span&gt;nihao&lt;/span&gt; : null}&lt;/div&gt;
+  &lt;/div&gt;
+)
+
+ReactDOM.render(el, window.root);
+</code></pre><p>启动项目可以看到页面上已经成功的渲染了 <code>hello</code>、<code>world</code>、<code>{ hello: &#39;world&#39; }</code> 和 <code>nihao</code>，上面三元运算符结果如果为 <code>null</code> 则不会渲染这个节点，<code>viod 0</code> 与 <code>null</code> 作用相同。</p><h3 id="dangerouslySetInnerHTML-属性"><a href="#dangerouslySetInnerHTML-属性" class="headerlink" title="dangerouslySetInnerHTML 属性"></a>dangerouslySetInnerHTML 属性</h3><p>在 <code>JSX</code> 中，如果想要把一个含有标签元素的字符串插入到某一个节点中，应该使用 <code>dangerouslySetInnerHTML</code> 替代原生 <code>JS</code> 中的 <code>innerHTML</code>。</p><pre><code class="lang-jsx">/* dangerouslySetInnerHTML 的用法 */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const str = &#39;&lt;h1&gt;hello&lt;/h1&gt;&#39;;
+const el = (
+  &lt;h1 dangerouslySetInnerHTML={{__html: str}}&gt;&lt;/h1&gt;
+)
+
+ReactDOM.render(el, window.root);
+</code></pre><p>在上面的代码中，<code>dangerouslySetInnerHTML</code> 属性的值为对象，将要插入的 <code>HTML</code> 字符串作为对象中 <code>__html</code> 属性的值即可，设置 <code>dangerouslySetInnerHTML</code> 属性的 <code>JSX</code> 元素中不能有任何的子元素。</p><blockquote class="pullquote danger"><p><strong>注意：<code>dangerouslySetInnerHTML</code> 属性非常危险，容易引发 <code>XSS</code> 攻击，轻易不要使用。</strong></p></blockquote><h3 id="JSX-中注释的写法"><a href="#JSX-中注释的写法" class="headerlink" title="JSX 中注释的写法"></a>JSX 中注释的写法</h3><p>在 <code>JSX</code> 的 <code>DOM</code> 结构中，如果需要对代码进行注释不能使用 <code>JS</code> 中的 <code>// 注释</code>，也不能使用 <code>HTML</code> 中的 <code>&lt;!-- 注释 --&gt;</code>，注释必须使用 <code>{ }</code> 包裹，写法如下：</p><pre><code class="lang-jsx">/* 注释在 JSX 中的写法 */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const el = (
+  &lt;div&gt;
+    &lt;h1 name=&quot;hi&quot;&gt;hello&lt;/h1&gt;
+    {/* 这是注释，支持多行 */}
+    &lt;span&gt;world&lt;/span&gt;
+  &lt;/div&gt;
+)
+
+ReactDOM.render(el, window.root);
+</code></pre><h3 id="Fragment-组件"><a href="#Fragment-组件" class="headerlink" title="Fragment 组件"></a>Fragment 组件</h3><p>在 <code>React 16.3</code> 中提供了一个组件，类似于原生 <code>JS</code> 中的文档碎片，可以将多个元素包裹起来，却不会被渲染，用法如下：</p><pre><code class="lang-jsx">/* Fragment 组件的使用 */
+import React, { Fragment } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const el = (
+  &lt;Fragment&gt;
+    &lt;h1&gt;hello&lt;/h1&gt;
+    &lt;div&gt;world&lt;/div&gt;
+  &lt;/Fragment&gt;
+)
+
+ReactDOM.render(el, window.root);
+</code></pre><h3 id="循环动态创建-JSX-结构"><a href="#循环动态创建-JSX-结构" class="headerlink" title="循环动态创建 JSX 结构"></a>循环动态创建 JSX 结构</h3><p>在 <code>React</code> 中不存在过多的 <code>API</code>，最大的特点就是 <code>JSX</code> 语法可以将 <code>JS</code> 与 <code>HTML</code> 混写（函数式编程），借助原生 <code>JS</code> 的方法实现功能，比如可以使用循环创建 <code>JSX</code> 结构。</p><pre><code class="lang-jsx">/* 循环在 JSX 中的应用 */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const arr = [1, 2, 3];
+const el = (
+  arr.map((item, index) =&gt; {
+    return (
+      &lt;li key={index}&gt;{item}&lt;/li&gt;
+    )
+  })
+)
+
+ReactDOM.render(el, window.root);
+</code></pre><blockquote class="pullquote danger"><p><strong>上面成功的渲染除了一个列表，但是有两点需要注意：</strong></p><ul><li><strong>第一点是循环一定要使用具有返回值的方法，如 <code>map</code>、<code>filter</code> 等；</strong></li><li><strong>第二点是每一个循环出来的 <code>JSX</code> 元素必须绑定一个 <code>key</code> 属性，可以使用数据的 <code>id</code>（优先），也可以使用数组的索引。</strong></li></ul></blockquote><h2 id="组件"><a href="#组件" class="headerlink" title="组件"></a>组件</h2><blockquote class="pullquote success"><p><strong>在上面所有代码中的 <code>JSX</code> 都很不优雅，如果一个项目非常大，这样的混乱的结构是难以维护的，组件就是为了更好的维护和复用相同的 <code>JSX</code> 结构以及提高工作效率而存在的。</strong></p></blockquote><h3 id="函数组件"><a href="#函数组件" class="headerlink" title="函数组件"></a>函数组件</h3><p>在 <code>React</code> 中可以通过函数创建组件，函数名称就是组件名，必须大写，必须有返回值，可以为 <code>JSX</code>，也可以为 <code>null</code>，通过单闭合和双闭合两种方式调用组件，可以通过属性传参，并通过函数组件的第一个参数接收，实现代码如下：</p><pre><code class="lang-jsx">/* 函数组件 */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建一个函数组件
+function Build(props) {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{props.title}&lt;/h1&gt;
+      &lt;div&gt;{props.content}&lt;/div&gt;
+    &lt;/div&gt;
+  )
+}
+
+// 渲染组件
+ReactDOM.render((
+  &lt;div&gt;
+    &lt;Build title=&#39;1&#39; content=&#39;1xx&#39;&gt;&lt;/Build&gt; {/* 双闭合 */}
+    &lt;Build title=&#39;2&#39; content=&#39;2xx&#39; /&gt; {/* 单闭合 */}
+  &lt;/div&gt;
+), window.root);
+</code></pre><blockquote class="pullquote primary"><p><strong>函数组件缺点（<code>16.3</code> 以前）：</strong></p><ul><li><strong>在函数组件内部 <code>this</code> 为 <code>undefined</code>；</strong></li><li><strong>在函数组件内部没有状态，即只能使用通过属性传递的参数，却没有更改的能力；</strong></li><li><strong>函数组件没有生命周期，无法使用生命周期 “钩子” 完成一些操作。</strong></li></ul></blockquote><p>由于函数组件的缺陷，所以更适合渲染一些静态的不需要数据变化的结构，如果想要让传入的属性变化可以通过不断执行 <code>React.render</code> 的方式不断更新传入组件参数的值，下面是一个时钟案例，通过函数组件实现时间的变化。</p><pre><code class="lang-jsx">/* 函数组件多次渲染 */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建函数组件
+function Clock(props) {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;当前时间&lt;/h1&gt;
+      &lt;div&gt;{props.time}&lt;/div&gt;
+    &lt;/div&gt;
+  )
+}
+
+// 每秒渲染一次组件
+setInterval(() =&gt; {
+  ReactDOM.render(
+    &lt;Clock time={new Date().toLocaleString()} /&gt;,
+    window.root
+  );
+}, 1000);
+</code></pre><h3 id="类组件"><a href="#类组件" class="headerlink" title="类组件"></a>类组件</h3><p>类组件解决了函数组件所有的缺陷，是通过类声明的。</p><pre><code class="lang-jsx">/* 类组件 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建类组件
+class Clock extends Component {
+  // constructor(props) {
+  //   super(props);
+  //   this.state = {
+  //     time: new Date().toLocaleString();
+  //   }
+  // }
+
+  // 等价于 constructor 的写法，更简洁
+  state = {
+    time: new Date().toLocaleString()
+  }
+
+  // 生命周期
+  componentDidMount() {
+    // Component 组件有一个 setState 方法可以更新状态，每次调用组件会重新渲染
+    setInterval(() =&gt; {
+      this.setState({ time: new Date().toLocaleString() });
+    }, 1000);
+  }
+
+  // 渲染这个组件会调用 render 方法
+  render() {
+    return (
+      &lt;div&gt;
+        时间：&lt;span&gt;{this.state.time}&lt;/span&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 渲染组件
+ReactDOM.render(&lt;Clock /&gt;, window.root);
+</code></pre><p>在上面的类组件中，我们同样使用了一个简单的时钟功能，可以看出类组件即有 <code>this</code>，又能创建和更新状态，也可以通过生命周期进行一些操作。</p><p>所有的类组件都需要继承 <code>React.Component</code>，这样就可以使用 <code>React.Component</code> 的原型方法 <code>setState</code> 对状态进行更新，每次更新，都会使组件重新渲染，但是只会重新渲染变化的 <code>DOM</code>，这是 <code>ReactDOM</code> 通过 <code>diff</code> 算法所做的优化。</p><h3 id="类组件中添加事件"><a href="#类组件中添加事件" class="headerlink" title="类组件中添加事件"></a>类组件中添加事件</h3><p>在平时开发中每个组件都会有一些对应的功能，这就需要事件的配合，在类组建中绑定事件大概有四种方式，我们还是用上面的时钟案例，给该组件添加一个按钮，在点击时卸载这个组件。</p><pre><code class="lang-jsx">/* 方式 1：使用箭头函数直接绑定事件 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建类组件
+class Clock extends Component {
+  state = {
+    time: new Date().toLocaleString()
+  }
+
+  // 生命周期
+  componentDidMount() {
+    // Component 组件有一个 setState 方法可以更新状态，每次调用组件会重新渲染
+    setInterval(() =&gt; {
+      this.setState({ time: new Date().toLocaleString() });
+    }, 1000);
+  }
+
+  // 渲染这个组件会调用 render 方法
+  render() {
+    return (
+      &lt;div&gt;
+        时间：&lt;span&gt;{this.state.time}&lt;/span&gt;
+        &lt;button onClick={() =&gt; {
+          // 卸载组件的方法
+          ReactDOM.unmountComponentAtNode(window.root);
+        }}&gt;
+          kill
+        &lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 渲染组件
+ReactDOM.render(&lt;Clock /&gt;, window.root);
+</code></pre><pre><code class="lang-jsx">/* 方式 2：使用 bind 绑定函数 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建类组件
+class Clock extends Component {
+  state = {
+    time: new Date().toLocaleString()
+  }
+
+  // 生命周期
+  componentDidMount() {
+    // Component 组件有一个 setState 方法可以更新状态，每次调用组件会重新渲染
+    setInterval(() =&gt; {
+      this.setState({ time: new Date().toLocaleString() });
+    }, 1000);
+  }
+
+  // 点击事件
+  handleClick() {
+    ReactDOM.unmountComponentAtNode(window.root);
+  }
+
+  // 渲染这个组件会调用 render 方法
+  render() {
+    return (
+      &lt;div&gt;
+        时间：&lt;span&gt;{this.state.time}&lt;/span&gt;
+        &lt;button onClick={this.handleClick.bind(this)}&gt;kill&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 渲染组件
+ReactDOM.render(&lt;Clock /&gt;, window.root);
+</code></pre><p>上面两种方式都有一个共同的问题，箭头函数的方式在每次执行 <code>render</code> 时都会创建新的箭头函数，而将函数作为原型方法，通过 <code>bind</code> 是为了修正方法内部的 <code>this</code> 指向，但是每次执行 <code>render</code> 时，<code>bind</code> 也会返回一个新的函数。</p><pre><code class="lang-jsx">/* 方式 3：在方式 2 的基础上提前生成函数 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建类组件
+class Clock extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      time: new Date().toLocaleString()
+    };
+    this.fn = this.handleClick.bind(this);
+  }
+
+  // 生命周期
+  componentDidMount() {
+    // Component 组件有一个 setState 方法可以更新状态，每次调用组件会重新渲染
+    setInterval(() =&gt; {
+      this.setState({ time: new Date().toLocaleString() });
+    }, 1000);
+  }
+
+  // 点击事件
+  handleClick() {
+    ReactDOM.unmountComponentAtNode(window.root);
+  }
+
+  // 渲染这个组件会调用 render 方法
+  render() {
+    return (
+      &lt;div&gt;
+        时间：&lt;span&gt;{this.state.time}&lt;/span&gt;
+        &lt;button onClick={this.fn}&gt;kill&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 渲染组件
+ReactDOM.render(&lt;Clock /&gt;, window.root);
+</code></pre><p>这样就解决了上面每次执行 <code>render</code> 就创建新函数的问题，但是这样的写法并不优雅，又产生了新的问题，所有的事件执行函数全都添加到了组件的实例上，而且代码会随着事件的增加而越来越乱。</p><pre><code class="lang-jsx">/* 方式 4：使用 ES7 语法将原型方法使用箭头函数 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建类组件
+class Clock extends Component {
+  state = {
+    time: new Date().toLocaleString()
+  }
+
+  // 生命周期
+  componentDidMount() {
+    // Component 组件有一个 setState 方法可以更新状态，每次调用组件会重新渲染
+    setInterval(() =&gt; {
+      this.setState({ time: new Date().toLocaleString() });
+    }, 1000);
+  }
+
+  // 点击事件
+  handleClick = () =&gt; {
+    ReactDOM.unmountComponentAtNode(window.root);
+  }
+
+  // 渲染这个组件会调用 render 方法
+  render() {
+    return (
+      &lt;div&gt;
+        时间：&lt;span&gt;{this.state.time}&lt;/span&gt;
+        &lt;button onClick={this.handleClick}&gt;kill&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 渲染组件
+ReactDOM.render(&lt;Clock /&gt;, window.root);
+</code></pre><p>使用 <code>ES7</code> 的新语法，既解决了事件处理函数方法内部 <code>this</code> 指向问题，又解决了每次执行 <code>render</code> 创建新函数的问题，但需要依赖 <code>@babel/plugin-proposal-class-properties</code> 插件来解析。</p><h3 id="卸载组件后不能再更新状态"><a href="#卸载组件后不能再更新状态" class="headerlink" title="卸载组件后不能再更新状态"></a>卸载组件后不能再更新状态</h3><p>还是上面的时钟案例，我们知道卸载一个组件应该使用 <code>ReactDOM.unmountComponentAtNode</code> 方法，参数一个组件，执行后会卸载这个组件内部所有的组件。</p><p>当真正点击时钟组件的按钮去卸载组件，组件虽然成功卸载了，但是控制台报错了，报错信息如下：</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/React/20180910025959/error5.png" alt="卸载组件后更新状态报错"></div><div class="image-caption">卸载组件后更新状态报错</div></figure><p><br></p><p>这个报错信息的意思是告诉我们在组件卸载后不能再通过 <code>setState</code> 更新状态，所以我们要在组件卸载之前先清空调用 <code>setState</code> 的定时器，代码修改如下：</p><pre><code class="lang-jsx">/* 完整的时钟组件 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 创建类组件
+class Clock extends Component {
+  state = {
+    time: new Date().toLocaleString()
+  }
+
+  // 生命周期
+  componentDidMount() {
+    // Component 组件有一个 setState 方法可以更新状态，每次调用组件会重新渲染
+    this.timer = setInterval(() =&gt; {
+      this.setState({ time: new Date().toLocaleString() });
+    }, 1000);
+  }
+
+  // 组件将要卸载时清空定时器
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+
+  // 点击事件
+  handleClick = () =&gt; {
+    ReactDOM.unmountComponentAtNode(window.root);
+  }
+
+  // 渲染这个组件会调用 render 方法
+  render() {
+    return (
+      &lt;div&gt;
+        时间：&lt;span&gt;{this.state.time}&lt;/span&gt;
+        &lt;button onClick={this.handleClick}&gt;kill&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 渲染组件
+ReactDOM.render(&lt;Clock /&gt;, window.root);
+</code></pre><p>在这个组件中用到了两个生命周期 “钩子”，<code>componentDidMount</code> 钩子在组件挂载后执行，类似于原生 <code>JS</code> 的 <code>window.onload</code>，<code>componentWillUnmount</code> 钩子在组件将要卸载之前执行，后面会涉及更多生命周期钩子，我们会在这个 <code>React</code> 基础篇系列文章中一一说明。</p><h3 id="类组件的参数传递"><a href="#类组件的参数传递" class="headerlink" title="类组件的参数传递"></a>类组件的参数传递</h3><pre><code class="lang-jsx">/* 类组件传参第一种方式 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const p = { name: &#39;panda&#39;, age: 28 };
+
+class Person extends Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;p&gt;{this.props.name}&lt;/p&gt;
+        &lt;p&gt;{this.props.age}&lt;/p&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 分别传入想要的属性
+ReactDOM.render(&lt;Person name={p.name} age={p.age} /&gt;, window.root);
+</code></pre><pre><code class="lang-jsx">/* 类组件传参第二种方式 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+const p = { name: &#39;panda&#39;, age: 28 };
+
+class Person extends Component {
+  render() {
+    const { name, age } = this.props;
+
+    return (
+      &lt;div&gt;
+        &lt;p&gt;{name}&lt;/p&gt;
+        &lt;p&gt;{age}&lt;/p&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 传入整个对象
+ReactDOM.render(&lt;Person {...p} /&gt;, window.root);
+</code></pre><p>上面两种传参方式第一种是将对象中希望传入的属性传递给组件，第二种方式是将整个对象通过解构的方式直接传递给组件，而组件中可以在 <code>constructor</code> 中的第一个参数接收 <code>props</code>，也可以直接使用 <code>this.props</code>，因为 <code>React</code> 在组件创建实例调用 <code>super</code> 之前就已经将 <code>props</code> 作为了实例属性。</p><h3 id="组件参数的类型校验"><a href="#组件参数的类型校验" class="headerlink" title="组件参数的类型校验"></a>组件参数的类型校验</h3><p>在 <code>React</code> 组件传递参数时，是通过 <code>props</code> 取出传入的参数直接使用，传入的值类型并没有做任何的校验，这就可能造成传参时出现错误，在 <code>React</code> 生态中有一个第三方模块 <code>prop-types</code> 可以规定参数的类型，并对传入的参数进行校验，使用前需安装。</p><pre><code class="lang-bash">$ npm install prop-types
+</code></pre><pre><code class="lang-js">/* 使用 prop-types 校验传给组件的参数 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+import PropTypes from &#39;prop-types&#39;;
+
+const p = {
+  name: &#39;panda&#39;,
+  age: 28,
+  gender: &#39;男&#39;,
+  hobby: [&#39;basketball&#39;, &#39;swim&#39;],
+  pos: { x: 433, y: 822 },
+  salary: 5000
+}
+
+class Person extends Component {
+  // 定义默认属性，React 自带
+  static defaultProps = {
+    name: &#39;shen&#39;
+  }
+
+  // 定义属性类型
+  static propTypes = {
+    name: PropTypes.string.isRequired, // 类型必须为字符串，必填项
+    age: PropTypes.number, // 类型必须为数字
+    gender: PropTypes.oneOf([&#39;男&#39;, &#39;女&#39;]), // 性别只能为男或女
+    hobby: PropTypes.arrayOf(PropTypes.string), // 数组成员类型必须是字符串
+    pos: PropTypes.shape({ // 限制模型内部类型
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired
+    }),
+
+    // 第一个参数为原对象，第二个参数为当前属性，第三个参数为类
+    salary(obj, key, P) {
+      // 自行校验
+      if (obj[key] &lt; 3000) {
+        throw new Error(&#39;工资太低&#39;);
+      }
+    }
+  }
+
+  render() {
+    const { name, age } = this.props;
+
+    return (
+      &lt;div&gt;
+        &lt;p&gt;{name}&lt;/p&gt;
+        &lt;p&gt;{age}&lt;/p&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Person {...p} /&gt;, window.root);
+</code></pre><p>使用 <code>prop-types</code> 必须在类组件上添加一个静态属性 <code>propTypes</code>，在内部定义属性的类型，其中 <code>isRequired</code> 为必填项，如果没有传参会报错，在检测是会优先检测 <code>React</code> 的静态属性 <code>defaultProps</code>，即默认属性，如果 <code>defaultProps</code> 存在则视为已经有该参数。</p><p><code>oneOf</code> 方法参数为一个数组，传给组件对应的参数值必须是传给 <code>oneOf</code> 数组中的其中一项，否则会报错，<code>arrayOf</code> 方法用于限制数组成员的类型，<code>shape</code> 方法用于限属性值为对象的内部属性类型，参数为对象。</p><p>在 <code>propTypes</code> 静态属性中以传入的属性名作为方法名，则该方法为自定义校验该属性的函数，参数的前三项为原对象，属性名和所属类，可以在函数内部自行实现校验逻辑。</p><h3 id="setState-更新状态"><a href="#setState-更新状态" class="headerlink" title="setState 更新状态"></a>setState 更新状态</h3><p>在前面的时钟组件中已经简单的使用过 <code>setState</code>，在这里我们会对 <code>setState</code> 的用法通过一个计数器案例来做详细说明。</p><pre><code class="lang-jsx">/* 计数器案例 1 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  state = { num: 0 }
+
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num + 1 });
+    this.setState({ num: this.state.num + 1 });
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        {this.state.num}
+        &lt;button onClick={this.handleClick}&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+</code></pre><p>在上面的计数器中，当我们点击按钮时会执行 <code>handleClick</code>，而在 <code>handleClick</code> 内部调用了两次 <code>setState</code> 更新状态，但是我们启动项目后发现只有一次是有效的，这也说明了一个问题，<code>setState</code> 是异步执行的，最后一次执行的会覆盖前一次，其实在 <code>setState</code> 方法调用时支持传入一个回调函数，代码如下：</p><pre><code class="lang-jsx">/* 计数器案例 2 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  state = { num: 0 }
+
+  handleClick = () =&gt; {
+    this.setState({ num: this.state.num + 1 }, () =&gt; {
+      this.setState({ num: this.state.num + 1 });
+    });
+  }
+
+  render() {
+    console.log(&#39;render&#39;);
+    return (
+      &lt;div&gt;
+        {this.state.num}
+        &lt;button onClick={this.handleClick}&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+</code></pre><p><code>setState</code> 传入的回调会在更新状态成功后执行，所以将代码修改后两次 <code>setState</code> 都生效了，<code>render</code> 执行了两次，这样的写法如果调用 <code>setState</code> 次数多了就形成了 “回调地狱”，<code>setState</code> 还有另一种用法如下：</p><pre><code class="lang-jsx">/* 计数器案例 3 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Counter extends Component {
+  state = { num: 0 }
+  handleClick = () =&gt; {
+    this.setState(prevState =&gt; ({ num: prevState.num + 1 }));
+    this.setState(prevState =&gt; ({ num: prevState.num + 1 }));
+  }
+  render() {
+    console.log(&#39;render&#39;);
+    return (
+      &lt;div&gt;
+        {this.state.num}
+        &lt;button onClick={this.handleClick}&gt;+&lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+}
+
+ReactDOM.render(&lt;Counter /&gt;, window.root);
+</code></pre><p><code>setState</code> 方法可直接传入一个函数，函数的参数为上一次更新的 <code>state</code>，也就是 <code>this.state</code>，此时执行 <code>setState</code> 只更新状态，不重新渲染，当最后一次更新状态后统一渲染一次（也叫 <code>setState</code> 合并）。</p><blockquote class="pullquote info"><p><strong>触发组件重新渲染的两种方式：</strong></p><ul><li><strong><code>props</code> 发生变化，如调用 <code>render</code> 并传入新的属性值；</strong></li><li><strong>调用 <code>setState</code> 重新设置状态。</strong></li></ul></blockquote><h3 id="受控组件和非受控组件"><a href="#受控组件和非受控组件" class="headerlink" title="受控组件和非受控组件"></a>受控组件和非受控组件</h3><p>对于组件的分类除了可以按照组件的创建方式分为函数组件和类组件，还有另外一种分类方式，就是受控组件和非受控组件，简单来说 “受控” 和 “非受控” 就是指是否受到状态的控制，这种分类方式多用于表单元素，同时也指对于表单元素数据的不同处理方式。</p><h4 id="受控组件"><a href="#受控组件" class="headerlink" title="受控组件"></a>受控组件</h4><p>下面是一个受控组件的写法，输入框的初始值是通过 <code>value</code> 和 <code>defaultValue</code> 属性绑定的状态的值。</p><pre><code class="lang-jsx">/* 受控组件 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Control extends Component {
+  state = {
+    msg1: &#39;hello&#39;,
+    msg2: &#39;world&#39;
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;input type=&quot;text&quot; value={this.state.msg1} /&gt; {/* 报错 */}
+        &lt;input type=&quot;text&quot; defaultValue={this.state.msg2} /&gt; {/* 不报错 */}
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Control /&gt;, window.root);
+</code></pre><p>上面的代码中是两种绑定初始值的方式，使用 <code>defaultValue</code> 属性可以正常的将状态中的属性作为初始值绑定到页面的输入框内，但是随着输入的变化并没更新状态的作用，而使用 <code>value</code> 做了同样的绑定后，虽然页面正常显示初始值，但是控制台报错了，报错信息如下：</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/React/20180910025959/error6.png" alt="受控组件赋初始值报错"></div><div class="image-caption">受控组件赋初始值报错</div></figure><p><br></p><p>输入框的值可以通过输入改变，但受控组件要求状态的值要随着输入框内的值改变而更新，而报错信息告诉我们想要达到这样的目的必须要给表单元素绑定一个 <code>onChange</code> 事件，这个功能其实就是输入框与数据的双向绑定，修改后的实现如下：</p><pre><code class="lang-jsx">/* 受控组件 —— 修改后 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Control extends Component {
+  state = {
+    msg: &#39;hello&#39;
+  }
+
+  changeHandler = e =&gt; {
+    this.setState({ msg: e.target.value });
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;input
+          type=&quot;text&quot;
+          value={this.state.msg}
+          onChange={this.changeHandler}
+        /&gt;
+        {this.state.msg}
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Control /&gt;, window.root);
+</code></pre><p>上面的代码中在 <code>onChange</code> 事件中调用了 <code>setState</code> 并更新了状态，但是如果有多个输入框，要保证 <code>onChange</code> 事件的复用，实现不同的输入框输入时 <code>onChange</code> 事件时更新不同的状态，实现如下：</p><pre><code class="lang-jsx">/* 受控组件 —— 多个输入框复用 onChange */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class Control extends Component {
+  state = {
+    msg1: &#39;hello&#39;,
+    msg2: &#39;world&#39;
+  }
+
+  changeHandler = e =&gt; {
+    const val = e.target.name;
+    this.setState({ [val]: e.target.value });
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;input
+          type=&quot;text&quot;
+          name=&quot;msg1&quot;
+          value={this.state.msg1}
+          onChange={this.changeHandler}
+        /&gt;
+        {this.state.msg1}
+        &lt;br /&gt;
+        &lt;input
+          type=&quot;text&quot;
+          name=&quot;msg2&quot;
+          value={this.state.msg2}
+          onChange={this.changeHandler}
+        /&gt;
+        {this.state.msg2}
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Control /&gt;, window.root);
+</code></pre><p>上面通过给 <code>input</code> 标签添加和状态的变量名相同的 <code>name</code> 属性，在触发 <code>onChange</code> 事件时用 <code>name</code> 属性作为更新状态数据的键值。</p><blockquote class="pullquote default"><p><strong>受控组件的好处是，可以实时对输入框输入的值进行校验，并可以随着输入框的内容更新而更新状态，进而更新视图。</strong></p></blockquote><h4 id="非受控组件"><a href="#非受控组件" class="headerlink" title="非受控组件"></a>非受控组件</h4><p>非受控组件与受控组件相比就是直接操作 <code>DOM</code> 来操作表单元素，直接操作 <code>DOM</code> 可以在 <code>componentDidMount</code> 生命周期内（<code>DOM</code> 完全挂载），写法如下：</p><pre><code class="lang-jsx">/* 非受控组件 —— 直接操作 DOM（不建议） */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class UnControl extends Component {
+  componentDidMount() {
+    const username = document.getElementById(&#39;username&#39;);
+    username.value = 123;
+    console.log(username.value);
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;input type=&quot;text&quot; id=&quot;username&quot; /&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;UnControl /&gt;, window.root);
+</code></pre><p>当然在 <code>React</code> 中并不会这么写，<code>React</code> 专门给我们提供了操作 <code>DOM</code> 属性 <code>ref</code>，用法如下：</p><pre><code class="lang-jsx">/* 非受控组件 —— ref 常用写法 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class UnControl extends Component {
+  handleClick = () =&gt; {
+    // 打印输入框的值
+    console.log(this.userDom.value);
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;input
+          type=&quot;text&quot;
+          id=&quot;username&quot;
+          ref={dom =&gt; this.userDom = dom}
+        /&gt;
+        &lt;button onClick={this.handleClick}&gt;Click&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;UnControl /&gt;, window.root);
+</code></pre><p>使用 <code>ref</code> 属性的方式通常会在其中传入一个函数，这个函数的参数就是当前表单元素对应的 <code>DOM</code>，通常情况下会使用类组件的一个属性来存储这个 <code>DOM</code>，方便在其他的事件或生命周期 “钩子” 中使用。</p><p>在 <code>React 16.3</code> 中推出了操作非受控组件的新的 <code>API</code> <code>React.createRef</code> 方法，返回值是一个对象，将这个对象绑定在表单元素的 <code>ref</code> 上，则可以通过这个对象的 <code>current</code> 属性获取这个表单元素的 <code>DOM</code> 元素。</p><pre><code class="lang-jsx">/* 非受控组件 —— React 16.3 新 API */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+class UnControl extends Component {
+  userDom = React.createRef();
+
+  handleClick = () =&gt; {
+    // 打印输入框的值
+    console.log(this.userDom.current.value);
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;input type=&quot;text&quot; id=&quot;username&quot; ref={this.userDom} /&gt;
+        &lt;button onClick={this.handleClick}&gt;Click&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;UnControl&gt;&lt;/UnControl&gt;, window.root);
+</code></pre><p>我们其实把 <code>React.createRef</code> 的返回值存储为了类组件的一个属性，并将这个属性传入 <code>ref</code>，这样可以在其他的事件或生命周期 “钩子” 中操作 <code>DOM</code>，如果存在多个这样的表单元素，许多次调用 <code>React.createRef</code>，并分别将存储返回值的类组件属性传入各个表单的 <code>ref</code> 中。</p><blockquote class="pullquote warning"><p><strong>非受控组件的好处是，操作 <code>DOM</code> 方便，可以与更多基于 <code>DOM</code> 操作的第三方库结合。</strong></p></blockquote><h2 id="复合组件"><a href="#复合组件" class="headerlink" title="复合组件"></a>复合组件</h2><blockquote class="pullquote primary"><p><strong>复合组件指的就是存在父子关系的组件嵌套，在 <code>React</code> 中有三种形式的父子组件嵌套：</strong></p><ul><li><strong>父组件中返回 <code>JSX</code> 中直接包含子组件；</strong></li><li><strong><code>children</code> 的方式引入子组件；</strong></li><li><strong><code>render props</code> 的方式引入子组件。</strong></li></ul></blockquote><p>第一种是直接将子组件在父组件中引入，并放在父组件 <code>render</code> 方法返回的 <code>JSX</code> 中。</p><pre><code class="lang-jsx">/* 复合组件 —— 第一种方式 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 父组件
+class Parent extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        这是父组件
+        &lt;Child /&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 子组件
+class Child extends Component {
+  render() {
+    return (
+      &lt;div&gt;这是子组件&lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Parent /&gt;, window.root);
+</code></pre><p>我们前面提到过组件可以通过单闭合或者双闭合的方式调用，第二种方式就是利用双闭合的调用方式，在父组件中引入子组件，把父组件中某些 <code>JSX</code> 放在双闭合的子组件标签中，作为参数传递给子组件，在子组件中通过 <code>props</code> 的 <code>children</code> 属性进行接收，并放入对应的位置。</p><pre><code class="lang-jsx">/* 复合组件 —— 第二种方式 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 父组件
+class Parent extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        这是父组件
+        &lt;Child&gt;
+          &lt;div&gt;父组件传递给子组件的 JSX&lt;/div&gt;
+        &lt;/Child&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 子组件
+class Child extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        这是子组件
+        {this.props.children}
+      &lt;/div&gt;
+    )
+  }
+}
+
+ReactDOM.render(&lt;Parent /&gt;, window.root);
+</code></pre><p>第三种方式是将子组件作为一个函数的返回值，而函数作为父组件的 <code>props</code> 参数传入父组件，父组件返回的 <code>JSX</code> 中调用函数返回子组件，又叫 <code>render props</code>。</p><pre><code class="lang-jsx">/* 复合组件 —— 第三种方式 */
+import React, { Component } from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+
+// 父组件
+class Parent extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        这是父组件
+        {this.props.buildChild()}
+      &lt;/div&gt;
+    )
+  }
+}
+
+// 子组件
+class Child extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        这是子组件
+        {this.props.children}
+      &lt;/div&gt;
+    )
+  }
+}
+
+// render props 函数
+const buildChildFn = () =&gt; {
+  return &lt;Child /&gt;
+}
+
+ReactDOM.render(&lt;Parent buildChild={buildChildFn} /&gt;, window.root);
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>这是系列关于 <code>React</code> 基础的文章，本篇是关于 <code>React</code> 的一些基础知识，也包含了一些 <code>React 16</code> 版本的一些新增内容，比较适合不了解 <code>React</code> 框架的同学们从零开始入门，在后面会陆续更新关于复合组件参数传递、生命周期等内容。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180910025959/" target="_blank" rel="external">https://www.overtaking.top/20180910025959/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ES7/" rel="tag">ES7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/" rel="tag">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%84%9A%E6%89%8B%E6%9E%B6/" rel="tag">脚手架</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180910025959/&title=《React 基础篇 —— 带你走进 React 世界》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180910025959/&title=《React 基础篇 —— 带你走进 React 世界》 — Shen's Blog&source=React 介绍React 是前端最流行的框架之一，由 Facebook 产出，由于其独特的 JSX 语法与组件化开发模式，将原本前端基于 DOM 的编程..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180910025959/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《React 基础篇 —— 带你走进 React 世界》 — Shen's Blog&url=https://www.overtaking.top/20180910025959/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180910025959/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180915194439/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">React 基础篇 —— 生命周期详解</h4></a></div><div class="waves-block waves-effect next"><a href="/20180906170854/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Koa2 洋葱模型 —— compose 串联中间件的四种实现</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180910025959/&title=《React 基础篇 —— 带你走进 React 世界》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180910025959/&title=《React 基础篇 —— 带你走进 React 世界》 — Shen's Blog&source=React 介绍React 是前端最流行的框架之一，由 Facebook 产出，由于其独特的 JSX 语法与组件化开发模式，将原本前端基于 DOM 的编程..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180910025959/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《React 基础篇 —— 带你走进 React 世界》 — Shen's Blog&url=https://www.overtaking.top/20180910025959/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180910025959/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABwklEQVR42u3aQY6DMAwF0N7/0sx2pKrwf0hSRvOyqtoSHiws2/HrFa/jbf3+/v0/+Z6vFQsXF/c29zhd51snV51fmxtwcXH3c/Ptcuin/dvXgYuL+7e45wkQLi7uf+C2iVESBHFxcZ/MzcuYi+IkfhHLazVcXNw5+0fNzRWfl/R3cXFxh7jH0DoPSfcbKx/vi4uLu4XbBp32mKQtn6JrcXFxt3BnbXenmGlfBy4u7jpuGz7aX5PjlqIVgouLu4XbNjfbJuZYAjSY4uDi4k7itiMUc4uf+v+4uLiP4d4Zm5ibJOHi4u7hJiGsHd7KxzjaUTBcXNyd3LYNGvVfJ6VQF+kOLi7uAu5YmyO/Kt958I3i4uJu5LZF0Vi600pwcXH3cPOSIx+xaoc56kCJi4u7mDs2XDWrmZLsHx2y4uLiTuXmJUrezqhTlnbgAxcXdzH3KNesUqctq6L4h4uLO4nbtjLzx2jbqWMhDxcXdx13bGziziFrfuyKi4v7XW4eaPImyNZaDRcX90vcNsC1DdPokXBxcR/GHTtiydOgqIjCxcXdyB0rfsZCYTK6cXHIiouLu5ibN0zzgqc9SsnviIuLu5j7A+0cTdRKi6s5AAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Node.js 进阶 —— Koa2 源码分析 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,源码分析,async/await,Koa"><meta name="description" content="前言Koa 2.x 版本是当下最流行的 Node.js 框架，同时社区涌现出一大批围绕 Koa 2.x 的中间件以及基于 Koa 2.x 封装的企业级框架，如 egg.js，然而 Koa 本身的代码却非常精简，精简到所有文件的代码去掉注释后还不足 2000 行，本篇就围绕着这 2000 行不到的代码抽出核心逻辑进行分析，并压缩成一版只有 200 行不到的简易版 Koa。"><meta property="og:type" content="article"><meta property="og:title" content="Node.js 进阶 —— Koa2 源码分析"><meta property="og:url" content="https://www.overtaking.top/20180902141819/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言Koa 2.x 版本是当下最流行的 Node.js 框架，同时社区涌现出一大批围绕 Koa 2.x 的中间件以及基于 Koa 2.x 封装的企业级框架，如 egg.js，然而 Koa 本身的代码却非常精简，精简到所有文件的代码去掉注释后还不足 2000 行，本篇就围绕着这 2000 行不到的代码抽出核心逻辑进行分析，并压缩成一版只有 200 行不到的简易版 Koa。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180902141819/koa-cover.png"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180902141819/koa-dir.png"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180902141819/onion-model.png"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180902141819/koa-flow-chart.png"><meta property="article:published_time" content="2018-09-02T06:18:19.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="源码分析"><meta property="article:tag" content="async&#x2F;await"><meta property="article:tag" content="Koa"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180902141819/koa-cover.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Node.js 进阶 —— Koa2 源码分析</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Node.js 进阶 —— Koa2 源码分析</h1><h5 class="subtitle"><time datetime="2018-09-02T06:18:19.000Z" itemprop="datePublished" class="page-time">2018-09-02</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Koa-分析过程"><span class="post-toc-number">2.</span> <span class="post-toc-text">Koa 分析过程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#搭建基本服务"><span class="post-toc-number">3.</span> <span class="post-toc-text">搭建基本服务</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#上下文对象-ctx-的封装"><span class="post-toc-number">4.</span> <span class="post-toc-text">上下文对象 ctx 的封装</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#基本使用"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">基本使用</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建-ctx-的引用关系"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">创建 ctx 的引用关系</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实现-request-取值"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">实现 request 取值</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实现-response-的取值和赋值"><span class="post-toc-number">4.4.</span> <span class="post-toc-text">实现 response 的取值和赋值</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#ctx-代理-request、response-的属性"><span class="post-toc-number">4.5.</span> <span class="post-toc-text">ctx 代理 request、response 的属性</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#洋葱模型-——-实现中间件的串行"><span class="post-toc-number">5.</span> <span class="post-toc-text">洋葱模型 —— 实现中间件的串行</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#洋葱模型分析"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">洋葱模型分析</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#支持异步的中间件串行"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">支持异步的中间件串行</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现真正的响应"><span class="post-toc-number">6.</span> <span class="post-toc-text">实现真正的响应</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#中间件错误处理"><span class="post-toc-number">7.</span> <span class="post-toc-text">中间件错误处理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#让引入的-Koa-直接指向-application-js"><span class="post-toc-number">8.</span> <span class="post-toc-text">让引入的 Koa 直接指向 application.js</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Koa-原理图"><span class="post-toc-number">9.</span> <span class="post-toc-text">Koa 原理图</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">10.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180902141819" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Node.js 进阶 —— Koa2 源码分析</h1><div class="post-meta"><time class="post-time" title="2018-09-02 14:18:19" datetime="2018-09-02T06:18:19.000Z" itemprop="datePublished">2018-09-02</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span class="stick-container"><i class="icon icon-thumb-tack icon-pr"></i><span class="stick">置顶</span></span> <span id="/20180902141819/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js 进阶 —— Koa2 源码分析"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180902141819/koa-cover.png" title="Koa 源码解析"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote success"><p><strong><code>Koa 2.x</code> 版本是当下最流行的 <code>Node.js</code> 框架，同时社区涌现出一大批围绕 <code>Koa 2.x</code> 的中间件以及基于 <code>Koa 2.x</code> 封装的企业级框架，如 <code>egg.js</code>，然而 <code>Koa</code> 本身的代码却非常精简，精简到所有文件的代码去掉注释后还不足 <code>2000</code> 行，本篇就围绕着这 <code>2000</code> 行不到的代码抽出核心逻辑进行分析，并压缩成一版只有 <code>200</code> 行不到的简易版 <code>Koa</code>。</strong></p></blockquote><a id="more"></a><h2 id="Koa-分析过程"><a href="#Koa-分析过程" class="headerlink" title="Koa 分析过程"></a>Koa 分析过程</h2><p>在下面的内容中，我们将对 <code>Koa</code> 所使用的功能由简入深的分析，首先会给出使用案例，然后根据使用方式，分析实现原理，最后对分析的功能进行封装，封装过程会从零开始并一步一步完善，代码也是从少到多，会完整的看到一个简版 <code>Koa</code> 诞生的过程，在此之前我们打开 <a href="https://github.com/koajs/koa/tree/master/lib" target="_blank">Koa 源码地址</a>。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180902141819/koa-dir.png" alt="Koa 文件目录"></div><div class="image-caption">Koa 文件目录</div></figure><p><br></p><p>通过上面对 <code>Koa</code> 源码目录的截图，发现只有 <code>4</code> 个核心文件，为了方便理解，封装简版 <code>Koa</code> 的文件目录结构也将严格与源码同步。</p><h2 id="搭建基本服务"><a href="#搭建基本服务" class="headerlink" title="搭建基本服务"></a>搭建基本服务</h2><p>在引入 <code>Koa</code> 时我们需要创建一个 <code>Koa</code> 的实例，而启动服务是通过 <code>listen</code> 监听一个端口号实现的，代码如下。</p><pre><code class="lang-js">const Koa = require(&#39;koa&#39;);
+const app = new Koa();
+
+app.listen(3000, () =&gt; {
+  console.log(&#39;server start 3000&#39;);
+});
+</code></pre><p>通过使用我们可以分析出 <code>Koa</code> 导出的应该是一个类，或者构造函数，鉴于 <code>Koa</code> 诞生的时间以及基于 <code>node v7.6.0</code> 以上版本的情况来分析，正是 <code>ES6</code> 开始流行的时候，所以推测 <code>Koa</code> 导出的应该是一个类，打开源码一看，果然如此，所以我们也通过 <code>class</code> 的方式来实现。</p><p>而从启动服务的方式上看，<code>app.listen</code> 的调用方式与原生 <code>http</code> 模块提供的 <code>server.listen</code> 几乎相同，我们分析，<code>listen</code> 方法应该是对原生 <code>http</code> 模块的一个封装，启动服务的本质还是靠 <code>http</code> 模块来实现的。</p><pre><code class="lang-js">/* 文件路径：~koa/application.js */
+const http = require(&#39;http&#39;);
+
+class Koa {
+  handleRequest(req, res) {
+    // 请求回调
+  }
+  listen(...args) {
+    // 创建服务
+    const server = http.createServer(this.handleRequest.bind(this));
+
+    // 启动服务
+    server.listen(...args);
+  }
+}
+
+module.exports = Koa;
+</code></pre><p>上面的代码初步实现了我们上面分析出的需求，为了防止代码冗余，我们将创建服务的回调抽取成一个 <code>handleRequest</code> 的实例方法，内部的逻辑在后面完善，现在可以创建这个 <code>Koa</code> 类的实例，通过调用实例的 <code>listen</code> 方法启动一个服务器。</p><h2 id="上下文对象-ctx-的封装"><a href="#上下文对象-ctx-的封装" class="headerlink" title="上下文对象 ctx 的封装"></a>上下文对象 ctx 的封装</h2><h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><p><code>Koa</code> 还有一个很重要的特性，就是它的 <code>ctx</code> 上下文对象，我们可以调用 <code>ctx</code> 的 <code>request</code> 和 <code>response</code> 属性获取原 <code>req</code> 和 <code>res</code> 的属性和方法，也在 <code>ctx</code> 上增加了一些原生没有的属性和方法，总之 <code>ctx</code> 给我们要操作的属性和方法提供了多种调用方式，使用案例如下。</p><pre><code class="lang-js">const Koa = require(&#39;koa&#39;);
+const app = new Koa();
+
+app.use((ctx, next) =&gt; {
+  // 原生的 req 对象的 url 属性
+  console.log(ctx.req.url);
+  console.log(ctx.request.req.url);
+  console.log(ctx.response.req.url);
+
+  // Koa 扩展的 url
+  console.log(ctx.url);
+  console.log(ctx.request.req.url);
+
+  // 设置状态码和响应内容
+  ctx.response.status = 200;
+  ctx.body = &#39;Hello World&#39;;
+});
+
+app.listen(3000, () =&gt; {
+  console.log(&#39;server start 3000&#39;);
+});
+</code></pre><h3 id="创建-ctx-的引用关系"><a href="#创建-ctx-的引用关系" class="headerlink" title="创建 ctx 的引用关系"></a>创建 ctx 的引用关系</h3><p>从上面我们可以看出，<code>ctx</code> 为 <code>use</code> 方法的第一个参数，<code>request</code> 和 <code>response</code> 是 <code>ctx</code> 新增的，而通过这两个属性又都可以获取原生的 <code>req</code> 和 <code>res</code> 属性，<code>ctx</code> 本身也可以获取到原生的 <code>req</code> 和 <code>res</code>，我们可以分析出，<code>ctx</code> 是对这些属性做了一个集成，或者说特殊处理。</p><p>源码的文件目录中正好有与 <code>request</code>、<code>response</code> 名字相对应的文件，并且还有 <code>context</code> 名字的文件，我们其实可以分析出这三个文件就是用于封装 <code>ctx</code> 上下文对象使用的，而封装 <code>ctx</code> 中也会用到 <code>req</code> 和 <code>res</code>，所以核心逻辑应该在 <code>handleRequest</code> 中实现。</p><p>在使用案例中 <code>ctx</code> 是作为 <code>use</code> 方法中回调函数的参数，所以我们分析应该有一个数组统一管理调用 <code>use</code> 后传入的函数，<code>Koa</code> 应该有一个属性，值为数组，用来存储这些函数，下面是实现代码。</p><pre><code class="lang-js">/* 文件路径：~koa/application.js */
+const http = require(&#39;http&#39;);
+
+// ************************** 以下为新增代码 **************************
+const context = require(&#39;./context&#39;);
+const request = require(&#39;./request&#39;);
+const response = require(&#39;./response&#39;);
+// ************************** 以上为新增代码 **************************
+
+class Koa {
+// ************************** 以下为新增代码 **************************
+  contructor() {
+    // 存储中间件
+    this.middlewares = [];
+
+    // 为了防止通过 this 修改属性而导致影响原引入文件的导出对象，做一个继承
+    this.context = Object.create(context);
+    this.request = Object.create(request);
+    this.response = Object.create(response);
+  }
+  use(fn) {
+    // 将传给 use 的函数存入数组中
+    this.middlewares.push(fn);
+  }
+  createContext(req, res) {
+    // 或取定义的上下文
+    const ctx = this.context;
+
+    // 增加 request 和 response
+    ctx.request = this.request;
+    ctx.response = this.response;
+
+    // 让 ctx、request、response 都具有原生的 req 和 res
+    ctx.req = ctx.request.req = ctx.response.req = req;
+    ctx.res = ctx.response.res = ctx.request.res = res;
+
+    // 返回上下文对象
+    return ctx;
+  }
+// ************************** 以上为新增代码 **************************
+  handleRequest(req, res) {
+    // 创建 ctx 上下文对象
+    const ctx = this.createContext(req, res);
+  }
+  listen(...args) {
+    // 创建服务
+    const server = http.createServer(this.handleRequest.bind(this));
+
+    // 启动服务
+    server.listen(...args);
+  }
+}
+
+module.exports = Koa;
+</code></pre><p>首先，给实例创建了三个属性 <code>context</code>、<code>request</code> 和 <code>response</code> 分别继承了 <code>context.js</code>、<code>request.js</code> 和 <code>response.js</code> 导出的对象，之所以这么做而不是直接赋值是防止操作实例属性时 “污染” 原对象，而获取原模块导出对象的属性可以通过原型链进行查找，并不影响取值。</p><p>其次，给实例挂载了 <code>middlewares</code> 属性，值为数组，为了存储 <code>use</code> 方法调用时传入的函数，在 <code>handleRequest</code> 把创建 <code>ctx</code> 属性及引用的过程单独抽取成了 <code>createContext</code> 方法，并在 <code>handleRequest</code> 中调用，返回值为创建好的 <code>ctx</code> 对象，而在 <code>createContext</code> 中我们根据案例中的规则构建了 <code>ctx</code> 的属性相关的各种引用关系。</p><h3 id="实现-request-取值"><a href="#实现-request-取值" class="headerlink" title="实现 request 取值"></a>实现 request 取值</h3><p>上面构建的属性中，所有通过访问原生 <code>req</code> 或 <code>res</code> 的属性都能获取到，反之则是 <code>undefined</code>，这就需要我们去构建 <code>request.js</code>。</p><pre><code class="lang-js">/* 文件路径：~koa/request.js */
+const url = require(&#39;url&#39;);
+
+// 给 url 和 path 添加 getter
+const request = {
+  get url() {
+    return this.req.url;
+  },
+  get path() {
+    return url.parse(this.req.url).pathname;
+  }
+};
+
+module.exports = request;
+</code></pre><p>上面我们只构造了两个属性 <code>url</code> 和 <code>path</code>，我们知道 <code>url</code> 是原生所自带的属性，我们在使用 <code>ctx.request.url</code> 获取是通过 <code>request</code> 对象设置的 <code>getter</code>，将 <code>ctx.request.req.url</code> 的值返回了。</p><p><code>path</code> 是原生 <code>req</code> 所没有的属性，但却是通过原生 <code>req</code> 的 <code>url</code> 属性和 <code>url</code> 模块共同构建出来的，所以我们同样用了给 <code>request</code> 对象设置 <code>getter</code> 的方式获取 <code>req</code> 的 <code>url</code> 属性，并使用 <code>url</code> 模块将转换对象中的 <code>pathname</code> 返回，此时就可以通过 <code>ctx.request.path</code> 来获取访问路径，至于源码中我们没有处理的 <code>req</code> 属性都是通过这样的方式建立的引用关系。</p><h3 id="实现-response-的取值和赋值"><a href="#实现-response-的取值和赋值" class="headerlink" title="实现 response 的取值和赋值"></a>实现 response 的取值和赋值</h3><p><code>Koa</code> 中 <code>response</code> 对象的真正作用是给客户端进行响应，使用时是通过访问属性获取，并通过重新赋值实现响应，但是现在 <code>response</code> 获取的属性都是 <code>undefined</code>，我们这里先不管响应给浏览器的问题，首先要让 <code>response</code> 下的某个属性有值才行，下面我们来实现 <code>response.js</code>。</p><pre><code class="lang-js">/* 文件路径：~koa/response.js */
+// 给 body 和 status 添加 getter 和 setter
+const response = {
+  get body() {
+    return this._body;
+  },
+  set body(val) {
+    // 只要给 body 赋值就代表响应成功
+    this.status = 200;
+    this._body = val;
+  },
+  get status() {
+    return this.res.statusCode;
+  },
+  set status(val) {
+    this.res.statusCode = val;
+  }
+};
+
+module.exports = response;
+</code></pre><p>这里选择了 <code>Koa</code> 在使用时，<code>response</code> 对象上比较重要的两个属性进行处理，因为这两个属性是服务器响应客户端所必须的，并模仿了 <code>request.js</code> 的方式给 <code>body</code> 和 <code>status</code> 设置了 <code>getter</code>，不同的是响应浏览器所做的其实是赋值操作，所以又给这两个属性添加了 <code>setter</code>，对于 <code>status</code> 来说，直接操作原生 <code>res</code> 对象的 <code>statusCode</code> 属性即可，因为同为赋值操作。</p><p>还有一点，响应是通过给 <code>body</code> 赋值实现，我们认为只要触发了 <code>body</code> 的 <code>setter</code> 就成功响应，所以在 <code>body</code> 的 <code>getter</code> 中将响应状态码设置为 <code>200</code>，至于 <code>body</code> 赋值是如何实现响应的，放在后面再说。</p><h3 id="ctx-代理-request、response-的属性"><a href="#ctx-代理-request、response-的属性" class="headerlink" title="ctx 代理 request、response 的属性"></a>ctx 代理 request、response 的属性</h3><p>上面实现了通过 <code>request</code> 和 <code>response</code> 对属性的操作，<code>Koa</code> 虽然给我们提供了多样的属性操作方式，但由于我们程序员们都很 “懒”，几乎没有人会在开发的时候愿意增加获取某个属性值的路径长度，大部分情况都是通过 <code>ctx</code> 直接操作 <code>request</code> 和 <code>response</code> 上的属性，这就是我们现在的问题所在，这些属性通过 <code>ctx</code> 访问不到。</p><p>我们需要给 <code>ctx</code> 对象做一个代理，让 <code>ctx</code> 可以访问到 <code>request</code> 和 <code>response</code> 上的属性，这个场景何曾相识，不正是 <code>Vue2</code> 创建实例时，将传入参数对象 <code>options</code> 的 <code>data</code> 属性代理给实例本身的场景吗，既然如此，我们也通过相似的方式实现，还记得上面引入的 <code>context</code> 模块作为实例的 <code>context</code> 属性所继承的对象，而剩下的最后一个核心文件 <code>context.js</code> 正是用来做这件事的，代码如下。</p><pre><code class="lang-js">/* 文件路径：~koa/context.js */
+const proto = {};
+
+// 将传入对象属性代理给 ctx
+function defineGetter(property, key) {
+  proto.__defineGetter__(key, function () {
+    return this[property][key];
+  });
+}
+
+// 设置 ctx 值时直接操作传入对象的属性
+function defineSetter(property, key) {
+  proto.__defineSetter__(key, function (val) {
+    this[property][key] = val;
+  });
+}
+
+// 将 request 的 url 和 path 代理给 ctx
+defineGetter(&#39;request&#39;, &#39;url&#39;);
+defineGetter(&#39;request&#39;, &#39;path&#39;);
+
+// 将 response 的 body 和 status 代理给 ctx
+defineGetter(&#39;response&#39;, &#39;body&#39;);
+defineSetter(&#39;response&#39;, &#39;body&#39;);
+defineGetter(&#39;response&#39;, &#39;status&#39;);
+defineSetter(&#39;response&#39;, &#39;status&#39;);
+
+module.exports = proto;
+</code></pre><p>在 <code>Vue</code> 中是使用 <code>Object.defineProperty</code> 来时实现的代理，而在 <code>Koa</code> 源码中借助了 <code>delegate</code> 第三方模块来实现的，并在添加代理时链式调用了 <code>delegate</code> 封装的方法，我们并没有直接使用 <code>delegate</code> 模块，而是将 <code>delegate</code> 内部的核心逻辑抽取出来在 <code>context.js</code> 中直接编写，这样方便大家理解原理，也可以清楚的知道是如何实现代理的。</p><p>我们封装了两个方法 <code>defineGetter</code> 和 <code>defineSetter</code> 分别来实现取值和设置值时，将传入的属性（第二个参数）代理给传入的对象（第一个参数），函数内是通过 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/__defineGetter__" target="_blank">Object.prototype.__defineGetter__</a> 和 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/__defineSetter__" target="_blank">Object.prototype.__defineSetter__</a> 实现的。</p><h2 id="洋葱模型-——-实现中间件的串行"><a href="#洋葱模型-——-实现中间件的串行" class="headerlink" title="洋葱模型 —— 实现中间件的串行"></a>洋葱模型 —— 实现中间件的串行</h2><blockquote class="pullquote info"><p><strong>现在已经实现了 <code>ctx</code> 上下文对象的创建，但是会发现我们封装 <code>ctx</code> 之前所写的案例 <code>use</code> 回调中的代码并不能执行，也不会报错，根本原因是 <code>use</code> 方法内传入的函数没有调用，在使用 <code>Koa</code> 的过程中会发现，我们往往使用多个 <code>use</code>，并且传入 <code>use</code> 的回调函数除了 <code>ctx</code> 还有第二个参数 <code>next</code>，而这个 <code>next</code> 也是一个函数，调用 <code>next</code> 则执行下一个 <code>use</code> 中的回调函数，否则就会 “卡住”，这种执行机制被称为 “洋葱模型”，而这些被执行的函数被称为 “中间件”，下面我们就来分析这个 “洋葱模型” 并实现中间件的串行。</strong></p></blockquote><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180902141819/onion-model.png" alt="洋葱模型执行过程"></div><div class="image-caption">洋葱模型执行过程</div></figure><p><br></p><h3 id="洋葱模型分析"><a href="#洋葱模型分析" class="headerlink" title="洋葱模型分析"></a>洋葱模型分析</h3><p>下面来看看表述洋葱模型的一个经典案例，结果似乎让人匪夷所思，一时很难想到原因，不着急先看了再说。</p><pre><code class="lang-js">const Koa = require(&#39;koa&#39;);
+const app = new Koa();
+
+app.use((ctx, next) =&gt; {
+  console.log(1);
+  next();
+  console.log(2);
+});
+
+app.use((ctx, next) =&gt; {
+  console.log(3);
+  next();
+  console.log(4);
+});
+
+app.use((ctx, next) =&gt; {
+  console.log(5);
+  next();
+  console.log(6);
+});
+
+app.listen(3000, () =&gt; {
+  console.log(&#39;server start 3000&#39;);
+});
+
+// 1
+// 3
+// 5
+// 6
+// 4
+// 2
+</code></pre><p>根据上面的执行特性我们不妨来分析以下，我们知道 <code>use</code> 方法执行时其实是把传入的回调函数放入了实例的 <code>middlewares</code> 数组中，而执行结果打印了 <code>1</code> 说明第一个回调函数被执行了，接着又打印了 <code>2</code> 说明第二个回调函数被执行了，根据上面的代码我们可以大胆的猜想，第一个回调函数调用的 <code>next</code> 肯定是一个函数，可能就是下一个回调函数，或者是 <code>next</code> 函数中执行了下一个回调函数，这样根据函数调用栈先进后出的原则，会在 <code>next</code> 执行完毕，即出栈后，继续执行上一个回调函数的代码。</p><h3 id="支持异步的中间件串行"><a href="#支持异步的中间件串行" class="headerlink" title="支持异步的中间件串行"></a>支持异步的中间件串行</h3><p>在实现中间件串行之前需要补充一点，中间件函数内调用 <code>next</code> 时，前面的代码出现异步，则会继续向下执行，等到异步执行结束后要执行的代码插入到同步代码中，这会导致执行顺序错乱，所以在官方推荐中告诉我们任何遇到异步的操作前都需要使用 <code>await</code> 进行等待（包括 <code>next</code>，因为下一个中间件中可能包含异步操作），这也间接的说明了传入 <code>use</code> 的回调函数只要有异步代码需要 <code>await</code>，所以应该是 <code>async</code> 函数，而了解 <code>ES7</code> 特性 <code>async/await</code> 的我们来说，一定能分析出 <code>next</code> 返回的应该是一个 Promise 实例，下面是我们在之前 <code>application.js</code> 基础上的实现。</p><pre><code class="lang-js">/* 文件路径：~koa/application.js */
+const http = require(&#39;http&#39;);
+const context = require(&#39;./context&#39;);
+const request = require(&#39;./request&#39;);
+const response = require(&#39;./response&#39;);
+
+class Koa {
+  contructor() {
+    // 存储中间件
+    this.middlewares = [];
+
+    // 为了防止通过 this 修改属性而导致影响原引入文件的导出对象，做一个继承
+    this.context = Object.create(context);
+    this.request = Object.create(request);
+    this.response = Object.create(response);
+  }
+  use(fn) {
+    // 将传给 use 的函数存入数组中
+    this.middlewares.push(fn);
+  }
+  createContext(req, res) {
+    // 或取定义的上下文
+    const ctx = this.context;
+
+    // 增加 request 和 response
+    ctx.request = this.request;
+    ctx.response = this.response;
+
+    // 让 ctx、request、response 都具有原生的 req 和 res
+    ctx.req = ctx.request.req = ctx.response.req = req;
+    ctx.res = ctx.response.res = ctx.request.res = res;
+
+    // 返回上下文对象
+    return ctx;
+  }
+// ************************** 以下为新增代码 **************************
+  compose(ctx, middles) {
+    // 创建一个递归函数，参数为存储中间件的索引，从 0 开始
+    function dispatch(index) {
+      // 在所有中间件执行之后给 compose 返回一个 Promise（兼容一个中间件都没写的情况）
+      if (index === middles.length) return Promise.resolve();
+
+      // 取出第 index 个中间件函数
+      const route = middles[index];
+
+      // 为了兼容中间件传入的函数不是 async，一定要包装成一个 Promise
+      return Promise.resolve(route(ctx, () =&gt; dispatch(++index)));
+    }
+    return dispatch(0); // 默认执行一次
+  }
+// ************************** 以上为新增代码 **************************
+  handleRequest(req, res) {
+    // 创建 ctx 上下文对象
+    const ctx = this.createContext(req, res);
+
+// ************************** 以下为新增代码 **************************
+    // 执行 compose 将中间件组合在一起
+    this.compose(ctx, this.middlewares);
+// ************************** 以上为新增代码 **************************
+  }
+  listen(...args) {
+    // 创建服务
+    const server = http.createServer(this.handleRequest.bind(this));
+
+    // 启动服务
+    server.listen(...args);
+  }
+}
+
+module.exports = Koa;
+</code></pre><p>仔细想想我们其实在利用循环执行每一个 <code>middlewares</code> 中的函数，而且需要把下一个中间件函数的执行作为函数体的代码包装一层成为新的函数，并作为参数 <code>next</code> 传入，那么在上一个中间件函数内部调用 <code>next</code> 就相当于先执行了下一个中间件函数，而下一个中间件函数内部调用 <code>next</code>，又先执行了下一个的下一个中间件函数，依次类推。</p><p>直到执行到最后一个中间件函数，调用了 <code>next</code>，但是 <code>middlewares</code> 中已经没有下一个中间件函数了，这也是为什么我们要给下一个中间件函数外包了一层函数而不是直接将中间件函数传入的原因之一（另一个原因是解决传参问题，因为在执行时还要传入下一个中间件函数），但是防止递归 “死循环”，要配合一个终止条件，即指向 <code>middlewares</code> 索引的变量等于了 <code>middlewares</code> 的长度，最后只是相当于执行了一个只有一条判断语句的函数就 <code>return</code> 的函数，而并没有报错。</p><p>在这整个过程中如果有任意一个 <code>next</code> 没有被调用，就不会向下执行其他的中间件函数，这样就 “卡住了”，完全符合 <code>Koa</code> 中间件的执行规则，而 <code>await</code> 过后也就是下一个中间件优先执行完成，则会继续执行当前中间件 <code>next</code> 调用下面的代码，这也就是 <code>1、3、5、6、4、2</code> 的由来。</p><p>为了实现所描述的执行过程，将所有中间件串行的逻辑抽出了一个 <code>compose</code> 方法，但是我们没有使用普通的循环，而是使用递归实现的，首先在 <code>compose</code> 创建 <code>dispatch</code> 递归函数，参数为当前数组函数的索引，初始值为 <code>0</code>，函数逻辑是先取出第一个函数执行，并传入一个回调函数参数，回调函数参数中递归 <code>dispatch</code>，参数 <code>+1</code>，这样就会将整个中间件串行起来了。</p><p>但是上面的串行也只是同步串行，如果某个中间件内部需要等待异步，则调用的 <code>next</code> 函数必须返回一个 <code>Promise</code> 实例，有些中间件没有执行异步，则不需要 <code>async</code> 函数，也不会返回 <code>Promise</code>，而 <code>Koa</code> 规定只要遇到 <code>next</code> 就需要等待，则将取出每一个中间件函数执行后的结果使用 <code>Promise.resolve</code> 强行包装成一个成功态的 <code>Promise</code>，就对异步进行了兼容。</p><p>我们最后也希望 <code>compose</code> 返回一个 <code>Promise</code> 方便执行一些只有在中间件都执行后才会执行的逻辑，每次串行最后执行的都是一个只有一条判断逻辑就 <code>return</code> 了的函数（包含一个中间件也没有的情况），此时 <code>compose</code> 返回了 <code>undefined</code>，无法调用 <code>then</code> 方法，为了兼容这种情况也强行的使用相同的 “招数”，在判断条件的 <code>return</code> 关键字后面加上了 <code>Promise.resolve()</code>，直接返回了一个成功态的 <code>Promise</code>。</p><blockquote class="pullquote warning"><p><strong>注意：官方只是推荐我们在调用 <code>next</code> 的时候使用 <code>await</code> 等待，即使执行的 <code>next</code> 真的存在异步，也不是非 <code>await</code> 不可，我们完全可以使用 <code>return</code> 来代替 <code>await</code>，唯一的区别就是 <code>next</code> 调用后，下面的代码不会再执行了，类比 “洋葱模型”，形象地说就是 “下去了就上不来了”，这个完全可以根据我们的使用需要而定，同一个中间件中，如果 <code>next</code> 后面不再有任何逻辑需要执行，就可以这样去做。</strong></p></blockquote><h2 id="实现真正的响应"><a href="#实现真正的响应" class="headerlink" title="实现真正的响应"></a>实现真正的响应</h2><p>在对 <code>ctx</code> 实现属性代理后，我们通过 <code>ctx.body</code> 重新赋值其实只是改变了 <code>response.js</code> 导出对象的 <code>_body</code> 属性，而并没有实现真正的响应，看下面这个 <code>Koa</code> 的例子。</p><pre><code class="lang-js">const Koa = require(&#39;koa&#39;);
+const fs = require(&#39;fs&#39;);
+
+const app = new Koa();
+
+app.use(async (ctx, next) =&gt; {
+  ctx.body = &#39;hello&#39;;
+  await next();
+});
+
+app.use(async (ctx, next) =&gt; {
+  ctx.body = fs.createReadStream(&#39;1.txt&#39;);
+
+  ctx.body = await new Promise((resolve, reject) =&gt; {
+    setTimeout(() =&gt; resolve(&#39;panda&#39;), 3000);
+  });
+});
+
+app.listen(3000, () =&gt; {
+  console.log(&#39;server start 3000&#39;);
+});
+</code></pre><p>其实最后响应给客户端的值是 <code>panda</code>，正常在最后一个中间件执行后，由于异步定时器的代码没有执行完，<code>ctx.body</code> 最后的值应该是 <code>1.txt</code> 的可读流，这与客户端接收到的值相违背，通过这个猜想上的差异我们应该知道，<code>compose</code> 在串行执行中间件后为什么要返回一个 <code>Promise</code> 了，因为最后执行的只有判断语句的函数会等待我们例子中最后一个 <code>use</code> 传入的中间件函数执行完毕调用，也就是说在执行 <code>compose</code> 返回值的 <code>then</code> 时，<code>ctx.body</code> 的值已经是 <code>panda</code> 了。</p><pre><code class="lang-js">/* 文件路径：~koa/application.js */
+const http = require(&#39;http&#39;);
+
+// ************************** 以下为新增代码 **************************
+const Stream = require(&#39;stream&#39;);
+// ************************** 以上为新增代码 **************************
+
+const context = require(&#39;./context&#39;);
+const request = require(&#39;./request&#39;);
+const response = require(&#39;./response&#39;);
+
+class Koa {
+  contructor() {
+    // 存储中间件
+    this.middlewares = [];
+
+    // 为了防止通过 this 修改属性而导致影响原引入文件的导出对象，做一个继承
+    this.context = Object.create(context);
+    this.request = Object.create(request);
+    this.response = Object.create(response);
+  }
+  use(fn) {
+    // 将传给 use 的函数存入数组中
+    this.middlewares.push(fn);
+  }
+  createContext(req, res) {
+    // 或取定义的上下文
+    const ctx = this.context;
+
+    // 增加 request 和 response
+    ctx.request = this.request;
+    ctx.response = this.response;
+
+    // 让 ctx、request、response 都具有原生的 req 和 res
+    ctx.req = ctx.request.req = ctx.response.req = req;
+    ctx.res = ctx.response.res = ctx.request.res = res;
+
+    // 返回上下文对象
+    return ctx;
+  }
+  compose(ctx, middles) {
+    // 创建一个递归函数，参数为存储中间件的索引，从 0 开始
+    function dispatch(index) {
+      // 在所有中间件执行之后给 compose 返回一个 Promise（兼容一个中间件都没写的情况）
+      if (index === middles.length) return Promise.resolve();
+
+      // 取出第 index 个中间件函数
+      const route = middles[index];
+
+      // 为了兼容中间件传入的函数不是 async，一定要包装成一个 Promise
+      return Promise.resolve(route(ctx, () =&gt; dispatch(++index)));
+    }
+    return dispatch(0); // 默认执行一次
+  }
+  handleRequest(req, res) {
+    // 创建 ctx 上下文对象
+    const ctx = this.createContext(req, res);
+
+// ************************** 以下为修改代码 **************************
+    // 设置默认状态码（Koa 规定默认状态码为 404），必须在调用中间件之前
+    ctx.status = 404;
+
+    // 执行 compose 将中间件组合在一起
+    this.compose(ctx, this.middlewares).then(() =&gt; {
+      // 获取最后 body 的值
+      const body = ctx.body;
+
+      // 检测 ctx.body 的类型，并使用对应的方式将值响应给浏览器
+      if (Buffer.isBuffer(body) || typeof body === &#39;string&#39;) {
+        // 处理 Buffer 类型的数据
+        res.setHeader(&#39;Content-Type&#39;, &#39;text/plain;charset=utf8&#39;);
+        res.end(body);
+      } else if (typeof body === &#39;object&#39;) {
+        // 处理对象类型
+        res.setHeader(&#39;Content-Type&#39;, &#39;application/json;charset=utf8&#39;);
+        res.end(JSON.stringify(body));
+      } else if (body instanceof Stream) {
+        // 处理流类型的数据
+        body.pipe(res);
+      } else {
+        res.end(&#39;Not Found&#39;);
+      }
+    });
+// ************************** 以上为修改代码 **************************
+  }
+  listen(...args) {
+    // 创建服务
+    const server = http.createServer(this.handleRequest.bind(this));
+
+    // 启动服务
+    server.listen(...args);
+  }
+}
+
+module.exports = Koa;
+</code></pre><p>处理 <code>response</code> 时，在 <code>body</code> 的 <code>setter</code> 中将状态码设置为了 <code>200</code>，就是说需要设置 <code>ctx.body</code> 去触发 <code>setter</code> 让响应成功，如果没有给 <code>ctx.body</code> 设置任何值，默认应该是无响应的，在官方文档也有默认状态码为 <code>404</code> 的明确说明，所以在 <code>handleRequest</code> 把状态码设置为了 <code>404</code>，但必须在 <code>compose</code> 执行之前才叫默认状态码，因为中间件中可能会操作 <code>ctx.body</code>，重新设置状态码。</p><p>在 <code>comose</code> 的 <code>then</code> 中，也就是在所有中间件执行后，我们取出 <code>ctx.body</code> 的值，即为最后生效的响应值，对该值进行了数据类型验证，如 <code>Buffer</code>、字符串、对象和流，并分别用不同的方式处理了响应，但本质都是调用原生 <code>res</code> 对象的 <code>end</code> 方法。</p><h2 id="中间件错误处理"><a href="#中间件错误处理" class="headerlink" title="中间件错误处理"></a>中间件错误处理</h2><p>在上面的逻辑当中我们实现了很多 <code>Koa</code> 的核心逻辑，但是只考虑了顺利执行的情况，并没有考虑如果中间件中代码执行出现错误的问题，如下面案例。</p><pre><code class="lang-js">const Koa = require(&#39;koa&#39;);
+const app = new Koa();
+
+app.use((ctx, next) =&gt; {
+  // 抛出异常
+  throw new Error(&#39;Error&#39;);
+});
+
+// 添加 error 监听
+app.on(&#39;error&#39;, err =&gt; {
+  console.log(err);
+});
+
+app.listen(3000, () =&gt; {
+  console.log(&#39;server start 3000&#39;);
+});
+</code></pre><p>我们之所以让 <code>compose</code> 方法在执行所有中间件后返回一个 <code>Promise</code> 还有一个更重要的意义，因为在 <code>Promise</code> 链式调用中，只要其中任何一个环节出现代码执行错误或抛出异常，都会直接执行出现错误的 <code>then</code> 方法中错误的回调或者最后的 <code>catch</code> 方法，对于 <code>Koa</code> 中间件的串行而言，最后一个 <code>then</code> 调用 <code>catch</code> 方法就是 <code>compose</code> 的返回值调用 <code>then</code> 后继续调用的 <code>catch</code>，<code>catch</code> 内可以捕获到任意一个中间件执行时出现的错误。</p><pre><code class="lang-js">/* 文件路径：~koa/application.js */
+const http = require(&#39;http&#39;);
+const Stream = require(&#39;stream&#39;);
+
+// ************************** 以下为新增代码 **************************
+const EventEmitter = require(&#39;events&#39;);
+const httpServer = require(&#39;_http_server&#39;);
+// ************************** 以上为新增代码 **************************
+
+const context = require(&#39;./context&#39;);
+const request = require(&#39;./request&#39;);
+const response = require(&#39;./response&#39;);
+
+// ************************** 以下为修改代码 **************************
+// 继承 EventEmitter 后可以用创建的实例 app 添加 error 监听，可以通过 emit 触发监听
+class Koa extends EventEmitter {
+  contructor() {
+    supper();
+// ************************** 以上为修改代码 **************************
+
+    // 存储中间件
+    this.middlewares = [];
+
+    // 为了防止通过 this 修改属性而导致影响原引入文件的导出对象，做一个继承
+    this.context = Object.create(context);
+    this.request = Object.create(request);
+    this.response = Object.create(response);
+  }
+  use(fn) {
+    // 将传给 use 的函数存入数组中
+    this.middlewares.push(fn);
+  }
+  createContext(req, res) {
+    // 或取定义的上下文
+    const ctx = this.context;
+
+    // 增加 request 和 response
+    ctx.request = this.request;
+    ctx.response = this.response;
+
+    // 让 ctx、request、response 都具有原生的 req 和 res
+    ctx.req = ctx.request.req = ctx.response.req = req;
+    ctx.res = ctx.response.res = ctx.request.res = res;
+
+    // 返回上下文对象
+    return ctx;
+  }
+  compose(ctx, middles) {
+    // 创建一个递归函数，参数为存储中间件的索引，从 0 开始
+    function dispatch(index) {
+      // 在所有中间件执行之后给 compose 返回一个 Promise（兼容一个中间件都没写的情况）
+      if (index === middles.length) return Promise.resolve();
+
+      // 取出第 index 个中间件函数
+      const route = middles[index];
+
+      // 为了兼容中间件传入的函数不是 async，一定要包装成一个 Promise
+      return Promise.resolve(route(ctx, () =&gt; dispatch(++index)));
+    }
+    return dispatch(0); // 默认执行一次
+  }
+  handleRequest(req, res) {
+    // 创建 ctx 上下文对象
+    const ctx = this.createContext(req, res);
+
+    // 设置默认状态码（Koa 规定默认状态码为 404），必须在调用中间件之前
+    ctx.status = 404;
+
+    // 执行 compose 将中间件组合在一起
+    this.compose(ctx, this.middlewares).then(() =&gt; {
+      // 获取最后 body 的值
+      const body = ctx.body;
+
+      // 检测 ctx.body 的类型，并使用对应的方式将值响应给浏览器
+      if (Buffer.isBuffer(body) || typeof body === &#39;string&#39;) {
+        // 处理 Buffer 类型的数据
+        res.setHeader(&#39;Content-Type&#39;, &#39;text/plain;charset=utf8&#39;);
+        res.end(body);
+      } else if (typeof body === &#39;object&#39;) {
+        // 处理对象类型
+        res.setHeader(&#39;Content-Type&#39;, &#39;application/json;charset=utf8&#39;);
+        res.end(JSON.stringify(body));
+      } else if (body instanceof Stream) {
+        // 处理流类型的数据
+        body.pipe(res);
+      } else {
+        res.end(&#39;Not Found&#39;);
+      }
+// ************************** 以下为修改代码 **************************
+    }).catch(err =&gt; {
+      // 执行 error 事件
+      this.emit(&#39;error&#39;, err);
+
+      // 设置 500 状态码
+      ctx.status = 500;
+
+      // 返回状态码对应的信息响应浏览器
+      res.end(httpServer.STATUS_CODES[ctx.status]);
+    });
+// ************************** 以上为修改代码 **************************
+  }
+  listen(...args) {
+    // 创建服务
+    const server = http.createServer(this.handleRequest.bind(this));
+
+    // 启动服务
+    server.listen(...args);
+  }
+}
+
+module.exports = Koa;
+</code></pre><p>在使用的案例当中，使用 <code>app</code>（即 <code>Koa</code> 创建的实例）监听了一个 <code>error</code> 事件，当中间件执行错误时会触发该监听的回调，这让我们想起了 <code>Node.js</code> 中一个重要的核心模块 <code>events</code>，这个模块帮我们提供了一个事件机制，通过 <code>on</code> 方法添加监听，通过 <code>emit</code> 触发监听，所以我们引入了 <code>events</code>，并让 <code>Koa</code> 类继承了 <code>events</code> 导入的 <code>EventEmitter</code> 类，此时 <code>Koa</code> 的实例就可以使用 <code>EventEmitter</code> 原型对象上的 <code>on</code> 和 <code>emit</code> 方法。</p><p>在 <code>compose</code> 执行后调用的 <code>catch</code> 中，通过实例调用了 <code>emit</code>，并传入了事件类型 <code>error</code> 和错误对象，这样就是实现了中间件的错误监听，只要中间件执行出错，就会执行案例中错误监听的回调。</p><h2 id="让引入的-Koa-直接指向-application-js"><a href="#让引入的-Koa-直接指向-application-js" class="headerlink" title="让引入的 Koa 直接指向 application.js"></a>让引入的 Koa 直接指向 application.js</h2><p>在上面我们实现了 <code>Koa</code> 大部分常用功能的核心逻辑，但还有一点美中不足，就是我们引入自己的简易版 <code>Koa</code> 时，默认会查找 <code>koa</code> 路径下的 <code>index.js</code>，想要执行我们的 <code>Koa</code> 必须要使用路径找到 <code>application.js</code>，代码如下。</p><pre><code class="lang-js">/* 现在的引入方式 */
+const Koa = require(&#39;./koa/application&#39;);
+</code></pre><pre><code class="lang-js">/* 希望的引入方式 */
+const Koa = require(&#39;./koa&#39;);
+</code></pre><p>我们更希望像直接引入指定 <code>koa</code> 文件夹，就可以找到 <code>application.js</code> 文件并执行，这就需要我们在 <code>koa</code> 文件夹创建 <code>package.json</code> 文件，并在动一点小小的 “手脚” 如下。</p><pre><code class="lang-json">/* 文件路径：~koa/package.js */
+{
+  // ...
+  &quot;main&quot;: &quot;./application.js&quot;,
+  // ...
+}
+</code></pre><h2 id="Koa-原理图"><a href="#Koa-原理图" class="headerlink" title="Koa 原理图"></a>Koa 原理图</h2><p>在文章最后一节送给大家一张 <code>Koa</code> 执行的原理图，这张图片是准备写这篇文章时在 <code>Google</code> 上发现的，把 <code>Koa</code> 的整个流程表达的非常清楚，所以这里拿来帮助大家理解 <code>Koa</code> 框架的原理和执行过程。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180902141819/koa-flow-chart.png" alt="Koa 原理图"></div><div class="image-caption">Koa 原理图</div></figure><p><br></p><p>之所以没有在文章开篇放上这张图是因为觉得在完全没有了解过 <code>Koa</code> 的原理之前，可能有一部分小伙伴看这张图会懵，会打消学习的积极性，因为本篇的目的就是带着大家从零到有的，一步一步实现简易版 <code>Koa</code>，梳理 <code>Koa</code> 的核心逻辑，如果你已经看到了这里，是不是觉得这张图出现的不早不晚，刚刚好。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>最后还是在这里做一个总结，在 <code>Koa</code> 中主要的部分有 <code>listen</code> 创建服务器、封装上下文对象 <code>ctx</code> 并代理属性、<code>use</code> 方法添加中间件、<code>compose</code> 串行执行中间、让 <code>Koa</code> 继承 <code>EventEmitter</code> 实现错误监听，而我个人觉得最重要的就是 <code>compose</code>，它是一个事件串行机制，也是实现 “洋葱模型” 的核心，如今 <code>compose</code> 已经不再只是一个方法名，而是函数式编程的一个重要的特性，用于将多个程序串行在一起，或同步，或异步，在 <code>Koa</code> 中自不必多说，因为大家已经见识过了，<code>compose</code> 在 <code>Redux</code> 中也起着串联中间件的作用，如串联<code>redux-saga</code>, <code>promise</code>、<code>redux-thunk</code>、<code>logger</code> 等中间件，在 <code>Webpack</code> 源码依赖的核心模块 <code>tapable</code> 中也有所应用，在我们的学习过程中，这样优秀的编程思想是应该重点吸收的。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180902141819/" target="_blank" rel="external">https://www.overtaking.top/20180902141819/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Koa/" rel="tag">Koa</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/async-await/" rel="tag">async/await</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180902141819/&title=《Node.js 进阶 —— Koa2 源码分析》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180902141819/&title=《Node.js 进阶 —— Koa2 源码分析》 — Shen's Blog&source=前言Koa 2.x 版本是当下最流行的 Node.js 框架，同时社区涌现出一大批围绕 Koa 2.x 的中间件以及基于 Koa 2.x 封装的企业级框架..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180902141819/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 进阶 —— Koa2 源码分析》 — Shen's Blog&url=https://www.overtaking.top/20180902141819/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180902141819/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180906170854/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Koa2 洋葱模型 —— compose 串联中间件的四种实现</h4></a></div><div class="waves-block waves-effect next"><a href="/20180828022147/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Express 中间件 body-parser 原理分析</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180902141819/&title=《Node.js 进阶 —— Koa2 源码分析》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180902141819/&title=《Node.js 进阶 —— Koa2 源码分析》 — Shen's Blog&source=前言Koa 2.x 版本是当下最流行的 Node.js 框架，同时社区涌现出一大批围绕 Koa 2.x 的中间件以及基于 Koa 2.x 封装的企业级框架..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180902141819/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 进阶 —— Koa2 源码分析》 — Shen's Blog&url=https://www.overtaking.top/20180902141819/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180902141819/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABv0lEQVR42u3aQW7DMAwEwPz/0+4DChtLUlIcYHQKnFaeXBYiqc8nXte/lT9/3u2zY+Hi4o651+Na9fq7PXMDLi7uee7dC6pbV39kbsDFxX0/9+5/k7B7DjVcXNxf5E7C7gtBhouLO+BWg+buyfwwtKxWw8XFHXDzLuW+z1v6u7i4uC3uVVzPzY5kxDJ6Oy4u7hFuHijVH5NEYfW9uLi4Z7j5QeQ5vPLnk6seuLi4Z7i9C1h5PPW+LTRHcHFxD3KTBmg+Os0R5QYKLi7uBu7kyLKq+CkcoXBxcb/EnZQiq65fLG6V4uLiDrg9UB6C1XIoapji4uJu4M4PMZN2aj7twcXFPclNKL1rWzmonLu4uLibub0LUuV2RmvIGiUuLi7uZm4vqpJRSm8ws+AeGS4u7pjbvADxmDCrQhAXF/cN3LxhkaAn55MFsx1cXNzi3/TKm2RYku9TKJNwcXGPcKutit5QpNn+mLRXcHFxx9xJg2PSNk0Crpy+uLi4S7l50CS4ZM9RrYaLi/tibrXsqZZVuLi4v8KtlkPzyxnRTBgXF3cDN29u5gPR6ugl+YyLi3uGW42SKqhXAi3o7+Li4na4f1a5AS/VNJJcAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Node.js 多进程和集群 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,process,Cluster"><meta name="description" content="进程和线程“进程” 是计算机系统进行资源分配和调度的基本单位，我们可以理解为计算机每开启一个任务就会创建至少一个进程来处理，有时会创建多个，如 Chrome 浏览器的选项卡，其目的是为了防止一个进程挂掉而应用停止工作，而 “线程” 是程序执行流的最小单元，Node.js 默认是单进程、单线程的，我们将这个进程称为主进程，也可以通过 child_process 模块创建子进程实现多进程，我们称这些子"><meta property="og:type" content="article"><meta property="og:title" content="Node.js 多进程和集群"><meta property="og:url" content="https://www.overtaking.top/20180727140233/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="进程和线程“进程” 是计算机系统进行资源分配和调度的基本单位，我们可以理解为计算机每开启一个任务就会创建至少一个进程来处理，有时会创建多个，如 Chrome 浏览器的选项卡，其目的是为了防止一个进程挂掉而应用停止工作，而 “线程” 是程序执行流的最小单元，Node.js 默认是单进程、单线程的，我们将这个进程称为主进程，也可以通过 child_process 模块创建子进程实现多进程，我们称这些子"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180727140233/multi-processing.png"><meta property="article:published_time" content="2018-07-27T06:02:33.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="process"><meta property="article:tag" content="Cluster"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180727140233/multi-processing.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Node.js 多进程和集群</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Node.js 多进程和集群</h1><h5 class="subtitle"><time datetime="2018-07-27T06:02:33.000Z" itemprop="datePublished" class="page-time">2018-07-27</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#进程和线程"><span class="post-toc-number">1.</span> <span class="post-toc-text">进程和线程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#spawn-实现多进程"><span class="post-toc-number">2.</span> <span class="post-toc-text">spawn 实现多进程</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#spawn-创建子进程"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">spawn 创建子进程</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#spawn-定义输入、输出"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">spawn 定义输入、输出</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#标准进程通信"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">标准进程通信</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#退出和杀死子进程"><span class="post-toc-number">2.4.</span> <span class="post-toc-text">退出和杀死子进程</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#独立子进程"><span class="post-toc-number">2.5.</span> <span class="post-toc-text">独立子进程</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#fork-实现多进程"><span class="post-toc-number">3.</span> <span class="post-toc-text">fork 实现多进程</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#fork-的使用"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">fork 的使用</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#fork-的原理"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">fork 的原理</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#execFile-和-exec-实现多进程"><span class="post-toc-number">4.</span> <span class="post-toc-text">execFile 和 exec 实现多进程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#cluster-集群"><span class="post-toc-number">5.</span> <span class="post-toc-text">cluster 集群</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-ipc-实现集群"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">使用 ipc 实现集群</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用-cluster-实现集群"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">使用 cluster 实现集群</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">6.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180727140233" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Node.js 多进程和集群</h1><div class="post-meta"><time class="post-time" title="2018-07-27 14:02:33" datetime="2018-07-27T06:02:33.000Z" itemprop="datePublished">2018-07-27</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180727140233/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js 多进程和集群"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180727140233/multi-processing.png" title="多进程和集群"><p><br></p><h2 id="进程和线程"><a href="#进程和线程" class="headerlink" title="进程和线程"></a>进程和线程</h2><blockquote class="pullquote default"><p><strong>“进程” 是计算机系统进行资源分配和调度的基本单位，我们可以理解为计算机每开启一个任务就会创建至少一个进程来处理，有时会创建多个，如 <code>Chrome</code> 浏览器的选项卡，其目的是为了防止一个进程挂掉而应用停止工作，而 “线程” 是程序执行流的最小单元，<code>Node.js</code> 默认是单进程、单线程的，我们将这个进程称为主进程，也可以通过 <code>child_process</code> 模块创建子进程实现多进程，我们称这些子进程为 “工作进程”，并且归主进程管理，进程之间默认是不能通信的，且所有子进程执行任务都是异步的。</strong></p></blockquote><a id="more"></a><h2 id="spawn-实现多进程"><a href="#spawn-实现多进程" class="headerlink" title="spawn 实现多进程"></a>spawn 实现多进程</h2><h3 id="spawn-创建子进程"><a href="#spawn-创建子进程" class="headerlink" title="spawn 创建子进程"></a>spawn 创建子进程</h3><p>在 <code>Node.js</code> 中执行一个 <code>JS</code> 文件，如果想在这个文件中再同时（异步）执行另一个 <code>JS</code> 文件，可以使用 <code>child_process</code> 模块中的 <code>spawn</code> 来实现，<code>spawn</code> 可以帮助我们创建一个子进程，用法如下。</p><pre><code class="lang-js">/* 文件：process.js */
+const { spawn } = require(&#39;child_process&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建子进程
+const child = spawn(&#39;node&#39;, [&#39;sub_process.js&#39;, &#39;--port&#39;, &#39;3000&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;) // 指定子进程的当前工作目录
+});
+
+// 出现错误触发
+child.on(&#39;error&#39;, err =&gt; console.log(err));
+
+// 子进程退出触发
+child.on(&#39;exit&#39;, () =&gt; console.log(&#39;exit&#39;));
+
+// 子进程关闭触发
+child.on(&#39;close&#39;, () =&gt; console.log(&#39;close&#39;));
+
+// exit
+// close
+</code></pre><blockquote class="pullquote danger"><p><strong><code>spawn</code> 方法可以帮助我们创建一个子进程，这个方法的返回值就是子进程 <code>id</code>，<code>spawn</code> 接收以下几个参数：</strong></p><ul><li><strong><code>command</code>：要运行的命令；</strong></li><li><strong><code>args</code>：类型为数组，数组内第一项为文件名，后面项依次为执行文件的命令参数和值；</strong></li><li><strong><code>options</code>：选项，类型为对象，用于指定子进程的当前工作目录和主进程、子进程的通信规则等，具体可查看</strong> <a href="http://Node.js.cn/api/child_process.html#child_process_child_process_spawn_command_args_options" target="_blank">官方文档</a><strong>。</strong></li></ul></blockquote><p><code>error</code> 事件在子进程出错时触发，<code>exit</code> 事件在子进程退出时触发，<code>close</code> 事件在子进程关闭后触发，在子进程任务结束后 <code>exit</code> 一定会触发，<code>close</code> 不一定触发。</p><pre><code class="lang-js">/* 文件：~test/sub_process.js */
+// 打印子进程执行 sub_process.js 文件的参数
+console.log(process.argv);
+</code></pre><p>通过上面代码打印了子进程执行时的参数，但是我们发现主进程窗口并没有打印，我们希望的是子进程的信息可以反馈给主进程，要实现通信需要在创建子进程时在第三个参数 <code>options</code> 中配置 <code>stdio</code> 属性定义。</p><h3 id="spawn-定义输入、输出"><a href="#spawn-定义输入、输出" class="headerlink" title="spawn 定义输入、输出"></a>spawn 定义输入、输出</h3><pre><code class="lang-js">/* 文件：process.js */
+const { spawn } = require(&#39;child_process&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建子进程
+const child = spawn(&#39;node&#39;, [&#39;sub_process.js&#39;, &#39;--port&#39;, &#39;3000&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;) // 指定子进程的当前工作目录
+  // stdin: [process.stdin, process.stdout, process.stderr]
+  stdio: [0, 1, 2] // 配置标准输入、标准输出、错误输出
+});
+
+// C:\Program Files\Node.js\node.exe,g:\process\test\sub_process.js,--port,3000
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process.js */
+// 使用主进程的标准输出，输出 sub_process.js 文件执行的参数
+process.stdout.write(process.argv.toString());
+</code></pre><p>通过上面配置 <code>options</code> 的 <code>stdio</code> 值为数组，上面的两种写法作用相同，都表示子进程和主进程共用了主进程的标准输入、标准输出、和错误输出，实际上并没有实现主进程与子进程的通信，其中 <code>0</code> 和 <code>stdin</code> 代表标准输入，<code>1</code> 和 <code>stdout</code> 代表标准输出，<code>2</code> 和 <code>stderr</code> 代表错误输出。</p><p>上面这样的方式只要子进程执行 <code>sub_process.js</code> 就会在窗口输出，如果我们希望是否输出在主进程里面控制，即实现子进程与主进程的通信，看下面用法。</p><pre><code class="lang-js">/* 文件：process.js */
+const { spawn } = require(&#39;child_process&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建子进程
+const child = spawn(&#39;node&#39;, [&#39;sub_process.js&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;),
+  stdio: [&#39;pipe&#39;]
+});
+
+child.stdout.on(&#39;data&#39;, data =&gt; console.log(data.toString()));
+
+// hello world
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process.js */
+// 子进程执行 sub_process.js
+process.stdout.write(&#39;hello world&#39;);
+</code></pre><p>上面将 <code>stdio</code> 内数组的值配置为 <code>pipe</code>（默认不写就是 <code>pipe</code>），则通过流的方式实现主进程和子进程的通信，通过子进程的标准输出（可写流）写入，在主进程通过子进程的标准输出通过 <code>data</code> 事件读取的流在输出到窗口（这种写法很少用），上面都只在主进程中开启了一个子进程，下面举一个开启多个进程的例子。</p><p>例子的场景是主进程开启两个子进程，先运行子进程 <code>1</code> 传递一些参数，子进程 <code>1</code> 将参数取出返还给主进程，主进程再把参数传递给子进程 <code>2</code>，通过子进程 <code>2</code> 将参数写入到文件 <code>param.txt</code> 中，这个过程不代表真实应用场景，主要目的是体会主进程和子进程的通信过程。</p><pre><code class="lang-js">/* 文件：process.js */
+const { spawn } = require(&#39;child_process&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建子进程
+const child1 = spawn(&#39;node&#39;, [&#39;sub_process_1.js&#39;, &#39;--port&#39;, &#39;3000&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;),
+});
+
+const child2 = spawn(&#39;node&#39;, [&#39;sub_process_2.js&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;),
+});
+
+
+// 读取子进程 1 写入的内容，写入子进程 2
+child1.stdout.on(&#39;data&#39;, data =&gt; child2.stdout.write(data.toString));
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process_1.js */
+// 获取 --port 和 3000
+process.argv.slice(2).forEach(item =&gt; process.stdout.write(item));
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process_2.js */
+const fs = require(&#39;fs&#39;);
+
+// 读取主进程传递的参数并写入文件
+process.stdout.on(&#39;data&#39;, data =&gt; {
+  fs.writeFile(&#39;param.txt&#39;, data, () =&gt; {
+    process.exit();
+  });
+});
+</code></pre><p>有一点需要注意，在子进程 <code>2</code> 写入文件的时候，由于主进程不知道子进程 <code>2</code> 什么时候写完，所以主进程会卡住，需要子进程在写入完成后调用 <code>process.exit</code> 方法退出子进程，子进程退出并关闭后，主进程会随之关闭。</p><p>在我们给 <code>options</code> 配置 <code>stdio</code> 时，数组内其实可以对标准输入、标准输出和错误输出分开配置，默认数组内为 <code>pipe</code> 时代表三者都为 <code>pipe</code>，分别配置看下面案例。</p><pre><code class="lang-js">/* 文件：process.js */
+const { spawn } = require(&#39;spawn&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建子进程
+const child = spawn(&#39;node&#39;, [&#39;sub_process.js&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;),
+  stdio: [0, &#39;pipe&#39;, 2]
+});
+
+// world
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process.js */
+console.log(&#39;hello&#39;);
+console.error(&#39;world&#39;);
+</code></pre><p>上面代码中对 <code>stderr</code> 实现了默认打印而不通信，对标准输入实现了通信，还有一种情况，如果希望子进程只是默默的执行任务，而在主进程命令窗口什么类型的输出都禁止，可以在数组中对应位置给定值 <code>ignore</code>，将上面案例修改如下。</p><pre><code class="lang-js">/* 文件：process.js */
+const { spawn } = require(&#39;spawn&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建子进程
+const child = spawn(&#39;node&#39;, [&#39;sub_process.js&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;),
+  stdio: [0, &#39;pipe&#39;, &#39;ignore&#39;]
+});
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process.js */
+console.log(&#39;hello&#39;);
+console.error(&#39;world&#39;);
+</code></pre><p>这次我们发现无论标准输出和错误输出都没有生效，上面这些方式其实是不太方便的，因为输出有 <code>stdout</code> 和 <code>stderr</code>，在写法上没办法统一，可以通过下面的方式来统一。</p><h3 id="标准进程通信"><a href="#标准进程通信" class="headerlink" title="标准进程通信"></a>标准进程通信</h3><pre><code class="lang-js">/* 文件：process.js */
+const { spawn } = require(&#39;spawn&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建子进程
+const child = spawn(&#39;node&#39;, [&#39;sub_process.js&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;),
+  stdio: [0, &#39;pipe&#39;, &#39;ignore&#39;, &#39;ipc&#39;]
+});
+
+child.on(&#39;message&#39;, data =&gt; {
+  console.log(data);
+
+  // 回复消息给子进程
+  child.send(&#39;world&#39;);
+
+  // 杀死子进程
+  // process.kill(child.pid);
+});
+
+// hello
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process.js */
+// 给主进程发送消息
+process.send(&#39;hello&#39;);
+
+// 接收主进程回复的消息
+process.on(&#39;message&#39;, data =&gt; {
+  console.log(data);
+
+  // 退出子进程
+  process.exit();
+});
+
+// world
+</code></pre><p>这种方式被称为标准进程通信，通过给 <code>options</code> 的 <code>stdio</code> 数组配置 <code>ipc</code>，只要数组中存在 <code>ipc</code> 即可，一般放在数组开头或结尾，配置 <code>ipc</code> 后子进程通过调用自己的 <code>send</code> 方法发送消息给主进程，主进程中用子进程的 <code>message</code> 事件进行接收，也可以在主进程中接收消息的 <code>message</code> 事件的回调当中，通过子进程的 <code>send</code> 回复消息，并在子进程中用 <code>message</code> 事件进行接收，这样的编程方式比较统一，更贴近于开发者的意愿。</p><h3 id="退出和杀死子进程"><a href="#退出和杀死子进程" class="headerlink" title="退出和杀死子进程"></a>退出和杀死子进程</h3><p>上面代码中子进程在接收到主进程的消息时直接退出，也可以在子进程发送给消息给主进程时，主进程接收到消息直接杀死子进程，代码如下。</p><pre><code class="lang-js">/* 文件：process.js */
+const { spawn } = require(&#39;spawn&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建子进程
+const child = spawn(&#39;node&#39;, [&#39;sub_process.js&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;),
+  stdio: [0, &#39;pipe&#39;, &#39;ignore&#39;, &#39;ipc&#39;]
+});
+
+child.on(&#39;message&#39;, data =&gt; {
+  console.log(data);
+
+  // 杀死子进程
+  process.kill(child.pid);
+});
+
+// hello world
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process.js */
+// 给主进程发送消息
+process.send(&#39;hello&#39;);
+</code></pre><p>从上面代码我们可以看出，杀死子进程的方法为 <code>process.kill</code>，由于一个主进程可能有多个子进程，所以指定要杀死的子进程需要传入子进程的 <code>pid</code> 属性作为 <code>process.kill</code> 的参数。</p><blockquote class="pullquote warning"><p><em><strong>注意：退出子进程 <code>process.exit</code> 方法是在子进程中操作的，此时 <code>process</code> 代表子进程，杀死子进程 <code>process.kill</code> 是在主进程中操作的，此时 <code>process</code> 代表主进程。</strong></em></p></blockquote><h3 id="独立子进程"><a href="#独立子进程" class="headerlink" title="独立子进程"></a>独立子进程</h3><p>我们前面说过，<code>child_process</code> 模块创建的子进程是被主进程统一管理的，如果主进程挂了，所有的子进程也会受到影响一起挂掉，但其实使用多进程一方面为了提高处理任务的效率，另一方面也是为了当一个进程挂掉时还有其他进程可以继续工作，不至于整个应用挂掉，这样的例子非常多，比如 <code>Chrome</code> 浏览器的选项卡，比如 <code>VSCode</code> 编辑器运行时都会同时开启多个进程同时处理任务，其实在 <code>spawn</code> 创建子进程时，也可以实现子进程的独立，即子进程不再受主进程的控制和影响。</p><pre><code class="lang-js">/* 文件：process.js */
+const { spawn } = require(&#39;spawn&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建子进程
+const child = spawn(&#39;node&#39;, [&#39;sub_process.js&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;),
+  stdio: &#39;ignore&#39;,
+  detached: true
+});
+
+// 与主进程断绝关系
+child.unref();
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process.js */
+const fs = require(&#39;fs&#39;);
+
+setInterval(() =&gt; {
+  fs.appendFileSync(&#39;test.txt&#39;, &#39;hello&#39;);
+});
+</code></pre><p>要想创建的子进程独立，需要在创建子进程时配置 <code>detached</code> 参数为 <code>true</code>，表示该子进程不受控制，还需调用子进程的 <code>unref</code> 方法与主进程断绝关系，但是仅仅这样子进程可能还是会受主进程的影响，要想子进程完全独立需要保证子进程一定不能和主进程共用标准输入、标准输出和错误输出，也就是 <code>stdio</code> 必须设置为 <code>ignore</code>，这也就代表着独立的子进程是不能和主进程进行标准进程通信，即不能设置 <code>ipc</code>。</p><h2 id="fork-实现多进程"><a href="#fork-实现多进程" class="headerlink" title="fork 实现多进程"></a>fork 实现多进程</h2><h3 id="fork-的使用"><a href="#fork-的使用" class="headerlink" title="fork 的使用"></a>fork 的使用</h3><p><code>fork</code> 也是 <code>child_process</code> 模块的一个方法，与 <code>spawn</code> 类似，是在 <code>spawn</code> 的基础上又做了一层封装，我们看一个 <code>fork</code> 使用的例子。</p><pre><code class="lang-js">/* 文件：process.js */
+const fork = require(&#39;child_process&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建子进程
+const child = fork(&#39;sub_process.js&#39;, [&#39;--port&#39;, &#39;3000&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;),
+  silent: true
+});
+
+child.send(&#39;hello world&#39;);
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process.js */
+// 接收主进程发来的消息
+process.on(&#39;message&#39;, data =&gt; console.log(data));
+</code></pre><p><code>fork</code> 的用法与 <code>spawn</code> 相比有所改变，第一个参数是子进程执行文件的名称，第二个参数为数组，存储执行时的参数和值，第三个参数为 <code>options</code>，其中使用 <code>slilent</code> 属性替代了 <code>spawn</code> 的 <code>stdio</code>，当 <code>silent</code> 为 <code>true</code> 时，此时主进程与子进程的所有非标准通信的操作都不会生效，包括标准输入、标准输出和错误输出，当设为 <code>false</code> 时可正常输出，返回值依然为一个子进程。</p><blockquote class="pullquote info"><p><em><strong><code>fork</code> 创建的子进程可以直接通过 <code>send</code> 方法和监听 <code>message</code> 事件与主进程进行通信。</strong></em></p></blockquote><h3 id="fork-的原理"><a href="#fork-的原理" class="headerlink" title="fork 的原理"></a>fork 的原理</h3><p>其实 <code>fork</code> 的原理非常简单，只是在子进程模块 <code>child_process</code> 上挂了一个 <code>fork</code> 方法，而在该方法内调用 <code>spawn</code> 并将 <code>spawn</code> 返回的子进程作为返回值返回，下面进行简易实现。</p><pre><code class="lang-js">/* 文件：fork.js */
+const childProcess = require(&#39;child_process&#39;);
+const path = require(&#39;path&#39;);
+
+// 封装原理
+childProcess.fork = function(modulePath, args, options) {
+  const stdio = options.silent ?
+    [&#39;ignore&#39;, &#39;ignore&#39;, &#39;ignore&#39;, &#39;ipc&#39;] :
+    [0, 1, 2, &#39;ipc&#39;];
+
+  return childProcess.spawn(&#39;node&#39;, [modulePath, ...args], {
+    ...options,
+    stdio
+  });
+}
+
+// 创建子进程
+const child = fork(&#39;sub_process.js&#39;, [&#39;--port&#39;, &#39;3000&#39;], {
+  cwd: path.join(__dirname, &#39;test&#39;),
+  silent: false
+});
+
+// 向子进程发送消息
+child.send(&#39;hello world&#39;);
+</code></pre><pre><code class="lang-js">/* 文件：~test/sub_process.js */
+// 接收主进程发来的消息
+process.on(&#39;message&#39;, data =&gt; console.log(data));
+
+// hello world
+</code></pre><p><code>spawn</code> 中的有一些 <code>fork</code> 没有传的参数（如使用 <code>node</code> 执行文件），都在内部调用 <code>spawn</code> 时传递默认值或将默认参数与 <code>fork</code> 传入的参数进行整合，着重处理了 <code>spawn</code> 没有的参数 <code>silent</code>，其实就是处理成了 <code>spawn</code> 的 <code>stdio</code> 参数两种极端的情况（默认使用 <code>ipc</code> 通信），封装 <code>fork</code> 就是让我们能更方便的创建子进程，可以更少的传参。</p><h2 id="execFile-和-exec-实现多进程"><a href="#execFile-和-exec-实现多进程" class="headerlink" title="execFile 和 exec 实现多进程"></a>execFile 和 exec 实现多进程</h2><p><code>execFile</code> 和 <code>exec</code> 是 <code>child_process</code> 模块的两个方法，<code>execFile</code> 是基于 <code>spawn</code> 封装的，而 <code>exec</code> 是基于 <code>execFile</code> 封装的，这两个方法用法大同小异，<code>execFile</code> 可以直接创建子进程进行文件操作，而 <code>exec</code> 可以直接开启子进程执行命令，常见的应用场景如 <code>http-server</code> 以及 <code>weboack-dev-server</code> 等命令行工具在启动本地服务时自动打开浏览器。</p><pre><code class="lang-js">/* execFile 和 exec */
+const { execFile, exec } = require(&#39;child_process&#39;);
+
+const execFileChild = execFile(&#39;node&#39;, [&#39;--version&#39;], (err, stdout, stderr) =&gt; {
+  if (error) throw error;
+  console.log(stdout);
+  console.log(stderr);
+});
+
+const execChild = exec(&#39;node --version&#39;, (err, stdout, stderr) =&gt; {
+  if (err) throw err;
+  console.log(stdout);
+  console.log(stderr);
+});
+</code></pre><p><code>exec</code> 与 <code>execFile</code> 的区别在于传参，<code>execFile</code> 第一个参数为文件的可执行路径或命令，第二个参数为命令的参数集合（数组），第三个参数为 <code>options</code>，最后一个参数为回调函数，回调函数的形参为错误、标准输出和错误输出。</p><p><code>exec</code> 在传参上将 <code>execFile</code> 的前两个参数进行了整合，也就是命令与命令参数拼接成字符串作为第一参数，后面的参数都与 <code>execFile</code> 相同。</p><h2 id="cluster-集群"><a href="#cluster-集群" class="headerlink" title="cluster 集群"></a>cluster 集群</h2><blockquote class="pullquote primary"><p><strong>开启进程需要消耗内存，所以开启进程的数量要适合，合理运用多进程可以大大提高效率，如 <code>Webpack</code> 对资源进行打包，就开启了多个进程同时进行，大大提高了打包速度，集群也是多进程重要的应用之一，用多个进程同时监听同一个服务，一般开启进程的数量跟 <code>CPU</code> 核数相同为好，此时多个进程监听的服务会根据请求压力分流处理，也可以通过设置每个子进程处理请求的数量来实现 “负载均衡”。</strong></p></blockquote><h3 id="使用-ipc-实现集群"><a href="#使用-ipc-实现集群" class="headerlink" title="使用 ipc 实现集群"></a>使用 ipc 实现集群</h3><p><code>ipc</code> 标准进程通信使用 <code>send</code> 方法发送消息时第二个参数支持传入一个服务，必须是 <code>http</code> 服务或者 <code>tcp</code> 服务，子进程通过 <code>message</code> 事件进行接收，回调的参数分别对应发送的参数，即第一个参数为消息，第二个参数为服务，我们就可以在子进程创建服务并对主进程的服务进行监听和操作（<code>listen</code> 除了可以监听端口号也可以监听服务），便实现了集群，代码如下。</p><pre><code class="lang-js">/* 文件：server.js */
+// os 模块用于获取系统信息
+const os = require(&#39;os&#39;);
+const http = require(&#39;http&#39;);
+const path = require(&#39;path&#39;);
+const { fork } = rquire(&#39;child_process&#39;);
+
+// 创建服务
+const server = createServer((res, req) =&gt; {
+  res.end(&#39;hello&#39;);
+}).listen(3000);
+
+// 根据 CPU 个数创建子进程
+os.cpus().forEach(() =&gt; {
+  fork(&#39;child_server.js&#39;, {
+    cwd: path.join(__dirname)
+  }).send(&#39;server&#39;, server);
+});
+</code></pre><pre><code class="lang-js">/* 文件：child_server.js */
+const http = require(&#39;http&#39;);
+
+// 接收来自主进程发来的服务
+process.on(&#39;message&#39;, (data, server) =&gt; {
+  // // 子进程共用主进程的服务
+  http.createServer((req, res) =&gt; {
+    res.end(&#39;child&#39; + process.pid);
+  }).listen(server);
+});
+</code></pre><p>上面代码中由主进程处理的请求会返回 <code>hello</code>，由子进程处理的请求会返回 <code>child</code> 加进程的 <code>pid</code> 组成的字符串。</p><h3 id="使用-cluster-实现集群"><a href="#使用-cluster-实现集群" class="headerlink" title="使用 cluster 实现集群"></a>使用 cluster 实现集群</h3><p><code>cluster</code> 模块是 <code>Node.js</code> 提供的用来实现集群的，他将 <code>child_process</code> 创建子进程的方法集成进去，实现方式要比使用 <code>ipc</code> 更简洁。</p><pre><code class="lang-js">/* 文件：cluster.js */
+const cluster = require(&#39;cluster&#39;);
+const http = require(&#39;http&#39;);
+const os = require(&#39;os&#39;);
+
+// 判断当前执行的进程是否为主进程，为主进程则创建子进程，否则用子进程监听服务
+if (cluster.isMaster) {
+  // 创建子进程
+  os.cpus().forEach(() =&gt; cluster.fork());
+} else {
+  // 创建并监听服务
+  http.createServer((req, res) =&gt; {
+    res.end(&#39;child&#39; + process.pid);
+  }).listen(3000);
+}
+</code></pre><p>上面代码既会执行 <code>if</code> 又会执行 <code>else</code>，这看似很奇怪，但其实不是在同一次执行的，主进程执行时会通过 <code>cluster.fork</code> 创建子进程，当子进程被创建会将该文件再次执行，此时则会执行 <code>else</code> 中对服务的监听，还有另一种用法将主进程和子进程执行的代码拆分开，逻辑更清晰，用法如下。</p><pre><code class="lang-js">/* 文件：cluster.js */
+const cluster = require(&#39;cluster&#39;);
+const path = require(&#39;path&#39;);
+const os = require(&#39;os&#39;);
+
+// 设置子进程读取文件的路径
+cluster.setupMaster({
+  exec: path.join(__dirname, &#39;cluster-server.js&#39;)
+});
+
+// 创建子进程
+os.cpus().forEach(() =&gt; cluster.fork());
+</code></pre><pre><code class="lang-js">/* 文件：cluster-server.js */
+const http = require(&#39;http&#39;);
+
+// 创建并监听服务
+http.createServer((req, res) =&gt; {
+  res.end(&#39;child&#39; + process.pid);
+}).listen(3000);
+</code></pre><p>通过 <code>cluster.setupMaster</code> 设置子进程执行文件以后，就可以将主进程和子进程的逻辑拆分开，在实际的开发中这样的方式也是最常用的，耦合度低，可读性好，更符合开发的原则。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>本篇着重的介绍了 <code>Node.js</code> 多进程的实现方式以及集群的使用，之所以在开头长篇大论的介绍 <code>spawn</code>，是因为其他的所有跟多进程相关的方法包括 <code>fork</code>、<code>exec</code> 等，以及模块 <code>cluster</code> 都是基于 <code>spawn</code> 的封装，如果对 <code>spawn</code> 足够了解，其他的也不在话下，希望大家通过这篇可以在 <code>Node.js</code> 多进程相关的开发中起到一个 “路标” 的作用。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180727140233/" target="_blank" rel="external">https://www.overtaking.top/20180727140233/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Cluster/" rel="tag">Cluster</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/process/" rel="tag">process</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180727140233/&title=《Node.js 多进程和集群》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180727140233/&title=《Node.js 多进程和集群》 — Shen's Blog&source=进程和线程“进程” 是计算机系统进行资源分配和调度的基本单位，我们可以理解为计算机每开启一个任务就会创建至少一个进程来处理，有时会创建多个，如 Chrom..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180727140233/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 多进程和集群》 — Shen's Blog&url=https://www.overtaking.top/20180727140233/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180727140233/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180806184412/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Webpack 核心模块 tapable 解析</h4></a></div><div class="waves-block waves-effect next"><a href="/20180726122146/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Webpack —— tree-staking 解析</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180727140233/&title=《Node.js 多进程和集群》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180727140233/&title=《Node.js 多进程和集群》 — Shen's Blog&source=进程和线程“进程” 是计算机系统进行资源分配和调度的基本单位，我们可以理解为计算机每开启一个任务就会创建至少一个进程来处理，有时会创建多个，如 Chrom..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180727140233/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 多进程和集群》 — Shen's Blog&url=https://www.overtaking.top/20180727140233/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180727140233/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABuElEQVR42u3aW47CMAwFUPa/6c4CgPbabkI1OvlC0McRH1exndcrXsfbOr8mf+ZrxcLFxR1zj9P17dFz1vvzzw24uLj7ufnjzl/w7d7zyEsMuLi4T+aes5LIw8XF/U/cXml0HoK4uLhP5iZbliSqkqIo3zDh4uL+ilttbaz4vKS/i4uL2+Ieg5UXNr3w+vBGXFzcLdxq6Nzb+Ei2Ux/uxcXF3c6tDlEmZySqrRNcXNw93F61lCB6sXXxR+Di4m7nVseoSZFTja2LX3FxcbdwJ4XKBDS6HhcXdzG3N/yYt017RRcuLu4ebhIovWIpb4ZOjnHg4uKu4/bGn3lg5cOY6KAGLi7uRu78ZXkgVo9/FSY/uLi4Y+68tZHc22ujRImLi4u7gFs9TrFiyFq9BhcXdzW3GkO95kgv5i5mwri4uMu4dw1ReqOUvNmKi4u7k3sUV07Mt03NcyK4uLjLuNVW5r2t0l7DBRcXdw93El5JkZOPcnFxcZ/GnQdN75tRrYaLi/sAbtLW7I1MCsUPLi7uw7gT+mTcgouL+ytuXvzk4dUbulxEGy4u7hbuXQcpqm3TXqsFFxd3MfcPLJQu5XK1fPkAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

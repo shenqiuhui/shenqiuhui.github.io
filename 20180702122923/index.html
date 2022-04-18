@@ -1,0 +1,366 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Node.js 树结构遍历 —— 深度优先和广度优先 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="异步,Promise,Node.js,ES6,ES7,async/await,数据结构,fs"><meta name="description" content="树的基本概念树（Tree）是 n 个结点的有限集，n 为 0 时，称为空树，在任意一棵非空树中有且仅有一个特定的被称为根（Root）的结点，当 n 大于 1 时，其余结点可分为 m 个互不相交的有限集 T1、T2、......、Tm，其中每一个集合本身又是一棵树，并且称为 SubTree，即根的子树。需要强调的是，n&gt;0 时根结点是唯一的，不可能存在多个根结点，m&gt;0 时，子树的个数没"><meta property="og:type" content="article"><meta property="og:title" content="Node.js 树结构遍历 —— 深度优先和广度优先"><meta property="og:url" content="https://www.overtaking.top/20180702122923/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="树的基本概念树（Tree）是 n 个结点的有限集，n 为 0 时，称为空树，在任意一棵非空树中有且仅有一个特定的被称为根（Root）的结点，当 n 大于 1 时，其余结点可分为 m 个互不相交的有限集 T1、T2、......、Tm，其中每一个集合本身又是一棵树，并且称为 SubTree，即根的子树。需要强调的是，n&gt;0 时根结点是唯一的，不可能存在多个根结点，m&gt;0 时，子树的个数没"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180702122923/traversal-tree.png"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180702122923/tree-detials.jpg"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180702122923/depth-first-traversal.png"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180702122923/breadth-first-traversal.png"><meta property="article:published_time" content="2018-07-02T04:29:23.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="异步"><meta property="article:tag" content="Promise"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="ES6"><meta property="article:tag" content="ES7"><meta property="article:tag" content="async&#x2F;await"><meta property="article:tag" content="数据结构"><meta property="article:tag" content="fs"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180702122923/traversal-tree.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Node.js 树结构遍历 —— 深度优先和广度优先</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Node.js 树结构遍历 —— 深度优先和广度优先</h1><h5 class="subtitle"><time datetime="2018-07-02T04:29:23.000Z" itemprop="datePublished" class="page-time">2018-07-02</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#树的基本概念"><span class="post-toc-number">1.</span> <span class="post-toc-text">树的基本概念</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#先序深度优先实现递归删除文件目录"><span class="post-toc-number">2.</span> <span class="post-toc-text">先序深度优先实现递归删除文件目录</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#同步的实现"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">同步的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#异步回调的实现"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">异步回调的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#异步-Promise-的实现"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">异步 Promise 的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#异步-async-await-的实现"><span class="post-toc-number">2.4.</span> <span class="post-toc-text">异步 async&#x2F;await 的实现</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#先序广度优先实现递归删除文件目录"><span class="post-toc-number">3.</span> <span class="post-toc-text">先序广度优先实现递归删除文件目录</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#同步的实现-1"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">同步的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#异步回调的实现-1"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">异步回调的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#异步-async-await-的实现-1"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">异步 async&#x2F;await 的实现</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180702122923" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Node.js 树结构遍历 —— 深度优先和广度优先</h1><div class="post-meta"><time class="post-time" title="2018-07-02 12:29:23" datetime="2018-07-02T04:29:23.000Z" itemprop="datePublished">2018-07-02</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180702122923/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js 树结构遍历 —— 深度优先和广度优先"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180702122923/traversal-tree.png" title="树结构遍历"><p><br></p><h2 id="树的基本概念"><a href="#树的基本概念" class="headerlink" title="树的基本概念"></a>树的基本概念</h2><blockquote class="pullquote info"><p><strong>树（<code>Tree</code>）是 <code>n</code> 个结点的有限集，<code>n</code> 为 <code>0</code> 时，称为空树，在任意一棵非空树中有且仅有一个特定的被称为根（<code>Root</code>）的结点，当 <code>n</code> 大于 <code>1</code> 时，其余结点可分为 <code>m</code> 个互不相交的有限集 <code>T1</code>、<code>T2</code>、<code>......</code>、<code>Tm</code>，其中每一个集合本身又是一棵树，并且称为 <code>SubTree</code>，即根的子树。</strong></p></blockquote><p>需要强调的是，<code>n&gt;0</code> 时根结点是唯一的，不可能存在多个根结点，<code>m&gt;0</code> 时，子树的个数没有限制，但它们一定是互不相交的。</p><p>从根开始定义起，根为第一层，根的第一级子节点为第二层，若某结点在第 <code>l</code> 层，则其子树就在第 <code>l+1</code> 层，其双亲在同一层的结点互为 “堂兄弟”，树中结点的最大层级数称为树的深度（<code>Depth</code>）或高度。</p><a id="more"></a><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180702122923/tree-detials.jpg" alt="树结构的组成"></div><div class="image-caption">树结构的组成</div></figure><p><br></p><p>在对树结构进行遍历时，按顺序可分为先序、中序和后续，按遍历的方式可分为深度优先和广度优先，我们这篇文章就通过使用先序深度优先和先序广度优先来实现递归删除目录结构，体会对树结构遍历的应用，文章中会大量用到 <code>Node.js</code> 核心模块 <code>fs</code>，可以通过 <a href="https://www.overtaking.top/20180630172601/" target="_blank">Node.js 文件操作 —— fs 基本使用</a> 来了解文中用到的 <code>fs</code> 模块的方法及用法。</p><h2 id="先序深度优先实现递归删除文件目录"><a href="#先序深度优先实现递归删除文件目录" class="headerlink" title="先序深度优先实现递归删除文件目录"></a>先序深度优先实现递归删除文件目录</h2><blockquote class="pullquote default"><p><strong>深度优先的意思就是在遍历当前文件目录的时候，如果子文件夹内还有内容，就继续遍历子文件夹，直到遍历到最深层不再有文件夹，则删除其中的文件，再删除这个文件夹，然后继续遍历它的 “兄弟”，直到内层文件目录都被删除，再删除上一级，最后根文件夹为空，删除根文件夹。</strong></p></blockquote><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180702122923/depth-first-traversal.png" alt="先序深度优先"></div><div class="image-caption">先序深度优先</div></figure><p><br></p><h3 id="同步的实现"><a href="#同步的实现" class="headerlink" title="同步的实现"></a>同步的实现</h3><p>我们要实现的函数参数为要删除的根文件夹的路径，执行函数后会删除这个根文件夹。</p><pre><code class="lang-js">/* 深度优先 —— 同步 */
+// 引入依赖模块
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 先序深度优先同步删除文件夹
+function rmDirDepSync(p) {
+  // 获取根文件夹的 Stats 对象
+  const statObj = fs.statSync(p);
+
+  // 检查该文件夹的是否是文件夹
+  if (statObj.isDirectory()) {
+    // 查看文件夹内部
+    let dirs = fs.readdirSync(p);
+
+    // 将内部的文件和文件夹拼接成正确的路径
+    dirs = dirs.map(dir =&gt; path.join(p, dir));
+
+    // 循环递归处理 dirs 内的每一个文件或文件夹
+    for (let i = 0; i &lt; dirs.length; i++) {
+      rmDirDepSync(dirs[i]);
+    }
+
+    // 等待都处理完后删除该文件夹
+    fs.rmdirSync(p);
+  } else {
+    // 若是文件则直接删除
+    fs.unlinkSync(p);
+  }
+}
+
+// 调用
+rmDirDepSync(&#39;a&#39;);
+</code></pre><p>上面代码在调用 <code>rmDirDepSync</code> 时传入 <code>a</code>，先判断 <code>a</code> 是否是文件夹，不是则直接删除文件，是则查看文件目录，使用 <code>map</code> 将根文件路径拼接到每一个成员的名称前，并返回合法的路径集合，循环这个集合并对每一项进行递归，重复执行操作，最终实现删除根文件夹内所有的文件和文件夹，并删除根文件夹。</p><h3 id="异步回调的实现"><a href="#异步回调的实现" class="headerlink" title="异步回调的实现"></a>异步回调的实现</h3><p>同步的实现会阻塞代码的执行，每次执行一个文件操作，必须在执行完毕之后才能执行下一行代码，相对于同步，异步的方式性能会更好一些，我们下面使用异步回调的方式来实现递归删除文件目录的函数。</p><p>函数有两个参数，第一个参数同样为根文件夹的路径，第二个参数为一个回调函数，在文件目录被全部删除后执行。</p><pre><code class="lang-js">/* 深度优先 —— 异步回调 */
+// 引入依赖模块
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 先序深度优先异步（回调函数）删除文件夹
+function rmDirDepCb(p, callback) {
+  // 获取传入路径的 Stats 对象
+  fs.stat(p, (err, statObj) =&gt; {
+    // 判断路径下是否为文件夹
+    if (statObj.isDirectory()) {
+      // 是文件夹则查看内部成员
+      fs.readdir(p, (err, dirs) =&gt; {
+        // 将文件夹成员拼接成合法路径的集合
+        dirs = dirs.map(dir =&gt; path.join(p, dir));
+
+        // next 方法用来检查集合内每一个路径
+        function next(index) {
+          // 如果所有成员检查并删除完成则删除上一级目录
+          if (index === dirs.length) return fs.rmdir(p, callback);
+
+          // 对路径下每一个文件或文件夹执行递归，回调为递归 next 检查路径集合中的下一项
+          rmDirDepCb(dirs[index], () =&gt; next(index + 1));
+        }
+        next(0);
+      });
+    } else {
+      // 是文件则直接删除
+      fs.unlink(p, callback);
+    }
+  });
+}
+
+// 调用
+rmDirDepCb(&#39;a&#39;, () =&gt; {
+  console.log(&#39;删除完成&#39;);
+});
+
+// 删除完成
+</code></pre><p>上面方法也遵循深度优先，与同步相比较主要思路是相同的，异步回调的实现更为抽象，并不是通过循环去处理的文件夹下的每个成员的路径，而是通过调用 <code>next</code> 函数和在成功删除文件时递归执行 <code>next</code> 函数并维护 <code>index</code> 变量实现的。</p><h3 id="异步-Promise-的实现"><a href="#异步-Promise-的实现" class="headerlink" title="异步 Promise 的实现"></a>异步 Promise 的实现</h3><p>在异步回调函数的实现方式中，回调嵌套层级非常多，这在对代码的可读性和维护性上都造成困扰，在 <code>ES6</code> 规范中，<code>Promise</code> 的出现就是用来解决 “回调地狱” 的问题，所以我们也使用 <code>Promise</code> 来实现。</p><p>函数的参数为要删除的根文件夹的路径，这次之所以不需要传 <code>callback</code> 参数是因为 <code>callback</code> 中的逻辑可以在调用函数之后链式调用 <code>then</code> 方法来执行。</p><pre><code class="lang-js">/* 深度优先 —— 异步 Promise */
+// 引入依赖模块
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 先序深度优先异步（Promise）删除文件夹
+function rmDirDepPromise(p) {
+  return new Promise((resolve, reject) =&gt; {
+    // 获取传入路径的 Stats 对象
+    fs.stat(p, (err, statObj) =&gt; {
+      // 判断路径下是否为文件夹
+      if (statObj.isDirectory()) {
+        // 是文件夹则查看内部成员
+        fs.readdir(p, (err, dirs) =&gt; {
+          // 将文件夹成员拼接成合法路径的集合
+          dirs = dirs.map(dir =&gt; path.join(p, dir));
+
+          // 将所有的路径都转换成 Promise
+          dirs = dirs.map(dir =&gt; rmDirDepPromise(dir));
+
+          // 数组中路径下所有的 Promise 都执行了 resolve 时，删除上级目录
+          Promise.all(dirs).then(() =&gt; fs.rmdir(p, resolve));
+        });
+      } else {
+        // 是文件则直接删除
+        fs.unlink(p, resolve);
+      }
+    });
+  });
+}
+
+// 调用
+rmDirDepPromise(&#39;a&#39;).then(() =&gt; {
+  console.log(&#39;删除完成&#39;);
+});
+
+// 删除完成
+</code></pre><p>与异步回调函数的方式不同的是在调用 <code>rmDirDepPromise</code> 时直接返回了一个 <code>Promise</code> 实例，而在删除文件成功或在删除文件夹成功时直接调用了 <code>resolve</code>，在一个子文件夹下直接将这些成员通过递归 <code>rmDirDepPromise</code> 都转换为 <code>Promise</code> 实例，则可以用 <code>Promise.all</code> 来监听这些成员删除的状态，如果都成功再调用 <code>Promise.all</code> 的 <code>then</code> 直接删除上一级目录。</p><h3 id="异步-async-await-的实现"><a href="#异步-async-await-的实现" class="headerlink" title="异步 async/await 的实现"></a>异步 async/await 的实现</h3><p><code>Promise</code> 版本相对于异步回调版本从代码的可读性上有所提升，但是实现逻辑还是比较抽象，没有同步代码的可读性好，如果想要 “鱼” 和 “熊掌” 兼得，既要性能又要可读性，可以使用 <code>ES7</code> 标准中的 <code>async/await</code> 来实现，由于 <code>async</code> 函数的返回值为一个 <code>Promise</code> 实例，所以参数只需要传被删除的根文件夹的路径即可。</p><pre><code class="lang-js">/* 深度优先 —— 异步 async/await */
+// 引入依赖模块
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+const { promisify } = require(&#39;util&#39;);
+
+// 将用到 fs 模块的异步方法转换成 Promise
+const stat = promisify(fs.stat);
+const readdir = promisify(fs.readdir);
+const rmdir = promisify(fs.rmdir);
+const unlink = promisify(fs.unlink);
+
+// 先序深度优先异步（async/await）删除文件夹
+async function rmDirDepAsync(p) {
+  // 获取传入路径的 Stats 对象
+  const statObj = await stat(p);
+
+  // 判断路径下是否为文件夹
+  if (statObj.isDirectory()) {
+    // 是文件夹则查看内部成员
+    let dirs = await readdir(p);
+
+    // 将文件夹成员拼接成合法路径的集合
+    dirs = dirs.map(dir =&gt; path.join(p, dir));
+
+    // 循环集合递归 rmDirDepAsync 处理所有的成员
+    dirs = dirs.map(dir =&gt; rmDirDepAsync(dir));
+
+    // 当所有的成员都成功
+    await Promise.all(dirs);
+
+    // 删除该文件夹
+    await rmdir(p);
+  } else {
+    // 是文件则直接删除
+    await unlink(p);
+  }
+}
+
+// 调用
+rmDirDepAsync(&#39;a&#39;).then(() =&gt; {
+  console.log(&#39;删除完成&#39;);
+});
+
+// 删除完成
+</code></pre><p>在递归 <code>rmDirDepAsync</code> 时，所有子文件夹内部的成员必须都删除成功，才删除这个子文件夹，在使用 <code>unlink</code> 删除文件时，必须等待文件删除结束才能让 <code>Promise</code> 执行完成，所以也需要 <code>await</code>，所有递归之前的异步 <code>Promise</code> 都需要在递归内部的异步 <code>Promise</code> 执行完成后才能执行完成，所以涉及到异步的操作都使用了 <code>await</code> 进行等待。</p><h2 id="先序广度优先实现递归删除文件目录"><a href="#先序广度优先实现递归删除文件目录" class="headerlink" title="先序广度优先实现递归删除文件目录"></a>先序广度优先实现递归删除文件目录</h2><blockquote class="pullquote success"><p><strong>广度优先的意思是遍历文件夹目录的时候，先遍历根文件夹，将内部的成员路径一个一个的存入数组中，再继续遍历下一层，再将下一层的路径都存入数组中，直到遍历到最后一层，此时数组中的路径顺序为第一层的路径，第二层的路径，直到最后一层的路径，由于要删除的文件夹必须为空，所以删除时，倒序遍历这个数组取出路径进行文件目录的删除。</strong></p></blockquote><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180702122923/breadth-first-traversal.png" alt="先序广度优先"></div><div class="image-caption">先序广度优先</div></figure><p><br></p><p>在广度优先的实现方式中同样按照同步、异步回调、和 <code>async/await</code> 这几种方式分别来实现，因为在拼接存储路径数组的时候没有异步操作，所以单纯使用 <code>Promise</code> 没有太大的意义。</p><h3 id="同步的实现-1"><a href="#同步的实现-1" class="headerlink" title="同步的实现"></a>同步的实现</h3><p>参数为根文件夹的路径，内部的 <code>fs</code> 方法同样都使用同步方法。</p><pre><code class="lang-js">/* 广度优先 —— 同步 */
+// 引入依赖模块
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 先序广度优先同步删除文件夹
+function rmDirBreSync(p) {
+  let pathArr = [p]; // 创建存储路径的数组，默认存入根路径
+  let index = 0; // 用于存储取出数组成员的索引
+  let current; // 用于存储取出的成员，即路径
+
+  // 如果数组中能找到当前指定索引的项，则执行循环体，并将该项存入 current
+  while ((current = arr[index++])) {
+    // 获取当前从数组中取出的路径的 Stats 对象
+    const statObj = fs.statSync(current);
+
+    // 如果是文件夹，则读取内容
+    if (statObj.isDirectory()) {
+      let dirs = fs.readdirSync(current);
+
+      // 将获取到的成员路径处理为合法路径
+      dirs = dirs.map(dir =&gt; path.join(current, dir));
+
+      // 将原数组的成员路径和处理后的成员路径重新解构在 pathArr 中
+      pathArr = [...pathArr, ...dirs];
+    }
+  }
+
+  // 逆序循环 pathArr
+  for (let i = pathArr.length - 1; i &gt;= 0; i--) {
+    const pathItem = pathArr[i]; // 当前循环项
+    const statObj = fs.statSync(pathItem); // 获取 Stats 对象
+
+    // 如果是文件夹则删除文件夹，是文件则删除文件
+    if (statObj.isDirectory()) {
+      fs.rmdirSync(pathItem);
+    } else {
+      fs.unlinkSync(pathItem);
+    }
+  }
+}
+
+// 调用
+rmDirBreSync(&#39;a&#39;);
+</code></pre><p>通过 <code>while</code> 循环广度遍历，将所有的路径按层级顺序存入 <code>pathArr</code> 数组中，在通过 <code>for</code> 反向遍历数组，对遍历到的路径进行判断并调用对应的删除方法，<code>pathArr</code> 后面的项存储的都是最后一层的路径，从后向前路径的层级逐渐减小，所以反向遍历不会导致删除非空文件夹的操作。</p><h3 id="异步回调的实现-1"><a href="#异步回调的实现-1" class="headerlink" title="异步回调的实现"></a>异步回调的实现</h3><p>函数有两个参数，第一个参数为根文件夹的路径，第二个为 <code>callback</code>，在删除结束后执行。</p><pre><code class="lang-js">/* 广度优先 —— 异步回调 */
+// 引入依赖模块
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// 先序广度优先异步（回调函数）删除文件夹
+function rmDirBreCb(p, callback) {
+  let pathArr = [p]; // 创建存储路径的数组，默认存入根路径
+
+  function next(index) {
+    // 如果已经都处理完，则调用删除的函数
+    if (index === pathArr.length) return remove();
+
+    // 取出数组中的文件路径
+    const current = arr[index];
+
+    // 获取取出路径的 Stats 对象
+    fs.stat(currrent, (err, statObj) =&gt; {
+      // 判断是否是文件夹
+      if (statObj.isDirectory()) {
+        // 是文件夹读取内部成员
+        fs.readdir(current, (err, dirs) =&gt; {
+          // 将数组中成员名称修改为合法路径
+          dirs = dirs.map(dir =&gt; path.join(current, dir));
+
+          // 将原数组的成员路径和处理后的成员路径重新解构在 pathArr 中
+          pathArr = [...pathArr, ...dirs];
+
+          // 递归取出数组的下一项进行检测
+          next(index + 1);
+        });
+      } else {
+        // 如果是文件则直接递归获取数组的下一项进行检测
+        next(index + 1);
+      }
+    });
+  }
+  next(0);
+
+  // 删除的函数
+  function remove() {
+    function next(index) {
+      // 如果全部删除完成，执行回调函数
+      if (index &lt; 0) return callback();
+
+      // 获取数组的最后一项
+      const current = pathArr[index];
+
+      // 获取该路径的 Stats 对象
+      fs.stat(current, (err, statObj) =&gt; {
+        // 不管是文件还是文件夹都直接删除
+        if (statObj.isDirectory()) {
+          fs.rmdir(current, () =&gt; next(index - 1));
+        } else {
+          fs.unlink(current, () =&gt; next(index - 1));
+        }
+      });
+    }
+    next(arr.length - 1);
+  }
+}
+
+// 调用
+rmDirBreCb(&#39;a&#39;, () =&gt; {
+  console.log(&#39;删除完成&#39;);
+});
+
+// 删除完成
+</code></pre><p>在调用 <code>rmDirBreCb</code> 时主要执行两个步骤，第一个步骤是构造存储路径的数组，第二个步骤是逆序删除数组中对应的文件或文件夹，为了保证性能，两个过程都是通过递归 <code>next</code> 函数并维护存储索引的变量来实现的，而非循环。</p><p>在构造数组的过程中如果构造数组完成后，调用的删除函数 <code>remove</code>，在 <code>remove</code> 中在删除完成后，调用的 <code>callback</code>，实现思路是相同的，都是在递归时设置判断条件，如果构造数组或删除结束以后不继续递归，而是直接执行对应的函数并跳出。</p><h3 id="异步-async-await-的实现-1"><a href="#异步-async-await-的实现-1" class="headerlink" title="异步 async/await 的实现"></a>异步 async/await 的实现</h3><p>参数为删除根文件夹的路径，因为 <code>async</code> 最后返回的是 Promise 实例，所以不需要 <code>callback</code>，删除后的逻辑可以通过调用返回 Promise 实例的 <code>then</code> 来实现。</p><pre><code class="lang-js">/* 广度优先 —— 异步 async/await */
+// 引入依赖模块
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+const { promisify } = require(&#39;util&#39;);
+
+// 将用到 fs 模块的异步方法转换成 Promise
+const stat = promisify(fs.stat);
+const readdir = promisify(fs.readdir);
+const rmdir = promisify(fs.rmdir);
+const unlink = promisify(fs.unlink);
+
+// 先序广度优先异步（async/await）删除文件夹
+async function rmDirBreAsync(p) {
+  let pathArr = [p]; // 创建存储路径的数组，默认存入根路径
+  let index = 0; // 去数组中取出路径的索引
+  let delCurrent; // 删除的路径
+
+  // 如果存在该项则继续循环
+  while (index !== pathArr.length) {
+    // 取出当前的路径
+    const current = pathArr[index];
+
+    // 获取 Stats 对象
+    const statObj = await stat(current);
+
+    // 判断是否是文件夹
+    if (statObj.isDirectory()) {
+      // 查看文件夹成员
+      let dirs = await readdir(current);
+
+      // 将路径集合更改为合法路径集合
+      dirs = dirs.map(dir =&gt; path.join(current, dir));
+
+      // 合并存储路径的数组
+      pathArr = [...pathArr, ...dirs];
+    }
+    index++;
+  }
+
+  // 循环取出路径
+  while ((delCurrent = pathArr.pop())) {
+    // 获取 Stats 对象
+    const statObj = await stat(delCurrent);
+
+    // 不管是文件还是文件夹都直接删除
+    if (statObj.isDirectory()) {
+      await rmdir(delCurrent);
+    } else {
+      await unlink(delCurrent);
+    }
+  }
+}
+
+// 调用
+rmDirBreAsync(&#39;a&#39;).then(() =&gt; {
+  console.log(&#39;删除完成&#39;);
+});
+
+// 删除完成
+</code></pre><p>上面的写法都是使用同步的写法，但对文件的操作都是异步的，并使用 <code>await</code> 进行等待，在创建路径集合的数组和倒序删除的过程都是通过 <code>while</code> 循环实现的。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>深度优先和广度优先的两种遍历方式应该是考虑具体场景选择最适合的方式使用，上面这么多实现递归删除文件目录的方法中，重点在于体会深度遍历和广度遍历的不同，其实在类似于递归删除文件目录的这种功能使用深度优先更适合一些。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180702122923/" target="_blank" rel="external">https://www.overtaking.top/20180702122923/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ES6/" rel="tag">ES6</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ES7/" rel="tag">ES7</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Promise/" rel="tag">Promise</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/async-await/" rel="tag">async/await</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fs/" rel="tag">fs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%82%E6%AD%A5/" rel="tag">异步</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180702122923/&title=《Node.js 树结构遍历 —— 深度优先和广度优先》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180702122923/&title=《Node.js 树结构遍历 —— 深度优先和广度优先》 — Shen's Blog&source=树的基本概念树（Tree）是 n 个结点的有限集，n 为 0 时，称为空树，在任意一棵非空树中有且仅有一个特定的被称为根（Root）的结点，当 n 大于 ..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180702122923/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 树结构遍历 —— 深度优先和广度优先》 — Shen's Blog&url=https://www.overtaking.top/20180702122923/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180702122923/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180703231032/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Node.js —— Stream 的基本使用</h4></a></div><div class="waves-block waves-effect next"><a href="/20180630172601/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Node.js 文件操作 —— fs 基本使用</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180702122923/&title=《Node.js 树结构遍历 —— 深度优先和广度优先》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180702122923/&title=《Node.js 树结构遍历 —— 深度优先和广度优先》 — Shen's Blog&source=树的基本概念树（Tree）是 n 个结点的有限集，n 为 0 时，称为空树，在任意一棵非空树中有且仅有一个特定的被称为根（Root）的结点，当 n 大于 ..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180702122923/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js 树结构遍历 —— 深度优先和广度优先》 — Shen's Blog&url=https://www.overtaking.top/20180702122923/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180702122923/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABvUlEQVR42u3aQW7DMAwEwPz/0+4DAru7pqWkxegUoKk1zoEQl3q94nW8rbPvvH//+mmvFQsXF3fMPS7XNfd9y5x4/fzTV8LFxd3ITQpT8rktZ7kBFxf3r3CjDS5LFS4u7n/iXh9uksMKLi7u93MnheZeS7O8V8PFxR1w85Ry3ecl+S4uLu4t7lGu+YxjtDsuLu4Wbl5QkqNJ20q1++Li4n6K27ZA15HHvTNXMWTFxcVdxk3C02cvWEwCFFxc3NXc/J/b0cu93+yXAAUXF3cLdzJYnbxM+wK4uLg7uW2gmdPnZes0EMHFxd3CTdqeJBxp/1rHLri4uBu5ecyRhCA5Ih+f4OLi7uROLmPluPbwdHMkg4uL+yg3iSQS4r0LFu1xChcXdyd3MhR5KnKNXhsXF3cjNyFODiiTaQ8uLu5nue3VivZqV94a1Z0TLi7uQ9yjXG3cmbdMRU6Di4u7mNtGFe1mk8HtKF7BxcUdc9viNWlj2uaqrpS4uLiPcttCk8coS3o1XFzcr+Tea5/mVzdwcXG/mZtvNroddjZKwcXF3cKdXL3Kr1zkP0oxZMXFxV3ArUvJ+NFtCcPFxd3I/QHeeFLBuTqu7AAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

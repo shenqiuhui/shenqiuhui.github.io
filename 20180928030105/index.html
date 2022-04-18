@@ -1,0 +1,363 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>设计模式 JS 表现 —— 装饰器模式 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript,设计模式,结构型模式"><meta name="description" content="前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模拟面向对象）编程的实现相较于其他强类型语言实现更为繁琐，所以代码主要以 JavaScript 表现。"><meta property="og:type" content="article"><meta property="og:title" content="设计模式 JS 表现 —— 装饰器模式"><meta property="og:url" content="https://www.overtaking.top/20180928030105/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模拟面向对象）编程的实现相较于其他强类型语言实现更为繁琐，所以代码主要以 JavaScript 表现。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/DesignPatterns/20180928030105/decorator.jpg"><meta property="og:image" content="https://static.overtaking.top/images/DesignPatterns/20180928030105/decorator-uml.jpg"><meta property="article:published_time" content="2018-09-27T19:01:05.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta property="article:tag" content="设计模式"><meta property="article:tag" content="结构型模式"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/DesignPatterns/20180928030105/decorator.jpg"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">设计模式 JS 表现 —— 装饰器模式</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">设计模式 JS 表现 —— 装饰器模式</h1><h5 class="subtitle"><time datetime="2018-09-27T19:01:05.000Z" itemprop="datePublished" class="page-time">2018-09-28</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#装饰器模式概念"><span class="post-toc-number">2.</span> <span class="post-toc-text">装饰器模式概念</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#装饰器模式和适配器模式"><span class="post-toc-number">3.</span> <span class="post-toc-text">装饰器模式和适配器模式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#装饰器模式和继承"><span class="post-toc-number">4.</span> <span class="post-toc-text">装饰器模式和继承</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#装饰器模式和-AOP-编程"><span class="post-toc-number">5.</span> <span class="post-toc-text">装饰器模式和 AOP 编程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#装饰器模式的应用"><span class="post-toc-number">6.</span> <span class="post-toc-text">装饰器模式的应用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#监控埋点"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">监控埋点</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#表单校验"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">表单校验</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">7.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-DesignPatterns/20180928030105" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">设计模式 JS 表现 —— 装饰器模式</h1><div class="post-meta"><time class="post-time" title="2018-09-28 03:01:05" datetime="2018-09-27T19:01:05.000Z" itemprop="datePublished">2018-09-28</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></li></ul><span id="/20180928030105/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="设计模式 JS 表现 —— 装饰器模式"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/DesignPatterns/20180928030105/decorator.jpg" title="装饰器模式"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote warning"><p><strong>这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 <code>JavaScript</code> 本身是弱类型，面向对象（模拟面向对象）编程的实现相较于其他强类型语言实现更为繁琐，所以代码主要以 <code>JavaScript</code> 表现。</strong></p></blockquote><a id="more"></a><blockquote class="pullquote default"><p><strong>系列文章链接：</strong></p><ul><li><a href="/20180925190503/" target="_blank">设计模式 JS 表现 —— 工厂模式</a></li><li><a href="/20180926201447/" target="_blank">设计模式 JS 表现 —— 单例模式</a></li><li><a href="/20180927230432/" target="_blank">设计模式 JS 表现 —— 适配器模式</a></li><li><a href="/20180929025641/" target="_blank">设计模式 JS 表现 —— 代理模式</a></li><li><a href="/20181001165125/" target="_blank">设计模式 JS 表现 —— 外观模式</a></li><li><a href="/20181004114907/" target="_blank">设计模式 JS 表现 —— 发布/订阅和观察者模式</a></li><li><a href="/20181005161213/" target="_blank">设计模式 JS 表现 —— 状态模式</a></li><li><a href="/20181006014812/" target="_blank">设计模式 JS 表现 —— 策略模式</a></li></ul></blockquote><h2 id="装饰器模式概念"><a href="#装饰器模式概念" class="headerlink" title="装饰器模式概念"></a>装饰器模式概念</h2><p>“装饰器模式” 是结构型模式之一，在不改变原有对象结构的前提下，给对象添加新功能，也可以理解 “装饰器模式” 是将一个对象嵌入另一个对象之中，相当于一个对象被另一个对象包装，包装其他对象的对象被称为 “装饰器”。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/DesignPatterns/20180928030105/decorator-uml.jpg" alt="装饰器模式 UML 图"></div><div class="image-caption">装饰器模式 UML 图</div></figure><p><br></p><h2 id="装饰器模式和适配器模式"><a href="#装饰器模式和适配器模式" class="headerlink" title="装饰器模式和适配器模式"></a>装饰器模式和适配器模式</h2><pre><code class="lang-js">/* 装饰器模式案例 */
+// 类 Duck
+class Duck {
+  constructor(name) {
+    this.name = name;
+  }
+  eat(food) {
+    console.log(this.name + &#39;吃&#39; + food);
+  }
+}
+
+// 装饰器类 TangDuck，装饰 Duck 类
+class TangDuck {
+  constructor(name) {
+    this.duck = new Duck(name);
+  }
+  eat(food) {
+    this.duck.eat(food);
+    console.log(&#39;说谢谢&#39;);
+  }
+}
+
+const tangDuck = new TangDuck(&#39;唐老鸭&#39;);
+tangDuck.eat(&#39;苹果&#39;);
+// 唐老鸭吃苹果
+// 说谢谢
+</code></pre><pre><code class="lang-js">/* 适配器模式案例 */
+// 类 Power
+class Power {
+  charge() {
+    return &#39;220V&#39;;
+  }
+}
+
+// 适配器
+class Adaptor {
+  constructor(Power) {
+    this.power = new Power();
+  }
+  chargeTransform() {
+    return this.power.charge() + &#39; =&gt; 22v&#39;;
+  }
+}
+
+// 类 Power 的使用者
+class Notepad {
+  constructor(Power) {
+    this.adaptor = new Adaptor(Power);
+  }
+  use() {
+    console.log(this.adaptor.chargeTransform());
+  }
+}
+</code></pre><p>上面分别是 “装饰器模式” 和 “适配器模式” 的案例，但直接看代码可能会将两者混淆，原因是 “适配器” 和 “装饰器” 的类都存在了一个被装饰或者适配转换的类的引用，不同的是，“装饰器” 仅仅是对某一个类进行包装，并不会改变原来类的结构，而 “适配器” 的作用更多是去建立一个类和另一个类之间的关系和转换。</p><h2 id="装饰器模式和继承"><a href="#装饰器模式和继承" class="headerlink" title="装饰器模式和继承"></a>装饰器模式和继承</h2><p>通过上一节，我们已经知道了什么是 “装饰器模式”，下面有一个更直观的例子，我们有一个基础类 <code>Coffee</code>，组成是咖啡加水，这个基础上可以加奶、糖、冰，需求是可以组合加入上面的其他原料，并计算出对应的价格，大家可能第一时间想到的是继承的方式实现。</p><pre><code class="lang-js">/* 继承的实现方式 */
+// 水 + 咖啡
+class Coffee {
+  make(water) {
+    return water + &#39; + 咖啡&#39;
+  }
+  cost() {
+    return 10;
+  }
+}
+
+// 水 + 奶 + 咖啡
+class MilkCoffee extends Coffee {
+  constructor() {
+    super();
+  }
+  make(water) {
+    return super.make(water) + &#39; + 奶&#39;;
+  }
+  cost() {
+    return super.cost() + 3;
+  }
+}
+
+// 水 + 糖 + 咖啡
+class SugarCoffee extends Coffee {
+  constructor() {
+    super();
+  }
+  make(water) {
+    return super.make(water) + &#39; + 糖&#39;;
+  }
+  cost() {
+    return super.cost() + 2;
+  }
+}
+
+// 水 + 糖 + 奶 + 咖啡
+class SugarMilkCoffee extends SugarCoffee {
+  constructor() {
+    super();
+  }
+  make(water) {
+    return super.make(water) + &#39; + 奶&#39;;
+  }
+  cost() {
+    return super.cost() + 3;
+  }
+}
+
+// 水 + 奶 + 糖 + 咖啡
+class MilkSugarCoffee extends MilkCoffee {
+  constructor() {
+    super();
+  }
+  make(water) {
+    return super.make(water) + &#39; + 糖&#39;;
+  }
+  cost() {
+    return super.cost() + 2;
+  }
+}
+</code></pre><p>从继承的代码看，虽然可以实现给咖啡任意加入其他原料，但是每一种不同的排列组合都需要单独创建类，当原料种类众多时，则难以管理代码，下面是 “装饰器模式” 的实现。</p><pre><code class="lang-js">/* 装饰器模式的实现方式 */
+class Coffee {
+  make(water) {
+    return water + &#39; + 咖啡&#39;;
+  }
+  cost() {
+    return 10;
+  }
+}
+
+class MilkCoffee {
+  constructor(parent) {
+    this.parent = parent;
+  }
+  make(water) {
+    return this.parent.make(water) + &#39; + 奶&#39;;
+  }
+  cost() {
+    return this.parent.cost() + 3;
+  }
+}
+
+class SugarCoffee {
+  constructor(parent) {
+    this.parent = parent;
+  }
+  make(water) {
+    return this.parent.make(water) + &#39; + 糖&#39;;
+  }
+  cost() {
+    return this.parent.cost() + 2;
+  }
+}
+
+class IceCoffee {
+  constructor(parent) {
+    this.parent = parent;
+  }
+  make(water) {
+    return this.parent.make(water) + &#39; + 冰&#39;;
+  }
+  cost() {
+    return this.parent.cost() + 1;
+  }
+}
+
+const coffee = new Coffee();
+const milkCoffee = new MilkCoffee(coffee);
+const sugarCoffee = new SugarCoffee(milkCoffee);
+const iceCoffee = new IceCoffee(sugarCoffee);
+
+console.log(milkCoffee.make(&#39;水&#39;), milkCoffee.cost());
+console.log(sugarCoffee.make(&#39;水&#39;), sugarCoffee.cost());
+console.log(iceCoffee.make(&#39;水&#39;), iceCoffee.cost());
+
+// 水 + 咖啡 + 奶 13
+// 水 + 咖啡 + 奶 + 糖 15
+// 水 + 咖啡 + 奶 + 冰 16
+</code></pre><p>从 “装饰器模式” 的实现代码来看，我们只需要创建和原料相同多的类就可以了，其他的方式加料只需要对上一个类进行包装即可，部分加料的顺序，当类的种类越多时，“装饰器” 的意义则体现的越明显。</p><blockquote class="pullquote info"><p><strong>装饰器模式有时候会优于继承，尤其是很多的类通过继承存在排列组合的关系时，则使用 “装饰器模式” 可以更好更高效的解决问题。</strong></p></blockquote><h2 id="装饰器模式和-AOP-编程"><a href="#装饰器模式和-AOP-编程" class="headerlink" title="装饰器模式和 AOP 编程"></a>装饰器模式和 AOP 编程</h2><p>在软件业，<code>AOP</code> 为 <code>Aspect Oriented Programming</code> 的缩写，意为面向切面编程，通过预编译方式和运行其动态代理实现程序功能统一维护的一种技术。</p><p>在 <code>JavaScript</code> 中的 <code>AOP</code> 就是在函数之前或之后添加一些额外的逻辑，而不需要修改函数本身逻辑。</p><pre><code class="lang-js">/* AOP 编程的案例 */
+// 给函数扩展 before 方法
+Function.prototype.before = function (beforeFn) {
+  let _this = this;
+  return function () {
+    beforeFn.apply(this, arguments);
+    _this.apply(this, arguments);
+  }
+}
+
+// 给函数扩展 after 方法
+Function.prototype.after = function (afterFn) {
+  let _this = this;
+  return function () {
+    _this.apply(this, arguments);
+    afterFn.apply(this, arguments);
+  }
+}
+
+// 原函数
+function buy(money, goods) {
+  console.log(&#39;花&#39; + money + &#39;元钱买&#39; + goods);
+}
+
+// 使用 before 方法给函数增加前切面
+buy = buy.before(function () {
+  console.log(&#39;向媳妇要1元钱&#39;);
+});
+
+// 使用 before 方法给函数增加后切面
+buy = buy.after(function () {
+  console.log(&#39;还给媳妇0.2元钱&#39;);
+})
+
+buy(0.8, &#39;盐&#39;);
+// 向媳妇要1元钱
+// 花0.8元钱买盐
+// 还给媳妇0.2元钱
+</code></pre><blockquote class="pullquote default"><p><strong><code>AOP</code> 编程是由 “装饰器模式” 进化而来，或者说 “装饰器模式” 属于 <code>AOP</code> 编程的一种。</strong></p></blockquote><h2 id="装饰器模式的应用"><a href="#装饰器模式的应用" class="headerlink" title="装饰器模式的应用"></a>装饰器模式的应用</h2><h3 id="监控埋点"><a href="#监控埋点" class="headerlink" title="监控埋点"></a>监控埋点</h3><p>埋点分析，是网站分析的一种常用的数据采集方法，埋点主要分为服务器层面的埋点和客户端层面的埋点，服务器层面的埋点主要是通过客户端的请求进行分析，客户端层面的埋点分为代码埋点、自动化埋点，第三方埋点（百度、友盟等）。</p><pre><code class="lang-html">&lt;!-- 一个埋点的简单案例 --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;埋点&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;button data-name=&quot;wetermelon&quot; id=&quot;wetermelon&quot;&gt;西瓜&lt;/button&gt;
+  &lt;button data-name=&quot;apple&quot; id=&quot;apple&quot;&gt;苹果&lt;/button&gt;
+  &lt;script&gt;
+    const wetermelon = document.getElementById(&#39;wetermelon&#39;);
+    const apple = document.getElementById(&#39;apple&#39;);
+
+    // 添加切面
+    Function.prototype.after = function (afterFn) {
+      let _this = this;
+      return function () {
+        _this.apply(this, arguments);
+        afterFn.apply(this, arguments);
+      }
+    }
+
+    // 事件处理函数
+    function click() {
+      console.log(&#39;你点击了&#39; + this.dataset.name);
+    }
+
+    click = click.after(function () {
+      // 向服务器发送统计数据
+      const img = new Image();
+      img.src = &#39;http://localhost:3000/report?name=&#39; + this.dataset.name;
+    });
+
+    // 给所有的
+    Array.from(document.querySelectorAll(&#39;button&#39;)).forEach(button =&gt; {
+      button.addEventListener(&#39;click&#39;, click);
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><pre><code class="lang-js">/* 负责统计点击次数的服务 */
+const express = require(&#39;express&#39;);
+const app = express();
+
+// 存储按钮的点击次数
+const goods = {};
+
+app.get(&#39;/report&#39;, function (req, res) {
+  const name = req.query.name;
+  if (goods[name]) {
+    goods[name]++;
+  } else {
+    goods[name] = 1;
+  }
+
+  res.json(goods);
+});
+
+app.listen(3000, function () {
+  console.log(&#39;server start 3000&#39;);
+});
+</code></pre><p>上面的埋点就是通过 <code>AOP</code> 的方式在点击事件后添加了切面，用来向服务器发送请求，符合 “单一职责原则”，可以使点击事件和埋点逻辑进行 “解耦”，服务器在接收到请求之后立即对点击次数进行统计并储存，也可以通过调用 <code>report</code> 接口来获取当前各个按钮的点击次数。</p><h3 id="表单校验"><a href="#表单校验" class="headerlink" title="表单校验"></a>表单校验</h3><p>“装饰器模式” 的思想同样可以用在表单校验，通常表单校验逻辑是在 <code>submit</code> 事件触发时提交之前发生的，我们经常会将校验逻辑和提交逻辑写在一起，形成 “强耦合”，下面我们使用 <code>AOP</code> 的方式来实现表单校验，对校验逻辑和提交逻辑进行 “解耦”。</p><pre><code class="lang-html">&lt;!-- 应用于表单校验 --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;表单校验&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  用户名：&lt;input type=&quot;text&quot; id=&quot;username&quot;&gt;
+  密码：&lt;input type=&quot;text&quot; id=&quot;password&quot;&gt;
+  &lt;button id=&quot;submit-btn&quot;&gt;提交&lt;/button&gt;
+  &lt;script&gt;
+    const submitBtn = document.getElementById(&#39;submit-btn&#39;);
+
+    // 添加切面函数
+    Function.prototype.before = function (beforeFn) {
+      let _this = this;
+      return function () {
+        let result = beforeFn.apply(this, arguments);
+        result &amp;&amp; _this.apply(this, arguments);
+      }
+    }
+
+    // 表单提交事件
+    function submit() {
+      console.log(&#39;提交表单&#39;);
+    }
+
+    // 验证用户名
+    submit = submit.before(function () {
+      const username = document.getElementById(&#39;username&#39;).value;
+      if (!username) {
+        return alert(&#39;请输入用户名&#39;);
+      }
+      return true;
+    });
+
+    // 验证
+    submit = submit.before(function () {
+      const password = document.getElementById(&#39;password&#39;).value;
+      if (!password) {
+        return alert(&#39;请输入密码&#39;);
+      }
+      return true;
+    });
+
+    submitBtn.addEventListener(&#39;click&#39;, submit);
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>在 <code>JavaScript</code> 中 “装饰器模式” 和 <code>AOP</code> 编程非常相似，应用也非常多，如 <code>axios</code> 中对请求、响应的拦截方法，<code>Koa</code> 中间件，都包含这样的编程思想，而在 <code>ES6</code> 之后 <code>JavaScript</code> 已经支持了原生的 “装饰器” 语法，使用起来更方便，最后附上</strong> <a href="https://github.com/shenqiuhui/design-pattern-js/tree/master/5.decorator" target="_blank">案例地址</a><strong>。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180928030105/" target="_blank" rel="external">https://www.overtaking.top/20180928030105/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180928030105/&title=《设计模式 JS 表现 —— 装饰器模式》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180928030105/&title=《设计模式 JS 表现 —— 装饰器模式》 — Shen's Blog&source=前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180928030105/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《设计模式 JS 表现 —— 装饰器模式》 — Shen's Blog&url=https://www.overtaking.top/20180928030105/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180928030105/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180929025641/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">设计模式 JS 表现 —— 代理模式</h4></a></div><div class="waves-block waves-effect next"><a href="/20180927230432/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">设计模式 JS 表现 —— 适配器模式</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180928030105/&title=《设计模式 JS 表现 —— 装饰器模式》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180928030105/&title=《设计模式 JS 表现 —— 装饰器模式》 — Shen's Blog&source=前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180928030105/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《设计模式 JS 表现 —— 装饰器模式》 — Shen's Blog&url=https://www.overtaking.top/20180928030105/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180928030105/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABxElEQVR42u3aQW4DIRAEQP//084DEme7h4WsouJk2QgXF8T08HrF4/3r+D4nX/O1Y+Di4i5zc8rvrHYDn2Z+MuDi4p7ntsslG/60fjLn4/e4uLiP5LZHDy4u7v/mtoj86oOLi/tMbht5tJ/zDdxWq+Hi4i5w23Bzx+ct+S4uLu6I+14YswMuP7x++EdcXNwj3PbQySPUvHyqSyNcXNyD3JW4c/ZGYtigxcXF/VNucmzNGqvJRacogXBxcW/lzoKM5LiZHVsXv+Li4h7hrjzAmjVWk8P0Yj4uLu5mbrvEShu1fdJxEZXi4uJu4xaTRg+tirAjb8Hi4uIe4eYtz1mYsnJ5Gj7cxMXFXea2hcrsOdfK869pWYeLizvhts+kZpHorMlaR6W4uLg3cduSI7++5Feidg4uLu5ubttkzaOTPE4tiihcXNwj3HvDi+GVJd4MLi7uGe67HLOMImcV+Q0uLu42bhtlrjzVaouuJTQuLu4yNy9F2qNn9kQDFxf3Odz1eDT5y5trNVxc3Adw20CkDUyjLeHi4j6MOwtT8sZt1LDBxcU9yM2Ln7y5srLCRZMVFxd3MzcPTPPl2lZKfsDh4uJu5n4B5Dpsw6b13w0AAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

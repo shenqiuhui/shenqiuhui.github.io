@@ -1,0 +1,196 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>JavaScript 基础 —— call、apply 和 bind 的原理 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript"><meta name="description" content="call 和 applycall 和 apply 是 Function 构造函数原型对象上的方法，所有的函数都可以调用 call 和 apply，作用是可以改变调用 call 和 apply 函数内部的 this 指向，并执行函数。call 的使用方法&#x2F;* 不指定 this *&#x2F; function fn() {   console.log(this, arguments); }  fn.call("><meta property="og:type" content="article"><meta property="og:title" content="JavaScript 基础 —— call、apply 和 bind 的原理"><meta property="og:url" content="https://www.overtaking.top/20170524162030/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="call 和 applycall 和 apply 是 Function 构造函数原型对象上的方法，所有的函数都可以调用 call 和 apply，作用是可以改变调用 call 和 apply 函数内部的 this 指向，并执行函数。call 的使用方法&#x2F;* 不指定 this *&#x2F; function fn() {   console.log(this, arguments); }  fn.call("><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/JavaScript/20170524162030/call-apply-bind.jpg"><meta property="article:published_time" content="2017-05-24T08:20:30.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/JavaScript/20170524162030/call-apply-bind.jpg"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">JavaScript 基础 —— call、apply 和 bind 的原理</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">JavaScript 基础 —— call、apply 和 bind 的原理</h1><h5 class="subtitle"><time datetime="2017-05-24T08:20:30.000Z" itemprop="datePublished" class="page-time">2017-05-24</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/JavaScript/">JavaScript</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#call-和-apply"><span class="post-toc-number">1.</span> <span class="post-toc-text">call 和 apply</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#call-的使用方法"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">call 的使用方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#call-的实现原理"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">call 的实现原理</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#apply-的使用方法"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">apply 的使用方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#apply-的实现原理"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">apply 的实现原理</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#bind"><span class="post-toc-number">2.</span> <span class="post-toc-text">bind</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#bind-的使用方法"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">bind 的使用方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#bind-的原理"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">bind 的原理</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#最后"><span class="post-toc-number">3.</span> <span class="post-toc-text">最后</span></a></li></ol></nav></aside><article id="post-JavaScript/20170524162030" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">JavaScript 基础 —— call、apply 和 bind 的原理</h1><div class="post-meta"><time class="post-time" title="2017-05-24 16:20:30" datetime="2017-05-24T08:20:30.000Z" itemprop="datePublished">2017-05-24</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/JavaScript/">JavaScript</a></li></ul><span id="/20170524162030/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="JavaScript 基础 —— call、apply 和 bind 的原理"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/JavaScript/20170524162030/call-apply-bind.jpg" title="call、apply 和 bind 的原理"><p><br></p><h2 id="call-和-apply"><a href="#call-和-apply" class="headerlink" title="call 和 apply"></a>call 和 apply</h2><p><code>call</code> 和 <code>apply</code> 是 <code>Function</code> 构造函数原型对象上的方法，所有的函数都可以调用 <code>call</code> 和 <code>apply</code>，作用是可以改变调用 <code>call</code> 和 <code>apply</code> 函数内部的 <code>this</code> 指向，并执行函数。</p><h3 id="call-的使用方法"><a href="#call-的使用方法" class="headerlink" title="call 的使用方法"></a>call 的使用方法</h3><pre><code class="lang-js">/* 不指定 this */
+function fn() {
+  console.log(this, arguments);
+}
+
+fn.call();
+
+// Window {postMessage: ƒ, blur: ƒ, focus: ƒ, close: ƒ, parent: Window, …}
+// Arguments [callee: ƒ, Symbol(Symbol.iterator): ƒ]
+</code></pre><p>不指定替换的 <code>this</code>，则调用 <code>call</code> 的函数在运行时决定 <code>this</code> 指向，当前案例中在浏览器中运行，则指向 <code>window</code> 对象。</p><pre><code class="lang-js">/* 一次调用 call */
+function fn() {
+  console.log(this, arguments);
+}
+
+fn.call(&#39;hello&#39;, &#39;1&#39;, &#39;2&#39;);
+
+// String { &quot;hello&quot; }
+// Arguments(2) [&quot;1&quot;, &quot;2&quot;, callee: ƒ, Symbol(Symbol.iterator): ƒ]
+</code></pre><p>在上面案例中，<code>call</code> 将 <code>fn</code> 内部的 <code>this</code> 更改为 <code>hello</code> 的基本包装类（对象），而 <code>1</code> 和 <code>2</code> 作为 <code>fn</code> 的参数，以 <code>arguments</code> 的形式被打印出来。</p><pre><code class="lang-js">/* 多次调用 call */
+function fn1() {
+  console.log(this, arguments);
+}
+
+function fn2() {
+  console.log(this, arguments);
+}
+
+fn1.call.call(fn2, &#39;1&#39;, &#39;2&#39;);
+
+// String { &quot;1&quot; }
+// Arguments [&quot;2&quot;, callee: ƒ, Symbol(Symbol.iterator): ƒ]
+</code></pre><p>由于 <code>call</code> 是函数原型的方法，当然也可以被 <code>call</code> 自己调用，在上面的案例中，第一个 <code>call</code> 内部的 <code>this</code> 为调用者 <code>fn1</code>，通过第二个 <code>call</code> 将第一个 <code>call</code> 内部的 <code>this</code> 由 <code>fn1</code> 更改为 <code>fn2</code>，<code>1</code> 和 <code>2</code> 作为参数传递给第一个 <code>call</code>，而 <code>1</code> 又作为第一个 <code>call</code> 内部 <code>this</code> 指向的 <code>fn2</code> 内部的 <code>this</code>，<code>2</code> 作为 <code>fn2</code> 的参数，最后执行 <code>fn2</code>，固有上面执行结果。</p><h3 id="call-的实现原理"><a href="#call-的实现原理" class="headerlink" title="call 的实现原理"></a>call 的实现原理</h3><p>根据 <code>call</code> 方法的特点，来模拟实现一个自己封装的 <code>call</code> 方法，代码如下。</p><pre><code class="lang-js">/* call 的实现原理 */
+// context 参数为要替换的 this
+Function.prototype.call = function (context) {
+  // 将传入的 this 转换成对象，若没传则使用 window 作为 this
+  context = context ? Object(context) : window;
+
+  // 将调用 call 的函数作为属性赋值给传入的 this
+  context.fn = this;
+
+  var args = [];
+
+  // 将传递给调用 call 函数的参数转化成字符串取值的形式
+  for (var i = 1; i &lt; arguments.length; i++) {
+    // args [&#39;arguments[1]&#39;, &#39;arguments[2]&#39;]
+    args.push(&#39;arguments[&#39; + i + &#39;]&#39;);
+  }
+
+  // 利用 eval 执行 context.fn，并利用数组转换字符串的 toString 去掉 [ ]
+  var result = eval(&#39;context.fn(&#39; + args + &#39;)&#39;);
+
+  // 删除 context 上多余的 fn 属性
+  delete context.fn;
+
+  return result;
+}
+</code></pre><blockquote class="pullquote info"><p><strong>上面的实现方式重点解决两个问题：</strong></p><ul><li><strong>如何让调用 <code>call</code> 函数内部的 <code>this</code> 指向传入的 <code>this</code>，我们通过将传入 <code>this</code> 上加一个属性 <code>fn</code>，值为调用 <code>call</code> 的函数，在执行函数时并不直接调用 <code>this</code>，而是执行 <code>context.fn</code>，这样内部的 <code>this</code> 指向了调用者 <code>context</code>，即指向了传入要替换的 <code>this</code>；</strong></li><li><strong>如何将 <code>call</code> 调用时除第一个参数以外的参数列表作为调用 <code>call</code> 函数的参数依次传入，我们这里借用了 <code>eval</code> 提供执行环境，将要执行的代码拼接成字符串，这样就可以容易的将 <code>argument</code> 第二项后面的所有项通过循环的方式拼接。</strong></li></ul></blockquote><blockquote class="pullquote danger"><p><strong>给 <code>context</code> 添加的多余属性 <code>fn</code>，要在函数 <code>context.fn</code> 执行后删除。</strong></p></blockquote><h3 id="apply-的使用方法"><a href="#apply-的使用方法" class="headerlink" title="apply 的使用方法"></a>apply 的使用方法</h3><p><code>apply</code> 与 <code>call</code> 的作用相同，基本用法如下。</p><pre><code class="lang-js">/* apply 用法 */
+function fn() {
+  console.log(this, arguments);
+}
+
+fn.apply(&#39;hello&#39;, [&#39;1&#39;, &#39;2&#39;]);
+
+// String { &quot;hello&quot; }
+// Arguments(2) [&quot;1&quot;, &quot;2&quot;, callee: ƒ, Symbol(Symbol.iterator): ƒ]
+</code></pre><h3 id="apply-的实现原理"><a href="#apply-的实现原理" class="headerlink" title="apply 的实现原理"></a>apply 的实现原理</h3><p>通过用法可以看出 <code>apply</code> 与 <code>call</code> 唯一不同的就是传参方式，<code>call</code> 传递给调用它的函数传参靠调用时使用参数列表的方式依次传入，而 <code>apply</code> 是通过数组的方式传入，只需要将 <code>call</code> 的代码稍加改造就可以实现 <code>apply</code>。</p><pre><code class="lang-js">/* apply 的实现原理 */
+// context 参数为要替换的 this，args 为调用 apply 函数执行的参数
+Function.prototype.apply = function (context, args) {
+  context = context ? Object(context) : window;
+  context.fn = this;
+  var result;
+
+  // 判断是否传入参数列表，如果没传则直接执行
+  if (!args) {
+    result = context.fn();
+  } else {
+    result = eval(&#39;context.fn(&#39; + args + &#39;)&#39;);
+  }
+
+  delete context.fn;
+
+  return result;
+}
+</code></pre><h2 id="bind"><a href="#bind" class="headerlink" title="bind"></a>bind</h2><h3 id="bind-的使用方法"><a href="#bind-的使用方法" class="headerlink" title="bind 的使用方法"></a>bind 的使用方法</h3><p><code>bind</code> 函数是 <code>Function</code> 原型对象上的方法，<code>bind</code> 的作用是可以将调用它的函数内部的 <code>this</code> 绑定成所指定的 <code>this</code>，第一个参数为指定的 <code>this</code>，与 <code>call</code> 和 <code>apply</code> 不同的是，调用 <code>bind</code> 的函数并不会执行，而是返回一个新的函数，新的函数调用时传入的参数会和 <code>bind</code> 调用时传入的除第一个以外的参数进行合并，并作为调用 <code>bind</code> 的函数执行的参数，下面是 <code>bind</code> 的基本用法。</p><pre><code class="lang-js">/* 返回的函数当做普通函数调用 */
+var obj = {
+  name: &#39;Shen&#39;
+};
+
+function sayName() {
+  console.log(this.name);
+}
+
+var bindFn = sayName.bind(obj);
+bindFn();
+// Shen
+</code></pre><pre><code class="lang-js">/* 调用 bind 和执行返回函数分开传参 */
+var obj = {
+  name: &#39;Shen&#39;
+};
+
+function animal(name, age) {
+  console.log(this.name + &#39; have a &#39; + name + &#39; is &#39; + age + &#39; years old.&#39;);
+}
+
+var bindFn = animal.bind(null, &#39;cat&#39;);
+bindFn(2);
+// Shen have a cat is 2 years old.
+</code></pre><pre><code class="lang-js">/* 返回的函数当做构造函数执行 */
+var obj = {
+  name: &#39;Shen&#39;
+};
+
+function Animal(name, age) {
+  this.name = name;
+  this.age = age;
+}
+
+// 动物类别为哺乳类
+Animal.prototype.category = &#39;mammalia&#39;;
+
+var BindFn = Animal.bind(obj, &#39;cat&#39;);
+var cat = new BindFn(2);
+
+console.log(cat); // Animal {name: &quot;cat&quot;, age: 2}
+console.log(cat.category); // mammalia
+</code></pre><h3 id="bind-的原理"><a href="#bind-的原理" class="headerlink" title="bind 的原理"></a>bind 的原理</h3><p>从上面的例子已经可以看出 <code>bind</code> 不但能绑定 <code>this</code>，收集参数，返回的函数既可以直接调用，又可以作为构造函数实例化对象，而实例化的对象的方式，<code>bind</code> 绑定的 <code>this</code> 不生效，<code>this</code> 指向被创建的实例，实例依然可以找到原来函数原型上的属性和方法，根据 <code>bind</code> 的特性，模拟实现的代码如下。</p><pre><code class="lang-js">/* bind 的实现原理 */
+// context 参数为要绑定的 this
+Function.prototype.bind = function (context) {
+  // this 为调用 bind 的函数
+  var self = this;
+
+  // 收集除了 context 以外所有的参数
+  var bindArgs = Array.prototype.slice.call(arguments, 1);
+
+  // 返回的新函数 fBound
+  function fBound() {
+    // 收集 fBound 的参数
+    var args = Array.prototype.slice.call(arguments);
+
+    // 执行调用 bind 的函数
+    // 若是普通函数调用，this 为 context，若是作为构造函数则 this 为实例
+    self.apply(this instanceof fBound ? this : context, bindArgs.concat(args));
+  }
+
+  // 用来继承的中间函数
+  function fNOP() {}
+
+  // 作为构造函数调用 fBound 时，为了实例可以找到调用 bind 函数的原型对象，进行继承
+  if (this.prototype) {
+    // Function.prototype 为函数，可以调用 bind，当时没有原型对象，所以要判断
+    fNOP.prototype = this.prototype;
+    fBound.prototype = new fNOP();
+  }
+
+  return fBound;
+}
+</code></pre><blockquote class="pullquote warning"><p><strong>在上面代码中，如果调用 <code>bind</code> 返回函数作为构造函数使用，则需要通过继承找回原函数的属性和方法，但是有一个特例，就是 <code>Function.prototype</code>，类型为函数，却没有 <code>prototype</code> 属性，所以需要判断。</strong></p></blockquote><h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><blockquote class="pullquote success"><p><strong>上面就是 <code>call</code>、<code>apply</code> 和 <code>bind</code> 的基本用法、实现原理以及区别，希望读者可以通过这篇文章加深对 <code>call</code>、<code>apply</code> 和 <code>bind</code> 的印象，运用自如。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20170524162030/" target="_blank" rel="external">https://www.overtaking.top/20170524162030/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20170524162030/&title=《JavaScript 基础 —— call、apply 和 bind 的原理》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20170524162030/&title=《JavaScript 基础 —— call、apply 和 bind 的原理》 — Shen's Blog&source=" data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20170524162030/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《JavaScript 基础 —— call、apply 和 bind 的原理》 — Shen's Blog&url=https://www.overtaking.top/20170524162030/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20170524162030/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20170612130942/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">前端优化 —— 函数的节流和防抖</h4></a></div><div class="waves-block waves-effect next"><a href="/20170522115959/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">JavaScript 基础 —— new 的实现原理</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20170524162030/&title=《JavaScript 基础 —— call、apply 和 bind 的原理》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20170524162030/&title=《JavaScript 基础 —— call、apply 和 bind 的原理》 — Shen's Blog&source=" data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20170524162030/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《JavaScript 基础 —— call、apply 和 bind 的原理》 — Shen's Blog&url=https://www.overtaking.top/20170524162030/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20170524162030/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAAByklEQVR42u3awYqFMAxGYd//pR24qxlEPX/T5nbgdCVV9HMT0iTHgdf5Wdfr3zvXZ65PkrsTlly5csvc83HdETn07u7z/u0vyZUrt5FLghd5HaGQ4Hi7L1eu3M24zykOD3lpoJQrV+7O3LHEhSdGcuXK3Y1LAg0vdlTKKNPOanLlyi1wKwXTWddN9V25cuWWuxKV4iY5IMVflytXbguXvJrvp+VUfrh6QciVK3cql4cbkqzw8Ys0k5ErV+4OXN4sqYxZkIPWnx25cuU2ctODCi+ajDVlXwKZXLlyW7hkPGKMPnnMS65cuS3cuWlKaaiCH5nkypW7mEtSHA4K2iG4oStXrtx+bjomRdonlVYNCohy5cpdzCWlzyDE4JbMYIlWrly5jVxevjwKqzIhIleu3E4uL1/WyyKc+/ItuXLlLuby5CM9/PCCS/AeuXLlNnJ5GEpbLyR9CRIjuXLlNnL5qgS49D0Hiaxy5cpdwE0DSjq0EZdE8V25cuWu5s4qi/BAORYQ5cqV28+tNErTZyYMZsmVK3cbbnpoSQum6OflypX7b7lpcSQYyJArV24jd6xpSn6YBztyLVeu3B5uWjCtNF/54UquXLlf4v4AZpklC8fpMpoAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

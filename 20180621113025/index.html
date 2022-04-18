@@ -1,0 +1,823 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Canvas + WebSocket + Redis 实现一个视频弹幕 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript,HTML,CSS,Canvas,WebSocket,Redis"><meta name="description" content="页面布局首先，我们需要实现页面布局，在根目录创建 index.html 布局中需要有一个 video 多媒体标签引入本地视频，添加输入弹幕的输入框、确认发送的按钮、颜色选择器、字体大小滑动条，创建一个 style.css 来调整页面布局的样式，顺便创建一个 index.js 文件用于后续实现核心逻辑，先引入到页面当中。"><meta property="og:type" content="article"><meta property="og:title" content="Canvas + WebSocket + Redis 实现一个视频弹幕"><meta property="og:url" content="https://www.overtaking.top/20180621113025/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="页面布局首先，我们需要实现页面布局，在根目录创建 index.html 布局中需要有一个 video 多媒体标签引入本地视频，添加输入弹幕的输入框、确认发送的按钮、颜色选择器、字体大小滑动条，创建一个 style.css 来调整页面布局的样式，顺便创建一个 index.js 文件用于后续实现核心逻辑，先引入到页面当中。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/JavaScript/20180621113025/barrage.png"><meta property="og:image" content="https://static.overtaking.top/images/JavaScript/20180621113025/barrage-html.png"><meta property="article:published_time" content="2018-06-21T03:30:25.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta property="article:tag" content="HTML"><meta property="article:tag" content="CSS"><meta property="article:tag" content="Canvas"><meta property="article:tag" content="WebSocket"><meta property="article:tag" content="Redis"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/JavaScript/20180621113025/barrage.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Canvas + WebSocket + Redis 实现一个视频弹幕</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Canvas + WebSocket + Redis 实现一个视频弹幕</h1><h5 class="subtitle"><time datetime="2018-06-21T03:30:25.000Z" itemprop="datePublished" class="page-time">2018-06-21</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/JavaScript/">JavaScript</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#页面布局"><span class="post-toc-number">1.</span> <span class="post-toc-text">页面布局</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#定义接口，构造假数据"><span class="post-toc-number">2.</span> <span class="post-toc-text">定义接口，构造假数据</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现前端弹幕的逻辑"><span class="post-toc-number">3.</span> <span class="post-toc-text">实现前端弹幕的逻辑</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建弹幕功能的类及基本参数处理"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">创建弹幕功能的类及基本参数处理</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建构造每一条弹幕的类"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">创建构造每一条弹幕的类</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#在-CanvasBarrage-类实现渲染所有弹幕的-render-方法"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">在 CanvasBarrage 类实现渲染所有弹幕的 render 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#CanvasBarrage-类-render-内部-renderBarrage-的实现"><span class="post-toc-number">3.4.</span> <span class="post-toc-text">CanvasBarrage 类 render 内部 renderBarrage 的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Barrage-类-init-的实现"><span class="post-toc-number">3.5.</span> <span class="post-toc-text">Barrage 类 init 的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实现每条弹幕的渲染和弹幕移除屏幕的处理"><span class="post-toc-number">3.6.</span> <span class="post-toc-text">实现每条弹幕的渲染和弹幕移除屏幕的处理</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Barrage-类下的-render-方法的实现"><span class="post-toc-number">3.7.</span> <span class="post-toc-text">Barrage 类下的 render 方法的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实现播放、暂停事件"><span class="post-toc-number">3.8.</span> <span class="post-toc-text">实现播放、暂停事件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实现发送弹幕事件"><span class="post-toc-number">3.9.</span> <span class="post-toc-text">实现发送弹幕事件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#拖动进度条实现弹幕的前进和后退"><span class="post-toc-number">3.10.</span> <span class="post-toc-text">拖动进度条实现弹幕的前进和后退</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用-WebSocket-和-Redis-实现前后端通信及数据存储"><span class="post-toc-number">4.</span> <span class="post-toc-text">使用 WebSocket 和 Redis 实现前后端通信及数据存储</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#服务器代码的实现"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">服务器代码的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#前端代码的修改"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">前端代码的修改</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实现多端通信、弹幕共享"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">实现多端通信、弹幕共享</span></a></li></ol></li></ol></nav></aside><article id="post-JavaScript/20180621113025" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Canvas + WebSocket + Redis 实现一个视频弹幕</h1><div class="post-meta"><time class="post-time" title="2018-06-21 11:30:25" datetime="2018-06-21T03:30:25.000Z" itemprop="datePublished">2018-06-21</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/JavaScript/">JavaScript</a></li></ul><span id="/20180621113025/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Canvas + WebSocket + Redis 实现一个视频弹幕"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/JavaScript/20180621113025/barrage.png" title="弹幕"><p><br></p><h2 id="页面布局"><a href="#页面布局" class="headerlink" title="页面布局"></a>页面布局</h2><blockquote class="pullquote info"><p><strong>首先，我们需要实现页面布局，在根目录创建 <code>index.html</code> 布局中需要有一个 <code>video</code> 多媒体标签引入本地视频，添加输入弹幕的输入框、确认发送的按钮、颜色选择器、字体大小滑动条，创建一个 <code>style.css</code> 来调整页面布局的样式，顺便创建一个 <code>index.js</code> 文件用于后续实现核心逻辑，先引入到页面当中。</strong></p></blockquote><a id="more"></a><p><strong>HTML 布局代码如下：</strong></p><pre><code class="lang-html">&lt;!-- 文件：index.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
+  &lt;title&gt;视频弹幕&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id=&quot;cantainer&quot;&gt;
+    &lt;h2&gt;Canvas + WebSocket + Redis 实现视频弹幕&lt;/h2&gt;
+    &lt;div id=&quot;content&quot;&gt;
+        &lt;canvas id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
+        &lt;video id=&quot;video&quot; src=&quot;./barrage.mp4&quot; controls&gt;&lt;/video&gt;
+    &lt;/div&gt;
+    &lt;!-- 输入弹幕内容 --&gt;
+    &lt;input type=&quot;text&quot; id=&quot;text&quot;&gt;
+    &lt;!-- 添加弹幕按钮 --&gt;
+    &lt;button id=&quot;add&quot;&gt;发送&lt;/button&gt;
+    &lt;!-- 选择文字颜色 --&gt;
+    &lt;input type=&quot;color&quot; id=&quot;color&quot;&gt;
+    &lt;!-- 调整字体大小 --&gt;
+    &lt;input type=&quot;range&quot; max=&quot;40&quot; min=&quot;20&quot; id=&quot;range&quot;&gt;
+  &lt;/div&gt;
+  &lt;script src=&quot;./index.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p><strong>CSS 样式代码如下：</strong></p><pre><code class="lang-css">/* 文件：style.css */
+#cantainer {
+  text-align: center;
+}
+#content {
+  width: 640px;
+  margin: 0 auto;
+  position: relative;
+}
+#canvas {
+  position: absolute;
+}
+video {
+  width: 640px;
+  height: 360px;
+}
+input {
+  vertical-align: middle;
+}
+</code></pre><p><strong>布局效果如下图：</strong></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/JavaScript/20180621113025/barrage-html.png" alt="弹幕布局"></div><div class="image-caption">弹幕布局</div></figure><h2 id="定义接口，构造假数据"><a href="#定义接口，构造假数据" class="headerlink" title="定义接口，构造假数据"></a>定义接口，构造假数据</h2><p>弹幕中的弹幕数据正常情况下应该是通过与后台数据交互请求回来，所以我们需要先定义数据接口，并构造假数据来实现前端逻辑。</p><blockquote class="pullquote default"><p><strong>数据字段定义：</strong></p><ul><li><strong><code>value</code>：表示弹幕的内容（必填）</strong></li><li><strong><code>time</code>：表示弹幕出现的时间（必填）</strong></li><li><strong><code>speed</code>：表示弹幕移动的速度（选填）</strong></li><li><strong><code>color</code>：表示弹幕文字的颜色（选填）</strong></li><li><strong><code>fontSize</code>：表示弹幕的字体大小（选填）</strong></li><li><strong><code>opacity</code>：表示弹幕文字的透明度（选填）</strong></li></ul></blockquote><p>上面的 <code>value</code> 和 <code>time</code> 是必填参数，其他的选填参数可以在前端设置默认值。</p><p><strong>前端定义的假数据如下：</strong></p><pre><code class="lang-js">/* 文件：index.js */
+const data = [
+  {
+    value: &#39;这是第一条弹幕&#39;,
+    speed: 2,
+    time: 0,
+    color: &#39;red&#39;,
+    fontSize: 20
+  },
+  {
+    value: &#39;这是第二条弹幕&#39;,
+    time: 1
+  }
+];
+</code></pre><h2 id="实现前端弹幕的逻辑"><a href="#实现前端弹幕的逻辑" class="headerlink" title="实现前端弹幕的逻辑"></a>实现前端弹幕的逻辑</h2><p>我们希望是把弹幕封装成一个功能，只要有需要的地方就可以使用，从而实现复用，那么不同的地方使用这个功能通常的方式是 <code>new</code> 一个实例，传入当前使用该功能对应的参数，我们也使用这种方式来实现，所以我们需要封装一个统一的构造函数或者类，参数为当前的 <code>canvas</code> 元素、<code>video</code> 元素和一个 <code>options</code> 对象，<code>options</code> 里面的 <code>data</code> 属性为我们的弹幕数据，之所以不直接传入 <code>data</code> 是为了后续参数的扩展，严格遵循开放封闭原则，这里我们就统一使用 <code>ES6</code> 的 <code>class</code> 类来实现。</p><h3 id="创建弹幕功能的类及基本参数处理"><a href="#创建弹幕功能的类及基本参数处理" class="headerlink" title="创建弹幕功能的类及基本参数处理"></a>创建弹幕功能的类及基本参数处理</h3><blockquote class="pullquote warning"><p><strong>布局时需要注意 <code>Canvas</code> 的默认宽为 <code>300px</code>，高为 <code>150px</code>，我们要保证 <code>Canvas</code> 完全覆盖整个视频，需要让 <code>Canvas</code> 与 <code>video</code> 宽高相等。</strong><br><strong>因为我们不确定每一个使用该功能的视频的宽高都是一样的，所以 <code>Canvas</code> 画布的宽高并没有通过 CSS 来设置，而是通过 JS 在类创建实例初始化属性的时候动态设置。</strong></p></blockquote><pre><code class="lang-js">/* 文件：index.js */
+class CanvasBarrage {
+  constructor(canvas, video, options = {}) {
+    // 如果没有传入 canvas 或者 video 直接跳出
+    if (!canvas || !video) return;
+    this.canvas = canvas; // 当前的 canvas 元素
+    this.video = video; // 当前的 video 元素
+
+    // 设置 canvas 与 video 等高
+    this.canvas.width = video.clientWidth;
+    this.canvas.height = video.clientHeight;
+
+    // 默认暂停播放，表示不渲染弹幕
+    this.isPaused = true;
+
+    // 没传参数的默认值
+    const defaultOptions = {
+      fontSize: 20,
+      color: &#39;gold&#39;,
+      speed: 2,
+      opacity: 0.3,
+      data: []
+    };
+
+    // 对象的合并，将默认参数对象的属性和传入对象的属性统一放到当前实例上
+    Object.assign(this, defaultOptions, options);
+  }
+}
+</code></pre><p>应该挂在实例上的属性除了有当前的 <code>canvas</code> 元素、<code>video</code> 元素、弹幕数据的默认选项以及弹幕数据之外，还应该有一个代表当前是否渲染弹幕的参数，因为视频暂停的时候，弹幕也是暂停的，所以没有重新渲染，因为是否暂停与弹幕是否渲染的状态是一致的，所以我们这里就用 <code>isPaused</code> 参数来代表当前是否暂停或重新渲染弹幕，值类型为布尔值。</p><h3 id="创建构造每一条弹幕的类"><a href="#创建构造每一条弹幕的类" class="headerlink" title="创建构造每一条弹幕的类"></a>创建构造每一条弹幕的类</h3><p>我们知道，后台返回给我们的弹幕数据是一个数组，这个数组里的每一个弹幕都是一个对象，而对象上有着这条弹幕的信息，如果我们需要在每一个弹幕对象上再加一些新的信息或者在每一个弹幕对象的处理时用到了当前弹幕功能类 <code>CanvasBarrage</code> 实例的一些属性值，取值显然是不太方便的，这样为了后续方便扩展，遵循开放封闭原则，我们把每一个弹幕的对象转变成同一个类的实例，所以我们创建一个名为 <code>Barrage</code> 的类，让我们每一条弹幕的对象进入这个类里面走一遭，挂上一些扩展的属性。</p><pre><code class="lang-js">/* 文件：index.js */
+class Barrage {
+  constructor(item, ctx) {
+    this.value = item.value; // 弹幕的内容
+    this.time = item.time; // 弹幕出现的时间
+    this.item = item; // 每一个弹幕的数据对象
+    this.ctx = ctx; // 弹幕功能类的执行上下文
+  }
+}
+</code></pre><p>在我们的 <code>CanvasBarrage</code> 类上有一个存储弹幕数据的数组 <code>data</code>，此时我们需要给 <code>CanvasBarrage</code> 增加一个属性用来存放 “加工” 后的每条弹幕对应的实例。</p><pre><code class="lang-js">/* 文件：index.js */
+class CanvasBarrage {
+  constructor(canvas, video, options = {}) {
+    // 如果没有传入 canvas 或者 video 直接跳出
+    if (!canvas || !video) return;
+    this.canvas = canvas; // 当前的 canvas 元素
+    this.video = video; // 当前的 video 元素
+
+    // 设置 canvas 与 video 等高
+    this.canvas.width = video.clientWidth;
+    this.canvas.height = video.clientHeight;
+
+    // 默认暂停播放，表示不渲染弹幕
+    this.isPaused = true;
+
+    // 没传参数的默认值
+    const defaultOptions = {
+      fontSize: 20,
+      color: &#39;gold&#39;,
+      speed: 2,
+      opacity: 0.3,
+      data: []
+    };
+
+    // 对象的合并，将默认参数对象的属性和传入对象的属性统一放到当前实例上
+    Object.assign(this, defaultOptions, options);
+
+    // ********** 以下为新增代码 **********
+    // 存放所有弹幕实例，Barrage 是创造每一条弹幕的实例的类
+    this.barrages = this.data.map(item =&gt; new Barrage(item, this));
+    // ********** 以上为新增代码 **********
+  }
+}
+</code></pre><p>其实通过上面操作以后，我们相当于把 <code>data</code> 里面的每一条弹幕对象转换成了一个 <code>Barrage</code> 类的一个实例，把当前的上下文 <code>this</code> 传入后可以随时在每一个弹幕实例上获取 <code>CanvasBarrage</code> 类实例的属性，也方便我们后续扩展方法，遵循这种开放封闭原则的方式开发，意义是不言而喻的。</p><h3 id="在-CanvasBarrage-类实现渲染所有弹幕的-render-方法"><a href="#在-CanvasBarrage-类实现渲染所有弹幕的-render-方法" class="headerlink" title="在 CanvasBarrage 类实现渲染所有弹幕的 render 方法"></a>在 CanvasBarrage 类实现渲染所有弹幕的 render 方法</h3><p><code>CanvasBarrage</code> 的 <code>render</code> 方法是在创建弹幕功能实例的时候应该渲染 <code>Canvas</code> 所以应该在 <code>CanvasBarrage</code> 中调用，在 <code>render</code> 内部，每一次渲染之前都应该先将 <code>Canvas</code> 画布清空，所以需要给当前的 <code>CanvasBarrage</code> 类新增一个属性用于存储 <code>Canvas</code> 画布的内容。</p><pre><code class="lang-js">/* 文件：index.js */
+class CanvasBarrage {
+  constructor(canvas, video, options = {}) {
+    // 如果没有传入 canvas 或者 video 直接跳出
+    if (!canvas || !video) return;
+    this.canvas = canvas; // 当前的 canvas 元素
+    this.video = video; // 当前的 video 元素
+
+    // 设置 canvas 与 video 等高
+    this.canvas.width = video.clientWidth;
+    this.canvas.height = video.clientHeight;
+
+    // 默认暂停播放，表示不渲染弹幕
+    this.isPaused = true;
+
+    // 没传参数的默认值
+    const defaultOptions = {
+      fontSize: 20,
+      color: &#39;gold&#39;,
+      speed: 2,
+      opacity: 0.3,
+      data: []
+    };
+
+    // 对象的合并，将默认参数对象的属性和传入对象的属性统一放到当前实例上
+    Object.assign(this, defaultOptions, options);
+
+    // 存放所有弹幕实例，Barrage 是创造每一条弹幕的实例的类
+    this.barrages = this.data.map(item =&gt; new Barrage(item, this));
+
+    // ********** 以下为新增代码 **********
+    // Canvas 画布的内容
+    this.context = canvas.getContext(&quot;2d&quot;);
+
+    // 渲染所有的弹幕
+    this.render();
+    // ********** 以上为新增代码 **********
+  }
+
+  // ********** 以下为新增代码 **********
+  render() {
+    // 渲染整个弹幕
+    // 第一次先进行清空操作，执行渲染弹幕，如果没有暂停，继续渲染
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // 渲染弹幕
+    this.renderBarrage();
+    if (this.isPaused == false) {
+      // 递归渲染
+      requestAnimationFrame(this.render.bind(this));
+    }
+  }
+  // ********** 以上为新增代码 **********
+}
+</code></pre><p>在上面的 <code>CanvasBarrage</code> 的 <code>render</code> 函数中，清空时由于 <code>Canvas</code> 性能比较好，所以将整个画布清空，所以从坐标 <code>(0, 0)</code> 点，清空的宽高为整个 <code>Canvas</code> 画布的宽高。</p><p>只要视频是在播放状态应该不断的调用 <code>render</code> 方法实现清空画布、渲染弹幕、判断是否暂停，如果非暂停状态继续渲染，所以我们用到了递归调用 <code>render</code> 去不断的实现渲染，但是递归时如果直接调用 <code>render</code>，性能特别差，程序甚至会挂掉，以往这种情况我们会在递归外层加一个 <code>setTimeout</code> 来定义一个短暂的递归时间，但是这个过程类似于动画效果，如果使用 <code>setTimeout</code> 其实是将同步代码转成了异步执行，会增加不确定性导致画面出现卡顿的现象。</p><p>这里我们使用 H5 的新 API <code>requestAnimationFrame</code>，可以在平均 <code>1/60 S</code> 内帮我执行一次该方法传入的回调，我们直接把 <code>render</code> 函数作为回调函数传入 <code>requestAnimationFrame</code>，该方法是按照帧的方式执行，动画流畅，需要注意的是，<code>render</code> 函数内使用了 <code>this</code>，所以应该处理一下 <code>this</code> 指向问题。</p><p>由于我们使用面向对象的方式，所以渲染弹幕的具体细节，我们抽离出一个单独的方法 <code>renderBarrage</code>，接下来看一下 <code>renderBarrage</code> 的实现。</p><h3 id="CanvasBarrage-类-render-内部-renderBarrage-的实现"><a href="#CanvasBarrage-类-render-内部-renderBarrage-的实现" class="headerlink" title="CanvasBarrage 类 render 内部 renderBarrage 的实现"></a>CanvasBarrage 类 render 内部 renderBarrage 的实现</h3><pre><code class="lang-js">/* 文件：index.js */
+class CanvasBarrage {
+  constructor(canvas, video, options = {}) {
+    // 如果没有传入 canvas 或者 video 直接跳出
+    if (!canvas || !video) return;
+    this.canvas = canvas; // 当前的 canvas 元素
+    this.video = video; // 当前的 video 元素
+
+    // 设置 canvas 与 video 等高
+    this.canvas.width = video.clientWidth;
+    this.canvas.height = video.clientHeight;
+
+    // 默认暂停播放，表示不渲染弹幕
+    this.isPaused = true;
+
+    // 没传参数的默认值
+    const defaultOptions = {
+      fontSize: 20,
+      color: &#39;gold&#39;,
+      speed: 2,
+      opacity: 0.3,
+      data: []
+    };
+
+    // 对象的合并，将默认参数对象的属性和传入对象的属性统一放到当前实例上
+    Object.assign(this, defaultOptions, options);
+
+    // 存放所有弹幕实例，Barrage 是创造每一条弹幕的实例的类
+    this.barrages = this.data.map(item =&gt; new Barrage(item, this));
+
+    // Canvas 画布的内容
+    this.context = canvas.getContext(&#39;2d&#39;);
+
+    // 渲染所有的弹幕
+    this.render();
+  }
+  render() {
+    // 渲染整个弹幕
+    // 第一次先进行清空操作，执行渲染弹幕，如果没有暂停，继续渲染
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // 渲染弹幕
+    this.renderBarrage();
+    if (this.isPaused == false) {
+      // 递归渲染
+      requestAnimationFrame(this.render.bind(this));
+    }
+  }
+
+  // ********** 以下为新增代码 **********
+  renderBarrage() {
+    // 将数组的弹幕一个一个取出，判断时间和视频的时间是否符合，符合就执行渲染此弹幕
+    let time = this.video.currentTime;
+    this.barrages.forEach(barrage =&gt; {
+      // 当视频时间大于等于了弹幕设置的时间，那么开始渲染（时间都是以秒为单位）
+      if (time &gt;= barrage.time) {
+        // 初始化弹幕的各个参数，只有在弹幕将要出现的时候再去初始化
+        // 节省性能，初始化后再进行绘制
+        // 如果没有初始化，先去初始化一下
+        if (!barrage.isInited) {
+          // 初始化后下次再渲染就不需要再初始化了，所以创建一个标识 isInited
+          barrage.init();
+          barrage.isInited = true;
+        }
+      }
+    });
+  }
+  // ********** 以上为新增代码 **********
+}
+</code></pre><p>此处的 <code>renderBarrage</code> 方法内部主要对每一条弹幕实例所设置的出现时间和视频的播放时间做对比，如果视频的播放时间大于等于了弹幕出现的时间，说明弹幕需要绘制在 <code>Canvas</code> 画布内。</p><p>之前我们的每一条弹幕实例的属性可能不全，弹幕的其他未传参数并没有初始化，所以为了最大限度的节省性能，我们在弹幕该第一次绘制的时候去初始化参数，等到视频播放的时间变化再去重新绘制时，不再初始化参数，所以初始化参数的方法放在了判断弹幕出现时间的条件里面执行，又设置了代表弹幕实例是不是初始化了的参数 <code>isInited</code>，初始化函数 <code>init</code> 执行过一次后，马上修改 <code>isInited</code> 的值，保证只初始化参数一次。</p><p>在 <code>renderBarrage</code> 方法中我们可以看出来，其实我们是循环了专门存放每一条弹幕实例（<code>Barrage</code> 类的实例）的数组，我们在内部用实例去调用的方法 <code>init</code> 应该是在 <code>Barrage</code> 类的原型上，下面我们去 <code>Barrage</code> 类上实现 <code>init</code> 的逻辑。</p><h3 id="Barrage-类-init-的实现"><a href="#Barrage-类-init-的实现" class="headerlink" title="Barrage 类 init 的实现"></a>Barrage 类 init 的实现</h3><pre><code class="lang-js">/* 文件：index.js */
+class Barrage {
+  constructor(item, ctx) {
+    this.value = item.value; // 弹幕的内容
+    this.time = item.time; // 弹幕出现的时间
+    this.item = item; // 每一个弹幕的数据对象
+    this.ctx = ctx; // 弹幕功能类的执行上下文
+  }
+
+  // ********** 以下为新增代码 **********
+  init() {
+    this.opacity = this.item.opacity || this.ctx.opacity;
+    this.color = this.item.color || this.ctx.color;
+    this.fontSize = this.item.fontSize || this.ctx.fontSize;
+    this.speed = this.item.speed || this.ctx.speed;
+
+    // 求自己的宽度，目的是用来校验当前是否还要继续绘制（边界判断）
+    let span = document.createElement(&#39;span&#39;);
+
+    // 能决定宽度的只有弹幕的内容和文字的大小，和字体
+    // 字体默认为微软雅黑，我们就不做设置了
+    span.innerText = this.value;
+    span.style.font = this.fontSize + &#39;px &quot;Microsoft YaHei&quot;&#39;;
+
+    // span 为行内元素，取不到宽度，所以我们通过定位给转换成块级元素
+    span.style.position = &#39;absolute&#39;;
+
+    document.body.appendChild(span); // 放入页面
+    this.width = span.clientWidth; // 记录弹幕的宽度
+    document.body.removeChild(span); // 从页面移除
+
+    // 存储弹幕出现的横纵坐标
+    this.x = this.ctx.canvas.width;
+    this.y = this.ctx.canvas.height;
+
+    // 处理弹幕纵向溢出的边界处理
+    if (this.y &lt; this.fontSize) {
+      this.y = this.fontSize;
+    }
+    if (this.y &gt; this.ctx.canvas.height - this.fontSize) {
+      this.y = this.ctx.canvas.height - this.fontSize;
+    }
+  }
+  // ********** 以上为新增代码 **********
+}
+</code></pre><p>在上面代码的 <code>init</code> 方法中我们其实可以看出，每条弹幕实例初始化的时候初始的信息除了之前说的弹幕的基本参数外，还获取了每条弹幕的宽度（用于后续做弹幕是否已经完全移出屏幕的边界判断）和每一条弹幕的 <code>x</code> 和 <code>y</code> 轴方向的坐标并为了防止弹幕在 <code>y</code> 轴显示不全做了边界处理。</p><h3 id="实现每条弹幕的渲染和弹幕移除屏幕的处理"><a href="#实现每条弹幕的渲染和弹幕移除屏幕的处理" class="headerlink" title="实现每条弹幕的渲染和弹幕移除屏幕的处理"></a>实现每条弹幕的渲染和弹幕移除屏幕的处理</h3><p>我们当时在 <code>CanvasBarrage</code> 类的 <code>render</code> 方法中的渲染每个弹幕的方法 <code>renderBarrage</code>中（原谅这么啰嗦，因为到现在内容已经比较多，说的具体一点方便知道是哪个步骤，哈哈）只做了对每一条弹幕实例的初始化操作，并没有渲染在 <code>Canvas</code> 画布中，这时我们主要做两部操作，实现每条弹幕渲染在画布中和左侧移出屏幕不再渲染的边界处理。</p><pre><code class="lang-js">/* 文件：index.js */
+class CanvasBarrage {
+  constructor(canvas, video, options = {}) {
+    // 如果没有传入 canvas 或者 video 直接跳出
+    if (!canvas || !video) return;
+    this.canvas = canvas; // 当前的 canvas 元素
+    this.video = video; // 当前的 video 元素
+
+    // 设置 canvas 与 video 等高
+    this.canvas.width = video.clientWidth;
+    this.canvas.height = video.clientHeight;
+
+    // 默认暂停播放，表示不渲染弹幕
+    this.isPaused = true;
+
+    // 没传参数的默认值
+    const defaultOptions = {
+      fontSize: 20,
+      color: &#39;gold&#39;,
+      speed: 2,
+      opacity: 0.3,
+      data: []
+    };
+
+    // 对象的合并，将默认参数对象的属性和传入对象的属性统一放到当前实例上
+    Object.assign(this, defaultOptions, options);
+
+    // 存放所有弹幕实例，Barrage 是创造每一条弹幕的实例的类
+    this.barrages = this.data.map(item =&gt; new Barrage(item, this));
+
+    // Canvas 画布的内容
+    this.context = canvas.getContext(&#39;2d&#39;);
+
+    // 渲染所有的弹幕
+    this.render();
+  }
+  render() {
+    // 渲染整个弹幕
+    // 第一次先进行清空操作，执行渲染弹幕，如果没有暂停，继续渲染
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // 渲染弹幕
+    this.renderBarrage();
+    if (this.isPaused == false) {
+      // 递归渲染
+      requestAnimationFrame(this.render.bind(this));
+    }
+  }
+  renderBarrage() {
+    // 将数组的弹幕一个一个取出，判断时间和视频的时间是否符合，符合就执行渲染此弹幕
+    let time = this.video.currentTime;
+    this.barrages.forEach(barrage =&gt; {
+      // ********** 以下为改动的代码 **********
+      // 当视频时间大于等于了弹幕设置的时间，那么开始渲染（时间都是以秒为单位）
+      if (!barrage.flag &amp;&amp; time &gt;= barrage.time) {
+        // ********** 以上为改动的代码 **********
+
+        // 初始化弹幕的各个参数，只有在弹幕将要出现的时候再去初始化
+        // 节省性能，初始化后再进行绘制
+        // 如果没有初始化，先去初始化一下
+        if (!barrage.isInited) {
+          // 初始化后下次再渲染就不需要再初始化了，所以创建一个标识 isInited
+          barrage.init();
+          barrage.isInited = true;
+        }
+
+        // ********** 以下为新增代码 **********
+        barrage.x -= barrage.speed;
+        barrage.render(); // 渲染该条弹幕
+        if (barrage.x &lt; barrage.width * -1) {
+          barrage.flag = true; // 是否出去了，出去了，做停止渲染的操作
+        }
+        // ********** 以上为新增代码 **********
+      }
+    });
+  }
+}
+</code></pre><p>每个弹幕实例都有一个 <code>speed</code> 属性，该属性代表着弹幕移动的速度，换个说法其实就是每次减少的 <code>x</code> 轴的差值，所以我们其实是通过改变 <code>x</code> 轴的值再重新渲染而实现弹幕的左移，我们创建了一个标识 <code>flag</code> 挂在每个弹幕实例下，代表是否已经离开屏幕，如果离开则更改 <code>flag</code> 的值，使外层的 <code>CanvasBarrage</code> 类的 <code>render</code> 函数再次递归时不进入渲染程序。</p><p>每一条弹幕具体是怎么渲染的，通过代码可以看出每个弹幕实例在 <code>x</code> 坐标改变后都调用了实例方法 <code>render</code> 函数，注意此 <code>render</code> 非彼 <code>render</code>，该 <code>render</code> 函数属于 <code>Barrage</code> 类，目的是为了渲染每一条弹幕，而 <code>CanvasBarrage</code> 类下的 <code>render</code>，是为了在视频时间变化时清空并重新渲染整个 <code>Canvas</code> 画布。</p><h3 id="Barrage-类下的-render-方法的实现"><a href="#Barrage-类下的-render-方法的实现" class="headerlink" title="Barrage 类下的 render 方法的实现"></a>Barrage 类下的 render 方法的实现</h3><pre><code class="lang-js">/* 文件：index.js */
+class Barrage {
+  constructor(item, ctx) {
+    this.value = item.value; // 弹幕的内容
+    this.time = item.time; // 弹幕出现的时间
+    this.item = item; // 每一个弹幕的数据对象
+    this.ctx = ctx; // 弹幕功能类的执行上下文
+  }
+  init() {
+    this.opacity = this.item.opacity || this.ctx.opacity;
+    this.color = this.item.color || this.ctx.color;
+    this.fontSize = this.item.fontSize || this.ctx.fontSize;
+    this.speed = this.item.speed || this.ctx.speed;
+
+    // 求自己的宽度，目的是用来校验当前是否还要继续绘制（边界判断）
+    let span = document.createElement(&#39;span&#39;);
+
+    // 能决定宽度的只有弹幕的内容和文字的大小，和字体
+    // 字体默认为微软雅黑，我们就不做设置了
+    span.innerText = this.value;
+    span.style.font = this.fontSize + &#39;px &quot;Microsoft YaHei&#39;;
+
+    // span 为行内元素，取不到宽度，所以我们通过定位给转换成块级元素
+    span.style.position = &#39;absolute&#39;;
+
+    document.body.appendChild(span); // 放入页面
+    this.width = span.clientWidth; // 记录弹幕的宽度
+    document.body.removeChild(span); // 从页面移除
+
+    // 存储弹幕出现的横纵坐标
+    this.x = this.ctx.canvas.width;
+    this.y = this.ctx.canvas.height;
+
+    // 处理弹幕纵向溢出的边界处理
+    if (this.y &lt; this.fontSize) {
+      this.y = this.fontSize;
+    }
+    if (this.y &gt; this.ctx.canvas.height - this.fontSize) {
+      this.y = this.ctx.canvas.height - this.fontSize;
+    }
+  }
+
+  // ********** 以下为新增代码 **********
+  render() {
+    this.ctx.context.font = this.fontSize + &#39;px &quot;Microsoft YaHei&quot;&#39;;
+    this.ctx.context.fillStyle = this.color;
+    this.ctx.context.fillText(this.value, this.x, this.y);
+  }
+  // ********** 以上为新增代码 **********
+}
+</code></pre><p>从上面新增代码我们可以看出，其实 <code>Barrage</code> 类的 <code>render</code> 方法只是将每一条弹幕的字号、颜色、内容、坐标等属性通过 <code>Canvas</code> 的 <code>API</code> 添加到了画布上。</p><h3 id="实现播放、暂停事件"><a href="#实现播放、暂停事件" class="headerlink" title="实现播放、暂停事件"></a>实现播放、暂停事件</h3><p>还记得我们的 <code>CanvasBarrage</code> 类里面有一个属性 <code>isPaused</code>，属性值控制了我们是否递归渲染，这个属性与视频暂停的状态是一致的，我们在播放的时候，弹幕不断的清空并重新绘制，当暂停的时候弹幕也应该跟着暂停，说白了就是不在调用 <code>CanvasBarrage</code> 类的 <code>render</code> 方法，其实就是在暂停、播放的过程中不断的改变 <code>isPaused</code> 的值即可。</p><p>还记得我们之前构造的两条假数据 <code>data</code> 吧，接下来我们添加播放、暂停事件，来尝试使用一下我们的弹幕功能。</p><pre><code class="lang-js">/* 文件：index.js */
+// 实现一个简易选择器，方便获取元素，后面获取元素直接调用 $
+const $ = document.querySelector.bind(document);
+
+// 获取 Canvas 元素和 Video 元素
+const canvas = $(&#39;#canvas&#39;);
+const video = $(&#39;#video&#39;);
+
+const canvasBarrage = new CanvasBarrage(canvas, video, {
+  data
+});
+
+// 添加播放事件
+video.addEventListener(&#39;play&#39;, function () {
+  canvasBarrage.isPaused = false;
+  canvasBarrage.render();
+});
+
+// 添加暂停事件
+video.addEventListener(&#39;pause&#39;, function () {
+  canvasBarrage.isPaused = true;
+});
+</code></pre><h3 id="实现发送弹幕事件"><a href="#实现发送弹幕事件" class="headerlink" title="实现发送弹幕事件"></a>实现发送弹幕事件</h3><pre><code class="lang-js">/* 文件：index.js */
+$(&#39;#add&#39;).addEventListener(&#39;click&#39;, function () {
+  let time = video.currentTime; // 发送弹幕的时间
+  let value = $(&#39;#text&#39;).value; // 发送弹幕的文字
+  let color = $(&#39;#color&#39;).value; // 发送弹幕文字的颜色
+  let fontSize = $(&#39;#range&#39;).value; // 发送弹幕的字体大小
+  let sendObj = { time, value, color, fontSize }; //发送弹幕的参数集合
+  canvasBarrage.add(sendObj); // 发送弹幕的方法
+});
+</code></pre><p>其实我们发送弹幕时，就是向 <code>CanvasBarrage</code> 类的 <code>barrages</code> 数组里添加了一条弹幕的实例，我们单独封装了一个 <code>add</code> 的实例方法。</p><pre><code class="lang-js">/* 文件：index.js */
+class CanvasBarrage {
+  constructor(canvas, video, options = {}) {
+    // 如果没有传入 canvas 或者 video 直接跳出
+    if (!canvas || !video) return;
+    this.canvas = canvas; // 当前的 canvas 元素
+    this.video = video; // 当前的 video 元素
+
+    // 设置 canvas 与 video 等高
+    this.canvas.width = video.clientWidth;
+    this.canvas.height = video.clientHeight;
+
+    // 默认暂停播放，表示不渲染弹幕
+    this.isPaused = true;
+
+    // 没传参数的默认值
+    const defaultOptions = {
+      fontSize: 20,
+      color: &#39;gold&#39;,
+      speed: 2,
+      opacity: 0.3,
+      data: []
+    };
+
+    // 对象的合并，将默认参数对象的属性和传入对象的属性统一放到当前实例上
+    Object.assign(this, defaultOptions, options);
+
+    // 存放所有弹幕实例，Barrage 是创造每一条弹幕的实例的类
+    this.barrages = this.data.map(item =&gt; new Barrage(item, this));
+
+    // Canvas 画布的内容
+    this.context = canvas.getContext(&#39;2d&#39;);
+
+    // 渲染所有的弹幕
+    this.render();
+  }
+  render() {
+    // 渲染整个弹幕
+    // 第一次先进行清空操作，执行渲染弹幕，如果没有暂停，继续渲染
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // 渲染弹幕
+    this.renderBarrage();
+    if (this.isPaused == false) {
+      // 递归渲染
+      requestAnimationFrame(this.render.bind(this));
+    }
+  }
+  renderBarrage() {
+    // 将数组的弹幕一个一个取出，判断时间和视频的时间是否符合，符合就执行渲染此弹幕
+    let time = this.video.currentTime;
+    this.barrages.forEach(barrage =&gt; {
+    // 当视频时间大于等于了弹幕设置的时间，那么开始渲染（时间都是以秒为单位）
+    if (!barrage.flag &amp;&amp; time &gt;= barrage.time) {
+        // 初始化弹幕的各个参数，只有在弹幕将要出现的时候再去初始化
+        // 节省性能，初始化后再进行绘制
+        // 如果没有初始化，先去初始化一下
+        if (!barrage.isInited) {
+          // 初始化后下次再渲染就不需要再初始化了，所以创建一个标识 isInited
+          barrage.init();
+          barrage.isInited = true;
+        }
+
+        barrage.x -= barrage.speed;
+        barrage.render(); // 渲染该条弹幕
+        if (barrage.x &lt; barrage.width * -1) {
+          barrage.flag = true; // 是否出去了，出去了，做停止渲染的操作
+        }
+      }
+    });
+  }
+
+  // ********** 以下为新增代码 **********
+  add(item) {
+    this.barrages.push(new Barrage(item, this));
+  }
+  // ********** 以上为新增代码 **********
+}
+</code></pre><h3 id="拖动进度条实现弹幕的前进和后退"><a href="#拖动进度条实现弹幕的前进和后退" class="headerlink" title="拖动进度条实现弹幕的前进和后退"></a>拖动进度条实现弹幕的前进和后退</h3><p>其实我们发现，弹幕虽然实现了正常的播放、暂停以及发送，但是当我们拖动进度条的时候弹幕应该是跟着视频时间同步播放的，现在的弹幕一旦播放过无论怎样拉动进度条弹幕都不会再出现，我们现在就来解决这个问题。</p><pre><code class="lang-js">/* 文件：index.js */
+// 拖动进度条事件
+video.addEventListener(&#39;seeked&#39;, function () {
+  canvasBarrage.reset();
+});
+</code></pre><p>我们在事件内部其实只是调用了一下 <code>CanvasBarrage</code> 类的 <code>reset</code> 方法，这个方法就是在拖动进度条的时候来帮我们初始化弹幕的状态。</p><pre><code class="lang-js">/* 文件：index.js */
+class CanvasBarrage {
+  constructor(canvas, video, options = {}) {
+    // 如果没有传入 canvas 或者 video 直接跳出
+    if (!canvas || !video) return;
+    this.canvas = canvas; // 当前的 canvas 元素
+    this.video = video; // 当前的 video 元素
+
+    // 设置 canvas 与 video 等高
+    this.canvas.width = video.clientWidth;
+    this.canvas.height = video.clientHeight;
+
+    // 默认暂停播放，表示不渲染弹幕
+    this.isPaused = true;
+
+    // 没传参数的默认值
+    const defaultOptions = {
+      fontSize: 20,
+      color: &#39;gold&#39;,
+      speed: 2,
+      opacity: 0.3,
+      data: []
+    };
+
+    // 对象的合并，将默认参数对象的属性和传入对象的属性统一放到当前实例上
+    Object.assign(this, defaultOptions, options);
+
+    // 存放所有弹幕实例，Barrage 是创造每一条弹幕的实例的类
+    this.barrages = this.data.map(item =&gt; new Barrage(item, this));
+
+    // Canvas 画布的内容
+    this.context = canvas.getContext(&#39;2d&#39;);
+
+    // 渲染所有的弹幕
+    this.render();
+  }
+  render() {
+    // 渲染整个弹幕
+    // 第一次先进行清空操作，执行渲染弹幕，如果没有暂停，继续渲染
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // 渲染弹幕
+    this.renderBarrage();
+    if (this.isPaused == false) {
+      // 递归渲染
+      requestAnimationFrame(this.render.bind(this));
+    }
+  }
+  renderBarrage() {
+    // 将数组的弹幕一个一个取出，判断时间和视频的时间是否符合，符合就执行渲染此弹幕
+    let time = this.video.currentTime;
+    this.barrages.forEach(barrage =&gt; {
+      // 当视频时间大于等于了弹幕设置的时间，那么开始渲染（时间都是以秒为单位）
+      if (!barrage.flag &amp;&amp; time &gt;= barrage.time) {
+        // 初始化弹幕的各个参数，只有在弹幕将要出现的时候再去初始化
+        // 节省性能，初始化后再进行绘制
+        // 如果没有初始化，先去初始化一下
+        if (!barrage.isInited) {
+          // 初始化后下次再渲染就不需要再初始化了，所以创建一个标识 isInited
+          barrage.init();
+          barrage.isInited = true;
+        }
+
+        barrage.x -= barrage.speed;
+        barrage.render(); // 渲染该条弹幕
+        if (barrage.x &lt; barrage.width * -1) {
+          barrage.flag = true; // 是否出去了，出去了，做停止渲染的操作
+        }
+      }
+    });
+  }
+  add(item) {
+    this.barrages.push(new Barrage(item, this));
+  }
+
+  // ********** 以下为新增代码 **********
+  reset() {
+    // 先清空 Canvas 画布
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    let time = this.video.currentTime;
+    // 循环每一条弹幕实例
+    this.barrages.forEach(barrage =&gt; {
+      // 更改已经移出屏幕的弹幕状态
+      barrage.flag = false;
+      // 当拖动到的时间小于等于当前弹幕时间是，重新初始化弹幕的数据，实现渲染
+      if (time &lt;= barrage.time) {
+        barrage.isInited = false;
+      } else {
+        barrage.flag = true; // 否则将弹幕的状态设置为以移出屏幕
+      }
+    });
+  }
+  // ********** 以上为新增代码 **********
+}
+</code></pre><blockquote class="pullquote danger"><p><strong>其实 <code>reset</code> 方法中值做了几件事，从而实现了拖动进度条弹幕的 “前进” 和 “后退” 功能。</strong></p><ul><li><strong>清空 <code>Canvas</code> 画布；</strong></li><li><strong>获取当前进度条拖动位置的时间；</strong></li><li><strong>循环存储弹幕实例的数组；</strong></li><li><strong>将所有弹幕更改为未移出屏幕；</strong></li><li><strong>判断拖动时间和每条弹幕的时间；</strong></li><li><strong>在当前时间以后的弹幕重新初始化数据；</strong></li><li><strong>以前的弹幕更改为已移出屏幕。</strong></li></ul></blockquote><h2 id="使用-WebSocket-和-Redis-实现前后端通信及数据存储"><a href="#使用-WebSocket-和-Redis-实现前后端通信及数据存储" class="headerlink" title="使用 WebSocket 和 Redis 实现前后端通信及数据存储"></a>使用 WebSocket 和 Redis 实现前后端通信及数据存储</h2><h3 id="服务器代码的实现"><a href="#服务器代码的实现" class="headerlink" title="服务器代码的实现"></a>服务器代码的实现</h3><p>要使用 <code>WebSocket</code> 和 <code>Redis</code> 首先需要去安装 <code>ws</code>、<code>redis</code> 依赖，在项目根目录执行下面命令：</p><pre><code class="lang-bash">$ npm install ws redis
+</code></pre><p>我们创建一个 <code>server.js</code> 文件，用来写服务端的代码：</p><pre><code class="lang-js">/* 文件：index.js */
+const WebSocket = require(&#39;ws&#39;); // 引入 WebSocket
+const redis = require(&#39;redis&#39;); // 引入 redis
+
+// 初始化 WebSocket 服务器，端口号为 3000
+const wss = new WebSocket.Server({
+  port: 3000
+});
+
+// 创建 redis 客户端
+const client = redis.createClient(); // key value
+
+// 原生的 websocket 就两个常用的方法 on(&#39;message&#39;)、on(&#39;send&#39;)
+wss.on(&#39;connection&#39;, function (ws) {
+  // 监听连接
+  // 连接上需要立即把 redis 数据库的数据取出返回给前端
+  client.lrange(&#39;barrages&#39;, 0, -1, function (err, applies) {
+    // 由于 redis 的数据都是字符串，所以需要把数组中每一项转成对象
+    applies = applies.map(item =&gt; JSON.parse(item));
+
+    // 使用 websocket 服务器将 redis 数据库的数据发送给前端
+    // 构建一个对象，加入 type 属性告诉前端当前返回数据的行为，并将数据转换成字符串
+    ws.send(JSON.stringify({
+      type: &#39;INIT&#39;,
+      data: applies
+    }));
+  });
+
+  // 当服务器收到消息时，将数据存入 redis 数据库
+  ws.on(&#39;message&#39;, function (data) {
+    // 向数据库存储时存的是字符串，存入并打印数据，用来判断是否成功存入数据库
+    client.rpush(&#39;barrages&#39;, data, redis.print);
+
+    // 再将当前这条数据返回给前端
+    // 同样添加 type 字段告诉前端当前行为，并将数据转换成字符串
+    ws.send(JSON.stringify({
+      type: &#39;ADD&#39;,
+      data: JSON.parse(data)
+    }));
+  });
+});
+</code></pre><p>服务器的逻辑很清晰，在 <code>WebSocket</code> 连接上时，立即获取 <code>Redis</code> 数据库的所有弹幕数据返回给前端，当前端点击发送弹幕按钮发送数据时，接收数据存入 <code>Redis</code> 数据库中并打印验证数据是否成功存入，再通过 <code>WebSocket</code> 服务把当前这一条数返回给前端，需要注意一下几点：</p><blockquote class="pullquote info"><ul><li><strong>从 <code>Redis</code> 数据库中取出全部弹幕数据的数组内部都存储的是字符串，需要使用 <code>JSON.parse</code> 方法进行解析；</strong></li><li><strong>将数据发送前端时，最外层要使用 <code>JSON.stringify</code> 重新转换成字符串发送；</strong></li><li><strong>在初始化阶段 <code>WebSocket</code> 发送所有数据和前端添加新弹幕 <code>WebSocket</code> 将弹幕的单条数据重新返回时，需要添加对应的 <code>type</code> 值告诉前端，当前的操作行为。</strong></li></ul></blockquote><h3 id="前端代码的修改"><a href="#前端代码的修改" class="headerlink" title="前端代码的修改"></a>前端代码的修改</h3><p>在没有实现后端代码之前，前端使用的是 <code>data</code> 的假数据，是在添加弹幕事件中，将获取的新增弹幕信息通过 <code>CanvasBarrage</code> 类的 <code>add</code> 方法直接创建 <code>Barrage</code> 类的实例，并加入到存放弹幕实例的 <code>barrages</code> 数组中。</p><p>现在我们需要更正一下交互逻辑，在发送弹幕事件触发时，我们应该先将获取的单条弹幕数据通过 <code>WebSocket</code> 发送给后端服务器，在服务器重新将消息返还给我们的时候，去将这条数据通过 <code>CanvasBarrage</code> 类的 <code>add</code> 方法加入到存放弹幕实例的 <code>barrages</code> 数组中。</p><p>还有在页面初始化时，我们之前在创建 <code>CanvasBarrage</code> 类实例的时候直接传入了 <code>data</code> 假数据，现在需要通过 <code>WebSocket</code> 的连接事件，在监听到连接 <code>WebSocket</code> 服务时，去创建 <code>CanvasBarrage</code> 类的实例，并直接把服务端返回 Redis 数据库真实的数据作为参数传入，前端代码修改如下：</p><pre><code class="lang-js">/* 文件：index.js */
+// ********** 下面代码被删掉了 **********
+// let canvasBarrage = new CanvasBarrage(canvas, video, {
+//     data
+// });
+// ********** 上面代码被删掉了 **********
+
+// ********** 以下为新增代码 **********
+let canvasBarrage;
+
+// 创建 WebSocket 连接
+const socket = new WebSocket(&#39;ws://localhost:3000&#39;);
+
+// 监听连接事件
+socket.onopen = function () {
+  // 监听消息
+  socket.onmessage = function (e) {
+    // 将收到的消息从字符串转换成对象
+    let message = JSON.parse(e.data);
+
+    // 根据不同情况判断是初始化还是发送弹幕
+    if (message.type === &#39;INIT&#39;) {
+      // 创建 CanvasBarrage 的实例添加弹幕功能，传入真实的数据
+      canvasBarrage = new CanvasBarrage(canvas, video, {
+        data: message.data
+      });
+    } else if (message.type === &#39;ADD&#39;) {
+      // 如果是添加弹幕直接将 WebSocket 返回的单条弹幕存入 barrages 中
+      canvasBarrage.add(message.data);
+    }
+  }
+}
+// ********** 以上为新增代码 **********
+
+$(&#39;#add&#39;).addEventListener(&#39;click&#39;, function () {
+  let time = video.currentTime; // 发送弹幕的时间
+  let value = $(&#39;#text&#39;).value; // 发送弹幕的文字
+  let color = $(&#39;#color&#39;).value; // 发送弹幕文字的颜色
+  let fontSize = $(&#39;#range&#39;).value; // 发送弹幕的字体大小
+  let sendObj = { time, value, color, fontSize }; //发送弹幕的参数集合
+
+  // ********** 以下为新增代码 **********
+  socket.send(JSON.stringify(sendObj));
+  // ********** 以上为新增代码 **********
+
+  // ********** 下面代码被删掉了 **********
+  // canvasBarrage.add(sendObj); // 发送弹幕的方法
+  // ********** 上面代码被删掉了 **********
+});
+</code></pre><p>现在我们可以打开 <code>index.html</code> 文件并启动 <code>server.js</code> 服务器，就可以实现真实的视频弹幕操作了，但是我们还是差了最后一步，当前的服务只能同时服务一个人，但真实的场景是同时看视频的有很多人，而且发送的弹幕是共享的。</p><h3 id="实现多端通信、弹幕共享"><a href="#实现多端通信、弹幕共享" class="headerlink" title="实现多端通信、弹幕共享"></a>实现多端通信、弹幕共享</h3><blockquote class="pullquote warning"><p><strong>我们需要处理两件事情：</strong></p><ul><li><strong>第一件事情是实现多端通信共享数据库信息；</strong></li><li><strong>第二件事情是当有人离开的时候清除关闭的 WebSocket 对象。</strong></li></ul></blockquote><pre><code class="lang-js">/* 文件：server.js */
+const WebSocket = require(&#39;ws&#39;); // 引入 WebSocket
+const redis = require(&#39;redis&#39;); // 引入 redis
+
+// 初始化 WebSocket 服务器，端口号为 3000
+const wss = new WebSocket.Server({
+    port: 3000
+});
+
+// 创建 redis 客户端
+const client = redis.createClient(); // key value
+
+// ********** 以下为新增代码 **********
+// 存储所有 WebSocket 用户
+const clientsArr = [];
+// ********** 以上为新增代码 **********
+
+// 原生的 websocket 就两个常用的方法 on(&#39;message&#39;)、on(&#39;send&#39;)
+wss.on(&#39;connection&#39;, function (ws) {
+  // ********** 以下为新增代码 **********
+  // 将所有通过 WebSocket 连接的用户存入数组中
+  clientsArr.push(ws);
+  // ********** 以上为新增代码 **********
+
+  // 监听连接
+  // 连接上需要立即把 redis 数据库的数据取出返回给前端
+  client.lrange(&#39;barrages&#39;, 0, -1, function (err, applies) {
+    // 由于 redis 的数据都是字符串，所以需要把数组中每一项转成对象
+    applies = applies.map(item =&gt; JSON.parse(item));
+
+    // 使用 websocket 服务器将 redis 数据库的数据发送给前端
+    // 构建一个对象，加入 type 属性告诉前端当前返回数据的行为，并将数据转换成字符串
+    ws.send(JSON.stringify({
+      type: &#39;INIT&#39;,
+      data: applies
+    }));
+  });
+
+  // 当服务器收到消息时，将数据存入 redis 数据库
+  ws.on(&#39;message&#39;, function (data) {
+    // 向数据库存储时存的是字符串，存入并打印数据，用来判断是否成功存入数据库
+    client.rpush(&#39;barrages&#39;, data, redis.print);
+
+    // ********** 以下为修改后的代码 **********
+    // 循环数组，将某一个人新发送的弹幕在存储到 Redis 之后返回给所有用户
+    clientsArr.forEach(w =&gt; {
+      // 再将当前这条数据返回给前端
+      // 同样添加 type 字段告诉前端当前行为，并将数据转换成字符串
+      w.send(JSON.stringify({
+        type: &#39;ADD&#39;,
+        data: JSON.parse(data)
+      }));
+    });
+    // ********** 以上为修改后的代码 **********
+  });
+
+  // ********** 以下为新增代码 **********
+  // 监听关闭连接事件
+  ws.on(&#39;close&#39;, function () {
+    // 当某一个人关闭连接离开时，将这个人从当前存储用户的数组中移除
+    clientsArr = clientsArr.filter(client =&gt; client != ws);
+  });
+  // ********** 以上为新增代码 **********
+});
+</code></pre><blockquote class="pullquote success"><p><strong>上面就是 <code>Canvas + WebSocket + Redis</code> 视频弹幕的实现，实现过程可能有些复杂，但整个过程写的还是比较详细，可能需要一定的耐心慢慢的读完，并最好一步一步跟着写一写，希望这篇文章可以让读到的人解决视频弹幕类似的需求，真正理解整个过程和开放封闭原则，认识到前端面向对象编程思想的美。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180621113025/" target="_blank" rel="external">https://www.overtaking.top/20180621113025/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CSS/" rel="tag">CSS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Canvas/" rel="tag">Canvas</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTML/" rel="tag">HTML</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WebSocket/" rel="tag">WebSocket</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180621113025/&title=《Canvas + WebSocket + Redis 实现一个视频弹幕》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180621113025/&title=《Canvas + WebSocket + Redis 实现一个视频弹幕》 — Shen's Blog&source=页面布局首先，我们需要实现页面布局，在根目录创建 index.html 布局中需要有一个 video 多媒体标签引入本地视频，添加输入弹幕的输入框、确认发..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180621113025/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Canvas + WebSocket + Redis 实现一个视频弹幕》 — Shen's Blog&url=https://www.overtaking.top/20180621113025/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180621113025/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180623084025/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">高阶函数应用 —— 柯里化与反柯里化</h4></a></div><div class="waves-block waves-effect next"><a href="/20180615212040/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">异步发展流程 —— 异步编程 async/await</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180621113025/&title=《Canvas + WebSocket + Redis 实现一个视频弹幕》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180621113025/&title=《Canvas + WebSocket + Redis 实现一个视频弹幕》 — Shen's Blog&source=页面布局首先，我们需要实现页面布局，在根目录创建 index.html 布局中需要有一个 video 多媒体标签引入本地视频，添加输入弹幕的输入框、确认发..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180621113025/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Canvas + WebSocket + Redis 实现一个视频弹幕》 — Shen's Blog&url=https://www.overtaking.top/20180621113025/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180621113025/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABvElEQVR42u3aS27DMAwFwNz/0u4BDKePpKyqwGgV+COPsiBEUp9PPK7buN+9P/l09/578cDFxR1zr6/jOyh5N19GMg8uLu5O7lPEyINOQqzOj4uL+x+51bBV3e7g4uKez83R+aYHFxf3ZG6S/PQWVp1/Wa6Gi4s74OZVyvd+v1LfxcXFbXGv4qguI98YRV/HxcXdwp20UvKyaTJD/qfg4uK+zf1eqkiu5AlS7zAHLi7uCdzeZ6qHNnpHOnBxcfdwqwlMDzRJpXBxcf+Wm2xW8sCUtFqrz+Pi4u7k9ujV41l5MaXQXsXFxX2Bm2xH8hbIJOGJCqm4uLgHcNcGsupbjz0fXFzcjdzqB/KUplp4jQIZLi7ua9w87aneXXVQo5ml4eLiLuVOGqJ5MOpdwcXF3cntNU2rLdJlDRVcXNyN3GoaM3kr370s/jAuLm7wzFUceQElX1ihQYuLi7uFm4+1hY9fWiatPwUXF3ctN09R8kl7xziid3FxcTdyV5U5FmxQqocwcHFxD+DmU1cLptEWChcX93ju5Eoe4JYFMlxc3CJ3fgwrL3lMFo+Li7uHWw4lgxJqFTGq7+Li4na4P4ZNuWiGL3VwAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

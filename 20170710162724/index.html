@@ -1,0 +1,288 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>JavaScript 的继承方式及优缺点 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript,面向对象,继承"><meta name="description" content="前言JavaScript 原本不是纯粹的 OOP 语言，因为在 ES5 规范中没有类的概念，在 ES6 中才正式加入了 class 的编程方式，在 ES6 之前，也都是使用面向对象的编程方式，当然是 JavaScript 独有的面向对象编程，而且这种编程方式是建立在 JavaScript 独特的原型链的基础之上的，我们本篇就将对原型链以及面向对象编程最常用到的继承进行刨析。"><meta property="og:type" content="article"><meta property="og:title" content="JavaScript 的继承方式及优缺点"><meta property="og:url" content="https://www.overtaking.top/20170710162724/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言JavaScript 原本不是纯粹的 OOP 语言，因为在 ES5 规范中没有类的概念，在 ES6 中才正式加入了 class 的编程方式，在 ES6 之前，也都是使用面向对象的编程方式，当然是 JavaScript 独有的面向对象编程，而且这种编程方式是建立在 JavaScript 独特的原型链的基础之上的，我们本篇就将对原型链以及面向对象编程最常用到的继承进行刨析。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/JavaScript/20170710162724/extends.png"><meta property="article:published_time" content="2017-07-10T08:27:24.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta property="article:tag" content="面向对象"><meta property="article:tag" content="继承"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/JavaScript/20170710162724/extends.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">JavaScript 的继承方式及优缺点</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">JavaScript 的继承方式及优缺点</h1><h5 class="subtitle"><time datetime="2017-07-10T08:27:24.000Z" itemprop="datePublished" class="page-time">2017-07-10</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/JavaScript/">JavaScript</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#继承简介"><span class="post-toc-number">2.</span> <span class="post-toc-text">继承简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#复制的方式进行继承"><span class="post-toc-number">3.</span> <span class="post-toc-text">复制的方式进行继承</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#浅复制"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">浅复制</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#深复制"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">深复制</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#原型替换"><span class="post-toc-number">4.</span> <span class="post-toc-text">原型替换</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#原型链继承"><span class="post-toc-number">5.</span> <span class="post-toc-text">原型链继承</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#构造函数继承"><span class="post-toc-number">6.</span> <span class="post-toc-text">构造函数继承</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#构造函数原型链组合继承"><span class="post-toc-number">7.</span> <span class="post-toc-text">构造函数原型链组合继承</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#原型式继承"><span class="post-toc-number">8.</span> <span class="post-toc-text">原型式继承</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#寄生式继承"><span class="post-toc-number">9.</span> <span class="post-toc-text">寄生式继承</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#寄生组合式继承"><span class="post-toc-number">10.</span> <span class="post-toc-text">寄生组合式继承</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#class…extends…-继承"><span class="post-toc-number">11.</span> <span class="post-toc-text">class…extends… 继承</span></a></li></ol></nav></aside><article id="post-JavaScript/20170710162724" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">JavaScript 的继承方式及优缺点</h1><div class="post-meta"><time class="post-time" title="2017-07-10 16:27:24" datetime="2017-07-10T08:27:24.000Z" itemprop="datePublished">2017-07-10</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/JavaScript/">JavaScript</a></li></ul><span id="/20170710162724/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="JavaScript 的继承方式及优缺点"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/JavaScript/20170710162724/extends.png" title="JS 继承"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote warning"><p><strong><code>JavaScript</code> 原本不是纯粹的 <code>OOP</code> 语言，因为在 <code>ES5</code> 规范中没有类的概念，在 <code>ES6</code> 中才正式加入了 <code>class</code> 的编程方式，在 <code>ES6</code> 之前，也都是使用面向对象的编程方式，当然是 <code>JavaScript</code> 独有的面向对象编程，而且这种编程方式是建立在 <code>JavaScript</code> 独特的原型链的基础之上的，我们本篇就将对原型链以及面向对象编程最常用到的继承进行刨析。</strong></p></blockquote><a id="more"></a><h2 id="继承简介"><a href="#继承简介" class="headerlink" title="继承简介"></a>继承简介</h2><blockquote class="pullquote default"><p><strong>在 <code>JavaScript</code> 的中的面向对象编程，继承是给构造函数之间建立关系非常重要的方式，根据 <code>JavaScript</code> 原型链的特点，其实继承就是更改原本默认的原型链，形成新的原型链的过程。</strong></p></blockquote><h2 id="复制的方式进行继承"><a href="#复制的方式进行继承" class="headerlink" title="复制的方式进行继承"></a>复制的方式进行继承</h2><p>复制的方式进行继承指定是对象与对象间的浅复制和深复制，这种方式到底算不算继承的一种备受争议，我们也把它放在我们的内容中，当作一个 “不正经” 的继承。</p><h3 id="浅复制"><a href="#浅复制" class="headerlink" title="浅复制"></a>浅复制</h3><p>创建一个浅复制的函数，第一个参数为复制的源对象，第二个参数为目标对象。</p><pre><code class="lang-js">// 浅复制方法
+function extend(p, c = {}) {
+  for (let k in p) {
+    c[k] = p[k];
+  }
+  return c;
+}
+
+// 源对象
+const parent = {
+  a: 1,
+  b: function () {
+    console.log(1);
+  }
+};
+
+// 目标对象
+const child = {
+  c: 2
+};
+
+// 执行
+extend(parent, child);
+console.log(child); // { c: 2, a: 1, b: ƒ }
+</code></pre><p>上面的 <code>extend</code> 方法在 ES6 标准中可以直接使用 <code>Object.assign</code> 方法所替代。</p><h3 id="深复制"><a href="#深复制" class="headerlink" title="深复制"></a>深复制</h3><p>可以组合使用 <code>JSON.stringify</code> 和 <code>JSON.parse</code> 来实现，但是有局限性，不能处理函数和正则类型，所以我们自己实现一个方法，参数与浅复制相同。</p><pre><code class="lang-js">// 深复制方法
+function extendDeeply(p, c = {}) {
+  for (let k in p) {
+    if (typeof p[k] === &#39;object&#39; &amp;&amp; typeof p[k] !== null) {
+      c[k] = p[k] instanceof Array ? [] : {};
+      extendDeeply(p[k], c[k]);
+    } else {
+      c[k] = p[k];
+    }
+  }
+  return c;
+}
+
+// 源对象
+const parent = {
+  a: {
+    b: 1
+  },
+  b: [1, 2, 3],
+  c: 1,
+  d: function () {
+    console.log(1);
+  }
+};
+
+// 执行
+const child = extendDeeply(parent);
+
+console.log(child); // { a: {b: 1}, b: [1, 2, 3], c: 1, d: ƒ }
+console.log(child.a === parent.a); // false
+console.log(child.b === parent.b); // false
+console.log(child.d === parent.d); // true
+</code></pre><p>在上面可以看出复制后的新对象 <code>child</code> 的 <code>a</code> 属性和 <code>b</code> 的引用是独立的，与 <code>parent</code> 的 <code>a</code> 和 <code>b</code> 毫无关系，实现了深复制，但是 <code>extendDeeply</code> 函数并没有对函数类型做处理，因为函数内部执行相同的逻辑指向不同引用是浪费内存的。</p><h2 id="原型替换"><a href="#原型替换" class="headerlink" title="原型替换"></a>原型替换</h2><p>原型替换是继承当中最简单也是最直接的方式，即直接让父类和子类共用同一个原型对象，一般有两种实现方式。</p><pre><code class="lang-js">/* 原型替换 */
+// 父类
+function Parent() {}
+
+// 子类
+function Child() {}
+
+// 简单粗暴的写法
+Child.prototype = Parent.prototype;
+
+// 另一种种实现方式
+Object.setPrototypeOf(Child.prototype, Parent.prototype);
+</code></pre><p>上面这种方式 <code>Child</code> 的原型被替换掉，<code>Child</code> 的实例可以直接调用 <code>Parent</code> 原型上的方法，实现了对父类原型方法的继承。</p><p>上面第二种方式使用了 <code>Object.setPrototypeOf</code> 方法，该方法是将传入第一个参数对象的原型设置为第二个参数传入的对象，所以我们第一个参数传入的是 <code>Child</code> 的原型，将 <code>Child</code> 原型的原型设置成了 <code>Parent</code> 的原型，使父、子类原型链产生关联，<code>Child</code> 的实例继承了 <code>Parent</code> 原型上的方法，在 Node.js 中的内置模块 <code>util</code> 中用来实现继承的方法 <code>inherits</code>，底层就是使用这种方式实现的。</p><blockquote class="pullquote primary"><p><strong>缺点：父类的实例也同样可以调用子类的原型方法，我们希望继承是单向的，否则无法区分父、子类关系，这种方式一般是不可取的。</strong></p></blockquote><h2 id="原型链继承"><a href="#原型链继承" class="headerlink" title="原型链继承"></a>原型链继承</h2><p>原型链继承的思路是子类的原型的原型是父类的原型，形成了一条原型链，建立子类与父类原型的关系。</p><pre><code class="lang-js">/* 原型链继承 */
+// 父类
+function Parent(name) {
+  this.name = name;
+  this.hobby = [&#39;basketball&#39;, &#39;football&#39;];
+}
+
+// 子类
+function Child() {}
+
+// 继承
+Child.prototype = new Parent();
+</code></pre><p>上面用 <code>Parent</code> 的实例替换了 <code>Child</code> 自己的原型，由于父类的实例原型直接指向 <code>Parent.prototype</code>，所以也使父、子类原型链产生关联，子类实例继承了父类原型的方法。</p><blockquote class="pullquote info"><p><strong>缺点：</strong></p><ul><li><strong>只能继承父类原型上的方法，却无法继承父类上的属性；</strong></li><li><strong>由于原型对象被替换，原本原型的 <code>constructor</code> 属性丢失；</strong></li><li><strong>如果父类的构造函数中有属性，则创建的父类的实例也会有这个属性，用这个实例的作为子类的原型，这个属性就变成了所有子类实例所共有的，这个属性可能是多余的，并不是我们想要的，也可能我们希望它不是共有的，而是每个实例自己的。</strong></li></ul></blockquote><h2 id="构造函数继承"><a href="#构造函数继承" class="headerlink" title="构造函数继承"></a>构造函数继承</h2><p>构造函数继承又被国内的开发者叫做 “经典继承”。</p><pre><code class="lang-js">/* 构造函数继承 */
+// 父类
+function Parent(name) {
+  this.name = name;
+}
+
+// 子类
+function Child() {
+  Parent.apply(this, arguments);
+}
+
+let c = new Child(&#39;Panda&#39;);
+console.log(c); // { name: &#39;Panda&#39; }
+</code></pre><p>构造函数继承的原理就是在创建 <code>Child</code> 实例的时候执行了 <code>Child</code> 构造函数，并借用 <code>call</code> 或 <code>apply</code> 在内部执行了父类 <code>Parent</code>，并把父类的属性创建给了 <code>this</code>，即子类的实例，解决了原型链继承不能继承父类属性的缺点。</p><blockquote class="pullquote danger"><p><strong>缺点：子类的实例只能继承父类的属性，却不能继承父类的原型的方法。</strong></p></blockquote><h2 id="构造函数原型链组合继承"><a href="#构造函数原型链组合继承" class="headerlink" title="构造函数原型链组合继承"></a>构造函数原型链组合继承</h2><p>为了使子类既能继承父类原型的方法，又能继承父类的属性到自己的实例上，就有了这种组合使用的方式。</p><pre><code class="lang-js">/* 构造函数原型链组合继承 */
+// 父类
+function Parent(name) {
+  this.name = name;
+}
+
+Parent.prototype.sayName = function () {
+  console.log(this.name);
+};
+
+// 子类
+function Child() {
+  Parent.apply(this, arguments);
+}
+
+// 继承
+Child.prototype = new Parent();
+
+const c = new Child(&#39;Panda&#39;);
+console.log(c); // { name: &#39;Panda&#39; }
+c.sayName(); // Panda
+</code></pre><p>这种继承看似完美，但是之前 <code>constructor</code> 丢失和子类原型上多余共有属性的问题还是没有解决，在这基础上又产生了新的问题。</p><blockquote class="pullquote success"><p><strong>缺点：父类被执行了两次，在使用 <code>call</code> 或 <code>apply</code> 继承属性时执行一次，在创建实例替换子类原型时又被执行了一次。</strong></p></blockquote><h2 id="原型式继承"><a href="#原型式继承" class="headerlink" title="原型式继承"></a>原型式继承</h2><p>原型式继承主要用来解决用父类的实例替换子类的原型时共有属性的问题，以及父类构造函数执行两次的问题，也就是说通过原型式继承能保证子类的原型是 “干净的”，而保证只在继承父类的属性时执行一次父类。</p><pre><code class="lang-js">/* 原型式继承 */
+// 父类
+function Parent(name) {
+  this.name = name;
+}
+
+// 子类
+function Child() {
+  Parent.apply(this, arguments);
+}
+
+// 继承函数
+function create(obj) {
+  function F() {}
+  F.prototype = obj;
+  return new F();
+}
+
+// 继承
+Child.prototype = create(Parent.prototype);
+
+const c = new Child(&#39;Panda&#39;);
+console.log(c); // { name: &#39;Panda&#39; }
+</code></pre><p>原型式继承其实是借助了一个中间的构造函数，将中间构造函数 <code>F</code> 的 <code>prototype</code> 替换成了父类的原型，并创建了一个 <code>F</code> 的实例返回，这个实例是不具备任何属性的（干净的），用这个实例替换子类的原型，因为这个实例的原型指向 <code>F</code> 的原型，<code>F</code> 的原型同时又是父类的原型对象，所以子类实例继承了父类原型的方法，父类只在创建子类实例的时候执行了一次，省去了创建父类实例的过程。</p><p>原型式继承在 <code>ES5</code> 标准中被封装成了一个专门的方法 <code>Object.create</code>，该方法的第一个参数与上面 <code>create</code> 函数的参数相同，即要作为原型的对象，第二个参数则可以传递一个对象，会把对象上的属性添加到这个原型上，一般第二个参数用来弥补 <code>constructor</code> 的丢失问题，这个方法不兼容 IE 低版本浏览器。</p><h2 id="寄生式继承"><a href="#寄生式继承" class="headerlink" title="寄生式继承"></a>寄生式继承</h2><p>寄生式继承就是用来解决子统一为原型式继承中返回的对象统一添加方法的问题，只是在原型式继承的基础上做了小小的修改。</p><pre><code class="lang-js">/* 寄生式继承 */
+// 父类
+function Parent(name) {
+  this.name = name;
+}
+
+// 子类
+function Child() {
+  Parent.apply(this, arguments);
+}
+
+// 继承函数
+function create(obj) {
+  function F() {}
+  F.prototype = obj;
+  return new F();
+}
+
+// 将子类方法私有化函数
+function creatFunction(obj) {
+  // 调用继承函数
+  let clone = create(obj);
+  // 子类原型方法（多个）
+  clone.sayName = function () {};
+  clone.sayHello = function () {};
+
+  return clone;
+}
+
+// 继承
+Child.prototype = creatFunction(Parent.prototype);
+</code></pre><blockquote class="pullquote default"><p><strong>缺点：因为寄生式继承最后返回的是一个对象，如果用一个变量直接来接收它，那相当于添加的所有方法都变成这个对象自身的了，如果创建了多个这样的对象，无法实现相同方法的复用。</strong></p></blockquote><h2 id="寄生组合式继承"><a href="#寄生组合式继承" class="headerlink" title="寄生组合式继承"></a>寄生组合式继承</h2><pre><code class="lang-js">/* 寄生组合式继承 */
+// 父类
+function P(name, age) {
+  this.name = name;
+  this.age = age;
+}
+
+P.prototype.headCount = 1;
+P.prototype.eat = function () {
+  console.log(&#39;eating...&#39;);
+};
+
+// 子类
+function C(name, age) {
+  P.apply(this, arguments);
+}
+
+// 寄生组合式继承方法
+function myCreate(Child, Parent) {
+  function F() {}
+  F.prototype = Parent.prototype;
+  Child.prototype = new F();
+  Child.prototype.constructor = Child;
+  // 让 Child 子类的静态属性 super 和 base 指向父类的原型
+  Child.super = Child.base = Parent.prototype;
+}
+
+// 调用方法实现继承
+myCreate(C, P);
+
+// 向子类原型添加属性方法，因为子类构造函数的原型被替换，所以属性方法仍然在替换之后
+C.prototype.language = &#39;javascript&#39;;
+C.prototype.work = function () {
+  console.log(&#39;writing code use &#39; + this.language);
+};
+C.work = function () {
+  this.super.eat();
+};
+
+// 验证继承是否成功
+const f = new C(&#39;nihao&#39;, 16);
+f.work();
+C.work();
+
+// writing code use javascript
+// eating...
+</code></pre><p>寄生组合式继承基本规避了其他继承的大部分缺点，应该比较强大了，也是平时使用最多的一种继承，其中 <code>Child.super</code> 方法的作用是为了在调用子类静态属性的时候可以调用父类的原型方法。</p><blockquote class="pullquote warning"><p><strong>缺点：子类没有继承父类的静态方法。</strong></p></blockquote><h2 id="class…extends…-继承"><a href="#class…extends…-继承" class="headerlink" title="class…extends… 继承"></a>class…extends… 继承</h2><p>在 ES6 规范中有了类的概念，使继承变得容易，在规避上面缺点的完成继承的同时，又在继承时继承了父类的静态属性。</p><pre><code class="lang-js">/* class...extends... 继承 */
+// 父类
+class P {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+  sayName() {
+    console.log(this.name);
+  }
+  static sayHi() {
+    console.log(&#39;Hello&#39;);
+  }
+}
+
+// 子类继承父类
+class C extends P {
+  constructor(name, age) {
+    supper(name, age); // 继承父类的属性
+  }
+  sayHello() {
+    P.sayHi();
+  }
+  static sayHello() {
+    super.sayHi();
+  }
+}
+
+let c = new C(&#39;jack&#39;, 18);
+
+c.sayName(); // jack
+c.sayHello(); // Hello
+C.sayHi(); // Hello
+C.sayHello(); // Hello
+</code></pre><blockquote class="pullquote success"><p><strong>在子类的 <code>constructor</code> 中调用 <code>supper</code> 可以实现对父类属性的继承，父类的原型方法和静态方法直接会被子类继承，在子类的原型方法中使用父类的原型方法只需使用 <code>this</code> 或 <code>supper</code> 调用即可，此时 <code>this</code> 指向子类的实例，如果在子类的静态方法中使用 <code>this</code> 或 <code>supper</code> 调用父类的静态方法，此时 <code>this</code> 指向子类本身。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20170710162724/" target="_blank" rel="external">https://www.overtaking.top/20170710162724/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%A7%E6%89%BF/" rel="tag">继承</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" rel="tag">面向对象</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20170710162724/&title=《JavaScript 的继承方式及优缺点》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20170710162724/&title=《JavaScript 的继承方式及优缺点》 — Shen's Blog&source=前言JavaScript 原本不是纯粹的 OOP 语言，因为在 ES5 规范中没有类的概念，在 ES6 中才正式加入了 class 的编程方式，在 ES6..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20170710162724/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《JavaScript 的继承方式及优缺点》 — Shen's Blog&url=https://www.overtaking.top/20170710162724/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20170710162724/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20171214024101/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Git 命令总结，从零到熟悉</h4></a></div><div class="waves-block waves-effect next"><a href="/20170709131856/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">浅谈 JavaScript 原型链</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20170710162724/&title=《JavaScript 的继承方式及优缺点》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20170710162724/&title=《JavaScript 的继承方式及优缺点》 — Shen's Blog&source=前言JavaScript 原本不是纯粹的 OOP 语言，因为在 ES5 规范中没有类的概念，在 ES6 中才正式加入了 class 的编程方式，在 ES6..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20170710162724/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《JavaScript 的继承方式及优缺点》 — Shen's Blog&url=https://www.overtaking.top/20170710162724/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20170710162724/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABz0lEQVR42u3aO27EMAwFwNz/0g6QKo20fNQnRjCqFvGuPE5BiI/++iqv52eN/v776uhz5eq2hYuLu8x9pmv0ncoOc+h8/9E+uLi4N7nz4vVhiwFifpdKUcPFxX0/t3I0SQsWLi7uf+XOv1k/QuHi4r6Nm25XCUR67dC2Xg0XF3eBmwamJz4fzHdxcXFD7hOuSlFLY5Hg7ri4uFe4vagiHbVW4tQgfsXFxT3MTQOR9CF7Ja/5DgguLu4mbjoCWXmkyl2CR8LFxT3GTUPM+uP1ko145oOLi3uAWy9bFVav+YmDGFxc3MPc3hb1hmdD2Vp/Ylxc3JCbDj7rx520oWq+R4aLi3uAGw84W43NrmKHi4v7V9z6gSMNWFeCmOHbIri4uAe4ve3uDFmD7g0XF3crtxKLpMPReo6RfsbFxb3P7UWZ6ah1Xv6avRouLu5Wbj0YXSpArRWgcXFxt3KfcPWKYHp1+CtcXNwr3LSspMea+uEpmAnj4uJe4dZfvUrHqL3w9MNvcXFxL3LXg84N9bLSq+Hi4r6M23tFo3IMilNeXFzcF3PTQUv9wBS8IYKLi3uMW29+5s1M+k+Jd8PFxb3CTQPTSouSNlT1ES8uLu5h7jeRDDPS1a7pbwAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>设计模式 JS 表现 —— 单例模式 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript,设计模式,创建型模式"><meta name="description" content="前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模拟面向对象）编程的实现相较于其他强类型语言实现更为繁琐，所以代码主要以 JavaScript 表现。"><meta property="og:type" content="article"><meta property="og:title" content="设计模式 JS 表现 —— 单例模式"><meta property="og:url" content="https://www.overtaking.top/20180926201447/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模拟面向对象）编程的实现相较于其他强类型语言实现更为繁琐，所以代码主要以 JavaScript 表现。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/DesignPatterns/20180926201447/single.jpg"><meta property="og:image" content="https://static.overtaking.top/images/DesignPatterns/20180926201447/singleton-uml.jpg"><meta property="article:published_time" content="2018-09-26T12:14:47.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta property="article:tag" content="设计模式"><meta property="article:tag" content="创建型模式"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/DesignPatterns/20180926201447/single.jpg"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">设计模式 JS 表现 —— 单例模式</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">设计模式 JS 表现 —— 单例模式</h1><h5 class="subtitle"><time datetime="2018-09-26T12:14:47.000Z" itemprop="datePublished" class="page-time">2018-09-26</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#普通单例模式"><span class="post-toc-number">2.</span> <span class="post-toc-text">普通单例模式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#透明单例模式"><span class="post-toc-number">3.</span> <span class="post-toc-text">透明单例模式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#单例与构建分离"><span class="post-toc-number">4.</span> <span class="post-toc-text">单例与构建分离</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#封装变化"><span class="post-toc-number">5.</span> <span class="post-toc-text">封装变化</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#单例模式的应用"><span class="post-toc-number">6.</span> <span class="post-toc-text">单例模式的应用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#命名空间"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">命名空间</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#LRU-缓存"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">LRU 缓存</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">7.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-DesignPatterns/20180926201447" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">设计模式 JS 表现 —— 单例模式</h1><div class="post-meta"><time class="post-time" title="2018-09-26 20:14:47" datetime="2018-09-26T12:14:47.000Z" itemprop="datePublished">2018-09-26</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></li></ul><span id="/20180926201447/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="设计模式 JS 表现 —— 单例模式"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/DesignPatterns/20180926201447/single.jpg" title="单例模式"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote warning"><p><strong>这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 <code>JavaScript</code> 本身是弱类型，面向对象（模拟面向对象）编程的实现相较于其他强类型语言实现更为繁琐，所以代码主要以 <code>JavaScript</code> 表现。</strong></p></blockquote><a id="more"></a><blockquote class="pullquote info"><p><strong>系列文章链接：</strong></p><ul><li><a href="/20180925190503/" target="_blank">设计模式 JS 表现 —— 工厂模式</a></li><li><a href="/20180927230432/" target="_blank">设计模式 JS 表现 —— 适配器模式</a></li><li><a href="/20180928030105/" target="_blank">设计模式 JS 表现 —— 装饰器模式</a></li><li><a href="/20180929025641/" target="_blank">设计模式 JS 表现 —— 代理模式</a></li><li><a href="/20181001165125/" target="_blank">设计模式 JS 表现 —— 外观模式</a></li><li><a href="/20181004114907/" target="_blank">设计模式 JS 表现 —— 发布/订阅和观察者模式</a></li><li><a href="/20181005161213/" target="_blank">设计模式 JS 表现 —— 状态模式</a></li><li><a href="/20181006014812/" target="_blank">设计模式 JS 表现 —— 策略模式</a></li></ul></blockquote><h2 id="普通单例模式"><a href="#普通单例模式" class="headerlink" title="普通单例模式"></a>普通单例模式</h2><p>“单例模式” 就是通过类创建实例后，每次创建和获取都返回同一个实例，下面是 “单例模式” 最基本的实现。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/DesignPatterns/20180926201447/singleton-uml.jpg" alt="单例模式 UML 图"></div><div class="image-caption">单例模式 UML 图</div></figure><p><br></p><pre><code class="lang-js">/* ES6 写法 */
+class Person {
+  constructor(name) {
+    this.name = name;
+  }
+  static getInstance(name) {
+    if (!this.instance) {
+      this.instance = new Person(name);
+    }
+    return this.instance;
+  }
+}
+
+const w1 = Person.getInstance(&#39;hello&#39;);
+const w2 = Person.getInstance(&#39;world&#39;);
+
+console.log(w1 === w2); // true
+</code></pre><pre><code class="lang-js">/* ES5 写法 */
+function Person(name) {
+  this.name = name;
+}
+
+Person.getInstance = (function () {
+  let instance;
+  return function (name) {
+    if (!instance) {
+      instance = new Person(name);
+    }
+    return instance;
+  }
+})();
+
+const w1 = Person.getInstance(&#39;hello&#39;);
+const w2 = Person.getInstance(&#39;world&#39;);
+
+console.log(w1 === w2); // true
+</code></pre><p>上面分别用 <code>ES6</code> 和 <code>ES5</code> 的方式实现了一个基本的单例模式，创建 <code>Person</code> 的实例时需要通过 <code>getInstance</code> 静态方法，这样第一次会创建一个实例，再次调用时会将之前创建的实例返回，达到单例的目的。</p><blockquote class="pullquote danger"><p><strong>上面单例模式的缺点：</strong></p><ul><li><strong>类的使用者必须要知道这是一个单例的类，创建和获取实例必须通过调用 <code>getInstance</code> 方法；</strong></li><li><strong>并不能真正阻止类的使用者通过 <code>new</code> 关键字创建出新的实例。</strong></li></ul></blockquote><h2 id="透明单例模式"><a href="#透明单例模式" class="headerlink" title="透明单例模式"></a>透明单例模式</h2><p>“透明单例模式” 可以解决上面普通 “单例模式” 的不足，希望可以直接使用 <code>new</code> 关键字来创建类的实例，如果已经创建，再次通过 <code>new</code> 创建，则会返回之前创建的实例。</p><pre><code class="lang-js">/* 透明单例模式 */
+const Person = (function () {
+  let instance;
+
+  return function (name) {
+    if (instance) {
+      return instance;
+    } else {
+      this.name = name;
+      instance = this;
+    }
+  }
+})();
+
+const w1 = new Person(&#39;hello&#39;);
+const w2 = new Person(&#39;world&#39;);
+
+console.log(w1 === w2); // true
+</code></pre><p>“透明单例模式” 的原理是创建一个自执行函数，内部创建一个私有变量 <code>instance</code> 用来存储创建的实例，并通过闭包返回一个构造函数，用变量 <code>Person</code> 接收，当使用 <code>new</code> 创建实例时，先检测私有变量 <code>instance</code> 是否有值，如果没值则创建实例，如果有值则直接返回 <code>instance</code>（利用 <code>new</code> 关键字和构造创建实例的原理实现）。</p><blockquote class="pullquote default"><p><strong>缺点：违反了单一职责原则（一个函数只做一件事），自执行函数返回的构造函数已经不止单纯用作构建实例，同时处理了单例的判断逻辑。</strong></p></blockquote><h2 id="单例与构建分离"><a href="#单例与构建分离" class="headerlink" title="单例与构建分离"></a>单例与构建分离</h2><p>针对上面 “透明单例模式” 的缺点，下面将构造函数单例处理与构建逻辑进行分离。</p><pre><code class="lang-js">/* 单例逻辑与构建逻辑分离 */
+// 真正的构造函数
+function Person(name) {
+  this.name = name;
+}
+
+Person.prototype.getName = function () {
+  console.log(this.name);
+}
+
+// 新的构造函数
+const CreatePerson = (function () {
+  let instance;
+
+  return function (name) {
+    if (!instance) {
+      instance = new Person(name);
+    }
+    return instance;
+  }
+})();
+
+const w1 = new CreatePerson(&#39;hello&#39;);
+const w2 = new CreatePerson(&#39;world&#39;);
+
+console.log(w1 === w2); // true
+</code></pre><p>上面代码将单例的逻辑与构造函数的逻辑进行了分离，真正用于构造实例的类是 <code>Person</code>，用于处理单例逻辑的是自执行函数返回的函数，使用 <code>CreatePerson</code> 变量接收，这个函数也同时约定好被当做构造函数使用（通过 <code>new</code> 关键字调用和直接执行效果相同）。</p><blockquote class="pullquote primary"><p><strong>缺点：生成的新构造函数名字（<code>CreatePerson</code>）是固定的，用来创建实例的这个类（<code>Person</code>）也是固定的，不够灵活。</strong></p></blockquote><h2 id="封装变化"><a href="#封装变化" class="headerlink" title="封装变化"></a>封装变化</h2><p>下面支持不同的构造函数创建实例，并且可以使用原本构造函数的对应方法，就是把上面案例不灵活的地方变得灵活。</p><pre><code class="lang-js">/* 封装变化 */
+const CreateSingle = function (Constructor) {
+  let instance;
+
+  const SingleConstructor = function () {
+    if (!instance) {
+      Constructor.apply(this, arguments);
+      instance = this;
+    }
+    return instance;
+  }
+
+  // 实现原型继承
+  SingleConstructor.prototype = Object.create(Constructor.prototype);
+  return SingleConstructor;
+}
+</code></pre><pre><code class="lang-js">/* 使用方式 */
+// 构造函数
+function Person(name, age) {
+  this.name = name;
+  this.age = age;
+}
+
+function Dailog(name) {
+  this.name = name
+}
+
+// 原型方法
+Person.prototype.sayHi = function () {
+  console.log(this.name + &#39;：&#39; + this.age);
+}
+
+Dailog.prototype.getName = function () {
+  console.log(this.name);
+}
+
+// 创建新的构造函数并生成实例
+const CreatePerson = CreateSingle(Person);
+const w1 = new CreatePerson(&#39;hello&#39;, 18);
+const w2 = new CreatePerson(&#39;world&#39;, 20);
+
+const CreateDailog = CreateSingle(Dailog);
+const s1 = new CreateDailog(&#39;model&#39;);
+const s2 = new CreateDailog(&#39;view&#39;);
+
+console.log(w1 === w2); // true
+console.log(s1 === s2); // true
+</code></pre><p>上面我们把创建单例的逻辑进行了封装变成了一个通用的逻辑，对于不同构造函数所创建实例，只需要传入这个构造函数并生成新的构造函数，需要注意的是，新的构造函数无法继承原构造函数的原型方法，所以通过继承实现的。</p><h2 id="单例模式的应用"><a href="#单例模式的应用" class="headerlink" title="单例模式的应用"></a>单例模式的应用</h2><h3 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h3><p>在编写代码时，我们有时候需要人为的创建命名空间，以防止变量的相互污染，这是可以使用 “单例模式” 来实现。</p><pre><code class="lang-js">/* 创建命名空间的方法 */
+// 存储工具方法
+const utils = {};
+
+// 定义命名空间
+utils.define = function (namespace, fn) {
+  // 获取命名空间的数组
+  const namespaces = namespace.split(&#39;.&#39;);
+
+  // 最后一项为设定方法的属性名
+  const methodName = namespaces.pop();
+
+  // 定义变量存储当前命名空间的引用，默认为 utils（根命名空间）
+  let current = utils;
+
+  for (let i = 0; i &lt; namespaces.length; i++) {
+    const currentNamespace = namespaces[i];
+
+    // 当某一个命名空间没有时，则创建这个命名空间（单例模式）
+    if (!current[currentNamespace]) {
+      current[currentNamespace] = {};
+    }
+
+    // 否则让当前命名空间指向已有的命名空间
+    current = current[currentNamespace];
+  }
+
+  // 将传入的函数设定给最后一级命名空间的属性上
+  current[methodName] = fn;
+}
+</code></pre><pre><code class="lang-js">/* 命名空间的创建和使用 */
+// 通过命名空间定义方法
+utils.define(&#39;dom.class.addClass&#39;, function () {
+  console.log(&#39;dom.class.addClass&#39;);
+});
+
+utils.define(&#39;string.trim&#39;, function () {
+  console.log(&#39;string.trim&#39;);
+});
+
+utils.define(&#39;event.prevent&#39;, function () {
+  console.log(&#39;event.prevent&#39;);
+});
+
+// 使用方法
+utils.dom.class.addClass(&#39;title&#39;); // dom.class.addClass
+utils.string.trim(&#39; hello &#39;); // string.trim
+utils.event.prevent(); // event.prevent
+</code></pre><p>上面代码的设计希望通过 <code>utils</code> 对象的 <code>define</code> 方法按照传入的表示命名空间的字符串去创建方法，基本实现思路和逻辑是，当一个属性是第一次出现时，创建一个对象作为该命名空间，当再次出现时则不会重复创建命名空间（因为会出现覆盖的问题），而是沿用之前创建的命名空间。</p><h3 id="LRU-缓存"><a href="#LRU-缓存" class="headerlink" title="LRU 缓存"></a>LRU 缓存</h3><p><code>LRU</code> 全称为 <code>Least Recently Used</code>，为最近使用的意思，缓存的方式为访问一个元素时，则将其标记为活跃，当存储时，如果超出容量则删除最不常用的元素。</p><pre><code class="lang-js">/* 创建 LRU 缓存类 */
+class LRUCache {
+  constructor(capacity) {
+    this.capacity = capacity;
+    this.members = [];
+  }
+  put(key, val) {
+    let oldestIndex = -1; // 最不活跃项的索引
+    let oldestAge = -1; // 最不活跃项的活跃数值
+    let found = false;
+
+    for (let i = 0; i &lt; this.members.length; i++) {
+      const member = this.members[i];
+
+      // 如果找到当前最不活跃的项，将 oldestAge 和 oldestIndex 更新为该项对应值
+      if (member.age &gt; oldestAge) {
+        oldestAge = member.age;
+        oldestIndex = i;
+      }
+
+      // 如果添加项在原本 members 中已经存在，则更新 age 的值为 0
+      if (member.key === key) {
+        this.members[i] = { key, val, age: 0 };
+        found = true; // 为了跳过 push 新增的环节
+      } else {
+        // 否则其他所有项 age 自增
+        member.age++;
+      }
+    }
+
+    if (!found) {
+      if (this.members.length &gt;= this.capacity) {
+        this.members.splice(oldestIndex, 1);
+      }
+      this.members.push({ key, val, age: 0 });
+    }
+  }
+  get(key) {
+    for (let i = 0; i &lt; this.members.length; i++) {
+      const member = this.members[i];
+
+      if (member.key === key) {
+        member.age = 0;
+        return member.val;
+      }
+    }
+    return -1;
+  }
+}
+</code></pre><p>上面是一个创建 <code>LRU</code> 缓存的类，用数组管理成员，<code>put</code> 方法用于新增成员，<code>get</code> 方法用于访问成员，当访问成员时，成员的 <code>age</code> 清零，代表最近活跃，当新增元素时，如果该元素已存在，则做覆盖操作，如果不存在，则推入数组中，<code>age</code> 设置为零，其他成员 <code>age</code> 自增，若数组超出容量时，先找到 <code>age</code> 最大的元素删除，再将新的元素推入数组，上面是一个直观但性能较差的实现，如果有兴趣可以使用链表进行优化。</p><pre><code class="lang-js">/* 使用 LRU 缓存 */
+const cache = new LRUCache(2);
+
+cache.put(&#39;1&#39;, 1);
+console.log(cache.members);
+// [ { key: &#39;1&#39;, val: 1, age: 0 } ]
+
+cache.put(&#39;2&#39;, 2);
+console.log(cache.members);
+// [ { key: &#39;1&#39;, val: 1, age: 1 }, { key: &#39;2&#39;, val: 2, age: 0 } ]
+
+cache.put(&#39;3&#39;, 3);
+console.log(cache.members);
+// [ { key: &#39;2&#39;, val: 2, age: 1 }, { key: &#39;3&#39;, val: 3, age: 0 } ]
+
+cache.put(&#39;2&#39;, &#39;hello&#39;);
+console.log(cache.members);
+// [ { key: &#39;2&#39;, val: &#39;hello&#39;, age: 0 }, { key: &#39;3&#39;, val: 3, age: 1 } ]
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>“单例模式” 是设计模式中非常好理解的一个，使用还是非常广泛的，在 <code>Redux</code> 等众多的第三方库中也有所体现，最后附上</strong> <a href="https://github.com/shenqiuhui/design-pattern-js/tree/master/3.single" target="_blank">案例地址</a><strong>。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180926201447/" target="_blank" rel="external">https://www.overtaking.top/20180926201447/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">创建型模式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180926201447/&title=《设计模式 JS 表现 —— 单例模式》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180926201447/&title=《设计模式 JS 表现 —— 单例模式》 — Shen's Blog&source=前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180926201447/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《设计模式 JS 表现 —— 单例模式》 — Shen's Blog&url=https://www.overtaking.top/20180926201447/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180926201447/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180927230432/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">设计模式 JS 表现 —— 适配器模式</h4></a></div><div class="waves-block waves-effect next"><a href="/20180925190503/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">设计模式 JS 表现 —— 工厂模式</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180926201447/&title=《设计模式 JS 表现 —— 单例模式》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180926201447/&title=《设计模式 JS 表现 —— 单例模式》 — Shen's Blog&source=前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180926201447/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《设计模式 JS 表现 —— 单例模式》 — Shen's Blog&url=https://www.overtaking.top/20180926201447/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180926201447/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABwklEQVR42u3aQY6DMAwF0N7/0sy20gzwHeMIaV5WFbTJo4so3+bzicfxNb6v/L77fT2Z8zMxcHFx29zjciS45JvX3MSAi4u7n5tPd/2oyYZ1/ZA3Nlxc3Bdzkyu4uLj/gZt8znG4uLjv5yaRZu0B8iLLw1kNFxe3wa0WNyc+j9R3cXFxl7hHYyTxprN5/bEiLi7uFu5asEmiS/U7hWiEi4u7hVs9VyRTVMNMXn7FxcXdyb0+plRLJ2vbVuEfxcXF3cJNiB1WfgAqbJq4uLhj3LzBOfGCResfxcXFHeBWF+4sn7RSbsIPLi7uRm6ykXWKqnmxI9rIcHFxN3LzxToPlkSm03lwcXG3cNdKFXlBs9q3KTRWcXFxx7gd4nST9bRUiouLO8zNDyj9eFNFF7o9uLi4j3Lzn3XKpmvb3GlWw8XFHeZGDYyB60kEOt3UcHFxh7lHcXSOPvmB5uYshouLO8ytljKrLZNOebSFxsXFbXOfKnYkoAcKsri4uBu5T72YdT3zw1kNFxf3Bdy1CFQFRe+J4OLivoZbvZsXR/IXMnBxcXdyq+EnCUJr8elmLVxc3C3cvGCaR6NqKyXf4HBxcYe5P6W/TdTodCigAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

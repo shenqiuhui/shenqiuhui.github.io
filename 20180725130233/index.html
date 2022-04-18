@@ -1,0 +1,287 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>AST 抽象语法树 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,Babel,Webpack,AST"><meta name="description" content="AST 抽象语法树简介AST（Abstract Syntax Tree）是源代码的抽象语法结构树状表现形式，Webpack、ESLint、JSX、TypeScript 的编译和模块化规则之间的转化都是通过 AST 来实现对代码的检查、分析以及编译等操作。"><meta property="og:type" content="article"><meta property="og:title" content="AST 抽象语法树"><meta property="og:url" content="https://www.overtaking.top/20180725130233/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="AST 抽象语法树简介AST（Abstract Syntax Tree）是源代码的抽象语法结构树状表现形式，Webpack、ESLint、JSX、TypeScript 的编译和模块化规则之间的转化都是通过 AST 来实现对代码的检查、分析以及编译等操作。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Compile/20180725130233/ast.png"><meta property="article:published_time" content="2018-07-25T05:02:33.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="Babel"><meta property="article:tag" content="Webpack"><meta property="article:tag" content="AST"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Compile/20180725130233/ast.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">AST 抽象语法树</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">AST 抽象语法树</h1><h5 class="subtitle"><time datetime="2018-07-25T05:02:33.000Z" itemprop="datePublished" class="page-time">2018-07-25</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Webpack/">Webpack</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#AST-抽象语法树简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">AST 抽象语法树简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#JavaScript-语法的-AST-语法树"><span class="post-toc-number">2.</span> <span class="post-toc-text">JavaScript 语法的 AST 语法树</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#esprima、estraverse-和-escodegen"><span class="post-toc-number">3.</span> <span class="post-toc-text">esprima、estraverse 和 escodegen</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#esprima-将-JS-转换成-AST"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">esprima 将 JS 转换成 AST</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#estraverse-遍历和修改-AST"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">estraverse 遍历和修改 AST</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#escodegen-将-AST-转换成-JS"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">escodegen 将 AST 转换成 JS</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现-Babel-语法转换插件"><span class="post-toc-number">4.</span> <span class="post-toc-text">实现 Babel 语法转换插件</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#模拟-plugin-transform-arrow-functions"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">模拟 plugin-transform-arrow-functions</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#模拟-plugin-transform-classes"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">模拟 plugin-transform-classes</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">5.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Compile/20180725130233" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">AST 抽象语法树</h1><div class="post-meta"><time class="post-time" title="2018-07-25 13:02:33" datetime="2018-07-25T05:02:33.000Z" itemprop="datePublished">2018-07-25</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Webpack/">Webpack</a></li></ul><span id="/20180725130233/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="AST 抽象语法树"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Compile/20180725130233/ast.png" title="AST"><p><br></p><h2 id="AST-抽象语法树简介"><a href="#AST-抽象语法树简介" class="headerlink" title="AST 抽象语法树简介"></a>AST 抽象语法树简介</h2><blockquote class="pullquote default"><p><code>AST</code>（<code>Abstract Syntax Tree</code>）是源代码的抽象语法结构树状表现形式，<code>Webpack</code>、<code>ESLint</code>、<code>JSX</code>、<code>TypeScript</code> 的编译和模块化规则之间的转化都是通过 <code>AST</code> 来实现对代码的检查、分析以及编译等操作。</p></blockquote><a id="more"></a><h2 id="JavaScript-语法的-AST-语法树"><a href="#JavaScript-语法的-AST-语法树" class="headerlink" title="JavaScript 语法的 AST 语法树"></a>JavaScript 语法的 AST 语法树</h2><p><code>JavaScript</code> 中想要使用 <code>AST</code> 进行开发，要知道抽象成语法树之后的结构是什么，里面的字段名称都代表什么含义以及遍历的规则，可以通过 <a href="http://esprima.org/demo/parse.html" target="_blank">http://esprima.org/demo/parse.html</a> 来实现 <code>JavaScript</code> 语法的在线转换。</p><p>通过在线编译工具，可以将 <code>function fn(a, b) {}</code> 编译为下面的结构。</p><pre><code class="lang-json">{
+  &quot;type&quot;: &quot;Program&quot;,
+  &quot;body&quot;: [
+    {
+      &quot;type&quot;: &quot;FunctionDeclaration&quot;,
+      &quot;id&quot;: {
+        &quot;type&quot;: &quot;Identifier&quot;,
+        &quot;name&quot;: &quot;fn&quot;
+      },
+      &quot;params&quot;: [
+        {
+          &quot;type&quot;: &quot;Identifier&quot;,
+          &quot;name&quot;: &quot;a&quot;
+        },
+        {
+          &quot;type&quot;: &quot;Identifier&quot;,
+          &quot;name&quot;: &quot;b&quot;
+        }
+      ],
+      &quot;body&quot;: {
+        &quot;type&quot;: &quot;BlockStatement&quot;,
+        &quot;body&quot;: []
+      },
+      &quot;generator&quot;: false,
+      &quot;expression&quot;: false,
+      &quot;async&quot;: false
+    }
+  ],
+  &quot;sourceType&quot;: &quot;script&quot;
+}
+</code></pre><blockquote class="pullquote primary"><p><strong>将 <code>JavaScript</code> 语法编译成抽象语法树后，需要对它进行遍历、修该并重新编译，遍历树结构的过程为 “先序深度优先”。</strong></p></blockquote><h2 id="esprima、estraverse-和-escodegen"><a href="#esprima、estraverse-和-escodegen" class="headerlink" title="esprima、estraverse 和 escodegen"></a>esprima、estraverse 和 escodegen</h2><p><code>esprima</code>、<code>estraverse</code> 和 <code>escodegen</code> 模块是操作 <code>AST</code> 的三个重要模块，也是实现 <code>babel</code> 的核心依赖，下面是分别介绍三个模块的作用。</p><h3 id="esprima-将-JS-转换成-AST"><a href="#esprima-将-JS-转换成-AST" class="headerlink" title="esprima 将 JS 转换成 AST"></a>esprima 将 JS 转换成 AST</h3><p><strong><code>esprima</code> 模块的用法如下：</strong></p><pre><code class="lang-js">/* 文件：esprima-test.js */
+const esprima = require(&#39;esprima&#39;);
+
+const code = &#39;function fn() {}&#39;;
+
+// 生成语法树
+const tree = esprima.parseScript(code);
+
+console.log(tree);
+
+// Script {
+//   type: &#39;Program&#39;,
+//   body:
+//   [ FunctionDeclaration {
+//     type: &#39;FunctionDeclaration&#39;,
+//     id: [Identifier],
+//     params: [],
+//     body: [BlockStatement],
+//     generator: false,
+//     expression: false,
+//     async: false } ],
+//   sourceType: &#39;script&#39; }
+</code></pre><p>通过上面的案例可以看出，通过 <code>esprima</code> 模块的 <code>parseScript</code> 方法将 JS 代码块转换成语法树，代码块需要转换成字符串，也可以通过 <code>parseModule</code> 方法转换一个模块。</p><h3 id="estraverse-遍历和修改-AST"><a href="#estraverse-遍历和修改-AST" class="headerlink" title="estraverse 遍历和修改 AST"></a>estraverse 遍历和修改 AST</h3><p><strong>查看遍历过程：</strong></p><pre><code class="lang-js">/* 文件：estraverse-test.js */
+const esprima = require(&#39;esprima&#39;);
+const estraverse = require(&#39;estraverse&#39;);
+
+const code = &#39;function fn() {}&#39;;
+
+// 遍历语法树
+estraverse.traverse(esprima.parseScript(code), {
+  enter(node) {
+    console.log(&#39;enter&#39;, node.type);
+  },
+  leave() {
+    console.log(&#39;leave&#39;, node.type);
+  }
+});
+
+// enter Program
+// enter FunctionDeclaration
+// enter Identifier
+// leave Identifier
+// enter BlockStatement
+// leave BlockStatement
+// leave FunctionDeclaration
+// leave Program
+</code></pre><p>上面代码通过 <code>estraverse</code> 模块的 <code>traverse</code> 方法将 <code>esprima</code> 模块转换的 <code>AST</code> 进行了遍历，并打印了所有的 <code>type</code> 属性并打印，每含有一个 <code>type</code> 属性的对象被叫做一个节点，修改是获取对应的类型并修改该节点中的属性即可。</p><blockquote class="pullquote info"><p><strong>其实深度遍历 <code>AST</code> 就是在遍历每一层的 <code>type</code> 属性，所以遍历会分为两个阶段，进入阶段和离开阶段，在 <code>estraverse</code> 的 <code>traverse</code> 方法中分别用参数指定的 <code>entry</code> 和 <code>leave</code> 两个函数监听，但是我们一般只使用 <code>entry</code>。</strong></p></blockquote><h3 id="escodegen-将-AST-转换成-JS"><a href="#escodegen-将-AST-转换成-JS" class="headerlink" title="escodegen 将 AST 转换成 JS"></a>escodegen 将 AST 转换成 JS</h3><p>下面的案例是一个段 <code>JS</code> 代码块被转换成 <code>AST</code>，并将遍历、修改后的 <code>AST</code> 重新转换成 <code>JS</code> 的全过程。</p><pre><code class="lang-js">/* 文件：escodegen-test.js */
+const esprima = require(&#39;esprima&#39;);
+const estraverse = require(&#39;estraverse&#39;);
+const escodegen = require(&#39;escodegen&#39;);
+
+const code = &#39;function fn() {}&#39;;
+
+// 生成语法树
+const tree = esprima.parseScript(code);
+
+// 遍历语法树
+estraverse.traverse(tree, {
+  enter(node) {
+    // 修改函数名
+    if (node.type === &#39;FunctionDeclaration&#39;) {
+      node.id.name = &#39;ast&#39;;
+    }
+  }
+});
+
+// 编译语法树
+const result = escodegen.generate(tree);
+
+console.log(result);
+
+// function ast() {
+// }
+</code></pre><blockquote class="pullquote warning"><p><em><strong>在遍历 <code>AST</code> 的过程中 <code>params</code> 值为数组，没有 <code>type</code> 属性。</strong></em></p></blockquote><h2 id="实现-Babel-语法转换插件"><a href="#实现-Babel-语法转换插件" class="headerlink" title="实现 Babel 语法转换插件"></a>实现 Babel 语法转换插件</h2><p>实现语法转换插件需要借助 <code>babel-core</code> 和 <code>babel-types</code> 两个模块，其实这两个模块就是依赖 <code>esprima</code>、<code>estraverse</code> 和 <code>escodegen</code> 的。</p><p><strong>使用这两个模块需要安装，命令如下：</strong></p><pre><code class="lang-bash">$ npm install babel-core babel-types
+</code></pre><h3 id="模拟-plugin-transform-arrow-functions"><a href="#模拟-plugin-transform-arrow-functions" class="headerlink" title="模拟 plugin-transform-arrow-functions"></a>模拟 plugin-transform-arrow-functions</h3><blockquote class="pullquote success"><p><code>plugin-transform-arrow-functions</code> 是 <code>Babel</code> 家族成员之一，用于将箭头函数转换 <code>ES5</code> 语法的函数表达式。</p></blockquote><pre><code class="lang-js">/* 文件：plugin-transform-arrow-functions.js */
+const babel = require(&#39;babel-core&#39;);
+const types = require(&#39;babel-types&#39;);
+
+// 箭头函数代码块
+const sumCode = `
+const sum = (a, b) =&gt; {
+  return a + b;
+}`;
+const minusCode = `const minus = (a, b) =&gt; a - b;`;
+
+// 转化 ES5 插件
+const ArrowPlugin = {
+  // 访问者（访问者模式）
+  visitor: {
+    // path 是树的路径
+    ArrowFunctionExpression(path) {
+      // 获取树节点
+      const node = path.node;
+
+      // 获取参数和函数体
+      const params = node.params;
+      const body = node.body;
+
+      // 判断函数体是否是代码块，不是代码块则添加 return 和 {}
+      if (!types.isBlockStatement(body)) {
+        const returnStatement = types.returnStatement(body);
+        body = types.blockStatement([returnStatement]);
+      }
+
+      // 生成一个函数表达式树结构
+      const func = types.functionExpression(null, params, body, false, false);
+
+      // 用新的树结构替换掉旧的树结构
+      path.replaceWith(func);
+    }
+  }
+};
+
+// 生成转换后的代码块
+const sumResult = babel.transform(sumCode, {
+  plugins: [ArrowPlugin]
+});
+
+const minusResult = babel.transform(minusCode, {
+  plugins: [ArrowPlugin]
+});
+
+console.log(sumResult.code);
+console.log(minusResult.code);
+
+// const sum = function (a, b) {
+//   return a + b;
+// };
+// const minus = function (a, b) {
+//   return a - b;
+// };
+</code></pre><p>我们主要使用 <code>babel-core</code> 的 <code>transform</code> 方法将 <code>AST</code> 转化成代码块，第一个参数为转换前的代码块（字符串），第二个参数为配置项，其中 <code>plugins</code> 值为数组，存储修改 <code>babal-core</code> 转换的 <code>AST</code> 的插件（对象），使用 <code>transform</code> 方法将旧的 <code>AST</code> 处理成新的代码块后，返回值为一个对象，对象的 <code>code</code> 属性为转换后的代码块（字符串）。</p><p>内部修改通过 <code>babel-types</code> 模块提供的方法实现，<code>API</code> 可以到 <a href="https://github.com/babel/babel/tree/6.x/packages/babel-types" target="_blank">https://github.com/babel/babel/tree/6.x/packages/babel-types</a> 中查看。</p><p><code>ArrowPlugin</code> 就是传入 <code>transform</code> 方法的插件，必须含有 <code>visitor</code> 属性（固定），值同为对象，用于存储修改语法树的方法，方法名要严格按照 <code>API</code>，对应的方法会修改 <code>AST</code> 对应的节点。</p><p>在 <code>types.functionExpression</code> 方法中参数分别代表，函数名（匿名函数为 <code>null</code>）、函数参数（必填）、函数体（必填）、是否为 <code>generator</code> 函数（默认 <code>false</code>）、是否为 <code>async</code> 函数（默认 <code>false</code>），返回值为修改后的 <code>AST</code>，<code>path.replaceWith</code> 方法用于替换 <code>AST</code>，参数为新的 <code>AST</code>。</p><h3 id="模拟-plugin-transform-classes"><a href="#模拟-plugin-transform-classes" class="headerlink" title="模拟 plugin-transform-classes"></a>模拟 plugin-transform-classes</h3><blockquote class="pullquote info"><p><strong><code>plugin-transform-classes</code> 也是 <code>Babel</code> 家族中的成员之一，用于将 <code>ES6</code> 的 <code>class</code> 类转换成 <code>ES5</code> 的构造函数。</strong></p></blockquote><pre><code class="lang-js">/* 文件：plugin-transform-classes.js */
+const babel = require(&#39;babel-core&#39;);
+const types = require(&#39;babel-types&#39;);
+
+// 类
+const code = `
+class Person {
+  constructor(name) {
+    this.name = name;
+  }
+  getName () {
+    return this.name;
+  }
+}`;
+
+// 将类转化 ES5 构造函数插件
+const ClassPlugin = {
+  visitor: {
+    ClassDeclaration(path) {
+      const node = path.node;
+      const classList = node.body.body;
+
+      // 将取到的类名转换成标识符 { type: &#39;Identifier&#39;, name: &#39;Person&#39; }
+      const className = types.identifier(node.id.name);
+      const body = types.blockStatement([]);
+      let func = types.functionDeclaration(className, [], body, false, false);
+      path.replaceWith(func);
+
+      // 用于存储多个原型方法
+      const es5Func = [];
+
+      // 获取 class 中的代码体
+      classList.forEach((item, index) =&gt; {
+        // 函数的代码体
+        const body = classList[index].body;
+
+        // 获取参数
+        let params = item.params.length ? item.params.map(val =&gt; val.name) : [];
+
+        // 转化参数为标识符
+        params = types.identifier(params);
+
+        // 判断是否是 constructor，如果构造函数那就生成新的函数替换
+        if (item.kind === &#39;constructor&#39;) {
+          // 生成一个构造函数树结构
+          func = types.functionDeclaration(className, [params], body, false, false);
+        } else {
+          // 其他情况是原型方法
+          const proto = types.memberExpression(className, types.identifier(&#39;prototype&#39;));
+
+          // 左侧层层定义标识符 Person.prototype.getName
+          const left = types.memberExpression(proto, types.identifier(item.key.name));
+
+          // 右侧定义匿名函数
+          const right = types.functionExpression(null, [params], body, false, false);
+
+          // 将左侧和右侧进行合并并存入数组
+          es5Func.push(types.assignmentExpression(&#39;=&#39;, left, right));
+        }
+      });
+
+      // 如果没有原型方法，直接替换
+      if (es5Func.length === 0) {
+        path.replaceWith(func);
+      } else {
+        es5Func.push(func);
+        // 替换 n 个节点
+        path.replaceWithMultiple(es5Func);
+      }
+    }
+  }
+};
+
+// 生成转换后的代码块
+const result = babel.transform(code, {
+  plugins: [ClassPlugin]
+});
+
+console.log(result.code);
+
+// Person.prototype.getName = function () {
+//     return this.name;
+// }
+// function Person(name) {
+//     this.name = name;
+// }
+</code></pre><p>上面这个插件的实现要比 <code>plugin-transform-arrow-functions</code> 复杂一些，归根结底还是将要互相转换的 <code>ES6</code> 和 <code>ES5</code> 语法树做对比，找到他们的不同，并使用 <code>babel-types</code> 提供的 <code>API</code> 对语法树对应的节点属性进行修改并替换语法树，值得注意的是 <code>path.replaceWithMultiple</code> 与 <code>path.replaceWith</code> 不同，参数为一个数组，数组支持多个语法树结构，可根据具体修改语法树的场景选择使用，也可根据不同情况使用不同的替换方法。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>通过本节我们了解了什么是 <code>AST</code> 抽象语法树、抽象语法树在 <code>JavaScript</code> 中的体现以及在 <code>Node.js</code> 中用于生成、遍历和修改 <code>AST</code> 抽象语法树的核心依赖，并通过使用 <code>babel-core</code> 和 <code>babel-types</code> 两个模块简易模拟了 <code>ES6</code> 新特性转换为 <code>ES5</code> 语法的过程，希望可以为后面自己实现一些编译插件提供了思路。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180725130233/" target="_blank" rel="external">https://www.overtaking.top/20180725130233/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AST/" rel="tag">AST</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Babel/" rel="tag">Babel</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Webpack/" rel="tag">Webpack</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180725130233/&title=《AST 抽象语法树》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180725130233/&title=《AST 抽象语法树》 — Shen's Blog&source=AST 抽象语法树简介AST（Abstract Syntax Tree）是源代码的抽象语法结构树状表现形式，Webpack、ESLint、JSX、Type..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180725130233/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《AST 抽象语法树》 — Shen's Blog&url=https://www.overtaking.top/20180725130233/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180725130233/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180726122146/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Webpack —— tree-staking 解析</h4></a></div><div class="waves-block waves-effect next"><a href="/20180722110147/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">命令行工具 —— 手写类似 http-server 的静态服务器</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180725130233/&title=《AST 抽象语法树》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180725130233/&title=《AST 抽象语法树》 — Shen's Blog&source=AST 抽象语法树简介AST（Abstract Syntax Tree）是源代码的抽象语法结构树状表现形式，Webpack、ESLint、JSX、Type..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180725130233/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《AST 抽象语法树》 — Shen's Blog&url=https://www.overtaking.top/20180725130233/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180725130233/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABy0lEQVR42u3aSw7CMAxFUfa/6TJFAtL77MTq4GZUVZScTCx/8nrhdX2s7zf/3n++WT9vXnLlym1zr+VKt/n+lh9jbZArV+4899/GhMuJ5P9vbHLlyn0wNw1nteAoV67c53P5AUiyIleu3OdzSfFDUhZOP16ryZUrt8HlXcpzz0f6u3Llyi1xr3DxooinL8HucuXKHeH2RynrkoaXOry1Kleu3NPcWonCWyc8V1kfWK5cuZPctAghuLSpytMduXLlznD5wIPjOm3Qm1JKrly5I1xefnSCWpowoVGKXLlyD3P5tYl0+MrHpUERJVeu3MPcfmO01johu//4jVy5cge5pFlZC1ik1OHHkytX7gyXf1bLNNJRChq+ypUrd4TLL0uR7cmB+UWN1iVOuXLlbuKmwagT+NI3cuXKneSm16TSpufmgYpcuXLHuWmLJC1+aiGymE/JlSu3xL3C1RmgbhjQypUrd4Sbdh5IglJri6TjFrly5Z7m8hKFl0kkDNUCnFy5cie5vM1BwlArQUnvjMiVK/cx3HRkUmupbAtkcuXKHeemJVAa4DYHMrly5WIuL354CEu5QSCTK1fuYW4cSnD464xaN/R35cqVW+G+AdVCUsFSC8QeAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

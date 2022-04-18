@@ -1,0 +1,426 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Webpack4 —— 基础篇 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,Webpack,构建"><meta name="description" content="系列文章链接：Webpack4 —— 应用篇Webpack4 —— 优化篇为什么需要构建工具？转换 ES6+ 语法；转换 JSX 语法 &#x2F; Vue 指令；CSS 私有前缀补全 &#x2F; 预处理器（less，sass）；压缩混淆 &#x2F; 图片压缩；"><meta property="og:type" content="article"><meta property="og:title" content="Webpack4 —— 基础篇"><meta property="og:url" content="https://www.overtaking.top/20181002041434/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="系列文章链接：Webpack4 —— 应用篇Webpack4 —— 优化篇为什么需要构建工具？转换 ES6+ 语法；转换 JSX 语法 &#x2F; Vue 指令；CSS 私有前缀补全 &#x2F; 预处理器（less，sass）；压缩混淆 &#x2F; 图片压缩；"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Compile/20181002041434/webpack-basic.png"><meta property="article:published_time" content="2018-10-01T20:14:34.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="Webpack"><meta property="article:tag" content="构建"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Compile/20181002041434/webpack-basic.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Webpack4 —— 基础篇</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Webpack4 —— 基础篇</h1><h5 class="subtitle"><time datetime="2018-10-01T20:14:34.000Z" itemprop="datePublished" class="page-time">2018-10-02</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Webpack/">Webpack</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#为什么需要构建工具？"><span class="post-toc-number">1.</span> <span class="post-toc-text">为什么需要构建工具？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#为什么选择-Webpack？"><span class="post-toc-number">2.</span> <span class="post-toc-text">为什么选择 Webpack？</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装-Webpack-及打包命令"><span class="post-toc-number">3.</span> <span class="post-toc-text">安装 Webpack 及打包命令</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Webpack-基础配置"><span class="post-toc-number">4.</span> <span class="post-toc-text">Webpack 基础配置</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#零配置"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">零配置</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#mode"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">mode</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#entry"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">entry</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#output"><span class="post-toc-number">4.4.</span> <span class="post-toc-text">output</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#loaders"><span class="post-toc-number">4.5.</span> <span class="post-toc-text">loaders</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#解析-ES6-语法"><span class="post-toc-number">4.5.1.</span> <span class="post-toc-text">解析 ES6+ 语法</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#解析-React-的-JSX-语法"><span class="post-toc-number">4.5.2.</span> <span class="post-toc-text">解析 React 的 JSX 语法</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#解析-CSS"><span class="post-toc-number">4.5.3.</span> <span class="post-toc-text">解析 CSS</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#解析-Less-和-Sass"><span class="post-toc-number">4.5.4.</span> <span class="post-toc-text">解析 Less 和 Sass</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#解析图片和字体资源"><span class="post-toc-number">4.5.5.</span> <span class="post-toc-text">解析图片和字体资源</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#PostCSS-对-CSS-的增强"><span class="post-toc-number">4.5.6.</span> <span class="post-toc-text">PostCSS 对 CSS 的增强</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#plugins"><span class="post-toc-number">4.6.</span> <span class="post-toc-text">plugins</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#自动生成-index-html"><span class="post-toc-number">4.6.1.</span> <span class="post-toc-text">自动生成 index.html</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#抽取-CSS-文件"><span class="post-toc-number">4.6.2.</span> <span class="post-toc-text">抽取 CSS 文件</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#自动清理构建目录"><span class="post-toc-number">4.6.3.</span> <span class="post-toc-text">自动清理构建目录</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#watch"><span class="post-toc-number">4.7.</span> <span class="post-toc-text">watch</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#devServer"><span class="post-toc-number">4.8.</span> <span class="post-toc-text">devServer</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#devtool"><span class="post-toc-number">4.9.</span> <span class="post-toc-text">devtool</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#热更新"><span class="post-toc-number">5.</span> <span class="post-toc-text">热更新</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配置热更新的方式"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">配置热更新的方式</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#热更新原理简介"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">热更新原理简介</span></a></li></ol></li></ol></nav></aside><article id="post-Compile/20181002041434" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Webpack4 —— 基础篇</h1><div class="post-meta"><time class="post-time" title="2018-10-02 04:14:34" datetime="2018-10-01T20:14:34.000Z" itemprop="datePublished">2018-10-02</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Webpack/">Webpack</a></li></ul><span id="/20181002041434/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Webpack4 —— 基础篇"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Compile/20181002041434/webpack-basic.png" title="webpack basic"><p><br></p><blockquote class="pullquote default"><p><strong>系列文章链接：</strong></p><ul><li><a href="/20181115105656/" target="_blank">Webpack4 —— 应用篇</a></li><li><a href="/20181110203121/" target="_blank">Webpack4 —— 优化篇</a></li></ul></blockquote><h2 id="为什么需要构建工具？"><a href="#为什么需要构建工具？" class="headerlink" title="为什么需要构建工具？"></a>为什么需要构建工具？</h2><blockquote class="pullquote info"><ul><li><strong>转换 <code>ES6+</code> 语法；</strong></li><li><strong>转换 <code>JSX</code> 语法 / <code>Vue</code> 指令；</strong></li><li><strong><code>CSS</code> 私有前缀补全 / 预处理器（<code>less</code>，<code>sass</code>）；</strong></li><li><strong>压缩混淆 / 图片压缩；</strong></li></ul></blockquote><a id="more"></a><h2 id="为什么选择-Webpack？"><a href="#为什么选择-Webpack？" class="headerlink" title="为什么选择 Webpack？"></a>为什么选择 Webpack？</h2><p>早期的打包工具有 <code>Grount</code>，把打包构建分成一个一个的任务，队列式的处理每一个任务，如解析 <code>html</code> 任务、解析 <code>CSS</code> 任务、解析 <code>JS</code> 任务、图片压缩任务、代码压缩任务等等，每一个任务处理完成之后会将任务结果存放在本地磁盘的 <code>.temp</code> 目录，由于产生了 <code>IO</code> 操作，会导致打包速度比较慢。</p><p>后来产生了 <code>Glup</code>，原理与 <code>Grount</code> 类似，管道式的处理打包任务，不同的是 <code>Gulp</code> 有文件流的概念，每一个任务构建后的结果不会存放磁盘，而是存在内存中，在下一个步骤中可以直接使用上一个步骤内存中的结果，提高了打包速度。</p><p>目前最火爆的打包工具是 <code>Webpack</code>，在打包性能优于上面工具的基础上，更归功于丰富的生态社区、配置灵活的 <code>loader</code> 和 <code>plugin</code>，可以通过很灵活的配置完成团队项目个性化的打包需求，并且拥有强大的官方团队进行更新迭代，维护了众多稳定的 <code>loader</code> 和 <code>plugin</code>，更新速度非常快。</p><h2 id="安装-Webpack-及打包命令"><a href="#安装-Webpack-及打包命令" class="headerlink" title="安装 Webpack 及打包命令"></a>安装 Webpack 及打包命令</h2><p><strong>安装：</strong></p><pre><code class="lang-bash">$ npm install webpack webpack-cli -D
+</code></pre><p>使用 <code>Webpack</code> 进行打包执行的其实是 <code>./node_modules/.bin</code> 目录的 <code>webpack</code> 文件。</p><pre><code class="lang-bash"># 打包命令
+$ ./node_modules/.bin/webpack
+</code></pre><p>为了方便项目中通常将打包命令配置在 <code>package.json</code> 的 <code>scripts</code> 中。</p><pre><code class="lang-json">/* 打包命令配置 */
+{
+  &quot;scripts&quot;: {
+    &quot;build&quot;: &quot;webpack&quot;
+  }
+}
+</code></pre><p><strong>执行配置后的打包命令：</strong></p><pre><code class="lang-bash">$ npm run build
+</code></pre><h2 id="Webpack-基础配置"><a href="#Webpack-基础配置" class="headerlink" title="Webpack 基础配置"></a>Webpack 基础配置</h2><h3 id="零配置"><a href="#零配置" class="headerlink" title="零配置"></a>零配置</h3><p>在 <code>Webpack4</code> 中，在不编写配置文件也可以进行打包，这就是 <code>4.x</code> 版本号称的 “零配置”，其实内部默认对入口文件（<code>entry</code>）和出口文件（<code>output</code>）进行了配置。</p><pre><code class="lang-js">/* 零配置默认值 */
+module.exports = {
+  entry: &#39;./src/index.js&#39;,
+  output: &#39;./dist/main.js&#39;
+}
+</code></pre><h3 id="mode"><a href="#mode" class="headerlink" title="mode"></a>mode</h3><p><code>mode</code> 是 <code>Webpack4</code> 新提出的概念，用来指定当前构建环境是开发环境（<code>production</code>）、生产环境（<code>development</code>）或 <code>none</code>，默认为 <code>production</code>，设置 <code>mode</code> 可以使用 <code>Webpack</code> 的一些参数值和内置的函数，也可以在打包时针对不同的环境配置不同的打包和优化策略。</p><p><strong><code>mode</code> 配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  mode: &#39;development&#39;
+  // ...
+}
+</code></pre><blockquote class="pullquote warning"><p><strong>设置为 <code>development</code> 开启的参数如下：</strong></p><ul><li><strong>设置 <code>process.env.NODE_ENV</code> 值为 <code>development</code>；</strong></li><li><strong>开启 <code>NamedChunksPlugin</code>、<code>NamedModulesPlugin</code>，在代码热更新阶段标识更新的 <code>chunk</code> 和具体模块。</strong></li></ul><p><strong>设置为 <code>production</code> 开启的参数如下：</strong></p><ul><li><strong>设置 <code>process.env.NODE_ENV</code> 值为 <code>production</code>；</strong></li><li><strong>开启 <code>FlagDependencyUsagePlugin</code>、<code>FlagIncludedChunksPlugin</code>、<code>NoEmitOnErrorsPlugin</code>、<code>ModuleConcatenationPlugin</code>、<code>OccurrenceOrderPlugin</code>、<code>SideEffectsFlagPlugin</code>、<code>TerserPlugin</code>，开启这些插件 <code>Webpack</code> 会对 <code>JS</code> 压缩，识别 <code>package.json</code> 文件中标识代码是否存在副作用的参数等。</strong></li></ul><p><strong>将 <code>mode</code> 设置为 <code>none</code> 不开启任何优化选项。</strong></p></blockquote><h3 id="entry"><a href="#entry" class="headerlink" title="entry"></a>entry</h3><p><code>entry</code> 用于配置打包文件的入口，这个文件中会存在一些依赖关系，依赖的模块又存在依赖关系，最后形成一棵依赖树，<code>Webpack</code> 则将这些模块根据依赖关系，最后打包成多个静态资源，<code>entry</code> 主要有两种应用场景（单页应用和多页应用），配置如下。</p><pre><code class="lang-js">/* 单入口（SPA） */
+module.exports = {
+  entry: &#39;./src/index.js&#39;
+}
+</code></pre><pre><code class="lang-js">/* 多入口（多页应用） */
+module.exports = {
+  entry: {
+    app: &#39;./src/pages/app.js&#39;,
+    adminApp: &#39;./src/pages/adminApp.js&#39;
+  }
+}
+</code></pre><h3 id="output"><a href="#output" class="headerlink" title="output"></a>output</h3><p><code>entry</code> 配置是用于指定的是源代码，那 <code>output</code> 就是用于指定 <code>Webpack</code> 打包后的结果代码，即用来告诉 <code>Webpack</code> 如何将编译后的文件输出到磁盘。</p><pre><code class="lang-js">module.exports = {
+  // ...
+  output: {
+    filename: &#39;bundle.js&#39;,
+    path: __dirname + &#39;/dist&#39;
+  }
+}
+</code></pre><p><code>output</code> 属性值为对象，其中 <code>filename</code> 属性用于指定打包输出后的文件名，<code>path</code> 用于指定打包输出的目录，如果是多页应用，可以使用占位符保证打包后输出多个出口文件名字的唯一性。</p><pre><code class="lang-js">/* 多页应用 */
+module.exports = {
+  entry: {
+    app: &#39;./src/pages/app.js&#39;,
+    adminApp: &#39;./src/pages/adminApp.js&#39;
+  },
+  output: {
+    filename: &#39;[name].js&#39;,
+    path: __dirname + &#39;/dist&#39;
+  }
+}
+</code></pre><p>上面的 <code>[name]</code> 打包后最后输出的出口文件与入口配置的文件名对应，即 <code>app.js</code> 和 <code>adminApp.js</code>。</p><h3 id="loaders"><a href="#loaders" class="headerlink" title="loaders"></a>loaders</h3><p><code>Webpack</code> 默认情况下只支持 <code>js</code> 和 <code>json</code> 两种文件类型，<code>loader</code> （加载器）是专门用来支持其他文件类型并把其他文件转换成有效的模块添加到依赖树中，每一个 <code>loader</code> 都默认导出一个函数，接受源文件作为参数，并返回转换的结果，<code>loaders</code> 选项是专门用来配置这些加载器的。</p><p><strong>常见 loader 表：</strong></p><table><thead><tr><th style="width:30%">名称</th><th>描述</th></tr></thead><tbody><tr><td>babel-loader</td><td>转化 ES6、ES7 等 JS 新特性</td></tr><tr><td>css-loader</td><td>支持 .css 文件的加载和解析</td></tr><tr><td>less-loader</td><td>将 less 文件转换成 css</td></tr><tr><td>ts-loader</td><td>将 TS 转换成 JS</td></tr><tr><td>file-loader</td><td>对图片、字体等文件的打包</td></tr><tr><td>raw-loader</td><td>将文件以字符串的形式导入</td></tr><tr><td>thread-loader</td><td>多进程打包 JS 和 CSS</td></tr></tbody></table><p><strong>配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        test: /\.txt$/, // 指定匹配规则（文件后缀名）
+        use: &#39;raw-loader&#39; // 指定使用的 loader 名称
+      }
+    ]
+  }
+}
+</code></pre><h4 id="解析-ES6-语法"><a href="#解析-ES6-语法" class="headerlink" title="解析 ES6+ 语法"></a>解析 ES6+ 语法</h4><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install babel-loader @babel/preset-env -D
+</code></pre><p><strong><code>loader</code> 配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.js$/,
+        use: &#39;babel-loader&#39;
+      }
+      // ...
+    ]
+  }
+  // ...
+}
+</code></pre><blockquote class="pullquote success"><p><strong>在工程中添加 <code>.babelrc</code> 文件来对解析的 <code>ES6+</code> 语法进行配置。</strong></p></blockquote><p><strong><code>.babelrc</code> 配置示例：</strong></p><pre><code class="lang-json">/* 以 babel7 为例 */
+{
+  &quot;presets&quot;: [
+    &quot;@babel/preset-env&quot;
+  ],
+  &quot;plugins&quot;: [
+    &quot;@babel/proposal-class-properties&quot;
+    // ...
+  ]
+}
+</code></pre><blockquote class="pullquote primary"><p><strong><code>babel</code> 配置主要包含两部分，<code>presets</code> 和 <code>plugins</code>，<code>plugins</code> 中配置的每一项都是为了解析某一个语法，而 <code>presets</code> 配置的是这些功能的集合。</strong></p></blockquote><h4 id="解析-React-的-JSX-语法"><a href="#解析-React-的-JSX-语法" class="headerlink" title="解析 React 的 JSX 语法"></a>解析 React 的 JSX 语法</h4><p>由于 <code>React</code> 是在 <code>.js</code> 或 <code>.jsx</code> 的文件中使用 <code>JSX</code> 语法，所以解析 <code>JSX</code> 语法也是解析 <code>JS</code> 工作的一部分，同样需要 <code>babel-loader</code>，需要在 <code>Webpack</code> 配置文件的 <code>loader</code> 配置中增加识别 <code>.jsx</code> 文件以及在 <code>.babelrc</code> 配置文件的 <code>presets</code> 中专门增加解析 <code>JSX</code> 功能的集合。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install babel-loader @babel/preset-env @babel/preset-react -D
+</code></pre><p><strong><code>loader</code> 配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.(jsx?)$/,
+        use: &#39;babel-loader&#39;
+      }
+      // ...
+    ]
+  }
+  // ...
+}
+</code></pre><p><strong><code>.babelrc</code> 配置示例：</strong></p><pre><code class="lang-json">{
+  &quot;presets&quot;: [
+    &quot;@babel/preset-env&quot;,
+    &quot;@babel/preset-react&quot;
+  ],
+  &quot;plugins&quot;: [
+    &quot;@babel/proposal-class-properties&quot;
+    // ...
+  ]
+}
+</code></pre><h4 id="解析-CSS"><a href="#解析-CSS" class="headerlink" title="解析 CSS"></a>解析 CSS</h4><blockquote class="pullquote default"><p><strong>解析 <code>CSS</code> 主要靠 <code>css-loader</code> 和 <code>style-loader</code>：</strong></p><ul><li><strong><code>css-loader</code>：用于加载 <code>.css</code> 文件，并转换成 <code>CommonJS</code> 对象；</strong></li><li><strong><code>style-loader</code>：将样式通过 <code>&lt;style&gt;&lt;/style&gt;</code> 标签插入到 <code>html</code> 文件的 <code>head</code> 中。</strong></li></ul></blockquote><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install css-loader style-loader -D
+</code></pre><p><strong><code>loader</code> 配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.css$/,
+        use: [&#39;style-loader&#39;, &#39;css-loader&#39;]
+      }
+      // ...
+    ]
+  }
+  // ...
+}
+</code></pre><blockquote class="pullquote warning"><p><strong>值得注意的是，在处理同一个类型文件使用多个 <code>loader</code> 时，是链式调用的，<code>loader</code> 的执行顺序是从右向左的，所以在编写解析 <code>CSS</code> 加载器配置时应该 <code>style-loader</code> 在前，<code>css-loader</code> 在后，即先通过 <code>css-loader</code> 解析 <code>.css</code> 文件，将解析好的结果传递给 <code>style-loader</code> 处理并插入到页面的 <code>head</code> 中。</strong></p></blockquote><h4 id="解析-Less-和-Sass"><a href="#解析-Less-和-Sass" class="headerlink" title="解析 Less 和 Sass"></a>解析 Less 和 Sass</h4><p><code>Less</code> 和 <code>Sass</code> 作为 <code>CSS</code> 的预编译语言，加入了很多编程的特性，功能更强，对样式的组织也更加的灵活，但是浏览器依然不识别，所以也需要 <code>Webpack</code> 进行编译转换。</p><p><strong>安装依赖（<code>Less</code>）：</strong></p><pre><code class="lang-bash">$ npm install css-loader style-loader less-loader less -D
+</code></pre><p><strong>安装依赖（<code>Sass</code>）：</strong></p><pre><code class="lang-bash">$ npm install css-loader style-loader sass-loader node-sass -D
+</code></pre><p><strong><code>loader</code> 配置示例：</strong></p><pre><code class="lang-js">/* less 配置 */
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.less$/,
+        use: [&#39;style-loader&#39;, &#39;css-loader&#39;, &#39;less-loader&#39;]
+      }
+      // ...
+    ]
+  }
+  // ...
+}
+</code></pre><pre><code class="lang-js">/* sass 配置 */
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.scss$/,
+        use: [&#39;style-loader&#39;, &#39;css-loader&#39;, &#39;sass-loader&#39;]
+      }
+      // ...
+    ]
+  }
+  // ...
+}
+</code></pre><h4 id="解析图片和字体资源"><a href="#解析图片和字体资源" class="headerlink" title="解析图片和字体资源"></a>解析图片和字体资源</h4><p><code>Webpack</code> 对其他类型的文件进行打包编译需要依赖 <code>file-loader</code>（专门用于处理文件）。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install file-loader -D
+</code></pre><p><strong><code>file-loader</code> 配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.(png|svg|gif|jpe?g)$/, // 解析图片
+        use: &#39;file-loader&#39;
+      },
+      {
+        test: /\.(woff2?|eot|ttf|otf)$/, // 解析字体
+        use: &#39;file-loader&#39;
+      }
+      // ...
+    ]
+  }
+  // ...
+}
+</code></pre><blockquote class="pullquote default"><p><strong>也可以使用 <code>url-loader</code> 来实现对图片和字体资源的解析，<code>url-loader</code> 相比 <code>file-loader</code> 而言，支持更颗粒化的解析方式，可以配置解析后出口文件的具体目录，也可以根据资源大小设置将资源转换成 <code>base64</code>。</strong></p></blockquote><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install url-loader -D
+</code></pre><p><strong><code>url-loader</code> 配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.(png|svg|gif|jpe?g)$/, // 解析图片
+        use: [
+          {
+            loader: &#39;url-loader&#39;,
+            options: {
+              limit: 10240, // 资源小于该数值转为 base64
+              name: &#39;img/[name].[ext]&#39; // 打包后的输出路径
+            }
+          }
+        ]
+      }
+      // 字体资源同理...
+    ]
+  }
+  // ...
+}
+</code></pre><h4 id="PostCSS-对-CSS-的增强"><a href="#PostCSS-对-CSS-的增强" class="headerlink" title="PostCSS 对 CSS 的增强"></a>PostCSS 对 CSS 的增强</h4><p>在开发 <code>CSS</code> 时，存在着很多让我们头疼的的问题，比如有些 <code>CSS3</code> 的属性由于各浏览器的实现标准不同要加上不同的私有前缀，也比如为了在移动端进行页面适配使用的 <code>rem</code>、<code>vw</code> 单位与 <code>px</code> 的转换问题等等，其中的一部分问题其实是可以在 <code>Webpack</code> 构建的过程中直接解决的。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install postcss-loader autoprefixer postcss-px2rem -D
+</code></pre><p>可以通过 <code>Webpack</code> 配置文件中直接配置，也可以 <code>PostCSS</code> 配置文件中进行配置。</p><p><strong>配置示例：</strong></p><pre><code class="lang-js">/* 配置在 Webpack 配置文件 */
+module.exports = {
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.css/,
+        use: [
+          &#39;style-loader&#39;,
+          &#39;css-loader&#39;,
+          {
+            loader: &#39;postcss-loader&#39;, // 使用 postcss-loader
+            options: {
+              plugins: [
+                // 添加私有前缀
+                require(&#39;autoprefixer&#39;)({
+                  // 兼容浏览器版本（最后两个版本、使用率大于 1%，ios 7 以上）
+                  browers: [&#39;last 2 version&#39;, &#39;&gt;1%&#39;, &#39;ios 7&#39;]
+                }),
+                // px 自动转换 rem
+                require(&#39;postcss-px2rem&#39;)({
+                  remUnit: 75, // 75 px 等于 1 rem
+                  remPrecision: 8 // 换算结果小数点后面保留几位小数
+                })
+                // ...
+              ]
+            }
+          }
+        ]
+      }
+      // ...
+    ]
+  }
+}
+</code></pre><pre><code class="lang-js">/* 在 postcss.config.js 中配置 */
+module.exports = {
+  plugins: [
+    require(&#39;autoprefixer&#39;)({
+      browers: [&#39;last 2 version&#39;, &#39;&gt;1%&#39;, &#39;ios 7&#39;]
+    }),
+    require(&#39;postcss-px2rem&#39;)({
+      remUnit: 75,
+      remPrecision: 8
+    })
+    // ...
+  ]
+}
+</code></pre><p>如果使用其他 <code>PostCSS</code> 的功能也是类似的，需要先下载对应的 <code>PostCSS</code> 插件，然后在配置文件中进行配置。</p><h3 id="plugins"><a href="#plugins" class="headerlink" title="plugins"></a>plugins</h3><p><code>plugins</code> 通常用来对 <code>Webpack</code> 打包功能的增强，对打包过程和出口文件大小的优化、资源管理和环境变量的注入，可以作用域整个构建过程。</p><p><strong>常见 plugin 表：</strong></p><table><thead><tr><th style="width:35%">名称</th><th>描述</th></tr></thead><tbody><tr><td>CommonsChunkPlugin</td><td>将 chunks 相同的模块代码提取成公共 js</td></tr><tr><td>CleanWebpackPlugin</td><td>清理构建目录</td></tr><tr><td>ExtracTextWebpackPlugin</td><td>将 CSS 从 bundle 文件里提取成一个独立的 .css 文件</td></tr><tr><td>CopyWebpackPlugin</td><td>将文件或者文件夹拷贝到构建的输出目录</td></tr><tr><td>HtmlWebpackPlugin</td><td>创建 html 文件并注入 bundle 文件</td></tr><tr><td>UglifyjsWebpackPlugin</td><td>压缩 .js 文件</td></tr><tr><td>ZipWebpackPlugin</td><td>将打包出的资源生成一个 .zip 包</td></tr></tbody></table><p><br></p><h4 id="自动生成-index-html"><a href="#自动生成-index-html" class="headerlink" title="自动生成 index.html"></a>自动生成 index.html</h4><p>自动生成 <code>index.html</code> 文件主要通过 <code>HtmlWebpackPlugin</code> 插件实现。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install html-webpack-plugin -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-js">// 引入插件
+const HtmlWebpackPlugin = require(&#39;html-webpack-plugin&#39;);
+
+module.exports = {
+  // ...
+  plugins: [
+    // 创建插件的实例
+    new HtmlWebpackPlugin({
+      template: &#39;./src/index.html&#39;, // 模板文件路径
+      filename: &#39;index.html&#39; // 输出文件名称
+    })
+    // ...
+  ]
+}
+</code></pre><h4 id="抽取-CSS-文件"><a href="#抽取-CSS-文件" class="headerlink" title="抽取 CSS 文件"></a>抽取 CSS 文件</h4><p><code>Webpack</code> 在上面对 <code>CSS</code> 的解析中，使用了 <code>css-loader</code> 和 <code>style-loader</code>，通过构建后的结果发现 <code>.css</code> 文件被注入到了 <code>.js</code> 文件中，在生产环境通常会为了减小出口文件的体积对 <code>.css</code> 文件进行抽离，在 <code>Webpack4</code> 中使用 <code>MiniCssExtractPlugin</code> 插件来实现。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install mini-css-extract-plugin -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-js">const MiniCssExtractPlugin = require(&#39;mini-css-extract-plugin&#39;);
+
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      // ...
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader, // 用于将 CSS 抽离的加载器
+          &#39;css-loader&#39;,
+        ]
+      }
+      // ...
+    ]
+  },
+  plugins: [
+    // ...
+    new MiniCssExtractPlugin({
+      filename: &#39;[name].css&#39; // 抽离的文件名
+    })
+    // ...
+  ]
+  // ...
+}
+</code></pre><blockquote class="pullquote info"><p><strong>解析 <code>.css</code> 文件无论哪种方式需要使用 <code>css-loader</code>，但 <code>MiniCssExtractPlugin</code> 提供的 <code>loader</code> 与 <code>style-loader</code> 的功能是互斥的，<code>style-loader</code> 用于将解析的 <code>CSS</code> 注入，而 <code>MiniCssExtractPlugin.loader</code> 意在单独抽离。</strong></p></blockquote><h4 id="自动清理构建目录"><a href="#自动清理构建目录" class="headerlink" title="自动清理构建目录"></a>自动清理构建目录</h4><p>如果输出的文件配置了 <code>hash</code> 且在每次构建时没有及时删除指定的输出目录（如 <code>dist</code>），会导致输出目录中的文件越来越多，不容易区分哪些是新构建出来的文件，所以应该让 <code>Webpack</code> 在每次构建之前清除输出的目录。</p><p>当然清除的方式可以多种，比如手动删除，或者在 <code>package.json</code> 中配置的构建命令中增加前置命令如下。</p><pre><code class="lang-json">/* 不优雅的方式 */
+{
+  &quot;scripts&quot;: {
+    &quot;build&quot;: &quot;rm -rf ./dist &amp;&amp; webpack&quot;
+  }
+}
+</code></pre><p>这种方式并不优雅，完全可以通过 <code>Webpack</code> 配置中增加 <code>CleanWebpackPlugin</code> 插件来解决这个问题，这样在每次构建之前就会自动清除输出目录。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install clean-webpack-plugin -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-js">const CleanWebpackPlugin = require(&#39;clean-webpack-plugin&#39;);
+
+module.exports = {
+  // ...
+  output: {
+    filename: &#39;[name][chunkhash:8].js&#39;,
+    path: __dirname + &#39;dist&#39;
+  }
+  plugins: [
+    new CleanWebpackPlugin()
+  ]
+  // ...
+}
+</code></pre><h3 id="watch"><a href="#watch" class="headerlink" title="watch"></a>watch</h3><p><code>Webpack</code> 中，文件监听是指发现源文件发生变化时，自动重新构建出新的输出文件。</p><blockquote class="pullquote success"><p><strong><code>Webpack</code> 开启监听模式有两种方式：</strong></p><ul><li><strong>启动 <code>Webpack</code> 命令时带上 <code>--watch</code> 参数，可以在 <code>package.json</code> 中进行配置；</strong></li><li><strong>在 <code>Webpack</code> 配置文件中进行设置。</strong></li></ul></blockquote><p><strong>添加参数：</strong></p><pre><code class="lang-json">/* 配置命令 */
+{
+  &quot;scripts&quot;: {
+    &quot;build&quot;: &quot;webpack&quot;,
+    &quot;watch&quot;: &quot;webpack --watch&quot;
+  }
+}
+</code></pre><p><strong>执行命令：</strong></p><pre><code class="lang-bash">$ npm run watch
+</code></pre><p><strong><code>Webpack</code> 配置文件：</strong></p><pre><code class="lang-js">/* webpack 配置文件 */
+module.exports = {
+  // ...
+  watch: true, // 开启监听
+  watchOptions: {
+    // 忽略监听的文件目录
+    ignored: /node_modules/,
+    // 监听到发生变化会等待 300ms 去重新构建（防止多次保存），默认 300ms
+    aggregateTimeout: 300，
+    // 每秒检查 1000 次
+    poll: 1000
+  }
+  // ...
+}
+</code></pre><p><strong><code>watch</code> 监听原理分析：</strong></p><blockquote class="pullquote warning"><p><strong><code>Webpack</code> 会轮询的判断文件的最后编辑时间是否发生变化，如果某个文件发生变化不会立即重新构建，而是会将变化缓存起来，等待 <code>aggregateTimeout</code> 配置的时间后重新构建，这样做是为了防止短时间的多次变化或产生了新的变化文件，在该时间到达时将变化的文件列表进行统一构建，以提高性能，这样的监听方式的缺陷是浏览器不会自动刷新，需要手动刷新查看文件修改后的效果。</strong></p></blockquote><h3 id="devServer"><a href="#devServer" class="headerlink" title="devServer"></a>devServer</h3><p><code>webpack-dev-server</code> 是在本地启动服务来监听文件的变化，不是以输出文件的形式更新，而是即时将重新构建的结果放在内存中。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install webpack-dev-server -D
+</code></pre><p><strong>配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  mode: &#39;development&#39;, // 由于 webpack-dev-server 在开发环境中使用
+  devServer: {
+    host: &#39;localhost&#39;, // 本地服务的域名
+    contentBase: &#39;./dist&#39;, // server 作用的目录
+    port: 8080, // 端口号
+    compress: true // 是否启动服务器压缩
+  }
+  // ...
+}
+</code></pre><p><strong>配置服务启动命令：</strong></p><pre><code class="lang-json">{
+  &quot;scripts&quot;: {
+    &quot;dev&quot;: &quot;webpack-dev-server --open&quot;
+  }
+}
+</code></pre><h3 id="devtool"><a href="#devtool" class="headerlink" title="devtool"></a>devtool</h3><p>在 <code>Webpack</code> 构建后的代码中，经过了压缩、混淆等，会出现一个新的问题，就是代码执行出错后不容定位错误是在源代码中哪一个位置产生的，而 <code>devtool</code> 的配置的作用就是让我们更容易定位错误的位置。</p><p><strong><code>devtool</code> 的关键词：</strong></p><table><thead><tr><th style="width:30%">关键词</th><th>作用</th></tr></thead><tbody><tr><td>evel</td><td>使用 evel 函数包裹代码</td></tr><tr><td>source-map</td><td>产生 .map 文件</td></tr><tr><td>cheap</td><td>不含列信息</td></tr><tr><td>inline</td><td>将 .map 内容作为 DataURI 嵌入，不单独生成 .map 文件</td></tr><tr><td>module</td><td>包含 loader 的 source-map</td></tr></tbody></table><p><code>devtool</code> 属性的值就是由上面的关键词组成的，不同的名字会使用不同的调试策略，而名字中的关键词则包含了上面特性，下面是 <code>Webpcak</code> 官网给出的不同构建策略对应的信息。</p><table><thead><tr><th style="width:36%">devtool</th><th style="width:8%">首次构建</th><th style="width:8%">二次构建</th><th style="width:14%">是否适合生产环境</th><th>可以定位的代码</th></tr></thead><tbody><tr><td>none</td><td>+++</td><td>+++</td><td>yes</td><td>最终输出的代码</td></tr><tr><td>eval</td><td>+++</td><td>+++</td><td>no</td><td>Webpack 生成的代码（一个个的模块）</td></tr><tr><td>cheap-eval-source-map</td><td>+</td><td>++</td><td>no</td><td>经过 loader 转换后的代码（只能看到行）</td></tr><tr><td>cheap-module-eval-source-map</td><td>o</td><td>++</td><td>no</td><td>源代码（只能看到行）</td></tr><tr><td>eval-source-map</td><td>--</td><td>+</td><td>no</td><td>源代码</td></tr><tr><td>cheap-source-map</td><td>+</td><td>o</td><td>no</td><td>经过 loader 转换后的代码（只能看到行）</td></tr><tr><td>cheap-module-source-map</td><td>o</td><td>-</td><td>no</td><td>源代码（只能看到行）</td></tr><tr><td>inline-cheap-source-map</td><td>+</td><td>o</td><td>no</td><td>经过 loader 转换后的代码（只能看到行）</td></tr><tr><td>inline-cheap-module-source-map</td><td>o</td><td>-</td><td>no</td><td>源代码（只能看到行）</td></tr><tr><td>source-map</td><td>--</td><td>--</td><td>yes</td><td>源代码</td></tr><tr><td>inline-source-map</td><td>--</td><td>--</td><td>no</td><td>源代码</td></tr><tr><td>hidden-source-map</td><td>--</td><td>--</td><td>yes</td><td>源代码</td></tr><tr><td>nosources-source-map</td><td>--</td><td>--</td><td>yes</td><td>无源代码</td></tr></tbody></table><blockquote class="pullquote info"><p><strong><code>+++</code> 非常快速，<code>++</code> 快速，<code>+</code> 比较快，<code>o</code> 中等，<code>-</code> 比较慢，<code>--</code> 慢</strong></p></blockquote><p><strong>配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  devtool: &#39;evel&#39;
+  // ...
+}
+</code></pre><p>使用不同的 <code>devtool</code> 会带来不同的效果，使用 <code>evel</code> 不安全，使用 <code>inline</code> 注入会增加打包文件的大小、线上环境生成 <code>.map</code> 文件会容易被人反编译进而暴露业务逻辑等等，所以在 <code>devtool</code> 使用时还是根据自己的需要和安全考虑来权衡。</p><h2 id="热更新"><a href="#热更新" class="headerlink" title="热更新"></a>热更新</h2><h3 id="配置热更新的方式"><a href="#配置热更新的方式" class="headerlink" title="配置热更新的方式"></a>配置热更新的方式</h3><p><code>webpack-dev-server</code> 可以配合自带的插件实现热更新，即文件修改后，不刷新浏览器的情况下自动构建并在浏览器中响应渲染。</p><pre><code class="lang-js">/* 使用 webpack-dev-server */
+const webpack = require(&#39;webpack&#39;);
+
+module.exports = {
+  // ...
+  mode: &#39;development&#39;,
+  devServer: {
+    host: &#39;localhost&#39;,
+    contentBase: &#39;./dist&#39;,
+    port: 8080,
+    compress: true
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ]
+  // ...
+}
+</code></pre><p>想要颗粒度更细致的控制 <code>Webpack</code> 的热更新，也可以使用另一种方式，即借助 <code>Express</code> 或 <code>Koa</code> 自己创建一个服务，并借助 <code>webpack-dev-middleware</code> 来实现热更新，这种方式更适合灵活的定制化场景。</p><pre><code class="lang-js">/* 使用 webpack-dev-middleware */
+const express = require(&#39;express&#39;);
+const webpack = require(&#39;webpack&#39;);
+const webpackDevMiddleware = require(&#39;webpack-dev-middleware&#39;);
+const config = require(&#39;./webpack.config.js&#39;);
+
+const app = express();
+const compiler = webpack(config);
+
+app.use(webpackDevMiddleware(compiler, {
+  publicPath: config.output.publicPath
+}));
+
+app.listen(3000, function () {
+  console.log(&#39;server start 3000&#39;);
+});
+</code></pre><h3 id="热更新原理简介"><a href="#热更新原理简介" class="headerlink" title="热更新原理简介"></a>热更新原理简介</h3><blockquote class="pullquote primary"><p><strong>热更新的实现分为服务端和浏览器两个部分：</strong></p><ul><li><strong>Webpack Dev Server</strong><ul><li><strong><code>Webpack Compile</code>：<code>Webpack</code> 的编译器，作用是将 <code>JS</code> 编译成 <code>Bundle</code>；</strong></li><li><strong><code>HMR Server</code>：将热更新的文件输出给 <code>HMR Runtime</code>；</strong></li><li><strong><code>Bundle Server</code>：提供文件在浏览器以服务器的方式访问。</strong></li></ul></li><li><strong>Browser</strong><ul><li><strong><code>HMR Runtime</code>：开发阶段打包过程中，会被注入到浏览器，使浏览器的 <code>bundle.js</code> 和服务器建立 <code>websocket</code> 链接，以更新文件的变化；</strong></li><li><strong><code>bundle.js</code>：构建输出的文件。</strong></li></ul></li></ul></blockquote><blockquote class="pullquote success"><p><strong><code>Webpack</code> 在将本地文件显示在浏览器其实有两个阶段：</strong></p><ul><li><strong>第一个阶段为启动阶段通过 <code>Webpack Compile</code> 将文件系统中的文件进行构建，然后将文件传递给 <code>Bundle Server</code>，<code>Bundle Server</code> 将 <code>bundle.js</code> 响应给浏览器；</strong></li><li><strong>第二个阶段为热更新阶段，依然通过 <code>Webpack Compile</code> 对文件系统中修改的文件进行构建，将构建后的结果传递给 <code>HMR Server</code>，<code>HMR Server</code> 通过 <code>Websocket</code> 协议将文件变化的结果通知浏览器端的 <code>HMR Runtime</code>，执行代码并刷新页面。</strong></li></ul></blockquote><blockquote class="pullquote info"><p><strong>未完待续…</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20181002041434/" target="_blank" rel="external">https://www.overtaking.top/20181002041434/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Webpack/" rel="tag">Webpack</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9E%84%E5%BB%BA/" rel="tag">构建</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20181002041434/&title=《Webpack4 —— 基础篇》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20181002041434/&title=《Webpack4 —— 基础篇》 — Shen's Blog&source=系列文章链接：Webpack4 —— 应用篇Webpack4 —— 优化篇为什么需要构建工具？转换 ES6+ 语法；转换 JSX 语法 / Vue 指令；..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20181002041434/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Webpack4 —— 基础篇》 — Shen's Blog&url=https://www.overtaking.top/20181002041434/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20181002041434/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20181004114907/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">设计模式 JS 表现 —— 发布/订阅和观察者模式</h4></a></div><div class="waves-block waves-effect next"><a href="/20181001165125/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">设计模式 JS 表现 —— 外观模式</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20181002041434/&title=《Webpack4 —— 基础篇》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20181002041434/&title=《Webpack4 —— 基础篇》 — Shen's Blog&source=系列文章链接：Webpack4 —— 应用篇Webpack4 —— 优化篇为什么需要构建工具？转换 ES6+ 语法；转换 JSX 语法 / Vue 指令；..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20181002041434/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Webpack4 —— 基础篇》 — Shen's Blog&url=https://www.overtaking.top/20181002041434/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20181002041434/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABxElEQVR42u3aQY7DIBAEQP//097rriKbHsYQa1WcosTBxaUFMxxHPM7b8fuZz+fvZztWDFxc3DY3pyTEz5mviPfzXy4JFxd3I/cqMarPVOMsnx8XF/f93MILbqMKFxf3P3HvDzPJZgUXF/f93GrQXH2TH2mWn9VwcXEb3LxKue7zkvouLi7uFPcsjvtiR1Jgbb0dFxd3CzcPlFYho9iCHbRjcXFxF3OfOopUmyjVncyRdHpxcXEf5c6VRwfp+Oj1iz9BhouLu5E7F0/59YtOcwUXF3cnt3Ms6VzLqC4AFxf3bdxqbPWvX0Q9YVxc3MXcqCTRPtJUf42CFRcXdzE3L57mG6MkwibbNri4uMu4c4FVLafmcTlYMC4u7hZu9XiTF0T6TdZB4uLi4m7h5oEyd9kib8wMZsbFxd3IrTZNn2qyJtsaXFzc73LzzU2n5FFt3E7eC8PFxZ3insWRc/vz4OLifotbLVUMChbF2Epmm1wMLi5um5uHztx2p/rf8g0RXFzcZdw8aPLNzaazGi4u7su4T418Mbi4uO/kVsus1a3PQIiLi7uRWy1u5oucK44Mmqy4uLiLudUo6TdFqhGGi4u7kfsDUyXiMXpKdkkAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

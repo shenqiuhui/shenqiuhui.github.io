@@ -1,0 +1,542 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript,异步,Promise,ES6,源码分析"><meta name="description" content="概述Promise 是 js 异步编程的一种解决方案，避免了 “回调地狱” 给编程带来的麻烦，在 ES6 中成为了标准，这篇文章重点不是叙述 Promise 的基本用法，而是从零开始，手写一版符合 Promise&#x2F;A+ 规范的 Promise，如果想了解更多 Promise 的基本用法，可以看 异步发展流程 —— Promise 的基本使用 这篇文章。Promise 构造函数的实现我们在使用 Pr"><meta property="og:type" content="article"><meta property="og:title" content="异步发展流程 —— 手写一个符合 Promise&#x2F;A+ 规范的 Promise"><meta property="og:url" content="https://www.overtaking.top/20180613193626/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="概述Promise 是 js 异步编程的一种解决方案，避免了 “回调地狱” 给编程带来的麻烦，在 ES6 中成为了标准，这篇文章重点不是叙述 Promise 的基本用法，而是从零开始，手写一版符合 Promise&#x2F;A+ 规范的 Promise，如果想了解更多 Promise 的基本用法，可以看 异步发展流程 —— Promise 的基本使用 这篇文章。Promise 构造函数的实现我们在使用 Pr"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Async/20180613193626/promise-A+.png"><meta property="article:published_time" content="2018-06-13T11:36:26.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta property="article:tag" content="异步"><meta property="article:tag" content="Promise"><meta property="article:tag" content="ES6"><meta property="article:tag" content="源码分析"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Async/20180613193626/promise-A+.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise</h1><h5 class="subtitle"><time datetime="2018-06-13T11:36:26.000Z" itemprop="datePublished" class="page-time">2018-06-13</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%BC%82%E6%AD%A5/">异步</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#概述"><span class="post-toc-number">1.</span> <span class="post-toc-text">概述</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Promise-构造函数的实现"><span class="post-toc-number">2.</span> <span class="post-toc-text">Promise 构造函数的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实例方法的实现"><span class="post-toc-number">3.</span> <span class="post-toc-text">实例方法的实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#then-方法的实现"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">then 方法的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#catch-方法的实现"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">catch 方法的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#finally-方法的实现"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">finally 方法的实现</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#静态方法的实现"><span class="post-toc-number">4.</span> <span class="post-toc-text">静态方法的实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Promise-resolve-方法的实现"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">Promise.resolve 方法的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Promise-reject-方法的实现"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">Promise.reject 方法的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Promise-all-方法的实现"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">Promise.all 方法的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Promise-race-方法的实现"><span class="post-toc-number">4.4.</span> <span class="post-toc-text">Promise.race 方法的实现</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#测试-Promise-是否符合-Promise-A-规范"><span class="post-toc-number">5.</span> <span class="post-toc-text">测试 Promise 是否符合 Promise&#x2F;A+ 规范</span></a></li></ol></nav></aside><article id="post-Async/20180613193626" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise</h1><div class="post-meta"><time class="post-time" title="2018-06-13 19:36:26" datetime="2018-06-13T11:36:26.000Z" itemprop="datePublished">2018-06-13</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E5%BC%82%E6%AD%A5/">异步</a></li></ul><span id="/20180613193626/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Async/20180613193626/promise-A+.png" title="Promise 原理"><p><br></p><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote class="pullquote default"><p><strong><code>Promise</code> 是 <code>js</code> 异步编程的一种解决方案，避免了 “回调地狱” 给编程带来的麻烦，在 <code>ES6</code> 中成为了标准，这篇文章重点不是叙述 <code>Promise</code> 的基本用法，而是从零开始，手写一版符合 <code>Promise/A+</code> 规范的 Promise，如果想了解更多 <code>Promise</code> 的基本用法，可以看</strong> <a href="/20180612045005/" target="_blank">异步发展流程 —— Promise 的基本使用</a> <strong>这篇文章。</strong></p></blockquote><h2 id="Promise-构造函数的实现"><a href="#Promise-构造函数的实现" class="headerlink" title="Promise 构造函数的实现"></a>Promise 构造函数的实现</h2><p>我们在使用 <code>Promise</code> 的时候其实是使用 <code>new</code> 关键字创建了一个 <code>Promise</code> 的实例，其实 <code>Promise</code> 是一个类，即构造函数，下面来实现 <code>Promise</code> 构造函数。</p><a id="more"></a><blockquote class="pullquote info"><p><strong><code>Promise/A+</code> 规范的内容比较多，详情查看</strong> <a>https://promisesaplus.com/</a>，<strong>我们在实现 <code>Promise</code> 逻辑时会根据实现的部分介绍相关的 <code>Promise/A+</code> 规范内容。</strong></p></blockquote><blockquote class="pullquote primary"><p><strong>在 <code>Promise/A+</code> 规范中规定:</strong></p><ul><li><strong>构造函数的参数为一个名为 <code>executor</code> 的执行器，即函数，在创建实例时该函数内部逻辑为同步，即立即执行；</strong></li><li><strong><code>executor</code> 执行时的参数分别为 <code>resolve</code> 和 <code>reject</code>，一个为成功时执行的函数，一个为失败时执行的函数；</strong></li><li><strong>在 <code>executor</code> 执行时，一旦出现错误立即调用 <code>reject</code> 函数，并设置错误信息给 <code>reason</code> 属性；</strong></li><li><strong>每个 Promise 实例有三个状态 <code>pending</code>、<code>fulfilled</code> 和 <code>rejected</code>，默认状态为 <code>pending</code>；</strong></li><li><strong>状态只能从 <code>pending</code> 到 <code>fulfilled</code> 或从 <code>pending</code> 到 <code>rejected</code>，不可逆；</strong></li><li><strong>执行 <code>resolve</code> 函数会使状态从 <code>pending</code> 变化到 <code>fulfilled</code> 并将参数存入实例的 <code>value</code> 属性中；</strong></li><li><strong>执行 <code>reject</code> 函数会使状态从 <code>pending</code> 变化到 <code>rejected</code> 并将错误信息存入实例的 <code>reason</code> 属性中。</strong></li></ul></blockquote><p><strong>针对上面的 <code>Promise/A+</code> 规范，<code>Promise</code> 构造函数代码实现如下：</strong></p><pre><code class="lang-js">/* promise.js -- Promise 构造函数 */
+function Promise(executor) {
+  var self = this;
+  self.status = &#39;pending&#39;; // 当前 Promise 实例的状态
+  self.value = undefined; // 当前 Promise 实例成功状态下的值
+  self.reason = undefined; // 当前 Promise 实例失败状态的错误信息
+  self.onFulfilledCallbacks = []; // 存储成功的回调函数的数组
+  self.onRejectedCallbacks = []; // 存储失败的回调函数的数组
+
+  // 成功的执行的函数
+  function resolve(value) {
+    // 处理 executor 执行时，调用 resolve 将一个新的 Promise 实例作为结果返回
+    if (value instanceof Promise) {
+      return value.then(function (data) {
+        resolve(data);
+      }, function (err) {
+        reject(err);
+      });
+    }
+
+    if (self.status === &#39;pending&#39;) {
+      self.status = &#39;fulfilled&#39;;
+      self.value = value;
+
+      // 每次调用 resolve 时
+      // 执行 onFulfilledCallbacks 内部存储的所有的函数
+      // 在实现 then 方法中详细说明
+      self.onFulfilledCallbacks.forEach(function (fn) {
+        fn();
+      });
+    }
+  }
+
+  // 失败执行的函数
+  function reject(reason) {
+    if (self.status === &#39;pending&#39;) {
+      self.status = &#39;rejected&#39;;
+      self.reason = reason;
+
+      // 每次调用 reject 时
+      // 执行 onRejectedCallbacks 内部存储的所有的函数
+      // 在实现 then 方法中详细说明
+      self.onRejectedCallbacks.forEach(function (fn) {
+        fn();
+      });
+    }
+  }
+
+  // 调用执行器函数
+  try {
+    executor(resolve, reject);
+  } catch (e) {
+    // 如果执行器执行时出现错误，直接调用失败的函数
+    reject(e);
+  }
+}
+
+// 将自己的 Promise 导出
+module.exports = Promise;
+</code></pre><p>上面构造函数中的 <code>resolve</code> 和 <code>reject</code> 方法在执行的时候都进行了当前状态的判断，只有状态为 <code>pending</code> 时，才能执行判断内部逻辑，当两个函数有一个执行后，此时状态发生变化，再执行另一个函数时就不会通过判断条件，即不会执行判断内部的逻辑，从而实现了两个函数只有一个执行判断内部逻辑的效果，使用如下：</p><pre><code class="lang-js">/* verify-promise.js -- 验证 promise.js 的代码 */
+// 引入自己的 Promise 模块
+// 因为都验证代码都写在 verify-promise.js 文件中，后面就不再引入了
+const Promise = require(&#39;./promise.js&#39;);
+
+const p = new Promise((resolve, reject) =&gt; {
+  // ...同步代码
+  resolve();
+  reject();
+  // 上面两个函数只有先执行的 resolve 生效
+});
+</code></pre><h2 id="实例方法的实现"><a href="#实例方法的实现" class="headerlink" title="实例方法的实现"></a>实例方法的实现</h2><h3 id="then-方法的实现"><a href="#then-方法的实现" class="headerlink" title="then 方法的实现"></a>then 方法的实现</h3><p>没有 <code>Promise</code> 之前在一个异步操作的回调函数中返回一个结果在输入给下一个异步操作，下一个异步操作结束后需要继续执行回调，就形成回调函数的嵌套，在 <code>Promise</code> 中，原来回调函数中的逻辑只需要调用当前 Promise 实例的 <code>then</code> 方法，并在 <code>then</code> 方法的回调中执行，改变了原本异步的书写方式。</p><blockquote class="pullquote success"><p><strong>在 then 方法中涉及到的 <code>Promise/A+</code> 规范：</strong></p><ul><li><strong><code>Promise</code> 实例的 <code>then</code> 方法中有两个参数，都为函数，第一个参数为成功的回调 <code>onFulfilled</code>，第二个参数为失败的回调 <code>onRejected</code>；</strong></li><li><strong>当 <code>Promise</code> 内部执行 <code>resolve</code> 时，调用实例的 <code>then</code> 方法执行成功的回调 <code>onFulfilled</code>，当 <code>Promise</code> 内部执行 <code>reject</code> 或执行出错时，调用实例的 <code>then</code> 方法执行错误的回调 <code>onRejected</code>；</strong></li><li><strong><code>then</code> 方法需要支持异步，即如果 <code>resovle</code> 或 <code>reject</code> 执行为异步时，<code>then</code> 方法的回调 <code>onFulfilled</code> 或 <code>onRejected</code> 需要在后面执行；</strong></li><li><strong><code>Promise</code> 需要支持链式调用，<code>Promise</code> 实例调用 <code>then</code> 方法后需要返回一个新的 <code>Promise</code> 实例。如果 <code>then</code> 的回调中有返回值且是一个 <code>Promise</code> 实例，则该 <code>Promise</code> 实例执行后成功或失败的结果传递给下一个 <code>Promise</code> 实例的 <code>then</code> 方法 <code>onFulfilled</code> （成功的回调）或 <code>onRejected</code>（失败的回调）的参数，如果返回值不是 <code>Promise</code> 实例，直接将这个值传递给下一个 <code>Promise</code> 实例 <code>then</code> 方法回调的参数，<code>then</code> 的回调如果没有返回值相当于返回 <code>undefined</code>；</strong></li><li><strong><code>Promise</code> 实例链式调用 <code>then</code> 时，当任何一个 <code>then</code> 执行出错，链式调用下一个 <code>then</code> 时会执行错误的回调，错误的回调没有返回值相当于返回了 <code>undefined</code>，再次链式调用 <code>then</code> 时会执行成功的回调；</strong></li><li><strong><code>Promise</code> 实例的链式调用支持值的穿透，即当上一个 <code>then</code> 没有传递回调函数，或参数不是一个函数时（<code>null</code>），参数要被忽略，需要后面调用的 <code>then</code> 的回调函数来接收之前执行成功或失败的结果；</strong></li><li><strong><code>executor</code> 在 <code>Promise</code> 构造函数中执行时使用 <code>try...catch...</code> 捕获异常，但是内部执行的代码有可能是异步的，所以需要在 <code>then</code> 方法中使用 <code>try...catch...</code> 再次捕获；</strong></li><li><strong><code>Promise</code> 实例的 <code>then</code> 方法中的回调为 <code>micro-tasks</code>（微任务），回调内的代码应晚于同步代码执行，在浏览器内部调用微任务接口，我们这里模拟使用宏任务代替。</strong></li></ul></blockquote><p><strong>针对上面的 <code>Promise/A+</code> 规范，then 方法代码实现如下：</strong></p><pre><code class="lang-js">/* promise.js -- then 方法 */
+Promise.prototype.then = function (onFulfilled, onRejected) {
+  // 实现值的穿透
+  if (typeof onFulfilled !== &#39;function&#39;) {
+    onFulfilled = function (data) {
+      return data;
+    }
+  }
+
+  if (typeof onRejected !== &#39;function&#39;) {
+    onRejected = function (err) {
+      throw err;
+    }
+  }
+
+  var self = this;
+
+  // 返回新的 Promise，规范中规定这个 Promise 实例叫 promise2
+  var promise2 = new Promise(function (resolve, reject) {
+    if (self.status === &#39;fulfilled&#39;) {
+      // 用宏任务替代模拟微任务，目的是使 `then` 的回调晚于同步代码执行
+      // 并保证执行 resolvePromise 时可以获取到 promise2 作为参数
+      setTimeout(function () {
+        try {  // 捕获异步的异常
+          // onFulfilled 执行完返回值的处理，x 为成功回调的返回值
+          var x = onFulfilled(self.value);
+
+          // 处理返回值单独封装一个方法
+          resolvePromise(promise2, x, resolve, reject);
+        } catch (e) {
+          reject(e);
+        }
+      }, 0);
+    }
+
+    if (self.status === &#39;rejected&#39;) {
+      setTimeout(function () {
+        try {
+          // onRejected 执行完返回值的处理，x 为失败回调的返回值
+          var x = onRejected(self.reason);
+          resolvePromise(promise2, x, resolve, reject);
+        } catch (e) {
+          reject(e);
+        }
+      }, 0);
+    }
+
+    // 如果在 Promise 执行 resolve 或 renject 为异步
+    // 将 then 的执行程序存储在实例对应的
+    // onFulfilledCallbacks 或 onRejectedCallbacks 中
+    if (self.status === &#39;pending&#39;) {
+      self.onFulfilledCallbacks.push(function () {
+        setTimeout(function () {
+          try {
+            var x = onFulfilled(self.value);
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (e) {
+            reject(e);
+          }
+        }, 0);
+      });
+
+      self.onRejectedCallbacks.push(function () {
+        setTimeout(function () {
+          try {
+            var x = onRejected(self.reason);
+            resolvePromise(promise2, x, resolve, reject);
+          } catch (e) {
+            reject(e);
+          }
+        }, 0);
+      });
+    }
+  });
+
+  return promise2;
+};
+</code></pre><blockquote class="pullquote warning"><p><strong>在处理 <code>then</code> 回调的返回值时，其实就是在处理该返回值与 <code>then</code> 方法在执行后返回的新 <code>Promise</code> 实例（即 <code>promise2</code>）之间的关系，因为无论 <code>Promise</code> 的执行器在执行 <code>resolve</code> 还是 <code>reject</code> 是同步或是异步，都需要进行处理，所以我们单独封装一个函数 <code>resolvePromise</code> 来处理。</strong></p></blockquote><blockquote class="pullquote default"><p><strong><code>resolvePromise</code> 函数有四个参数：</strong></p><ul><li><strong><code>promise2</code>：<code>then</code> 执行后返回的 <code>Promise</code> 实例；</strong></li><li><strong><code>x</code>：<code>then</code> 的回调返回的结果；</strong></li><li><strong><code>resolve</code>：<code>promise2</code> 的 <code>resolve</code> 函数；</strong></li><li><strong><code>reject</code>：<code>promise2</code> 的 <code>reject</code> 函数。</strong></li></ul></blockquote><blockquote class="pullquote info"><p><strong>在 <code>resolvePromise</code> 函数中涉及到的 <code>Promise/A+</code> 规范：</strong></p><ul><li><strong>将每个 <code>Promise</code> 实例调用 <code>then</code> 后返回的新 <code>Promise</code> 实例称为 <code>promise2</code>，将 <code>then</code> 回调返回的值称为 <code>x</code>；</strong></li><li><strong>如果 <code>promise2</code> 和 <code>x</code> 为同一个对象，由于 <code>x</code> 要将执行成功或失败的结果传递 <code>promise2</code> 的 <code>then</code> 方法回调的参数，因为是同一个 <code>Promise</code> 实例，此时既不能成功也不能失败（自己不能等待自己完成），造成循环引用，这种情况下规定应该抛出一个类型错误来回绝；</strong></li><li><strong>如果 <code>x</code> 是一个对象或者函数且不是 <code>null</code>，就去取 <code>x</code> 的 <code>then</code> 方法，如果 <code>x</code> 是对象，防止 <code>x</code> 是通过 <code>Object.defineProperty</code> 添加 <code>then</code> 属性，并添加 <code>get</code> 和 <code>set</code> 监听，如果在监听中抛出异常，需要被捕获到，<code>x.then</code> 是一个函数，就当作 <code>x</code> 是一个 <code>Promise</code> 实例，直接执行<code>x</code> 的 <code>then</code> 方法，执行成功就让 <code>promise2</code> 成功，执行失败就让 <code>promise2</code> 失败，如果 <code>x.then</code> 不是函数，则说明 <code>x</code> 为普通值，直接调用 <code>promise2</code> 的 <code>resolve</code> 方法将 <code>x</code> 传入，不满足条件说明该返回值就是一个普通值，直接执行 <code>promise2</code> 的 <code>resolve</code> 并将 <code>x</code> 作为参数传入；</strong></li><li><strong>如果每次执行 <code>x</code> 的 <code>then</code> 方法，回调中传入的参数还是一个 <code>Promise</code> 实例，循环往复，需要递归 <code>resolvePromise</code> 进行解析；</strong></li><li><strong>在递归的过程中如果返回的 <code>Promise</code> 是其他人通过 <code>Promise/A+</code> 规范实现的，并且实现 <code>Promise</code> 的 <code>then</code> 方法中同时调用了 <code>resolve</code> 和 <code>reject</code> 的情况（未严格按照规范，有坑的 <code>Promise</code>），应该声明一个标识变量 <code>called</code> 做判断来避免这种情况，第一次调用 <code>resolve</code> 或 <code>reject</code> 生效，然后更改标识来忽略其他的调用。</strong></li></ul></blockquote><p><strong>针对上面的 <code>Promise/A+</code> 规范，<code>resolvePromise</code> 函数代码实现如下：</strong></p><pre><code class="lang-js">/* promise.js -- resolvePromise 方法 */
+function resolvePromise(promise2, x, resolve, reject) {
+  // 判断 x 和 promise2 是不是同一个函数
+  if (promise2 === x) {
+    reject(new TypeError(&#39;循环引用&#39;));
+  }
+
+  // x 是对象或者函数并且不是 null，如果不满足该条件说明 x 只是一个普通的值
+  if (x !== null &amp;&amp; (typeof x === &#39;object&#39; || typeof x === &#39;function&#39;)) {
+    // 标识变量，防止递归内外层 resolve 和 reject 同时调用
+    // 针对 Promise，x 为普通值的时候可以放行
+    var called;
+
+    // 为了捕获 Object.defineProperty 创建的 then 属性时添加监听所抛出的异常
+    try {
+      // then 只取一次，防止 Object.defineProperty getter 内，用次数控制报错
+      var then = x.then;
+
+      // then 为一个方法，就当作 x 为一个 promise
+      if (typeof then === &#39;function&#39;) {
+        // 执行 then，第一个参数为 this（即 x）
+        // 第二个参数为成功的回调，第三个参数为失败的回调
+        then.call(x, function (y) {
+          if (called) return;
+          called = true;
+
+          // 如果 y 是 Promise 就继续递归解析
+          resolvePromise(promise2, y, resolve, reject);
+        }, function (err) {
+          if (called) return;
+          called = true;
+          reject(err);
+        });
+      } else { // x 是一个普通对象，直接成功即可
+        resolve(x);
+      }
+    } catch(e) {
+      if (called) return;
+      called = true;
+      reject(e);
+    }
+  } else {
+    resolve(x);
+  }
+}
+</code></pre><blockquote class="pullquote primary"><p><strong>注意：<code>Promise</code> 是一套规范，是通用的，每个人都可以实现一个符合 <code>Promise/A+</code> 规范的 <code>Promise</code>，其他人实现的 <code>Promise</code> 可能会在我们的 <code>Promise</code> 的 <code>then</code> 方法中被返回，所以当我们取出这个对象查看是否含有 <code>then</code> 方法，如果有则认为这个对象是一个 <code>Promise</code> 的实例。</strong></p></blockquote><p>上面我们按照 <code>Promise/A+</code> 规范实现了 <code>Promise</code> 的 <code>then</code> 方法，接下来针对上面的规范，用一些有针对行的案例来对 <code>then</code> 方法一一进行验证。</p><p>验证异步调用 <code>resolve</code> 或 <code>reject</code>：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js 异步调用 resolve 或 reject
+const p = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; resolve(), 1000);
+});
+
+p.then(() =&gt; console.log(&#39;执行了&#39;));
+
+// 执行了
+</code></pre><p>验证链式调用 <code>then</code> 返回 <code>Promise</code> 实例：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js then 回调返回 Promise 实例
+const p1 = new Promise((resolve, reject) =&gt; resolve());
+const p2 = new Promise((resolve, reject) =&gt; resolve(&#39;hello&#39;));
+
+p1.then(() =&gt; p2).then(data =&gt; console.log(data));
+
+// hello
+</code></pre><p>验证链式调用 <code>then</code> 返回普通值：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js then 回调返回普通值
+const p = new Promise((resolve, reject) =&gt; resolve());
+
+p.then(() =&gt; &#39;hello&#39;).then(data =&gt; console.log(data));
+
+// hello
+</code></pre><p>验证链式调用 <code>then</code> 中执行出错链式调用 <code>then</code> 执行错误的回调后，再次链式调用 <code>then</code>：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js 链式调用 then 中执行出错
+// 链式调用 then 执行错误的回调后，再次链式调用 then
+const p = new Promise((resolve, reject) =&gt; resolve());
+
+p.then(() =&gt; {
+  throw new Error(&#39;error&#39;);
+}).then(() =&gt; {
+  console.log(&#39;success&#39;);
+}, err =&gt; {
+  console.log(err);
+}).then(() =&gt; {
+  console.log(&#39;成功&#39;);
+}, () =&gt; {
+  console.log(&#39;失败&#39;);
+});
+
+// Error: error  at p.then...
+// 成功
+</code></pre><p>验证 <code>then</code> 的参数穿透：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 then 的参数穿透
+const p1 = new Promise((resolve, reject) =&gt; resolve(&#39;ok&#39;));
+
+const p2 = p1.then().then(data =&gt; {
+  console.log(data);
+  throw new Error(&#39;出错了&#39;);
+});
+
+p2.then().then(null, err =&gt; console.log(err));
+
+// ok
+// 出错了
+</code></pre><p>验证 <code>then</code> 方法是否晚于同步代码执行：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 then 方法是否晚于同步代码执行
+const p = new Promise((resolve, reject) =&gt; {
+  resolve(1);
+});
+
+p.then(data =&gt; console.log(data));
+console.log(2);
+
+// 2
+// 1
+</code></pre><p>验证循环引用：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js 循环引用
+const p1 = new Promise((resolve, reject) =&gt; resolve());
+
+// 让 p1 then 方法的回调返回自己
+var p2 = p1.then(() =&gt; {
+  return p2;
+});
+
+p2.then(() =&gt; {
+  console.log(&#39;成功&#39;);
+}, err =&gt; {
+  console.log(err);
+});
+
+// TypeError: 循环引用  at resolvePromise...
+</code></pre><p>验证 <code>then</code> 回调返回对象通过 <code>Object.definePropertype</code> 添加 <code>then</code> 属性并添加 <code>get</code> 监听，在触发监听时抛出异常：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js then 回调
+// 返回对象通过 Object.definePropertype 添加 then 和 get 监听，捕获异常
+let obj = {};
+let index = 0;
+Object.defineProperty(obj, &#39;then&#39;, {
+  get () {
+    index++;
+    if (index === 2) {
+      throw new Error();
+    }
+  }
+});
+
+let p = new Promise((resolve, reject) =&gt; resolve());
+p.then(() =&gt; {
+  return obj;
+}).then(() =&gt; {
+  console.log(&#39;成功&#39;);
+}, () =&gt; {
+  console.log(&#39;出错了&#39;);
+});
+
+// 出错了
+</code></pre><p>验证每次执行 <code>resolve</code> 都传入 <code>Promise</code> 实例，需要将最终的执行结果传递给下一个 <code>Promise</code> 实例 <code>then</code> 的回调中：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js 每次执行 resolve 都传入 Promise 实例
+const p = new Promise((resolve, reject) =&gt; resolve());
+
+p.then(() =&gt; {
+  return new Promise((resolve, reject) =&gt; {
+    resolve(new Promise(resolve, reject) =&gt; {
+      resolve(new Promise(resolve, reject) =&gt; {
+        resolve(200);
+      });
+    });
+  });
+}).then(data =&gt; {
+  console.log(data);
+});
+
+// 200
+</code></pre><h3 id="catch-方法的实现"><a href="#catch-方法的实现" class="headerlink" title="catch 方法的实现"></a>catch 方法的实现</h3><pre><code class="lang-js">/* promise.js -- catch 方法 */
+Promise.prototype.catch = function (onRejected) {
+  return this.then(null, onRejected);
+}
+</code></pre><blockquote class="pullquote info"><p><strong><code>catch</code> 方法可以理解为是 <code>then</code> 方法的一个简写，只是参数中少了成功的回调，所以利用 <code>Promise/A+</code> 规范中参数穿透的特性，很容易就实现了 <code>catch</code> 方法，<code>catch</code> 方法的真相就是这么的简单。</strong></p></blockquote><p>验证 <code>catch</code> 方法：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js 的 catch 方法
+const p = new Promise((resolve, reject) =&gt; reject(&#39;err&#39;));
+
+p.then().catch(err =&gt; {
+  console.log(err);
+}).then(() =&gt; {
+  console.log(&#39;成功了&#39;);
+});
+
+// err
+// 成功了
+</code></pre><h3 id="finally-方法的实现"><a href="#finally-方法的实现" class="headerlink" title="finally 方法的实现"></a>finally 方法的实现</h3><pre><code class="lang-js">/* promise.js -- finally 方法 */
+Promise.prototype.finally = function (callback) {
+  return this.then(
+    value =&gt; Promise.resolve(callback()).then(() =&gt; value),
+    reason =&gt; Promise.resolve(callback()).then(() =&gt; { throw reason })
+  );
+}
+</code></pre><blockquote class="pullquote warning"><p><strong><code>finally</code> 方法是在 <code>ES9</code> 的规范中实现的，特点是无论成功或者失败都会执行传入的回调函数，并且回调函数没有任何参数，而在 <code>finally</code> 后可以再链式调用 <code>then</code> 或 <code>catch</code> 去处理后续逻辑或捕获异常，因为参数不是在 <code>finally</code> 方法传入的回调中返回的，所以借助了静态方法 <code>Promise.resolve</code>（该方法实现方式在静态方法中会说明），在 <code>finally</code> 内部调用 <code>then</code> 返回 <code>Promise</code> 实例，并传入成功和失败的回调用来返回最初成功或失败的结果，<code>finally</code> 的回调中执行的返回结果不生效。</strong></p></blockquote><p>验证 <code>finally</code> 方法：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js 的 finally 方法
+const p = new Promise((resolve, reject) =&gt; resolve(&#39;nihao&#39;));
+
+p.finally(() =&gt; { // node版本的问题 8以上
+  console.log(&#39;hello&#39;);
+  throw &#39;error&#39;
+}).catch(err =&gt; {
+  console.log(&#39;err&#39;, err);
+});
+
+p.finally(() =&gt; {
+  console.log(&#39;hello&#39;);
+  return 100;
+}).then(data =&gt; {
+  console.log(&#39;data&#39;, data);
+});
+
+// hello
+// hello
+// err error
+// data nihao
+</code></pre><h2 id="静态方法的实现"><a href="#静态方法的实现" class="headerlink" title="静态方法的实现"></a>静态方法的实现</h2><h3 id="Promise-resolve-方法的实现"><a href="#Promise-resolve-方法的实现" class="headerlink" title="Promise.resolve 方法的实现"></a>Promise.resolve 方法的实现</h3><blockquote class="pullquote success"><p><strong><code>Promise.resolve</code> 方法传入一个参数，并返回一个新的 <code>Promise</code> 实例，这个参数作为新 <code>Promise</code> 实例 <code>then</code> 方法成功回调的参数，在调用时感觉直接成功了，其实是直接执行了返回 <code>Promise</code> 实例的 <code>resolve</code>。</strong></p></blockquote><pre><code class="lang-js">/* promise.js -- Promise.resolve 方法 */
+Promise.resolve = function (val) {
+  return new Promise(function (resolve, reject) {
+    resolve(val);
+  });
+}
+</code></pre><p>验证 <code>Promise.resolve</code> 方法：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js 的 Promise.resolve 方法
+Promise.resolve(&#39;成功了&#39;).then(data =&gt; console.log(data));
+
+// 成功了
+</code></pre><h3 id="Promise-reject-方法的实现"><a href="#Promise-reject-方法的实现" class="headerlink" title="Promise.reject 方法的实现"></a>Promise.reject 方法的实现</h3><blockquote class="pullquote default"><p><strong><code>Promise.reject</code> 方法与 <code>Promise.resolve</code> 的实现思路相同，不同的是，直接调用了返回新 Promise 实例的 <code>reject</code>。</strong></p></blockquote><pre><code class="lang-js">/* promise.js -- Promise.reject 方法 */
+Promise.reject = function (reason) {
+  return new Promise(function (resolve, reject) {
+    reject(reason);
+  });
+}
+</code></pre><p>验证 <code>Promise.reject</code> 方法：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js 的 Promise.reject 方法
+Promise.reject(&#39;失败了&#39;).then(err =&gt; console.log(err));
+
+// 失败了
+</code></pre><h3 id="Promise-all-方法的实现"><a href="#Promise-all-方法的实现" class="headerlink" title="Promise.all 方法的实现"></a>Promise.all 方法的实现</h3><blockquote class="pullquote primary"><p><strong><code>Promise.all</code> 方法可以实现多个 <code>Promise</code> 实例的并行，返回值为一个新的 <code>Promise</code> 实例，当所有结果都为成功时，返回一个数组，该数组存储的为每一个 <code>Promise</code> 实例的返回结果，这些 <code>Promise</code> 实例的返回顺序先后不确定，但是返回值的数组内存储的返回结果是按照数组中 <code>Promise</code> 实例最初顺序进行排列的，返回的数组作为返回 <code>Promise</code> 实例成功回调的参数，当其中一个失败，直接返回失败实例的错误信息，并作为返回 <code>Promise</code> 实例失败回调的参数。</strong></p></blockquote><pre><code class="lang-js">/* promise.js -- Promise.all 方法 */
+Promise.all = function (promises) {
+  return new Promise(function (resolve, reject) {
+    // 存储返回值
+    var result = [];
+
+    // 代表存入的个数，因为 Promise 为异步
+    // 不知道哪个 Promise 先成功，不能用数组的长度来判断
+    var idx = 0;
+
+    // 用来构建全部成功的返回值
+    function processData(index, data) {
+      result[index] = data; // 将返回值存入数组
+      idx++;
+
+      if (idx === promises.length) {
+        resolve(result);
+      }
+    }
+
+    for (var i = 0; i &lt; promises.length; i++) {
+      var current = promises[i];
+      // 因为 Promise 为异步，保证 i 值是顺序传入
+      (function (i) {
+        if (current &amp;&amp; current.then &amp;&amp; typeof current.then === &#39;function&#39;) {
+          current.then(function (data) {
+            processData(i, data);
+          }, reject);
+        } else {
+          processData(i, current);
+        }
+      })(i);
+    }
+  });
+}
+</code></pre><p>验证 <code>Promise.all</code> 方法：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js 的 Promise.all 方法
+const p1 = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; resolve(1), 2000);
+});
+const p2 = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; resolve(2), 1000);
+});
+
+Promise.all([p1, p2, 3]).then(data =&gt; console.log(data));
+
+// [1, 2, 3]
+
+const p3 = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; resolve(1), 2000);
+});
+const p4 = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; reject(2), 1000)
+});
+
+Promise.all([p3, p4]).then(data =&gt; {
+  console.log(data);
+}).catch(err =&gt; {
+  console.log(err);
+});
+
+// 2
+</code></pre><h3 id="Promise-race-方法的实现"><a href="#Promise-race-方法的实现" class="headerlink" title="Promise.race 方法的实现"></a>Promise.race 方法的实现</h3><blockquote class="pullquote info"><p><strong><code>Promise.race</code> 方法与 <code>Promise.all</code> 类似，同样可以实现多个 <code>Promise</code> 实例的并行，同样返回值为一个新的 <code>Promise</code> 实例，参数同样为一个存储多个 <code>Promise</code> 实例的数组，区别是只要有一个 <code>Promise</code> 实例返回结果，无论成功或失败，则直接返回这个结果，并作为新 <code>Promise</code> 实例 <code>then</code> 方法中成功或失败的回调函数的参数。</strong></p></blockquote><pre><code class="lang-js">/* promise.js -- Promise.race 方法 */
+Promise.race = function (promises) {
+  return new Promise(function (resolve, reject) {
+    for (var i = 0; i &lt; promises.length; i++) {
+      var current = promises[i];
+
+      if (current &amp;&amp; current.then &amp;&amp; typeof current.then === &#39;function&#39;) {
+        current.then(resolve, reject);
+      } else {
+        resolve(current);
+      }
+    }
+  });
+}
+</code></pre><p>验证 <code>Promise.race</code> 方法：</p><pre><code class="lang-js">/* 文件：verify-promise.js */
+// 验证 promise.js 的 Promise.race 方法
+const p1 = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; resolve(1), 2000);
+});
+const p2 = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; resolve(2), 1000);
+});
+
+Promise.race([p1, p2]).then(data =&gt; console.log(data));
+
+// 2
+
+const p3 = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; resolve(1), 2000);
+});
+const p4 = new Promise((resolve, reject) =&gt; {
+  setTimeout(() =&gt; reject(2), 1000);
+});
+
+Promise.all([p3, p4]).then(data =&gt; {
+  console.log(data);
+}).catch(err =&gt; {
+  console.log(err);
+});
+
+// 2
+</code></pre><h2 id="测试-Promise-是否符合-Promise-A-规范"><a href="#测试-Promise-是否符合-Promise-A-规范" class="headerlink" title="测试 Promise 是否符合 Promise/A+ 规范"></a>测试 Promise 是否符合 Promise/A+ 规范</h2><p><code>promises-aplus-test</code> 是专门用来验证 <code>Promise</code> 代码（构造函数和 <code>then</code> 方法）是否符合 <code>Promise/A+</code> 规范的模块，需要通过 <code>npm</code> 下载。</p><pre><code class="lang-bash">$ npm install promises-aplus-test -g
+</code></pre><p><strong>测试方法：</strong></p><ul><li>在 <code>promise.js</code> 中写入测试代码；</li><li>在命令行中输入命令 <code>promises-aplus-test</code> + <code>fileName</code>。</li></ul><p><strong>测试代码：</strong></p><pre><code class="lang-js">/* promise.js -- 测试方法 Promise.derfer */
+// Promise 语法糖
+// 好处：解决 Promise 嵌套问题
+// 坏处：错误处理不方便
+Promise.derfer = Promise.deferred = function () {
+  const dfd = {};
+
+  dfd.promise = new Promise((resolve, reject) =&gt; {
+    dfd.resolve = resolve;
+    dfd.reject = reject;
+  });
+
+  return dfd;
+}
+</code></pre><p><strong>输入命令：</strong></p><pre><code class="lang-bash">$ promises-aplus-test promise.js
+</code></pre><blockquote class="pullquote success"><p><strong>执行上面命令后，会根据 <code>Promise/A+</code> 规范一条一条进行极端的验证，当验证通过后会在窗口中这一条对应的执行项前打勾，验证不通过打叉，直到所有的规范都验证完毕。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180613193626/" target="_blank" rel="external">https://www.overtaking.top/20180613193626/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ES6/" rel="tag">ES6</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Promise/" rel="tag">Promise</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%82%E6%AD%A5/" rel="tag">异步</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180613193626/&title=《异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180613193626/&title=《异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise》 — Shen's Blog&source=概述Promise 是 js 异步编程的一种解决方案，避免了 “回调地狱” 给编程带来的麻烦，在 ES6 中成为了标准，这篇文章重点不是叙述 Promis..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180613193626/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise》 — Shen's Blog&url=https://www.overtaking.top/20180613193626/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180613193626/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180614161413/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">异步发展流程 —— Generators + co 让异步更优雅</h4></a></div><div class="waves-block waves-effect next"><a href="/20180612045005/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">异步发展流程 —— Promise 的基本使用</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180613193626/&title=《异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180613193626/&title=《异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise》 — Shen's Blog&source=概述Promise 是 js 异步编程的一种解决方案，避免了 “回调地狱” 给编程带来的麻烦，在 ES6 中成为了标准，这篇文章重点不是叙述 Promis..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180613193626/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《异步发展流程 —— 手写一个符合 Promise/A+ 规范的 Promise》 — Shen's Blog&url=https://www.overtaking.top/20180613193626/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180613193626/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABz0lEQVR42u3aS27DMAwFQN//0inQbSH5kbIUFxitjFixJ1kQ/Oi64vX5XX+v5/tHO+d3H1i4uLjL3M90jYjzPfPr0XfnBlxc3PPcJHjlASgn5gZcXNx3clcSoGqgxMXF/S/cUSDrIXBxcd/PTQJNtWhJft7GWg0XF3eBu9Iwfer6UH8XFxd3eSqRBJRRMKq2TaO34+LiHuHOxyRRKRI3PvJU6eZduLi4B7lJiZIftlgpXQq1Gi4u7mZuteB56m45sOLi4m7mzn/HPMDNH53sSZ5QKHtwcXEf5fZGHSuFU3PogouLe5CblzRJItI8VJEkQLi4uEe4eVPjqSMa1YEuLi7ueW7O6p2IqKZBNwERFxf3CDc/LFUdiOaBrNx8wcXF3cx9oFXRGp02iyVcXNwj3N6QtTcurZZYw7fg4uJu5lYbHMmxjDxxScotXFzcb3FzYvXYRJK+FBIjXFzcg9x8VdudvdHLtfJoXFzcZW41oFQPYfRSpbyNi4uLu49bDV4ro5deUoWLi/stbrXdWQ1beQS92YOLi/sybpLc9D4pjGpwcXFfyc3ToF7ydJNC4eLiHuRWm5u911f/lKW2CC4u7gK32jCtjmDzhikuLu4LuD9+9JWMwOUOrwAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

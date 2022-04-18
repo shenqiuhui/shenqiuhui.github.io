@@ -1,0 +1,430 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Koa2 中间件原理解析 —— 看了就会写 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,async/await,Koa,中间件"><meta name="description" content="前言Koa 2.x 版本是当下最流行的 Node.js 框架，Koa 2.0 的源码特别精简，不像 Express 封装的功能那么多，所以大部分的功能都是由 Koa 开发团队（同 Express 是一家出品）和社区贡献者针对 Koa 对 Node.js 的封装特性实现的中间件来提供的，用法非常简单，就是引入中间件，并调用 Koa 的 use 方法使用在对应的位置，这样就可以通过在内部操作 ctx"><meta property="og:type" content="article"><meta property="og:title" content="Koa2 中间件原理解析 —— 看了就会写"><meta property="og:url" content="https://www.overtaking.top/20180820200342/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言Koa 2.x 版本是当下最流行的 Node.js 框架，Koa 2.0 的源码特别精简，不像 Express 封装的功能那么多，所以大部分的功能都是由 Koa 开发团队（同 Express 是一家出品）和社区贡献者针对 Koa 对 Node.js 的封装特性实现的中间件来提供的，用法非常简单，就是引入中间件，并调用 Koa 的 use 方法使用在对应的位置，这样就可以通过在内部操作 ctx"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180820200342/koa-middleware.png"><meta property="article:published_time" content="2018-08-20T12:03:42.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="async&#x2F;await"><meta property="article:tag" content="Koa"><meta property="article:tag" content="中间件"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180820200342/koa-middleware.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Koa2 中间件原理解析 —— 看了就会写</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Koa2 中间件原理解析 —— 看了就会写</h1><h5 class="subtitle"><time datetime="2018-08-20T12:03:42.000Z" itemprop="datePublished" class="page-time">2018-08-20</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Koa-的洋葱模型介绍"><span class="post-toc-number">2.</span> <span class="post-toc-text">Koa 的洋葱模型介绍</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#koa-bodyparser-中间件模拟"><span class="post-toc-number">3.</span> <span class="post-toc-text">koa-bodyparser 中间件模拟</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#koa-better-body-中间件模拟"><span class="post-toc-number">4.</span> <span class="post-toc-text">koa-better-body 中间件模拟</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#koa-views-中间件模拟"><span class="post-toc-number">5.</span> <span class="post-toc-text">koa-views 中间件模拟</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#koa-static-中间件模拟"><span class="post-toc-number">6.</span> <span class="post-toc-text">koa-static 中间件模拟</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#koa-router-中间件模拟"><span class="post-toc-number">7.</span> <span class="post-toc-text">koa-router 中间件模拟</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">8.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180820200342" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Koa2 中间件原理解析 —— 看了就会写</h1><div class="post-meta"><time class="post-time" title="2018-08-20 20:03:42" datetime="2018-08-20T12:03:42.000Z" itemprop="datePublished">2018-08-20</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180820200342/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Koa2 中间件原理解析 —— 看了就会写"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180820200342/koa-middleware.png" title="Koa 中间件"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote default"><p><strong><code>Koa 2.x</code> 版本是当下最流行的 <code>Node.js</code> 框架，<code>Koa 2.0</code> 的源码特别精简，不像 <code>Express</code> 封装的功能那么多，所以大部分的功能都是由 <code>Koa</code> 开发团队（同 <code>Express</code> 是一家出品）和社区贡献者针对 <code>Koa</code> 对 <code>Node.js</code> 的封装特性实现的中间件来提供的，用法非常简单，就是引入中间件，并调用 <code>Koa</code> 的 <code>use</code> 方法使用在对应的位置，这样就可以通过在内部操作 <code>ctx</code> 实现一些功能，我们接下来就讨论常用中间件的实现原理以及我们应该如何开发一个 <code>Koa</code> 中间件供自己和别人使用。</strong></p></blockquote><a id="more"></a><h2 id="Koa-的洋葱模型介绍"><a href="#Koa-的洋葱模型介绍" class="headerlink" title="Koa 的洋葱模型介绍"></a>Koa 的洋葱模型介绍</h2><p>我们本次不对洋葱模型的实现原理进行过多的刨析，主要根据 <code>API</code> 的使用方式及洋葱模型分析中间件是如何工作的。</p><pre><code class="lang-js">/* 洋葱模型特点 */
+// 引入 Koa
+const Koa = require(&#39;koa&#39;);
+
+// 创建服务
+const app = new Koa();
+
+app.use(async (ctx, next) =&gt; {
+  console.log(1);
+  await next();
+  console.log(2);
+});
+
+app.use(async (ctx, next) =&gt; {
+  console.log(3);
+  await next();
+  console.log(4);
+});
+
+app.use(async (ctx, next) =&gt; {
+  console.log(5);
+  await next();
+  console.log(6);
+});
+
+// 监听服务
+app.listen(3000);
+
+// 1
+// 3
+// 5
+// 6
+// 4
+// 2
+</code></pre><p>我们知道 <code>Koa</code> 的 <code>use</code> 方法是支持异步的，所以为了保证正常的按照洋葱模型的执行顺序执行代码，需要在调用 <code>next</code> 的时候让代码等待，等待异步结束后再继续向下执行，所以我们在 <code>Koa</code> 中都是建议使用 <code>async/await</code> 的，引入的中间件都是在 <code>use</code> 方法中调用，由此我们可以分析出每一个 <code>Koa</code> 的中间件都是返回一个 <code>async</code> 函数的。</p><h2 id="koa-bodyparser-中间件模拟"><a href="#koa-bodyparser-中间件模拟" class="headerlink" title="koa-bodyparser 中间件模拟"></a>koa-bodyparser 中间件模拟</h2><p>想要分析 <code>koa-bodyparser</code> 的原理首先需要知道用法和作用，<code>koa-bodyparser</code> 中间件是将我们的 <code>post</code> 请求和表单提交的查询字符串转换成对象，并挂在 <code>ctx.request.body</code> 上，方便我们在其他中间件或接口处取值，使用前需提前安装。</p><pre><code class="lang-bash">$ npm install koa koa-bodyparser
+</code></pre><p><strong>koa-bodyparser 具体用法如下：</strong></p><pre><code class="lang-js">/* koa-bodyparser 的用法 */
+const Koa = require(&#39;koa&#39;);
+const bodyParser = require(&#39;koa-bodyparser&#39;);
+
+const app = new Koa();
+
+// 使用中间件
+app.use(bodyParser());
+
+app.use(async (ctx, next) =&gt; {
+  if (ctx.path === &#39;/&#39; &amp;&amp; ctx.method === &#39;POST&#39;) {
+    // 使用中间件后 ctx.request.body 属性自动加上了 post 请求的数据
+    console.log(ctx.request.body);
+  }
+});
+
+app.listen(3000);
+</code></pre><p>根据用法我们可以看出 <code>koa-bodyparser</code> 中间件引入的其实是一个函数，我们把它放在了 <code>use</code> 中执行，根据 <code>Koa</code> 的特点，我们推断出 <code>koa-bodyparser</code> 的函数执行后应该给我们返回了一个 <code>async</code> 函数，下面是我们模拟实现的代码。</p><pre><code class="lang-js">/* 文件：my-koa-bodyparser.js */
+const querystring = require(&#39;querystring&#39;);
+
+module.exports = function bodyParser() {
+  return async (ctx, next) =&gt; {
+    await new Promise((resolve, reject) =&gt; {
+      // 存储数据的数组
+      const dataArr = [];
+
+      // 接收数据
+      ctx.req.on(&#39;data&#39;, data =&gt; dataArr.push(data));
+
+      // 整合数据并使用 Promise 成功
+      ctx.req.on(&#39;end&#39;, () =&gt; {
+        // 获取请求数据的类型 json 或表单
+        const contentType = ctx.get(&#39;Content-Type&#39;);
+
+        // 获取数据 Buffer 格式
+        const data = Buffer.concat(dataArr).toString();
+
+        if (contentType === &#39;application/x-www-form-urlencoded&#39;) {
+          // 如果是表单提交，则将查询字符串转换成对象赋值给 ctx.request.body
+          ctx.request.body = querystring.parse(data);
+        } else if (contentType === &#39;applaction/json&#39;) {
+          // 如果是 json，则将字符串格式的对象转换成对象赋值给 ctx.request.body
+          ctx.request.body = JSON.parse(data);
+        }
+
+        // 执行成功的回调
+        resolve();
+      });
+    });
+
+    // 继续向下执行
+    await next();
+  }
+}
+</code></pre><p>在上面代码中由几点是需要我们注意的，即 <code>next</code> 的调用以及为什么通过流接收数据、处理数据和将数据挂在 <code>ctx.request.body</code> 要在 <code>Promise</code> 中进行。</p><blockquote class="pullquote info"><ul><li><p><strong>首先是 <code>next</code> 的调用，我们知道 <code>Koa</code> 的 <code>next</code> 执行，其实就是在执行下一个中间件的函数，即下一个 <code>use</code> 中的 <code>async</code> 函数，为了保证后面的异步代码执行完毕后再继续回到当前中间件，所以我们需要使用 <code>await</code> 进行等待。</strong></p></li><li><p><strong>其次就是数据从接收到挂在 <code>ctx.request.body</code> 都在 <code>Promise</code> 中执行，是因为在接收数据的操作是异步的，整个处理数据的过程需要等待异步完成后，再把数据挂在 <code>ctx.request.body</code> 上，可以保证我们在下一个 <code>use</code> 的 <code>async</code> 函数中可以在 <code>ctx.request.body</code> 上拿到数据，所以我们使用 <code>await</code> 等待一个 <code>Promise</code> 成功后再执行 <code>next</code>。</strong></p></li></ul></blockquote><h2 id="koa-better-body-中间件模拟"><a href="#koa-better-body-中间件模拟" class="headerlink" title="koa-better-body 中间件模拟"></a>koa-better-body 中间件模拟</h2><p><code>koa-bodyparser</code> 在处理表单提交时还是显得有一点弱，因为不支持文件上传，而 <code>koa-better-body</code> 则弥补了这个不足，但是 <code>koa-better-body</code> 为 <code>Koa 1.x</code> 版本的中间件，<code>Koa 1.x</code> 的中间件都是使用 <code>Generator</code> 函数实现的，我们需要使用 <code>koa-convert</code> 将 <code>koa-better-body</code> 转化成 <code>Koa 2.x</code> 的中间件。</p><pre><code class="lang-bash">$ npm install koa koa-better-body koa-convert path uuid
+</code></pre><p><strong>koa-better-body 具体用法如下：</strong></p><pre><code class="lang-js">/* koa-better-body 的用法 */
+const Koa = require(&#39;koa&#39;);
+const betterBody = require(&#39;koa-better-body&#39;);
+const convert = require(&#39;koa-convert&#39;); // 将  koa 1.0 中间转化成 koa 2.0 中间件
+const path = require(&#39;path&#39;);
+const fs = require(&#39;fs&#39;);
+const uuid = require(&#39;uuid/v1&#39;); // 生成随机串
+
+const app = new Koa();
+
+// 将 koa-better-body 中间件从 koa 1.0 转化成 koa 2.0，并使用中间件
+app.use(convert(betterBody({
+  uploadDir: path.resolve(__dirname, &#39;upload&#39;)
+})));
+
+app.use(async (ctx, next) =&gt; {
+  if (ctx.path === &#39;/&#39; &amp;&amp; ctx.method === &#39;POST&#39;) {
+    // 使用中间件后 ctx.request.fields 属性自动加上了 post 请求的文件数据
+    console.log(ctx.request.fields);
+
+    // 将文件重命名
+    const imgPath = ctx.request.fields.avatar[0].path;
+    const newPath = path.resolve(__dirname, uuid());
+    fs.rename(imgPath, newPath);
+  }
+});
+
+app.listen(3000);
+</code></pre><p>上面代码中 <code>koa-better-body</code> 的主要功能就是将表单上传的文件存入本地指定的文件夹下，并将文件流对象挂在了 <code>ctx.request.fields</code> 属性上，我们接下来就模拟 <code>koa-better-body</code> 的功能实现一版基于 <code>Koa 2.x</code> 处理文件上传的中间件。</p><pre><code class="lang-js">/* 文件：my-koa-better-body.js */
+const fs = require(&#39;fs&#39;);
+const uuid = require(&#39;uuid/v1&#39;);
+const path = require(&#39;path&#39;);
+
+// 给 Buffer 扩展 split 方法预备后面使用
+Buffer.prototype.split = function (sep) {
+  const len = Buffer.from(sep).length; // 分隔符所占的字节数
+  const result = []; // 返回的数组
+  let start = 0; // 查找 Buffer 的起始位置
+  let offset = 0; // 偏移量
+
+  // 循环查找分隔符
+  while ((offset = this.indexOf(sep, start)) !== -1) {
+    // 将分隔符之前的部分截取出来存入
+    result.push(this.slice(start, offset));
+    start = offset + len;
+  }
+
+  // 处理剩下的部分
+  result.push(this.slice(start));
+
+  // 返回结果
+  return result;
+}
+
+module.exports = function (options) {
+  return async (ctx, next) =&gt; {
+    await new Promise((resolve, reject) =&gt; {
+      let dataArr = []; // 存储读取的数据
+
+      // 读取数据
+      ctx.req.on(&#39;data&#39;, data =&gt; dataArr.push(data));
+
+      ctx.req.on(&#39;end&#39;, () =&gt; {
+        // 取到请求体每段的分割线字符串
+        const bondery = &#39;--&#39; + ctx.get(&#39;content-Type&#39;).split(&#39;=&#39;)[1];
+
+        // 获取不同系统的换行符
+        const lineBreak = process.platform === &#39;win32&#39; ? &#39;\r\n&#39; : &#39;\n&#39;;
+
+        // 非文件类型数据的最终返回结果
+        const fields = {};
+
+        // 分隔的 buffer 去掉没用的头和尾即开头的 &#39;&#39; 和末尾的 &#39;--&#39;
+        dataArr = dataArr.split(bondery).slice(1, -1);
+
+        // 循环处理 dataArr 中每一段 Buffer 的内容
+        dataArr.forEach(lines =&gt; {
+          // 对于普通值，信息由包含键名的行 + 两个换行 + 数据值 + 换行组成
+          // 对于文件，信息由包含 filename 的行 + 两个换行 + 文件内容 + 换行组成
+          const [head, tail] = lines.split(lineBreak + lineBreak});
+
+          // 判断是否是文件，如果是文件则创建文件并写入，如果是普通值则存入 fields 对象中
+          if (head.includes(&#39;filename&#39;)) {
+            // 防止文件内容含有换行而被分割，应重新截取内容并去掉最后的换行
+            let tail = lines.slice(head.length + 2 * lineBreak.length, -lineBreak.length);
+
+            // 创建可写流并指定写入的路径：
+            // 绝对路径 + 指定文件夹 + 随机文件名，最后写入文件
+            fs.createWriteStream(path.join(__dirname, options.uploadDir, uuid())).end(tail);
+          } else {
+            // 是普通值取出键名
+            const key = head.match(/name=&#39;(\w+)&#39;/)[1];
+
+            // 将 key 设置给 fields tail 去掉末尾换行后的内容
+            fields[key] = tail.toString(&#39;utf8&#39;).slice(0, -lineBreak.length);
+          }
+        });
+
+        // 将处理好的 fields 对象挂在 ctx.request.fields 上，并完成 Promise
+        ctx.request.fields = fields;
+        resolve();
+      });
+    });
+
+    // 向下执行
+    await next();
+  }
+}
+</code></pre><p>上面的内容逻辑可以通过代码注释来理解，就是模拟 <code>koa-better-body</code> 的功能逻辑，我们主要的关心点在于中间件实现的方式，上面功能实现的异步操作依然是读取数据，为了等待数据处理结束仍然在 <code>Promise</code> 中执行，并使用 <code>await</code> 等待，<code>Promise</code> 执行成功调用 <code>next</code>。</p><h2 id="koa-views-中间件模拟"><a href="#koa-views-中间件模拟" class="headerlink" title="koa-views 中间件模拟"></a>koa-views 中间件模拟</h2><p><code>Node.js</code> 模板是我们经常使用的工具，用来在服务端帮我们渲染页面，模板的种类繁多，因此出现了 <code>koa-view</code> 中间件，来兼容这些模板，先安装依赖的模块。</p><pre><code class="lang-bash">$ npm install koa koa-views ejs
+</code></pre><p><strong>下面是一个 ejs 的模板文件：</strong></p><pre><code class="lang-ejs">&lt;!-- 文件：index.ejs --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&#39;en&#39;&gt;
+&lt;head&gt;
+  &lt;meta charset=&#39;UTF-8&#39;&gt;
+  &lt;title&gt;ejs&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;%= name %&gt;
+  &lt;%= age %&gt;
+
+  &lt;% if (name == &#39;panda&#39;) { %&gt;
+    panda
+  &lt;% } else { %&gt;
+    shen
+  &lt;% } %&gt;
+
+  &lt;% arr.forEach(item =&gt; { %&gt;
+    &lt;li&gt;&lt;%= item %&gt;&lt;/li&gt;
+  &lt;% }); %&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p><strong>koa-views 具体用法如下：</strong></p><pre><code class="lang-js">/* koa-views 的用法 */
+const Koa = require(&#39;koa&#39;);
+const views = require(&#39;koa-views&#39;);
+const path = require(&#39;path&#39;);
+
+const app = new Koa();
+
+// 使用中间件
+app.use(views(path.resolve(__dirname, &#39;views&#39;), {
+  extension: &#39;ejs&#39;
+}));
+
+app.use(async (ctx, next) =&gt; {
+  await ctx.render(&#39;index&#39;, { name: &#39;panda&#39;, age: 20, arr: [1, 2, 3] });
+});
+
+app.listen(3000);
+</code></pre><p>可以看出我们使用了 <code>koa-views</code> 中间件后，让 <code>ctx</code> 上多了 <code>render</code> 方法帮助我们实现对模板的渲染和响应页面，就和直接使用 <code>ejs</code> 自带的 <code>render</code> 方法一样，并且从用法可以看出 <code>render</code> 方法是异步执行的，所以需要使用 <code>await</code> 进行等待，接下来我们就来模拟实现一版简单的 <code>koa-views</code> 中间件。</p><pre><code class="lang-js">/* 文件：my-koa-views.js */
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+const { promisify } = require(&#39;util&#39;);
+
+// 将读取文件方法转换成 Promise
+const readFile = promisify(fs.readFile);
+
+// 到处中间件
+module.exports = function (dir, options) {
+  return async (ctx, next) =&gt; {
+    // 动态引入模板依赖模块
+    const view = require(options.extension);
+
+    ctx.render = async (filename, data) =&gt; {
+      // 异步读取文件内容
+      const tmpl = await readFile(path.join(dir, filename + &#39;.&#39; + options.extension), &#39;utf8&#39;);
+
+      // 将模板渲染并返回页面字符串
+      const pageStr = view.render(tmpl, data);
+
+      // 设置响应类型并响应页面
+      ctx.set(&#39;Content-Type&#39;, &#39;text/html;charset=utf8&#39;);
+      ctx.body = pageStr;
+    }
+
+    // 继续向下执行
+    await next();
+  }
+}
+</code></pre><p>挂在 <code>ctx</code> 上的 <code>render</code> 方法之所以是异步执行的是因为内部读取模板文件是异步执行的，需要等待，所以 <code>render</code> 方法为 <code>async</code> 函数，在中间件内部动态引入了我们使的用模板，如 <code>ejs</code>，并在 <code>ctx.render</code> 内部使用对应的 <code>render</code> 方法获取替换数据后的页面字符串，并以 <code>html</code> 的类型响应。</p><h2 id="koa-static-中间件模拟"><a href="#koa-static-中间件模拟" class="headerlink" title="koa-static 中间件模拟"></a>koa-static 中间件模拟</h2><p>下面是 <code>koa-static</code> 中间件的用法，代码使用的依赖如下，使用前需安装。</p><pre><code class="lang-bash">$ npm install koa koa-static mime
+</code></pre><p><strong>koa-static 具体用法如下：</strong></p><pre><code class="lang-js">/* koa-static 的用法 */
+const Koa = require(&#39;koa&#39;);
+const static = require(&#39;koa-static&#39;);
+const path = require(&#39;path&#39;);
+
+const app = new Koa();
+
+app.use(static(path.resolve(__dirname, &#39;public&#39;)));
+
+app.use(async (ctx, next) =&gt; {
+  ctx.body = &#39;hello world&#39;;
+});
+
+app.listen(3000);
+</code></pre><p>通过使用和分析，我们知道了 <code>koa-static</code> 中间件的作用是在服务器接到请求时，帮我们处理静态文件，如果我们直接访问文件名的时候，会查找这个文件并直接响应，如果没有这个文件路径会当作文件夹，并查找文件夹下的 <code>index.html</code>，如果存在则直接响应，如果不存在则交给其他中间件处理。</p><pre><code class="lang-js">/* 文件：my-koa-static.js */
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+const mime = require(&#39;mime&#39;);
+const { promisify } = require(&#39;util&#39;);
+
+// 将 stat 和 access 转换成 Promise
+const stat = promisify(fs.stat);
+const access = promisify(fs.access)
+
+module.exports = function (dir) {
+  return async (ctx, next) =&gt; {
+    // 将访问的路由处理成绝对路径，这里要使用 join 因为有可能是 /
+    const realPath = path.join(dir, ctx.path);
+
+    try {
+      // 获取 stat 对象
+      const statObj = await stat(realPath);
+
+      // 如果是文件，则设置文件类型并直接响应内容，否则当作文件夹寻找 index.html
+      if (statObj.isFile()) {
+        ctx.set(&#39;Content-Type&#39;, mime.getType() + &#39;;charset=utf8&#39;);
+        ctx.body = fs.createReadStream(realPath);
+      } else {
+        const filename = path.join(realPath, &#39;index.html&#39;);
+
+        // 如果不存在该文件则执行 catch 中的 next 交给其他中间件处理
+        await access(filename);
+
+        // 存在设置文件类型并响应内容
+        ctx.set(&#39;Content-Type&#39;, &#39;text/html;charset=utf8&#39;);
+        ctx.body = fs.createReadStream(filename);
+      }
+    } catch (e) {
+      await next();
+    }
+  }
+}
+</code></pre><p>上面的逻辑中需要检测路径是否存在，由于我们导出的函数都是 <code>async</code> 函数，所以我们将 <code>stat</code> 和 <code>access</code> 转化成了 <code>Promise</code>，并用 <code>try...catch</code> 进行捕获，在路径不合法时调用 <code>next</code> 交给其他中间件处理。</p><h2 id="koa-router-中间件模拟"><a href="#koa-router-中间件模拟" class="headerlink" title="koa-router 中间件模拟"></a>koa-router 中间件模拟</h2><p>在 <code>Express</code> 框架中，路由是被内置在了框架内部，而 <code>Koa</code> 中没有内置，是使用 <code>koa-router</code> 中间件来实现的，使用前需要安装。</p><pre><code class="lang-bash">$ npm install koa koa-router
+</code></pre><p><code>koa-router</code> 功能非常强大，下面我们只是简单的使用，并且根据使用的功能进行模拟。</p><pre><code class="lang-js">/* koa-router 的简单用法 */
+const Koa = require(&#39;Koa&#39;);
+const Router = require(&#39;koa-router&#39;);
+
+const app = new Koa();
+const router = new Router();
+
+router.get(&#39;/panda&#39;, (ctx, next) =&gt; {
+  ctx.body = &#39;panda&#39;;
+});
+
+router.get(&#39;/pandashen&#39;, (ctx, next) =&gt; {
+  ctx.body = &#39;pandashen&#39;;
+});
+
+router.get(&#39;/shen&#39;, (ctx, next) =&gt; {
+  ctx.body = &#39;shen&#39;;
+})
+
+// 调用路由中间件
+app.use(router.routes());
+
+app.listen(3000);
+</code></pre><p>从上面看出 <code>koa-router</code> 导出的是一个类，使用时需要创建一个实例，并且调用实例的 <code>routes</code> 方法将该方法返回的 <code>async</code> 函数进行连接，但是在匹配路由的时候，会根据路由 <code>get</code> 方法中的路径进行匹配，并串行执行内部的回调函数，当所有回调函数执行完毕之后会执行整个 <code>Koa</code> 串行的 <code>next</code>，原理同其他中间件，我下面来针对上面使用的功能简易实现。</p><pre><code class="lang-js">/* 文件：my-koa-router.js */
+// 控制每一个路由层的类
+class Layer {
+  constructor(path, cb) {
+    this.path = path;
+    this.cb = cb;
+  }
+  match(path) {
+    // 地址的路由和当前配置路由相等返回 true，否则返回 false
+    return path === this.path;
+  }
+}
+
+// 路由的类
+class Router {
+  constructor() {
+    // 存放每个路由对象的数组，{ path: /xxx, fn: cb }
+    this.layers = [];
+  }
+  get(path, cb) {
+    // 将路由对象存入数组中
+    this.layers.push(new Layer(path, cb));
+  }
+  compose(ctx, next, handlers) {
+    // 将匹配的路由函数串联执行
+    function dispatch(index) {
+      // 如果当前 index 个数大于了存储路由对象的长度，则执行 Koa 的 next 方法
+      if (index &gt;= handlers.length) return next();
+
+      // 否则调用取出的路由对象的回调执行，并传入一个函数，在传入的函数中递归 dispatch(index + 1)
+      // 目的是为了执行下一个路由对象上的回调函数
+      handlers[index].cb(ctx, () =&gt; dispatch(index + 1));
+    }
+
+    // 第一次执行路由对象的回调函数
+    dispatch(0);
+  }
+  routes() {
+    return async (ctx, next) {
+      // 当前 next 是 Koa 自己的 next，即 Koa 其他的中间件，筛选出路径相同的路由
+      const handlers = this.layers.filter(layer =&gt; layer.match(ctx.path));
+      this.compose(ctx, next, handlers);
+    }
+  }
+}
+</code></pre><p>在上面我们创建了一个 <code>Router</code> 类，定义了 <code>get</code> 方法，当然还有 <code>post</code> 等，我们只实现 <code>get</code> 意思一下，<code>get</code> 内为逻辑为将调用 <code>get</code> 方法的参数函数和路由字符串共同构建成对象存入了数组 <code>layers</code>，所以我们创建了专门构造路由对象的类 <code>Layer</code>（方便扩展），在路由匹配时我们可以根据 <code>ctx.path</code> 拿到路由字符串，并通过该路由过滤出 <code>layers</code> 数组中与路由相匹配的路由对象，调用 <code>compose</code> 方法将过滤后的数组作为参数 <code>handlers</code> 传入，串行执行路由对象上的回调函数。</p><blockquote class="pullquote warning"><p><strong><code>compose</code> 这个方法的实现思想非常的重要，在 <code>Koa</code> 源码中用于串联中间件，在 <code>redux</code> 源码中用于串行执行 <code>promise</code>、<code>thunk</code> 和 <code>logger</code> 等中间件，我们 <code>compose</code> 的实现是一个简版，并没有兼容异步，主要思想是递归 <code>dispatch</code> 函数，每次取出数组中下一个路由对象的回调函数执行，直到所有匹配的路由的回调函数都执行完，执行 <code>Koa</code> 的下一个中间件，即调用 <code>next</code>，注意此处的 <code>next</code> 不同于 <code>layers</code> 数组中回调函数的参数 <code>next</code>，<code>layers</code> 数组中路由对象回调函数的 <code>next</code> 代表下一个匹配路由的回调。</strong></p></blockquote><blockquote class="pullquote info"><p><strong><code>Koa</code> 相比 <code>Express</code> 框架关于中间件和使用上的一些优势：</strong></p><ul><li><strong><code>Express</code> 中很多功能都是集成在框架内部，而这些功能不一定都用得到，应用相对简单的情况下显得冗余，<code>Koa</code> 就更轻量，只集成最核心功能，上手快，文档少；</strong></li><li><strong><code>Koa</code> 的一切扩展功能都可以通过引入中间件来实现，大大增加灵活性，中间件可以自己开发，也可以来自社区，插拔随意，即插即用；</strong></li><li><strong><code>Koa</code> 中间件的实现原理明确，与自身的 “洋葱模型” 结合机制清晰，更多的促进关于 <code>Koa</code> 中间件生态的建设。</strong></li></ul></blockquote><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>上面我们分析和模拟了一些中间件，发现 <code>Koa</code> 中间件的开发使用非常方便，需要的功能都可以用对应的中间件来实现，使用中间件可以给我们带来一些好处，比如能将我们处理好的数据和新方法挂载在 <code>ctx</code> 上，方便后面 <code>use</code> 传入的回调函数中使用，也可以帮我们处理一些公共逻辑，不至于在每一个 <code>use</code> 的回调中都去处理，大大减少了冗余代码，由此看来其实给 <code>Koa</code> 使用中间件的过程就是一个典型的 “装饰器” 模式，在通过上面的分析之后相信大家也了解了 <code>Koa</code> 的 “洋葱模型” 和异步特点，知道该如何开发自己的中间件了。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180820200342/" target="_blank" rel="external">https://www.overtaking.top/20180820200342/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Koa/" rel="tag">Koa</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/async-await/" rel="tag">async/await</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag">中间件</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180820200342/&title=《Koa2 中间件原理解析 —— 看了就会写》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180820200342/&title=《Koa2 中间件原理解析 —— 看了就会写》 — Shen's Blog&source=前言Koa 2.x 版本是当下最流行的 Node.js 框架，Koa 2.0 的源码特别精简，不像 Express 封装的功能那么多，所以大部分的功能都是..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180820200342/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Koa2 中间件原理解析 —— 看了就会写》 — Shen's Blog&url=https://www.overtaking.top/20180820200342/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180820200342/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180825162129/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Express 源码分析及简易封装</h4></a></div><div class="waves-block waves-effect next"><a href="/20180817153635/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Node.js 使用 cookie 和 session</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180820200342/&title=《Koa2 中间件原理解析 —— 看了就会写》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180820200342/&title=《Koa2 中间件原理解析 —— 看了就会写》 — Shen's Blog&source=前言Koa 2.x 版本是当下最流行的 Node.js 框架，Koa 2.0 的源码特别精简，不像 Express 封装的功能那么多，所以大部分的功能都是..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180820200342/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Koa2 中间件原理解析 —— 看了就会写》 — Shen's Blog&url=https://www.overtaking.top/20180820200342/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180820200342/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABv0lEQVR42u3aMY4DIQwF0Nz/0tk2xUL8MaBR9KiiGTI8GgvbvF7l8f4Ylbfp/M0DFxe3zX1Px3zO6O3n8/mW6gZcXNz73FHEGM15hyP9/vA5Li7ug7nzE0j9ZIKLi/tL3M6R6EFxFxcXd8pNA818A/Vj0MFcDRcXt8FNDy4nfh+p7+Li4i5x10obaUk0TYeGq+Pi4l7h1gNKiq6EwrV1cXFx73DT4mb96LN25oqTH1xc3K3ctKCZlj53Xb8YnshwcXGPcdPi6a7l423j4uJe4a4lG2tv1xonXzy4uLjHuJ3254nrF4s9YVxc3E3cTpuknhStpUP/zMHFxb3ITa9bpe2WyiqlTeLi4l7h1on1JevpUxzIcHFxL3Irn0g/2m+yBqVSXFzcA9z0ENP53X+Ci4t7k1sPW2vJz672LS4u7k1uvdWRpkn1gkhpDi4u7mHuiQZq5ztBpMTFxT3GTUsV6afrQa1TfsXFxT3BrQedFDffXr1EG0RfXFzcrdx+oKkEu225Gi4u7sO4lWZJJ61aPDfh4uI+hpsWXtcysC/3yHBxcY9x68XNzr/64RIXF/cOt1/6XLuokRZqcXFxr3D/ANYg4jF13ptbAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

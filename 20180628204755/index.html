@@ -1,0 +1,294 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>EventEmitter 源码分析与简易实现 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,源码分析,EventEmitter"><meta name="description" content="EventEmitter 简介EventEmitter 是 Node.js 的核心模块 events 中的类，用于对 Node.js 中的事件进行统一管理，用 events 特定的 API 对事件进行添加、触发和移除等等，核心方法的模式类似于发布订阅。"><meta property="og:type" content="article"><meta property="og:title" content="EventEmitter 源码分析与简易实现"><meta property="og:url" content="https://www.overtaking.top/20180628204755/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="EventEmitter 简介EventEmitter 是 Node.js 的核心模块 events 中的类，用于对 Node.js 中的事件进行统一管理，用 events 特定的 API 对事件进行添加、触发和移除等等，核心方法的模式类似于发布订阅。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180628204755/event-emitter.png"><meta property="article:published_time" content="2018-06-28T12:47:55.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="源码分析"><meta property="article:tag" content="EventEmitter"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180628204755/event-emitter.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">EventEmitter 源码分析与简易实现</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">EventEmitter 源码分析与简易实现</h1><h5 class="subtitle"><time datetime="2018-06-28T12:47:55.000Z" itemprop="datePublished" class="page-time">2018-06-28</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#EventEmitter-简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">EventEmitter 简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现-EventEmitter"><span class="post-toc-number">2.</span> <span class="post-toc-text">实现 EventEmitter</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#EventEmitter-构造函数的实现"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">EventEmitter 构造函数的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#事件最大监听个数"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">事件最大监听个数</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#添加事件监听"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">添加事件监听</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#移除事件监听"><span class="post-toc-number">2.4.</span> <span class="post-toc-text">移除事件监听</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#触发事件监听"><span class="post-toc-number">2.5.</span> <span class="post-toc-text">触发事件监听</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#获取事件类型名称集合"><span class="post-toc-number">2.6.</span> <span class="post-toc-text">获取事件类型名称集合</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#按事件类型获取执行程序的集合"><span class="post-toc-number">2.7.</span> <span class="post-toc-text">按事件类型获取执行程序的集合</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#EventEmitter-的基本使用"><span class="post-toc-number">3.</span> <span class="post-toc-text">EventEmitter 的基本使用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#EventEmitter-总结"><span class="post-toc-number">4.</span> <span class="post-toc-text">EventEmitter 总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180628204755" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">EventEmitter 源码分析与简易实现</h1><div class="post-meta"><time class="post-time" title="2018-06-28 20:47:55" datetime="2018-06-28T12:47:55.000Z" itemprop="datePublished">2018-06-28</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180628204755/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="EventEmitter 源码分析与简易实现"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180628204755/event-emitter.png" title="EventEmitter"><p><br></p><h2 id="EventEmitter-简介"><a href="#EventEmitter-简介" class="headerlink" title="EventEmitter 简介"></a>EventEmitter 简介</h2><blockquote class="pullquote danger"><p><strong><code>EventEmitter</code> 是 <code>Node.js</code> 的核心模块 <code>events</code> 中的类，用于对 <code>Node.js</code> 中的事件进行统一管理，用 <code>events</code> 特定的 <code>API</code> 对事件进行添加、触发和移除等等，核心方法的模式类似于发布订阅。</strong></p></blockquote><a id="more"></a><h2 id="实现-EventEmitter"><a href="#实现-EventEmitter" class="headerlink" title="实现 EventEmitter"></a>实现 EventEmitter</h2><h3 id="EventEmitter-构造函数的实现"><a href="#EventEmitter-构造函数的实现" class="headerlink" title="EventEmitter 构造函数的实现"></a>EventEmitter 构造函数的实现</h3><pre><code class="lang-js">/* 文件：events.js */
+function EventEmitter () {
+  this._events = Object.create(null);
+}
+
+/*
+* 其他方法
+*/
+
+// 导出自定义模块
+module.export = EventEmitter;
+</code></pre><p>在构造函数 <code>EventEmitter</code> 上有一个属性 <code>_events</code>，类型为对象，用于存储和统一管理所有类型的事件，在创建构造函数的时候导出了 <code>EventEmitter</code>，后面实现其他方法的代码将放在构造函数与导出中间。</p><h3 id="事件最大监听个数"><a href="#事件最大监听个数" class="headerlink" title="事件最大监听个数"></a>事件最大监听个数</h3><p>在 <code>EventEmitter</code> 中监听的每一类事件都有最大监听个数，超过了这个数值，事件虽然可以正常执行，但是会发出警告信息，其目的是为了防止内存泄露。</p><pre><code class="lang-js">/* 默认事件最大监听个数 */
+EventEmitter.defaultMaxListeners = 10;
+</code></pre><p>这个同类型事件最大个数默认是 <code>10</code>，EventEmitter 当然也有方法设置和获取这个值，下面是设置和获取同类型事件最大监听个数的方法实现。</p><pre><code class="lang-js">/* 操作最大事件监听个数 */
+// 设置同类型事件监听最大个数
+EventEmitter.prototype.setMaxListeners = function (count) {
+  this._count = count;
+}
+
+// 获取同类型事件监听最大个数
+EventEmitter.prototype.getMaxListeners = function () {
+  return this._count || EventEmitter.defaultMaxListeners;
+}
+</code></pre><p>在设置这个值的时候其实就是给 EventEmitter 实例添加了一个 <code>_count</code> 的属性用来存储设置的新值来作为这个类型事件的最大监听个数，在获取的时候就是获取 <code>_count</code>，如果没有设置过就获取默认值。</p><h3 id="添加事件监听"><a href="#添加事件监听" class="headerlink" title="添加事件监听"></a>添加事件监听</h3><p>在给 <code>EventEmitter</code> 的实例添加事件监听时，在 <code>_event</code> 对象中会以事件的类型作为属性名，值为一个数组，每次添加这个类型事件的时候，会将要执行的函数存入这个数组中进行统一管理。</p><blockquote class="pullquote info"><p><strong>添加事件监听的方法有 <code>on</code>、<code>once</code>、<code>addListener</code>、<code>prependListener</code> 和 <code>prependOnceListener</code>：</strong></p><ul><li><strong><code>on</code> 等同于 <code>addListener</code> 将函数正常添加到 <code>_event</code> 对应事件类型的数组中；</strong></li><li><strong><code>once</code> 将函数添加到 <code>_event</code> 对应事件类型的数组中，但是只能执行一次；</strong></li><li><strong><code>prependListener</code> 将函数添加到 <code>_event</code> 对应事件类型的数组中的前面；</strong></li><li><strong><code>prependOnceListener</code> 将函数添加到 <code>_event</code> 对应事件类型的数组中的前面，但只能执行一次。</strong></li></ul></blockquote><blockquote class="pullquote warning"><p><strong>在 <code>EventEmitter</code> 中正常添加事件有四点需要注意：</strong></p><ul><li><strong>如果其他的类使用 <code>util</code> 模块的 <code>inherits</code> 方法继承 EventEmitter 时是无法继承实例属性的，在调用操作 <code>_events</code> 的方法中因为无法获取到 <code>_events</code> 导致报错，为了兼容这种继承的情况，在获取不到 <code>_events</code> 时应添加一个 <code>_events</code> 到继承 EventEmitter 的类的实例上；</strong></li><li><strong>如果添加事件的类型为 <code>newListener</code>，传入要执行的函数会有一个参数 <code>type</code> ，是事件的类型，之后再添加事件的时候，就会执行 <code>newListener</code> 的函数，对添加的事件的事件类型进行处理；</strong></li><li><strong><code>on</code> 方法表面上有两个参数，实际上有第三个参数，为布尔值，代表是否从 <code>_events</code> 对应事件类型的数组前面追加函数成员；</strong></li><li><strong>在添加事件的时候需要判断是否超出这个类型事件的最大监听个数，如果超出要打印警告信息。</strong></li></ul></blockquote><p><strong>on 方法和 addListener 方法的实现：</strong></p><pre><code class="lang-js">/* on 和 addListener 方法 */
+// 添加事件监听
+EventEmitter.prototype.on = EventEmitter.prototype.addListener = function (type, callback, flag) {
+  // 兼容继承不存在 _events 的情况
+  if (!this._events) this._events = Object.create(null);
+
+  // 如果 type 不是 newListener 就去执行 newListener 的回调
+  if (type !== &#39;newListener&#39;) {
+    // 如果没添加过 newListener 事件就忽略此处的逻辑
+    if (this._events[&#39;newListener&#39;] &amp;&amp; this._events[&#39;newListener&#39;].length) {
+      this._events[&#39;newListener&#39;].forEach(fn =&gt; fn(type));
+    }
+  }
+
+  // 如果不是第一次添加 callback 存入数组中
+  if (this._events[type]) {
+    // 是否从数组前面添加 callback
+    if (flag) {
+      this._events[type].unshift(callback);
+    } else {
+      this._events[type].push(callback);
+    }
+  } else {
+    // 第一次添加，在 _events 中创建数组并添加 callback 到数组中
+    this._events[type] = [callback];
+  }
+
+  // 获取事件最大监听个数
+  const maxListeners = this.getMaxListeners();
+
+  // 判断 type 类型的事件是否超出最大监听个数，超出打印警告信息
+  if (this._events[type].length - 1 === maxListeners) {
+    console.error(&#39;MaxListenersExceededWarning: &#39; + (maxListeners + 1) + &#39; &#39; + type + &#39; listeners added&#39;);
+  }
+}
+</code></pre><p>通过上面代码可以看出 <code>on</code> 方法的第三个参数其实是服务于 <code>prependListener</code> 方法的，其他添加事件的方法都是基于 <code>on</code> 来实现的，只是在调用 <code>on</code> 的外层做了不同的处理，而我们平时调这些添加事件监听的方法时都只传入 <code>type</code> 和 <code>callback</code>。</p><p><strong>prependListener 方法的实现：</strong></p><pre><code class="lang-js">/* prependListener 方法 */
+// 添加事件监听，从数组的前面追加
+EventEmitter.prototype.prependListener = function (type, callback) {
+  // 第三个参数为 true 表示从 _events 对应事件类型的数组前面添加 callback
+  this.on(type, callback, true);
+}
+</code></pre><p><strong>once 方法的实现：</strong></p><pre><code class="lang-js">/* once 方法 */
+// 添加事件监听，只能执行一次
+EventEmitter.prototype.once = function (type, callback, flag) {
+  const wrap =&gt; (...args) {
+    callback(...args);
+
+    // 执行 callback 后立即从数组中移除 callback
+    this.removeListener(type, wrap);
+  }
+
+  // 存储 callback，确保单独使用 removeListener 删除传入的 callback 时可以被删除掉
+  wrap.realCallback = callback;
+
+  // 调用 on 添加事件监听
+  this.on(type, wrap, flag);
+}
+</code></pre><p>想让事件只执行一次，需要在执行 <code>callback</code> 之后就立即在数组中移除这个函数，由于是同步执行，直接操作 <code>callback</code> 是很难实现的，添加事件其实就是添加 <code>callback</code> 到 <code>_events</code> 对应类型的数组中，我们在使用 <code>once</code> 的时候将 <code>callback</code> 包一层函数名为 <code>wrap</code>，将这个外层函数存入数组，<code>wrap</code> 的内部逻辑就是真正 <code>callback</code> 的调用和移除 <code>wrap</code>，这里涉及到事件监听的移除方法 <code>removeListener</code> 在后面来详细说明。</p><p><code>once</code> 的第三个参数是为了 <code>prependOnceListener</code> 服务的，<code>prependOnceListener</code> 与 <code>prependListener</code> 实现方式类似，不同的是 <code>prependOnceListener</code> 是基于 <code>once</code> 实现的。</p><p><strong>prependOnceListener 方法的实现：</strong></p><pre><code class="lang-js">/* prependOnceListener 方法 */
+// 添加事件监听，从数组的前面追加，只执行一次
+EventEmitter.prototype.prependOnceListener = function (type, callback) {
+  // 第三个参数为 true 表示从 _events 对应事件类型的数组前面添加 callback
+  this.once(type, callback, true);
+}
+</code></pre><h3 id="移除事件监听"><a href="#移除事件监听" class="headerlink" title="移除事件监听"></a>移除事件监听</h3><p>移除事件监听有两个方法，分别是 <code>removeListener</code> 和 <code>removeAllListeners</code>，前者的作用是移除某个类型数组中的某个回调函数，后者的作用是移除某个类型数组的所有成员，如果类型参数为空，则清空整个 <code>_events</code>。</p><p><strong>removeListener 方法的实现：</strong></p><pre><code class="lang-js">/* removeListener 方法 */
+// 移除事件执行程序
+EventEmitter.prototype.removeListener = function (type, callback) {
+  if (this._events[type]) {
+    // 过滤掉当前传入的要移除的 callback
+    this._events[type] = this._events[type].filter(fn =&gt; {
+      return fn !== callback &amp;&amp; fn !== callback.realCallback;
+    });
+  }
+}
+</code></pre><p>由于 <code>once</code> 中在真正的 <code>callback</code> 包了一层 <code>wrap</code>，只有在触发事件时才能执行 <code>wrap</code> 并执行 <code>removeListener</code> 删掉函数，如果在事件触发之前使用 <code>removeListener</code> 删除，传入的是真正的回调 <code>callback</code> 将不存在，无法执行，所以在 <code>once</code> 方法中对真正的 <code>callback</code> 进行了存储，在 <code>removeListener</code> 中调用 <code>filter</code> 时的返回条件的逻辑中做了处理。</p><p><strong>removeAllListeners 方法的实现：</strong></p><pre><code class="lang-js">/* removeAllListeners 方法 */
+// 移除全部事件执行程序
+EventEmitter.prototype.removeAllListeners = function (type) {
+  // 存在 type 清空 _events 对应的数组，否则直接清空 _events
+  if (type) {
+    this._events[type] = [];
+  } else {
+    this._events = Object.create(null);
+  }
+}
+</code></pre><h3 id="触发事件监听"><a href="#触发事件监听" class="headerlink" title="触发事件监听"></a>触发事件监听</h3><p>执行事件就比较简单了，取出 <code>_events</code> 中对应类型的数组进行循环，执行内部的每一个函数，第一个参数为 <code>type</code>，后面参数会作为数组中函数执行传入的参数。</p><pre><code class="lang-js">/* emit 方法 */
+// 触发事件w
+EventEmitter.prototype.emit = function (type, ...args) {
+  if (this._events[type]) {
+    // 循环执行函数，并将 this 指回 EventEmitter 实例
+    this._events[type].forEach(fn =&gt; fn.call(this, ...args));
+  }
+}
+</code></pre><h3 id="获取事件类型名称集合"><a href="#获取事件类型名称集合" class="headerlink" title="获取事件类型名称集合"></a>获取事件类型名称集合</h3><pre><code class="lang-js">/* eventNames 方法 */
+// 获取监听的所有事件类型
+EventEmitter.prototype.eventNames = function () {
+  return Object.keys(this._events);
+}
+</code></pre><h3 id="按事件类型获取执行程序的集合"><a href="#按事件类型获取执行程序的集合" class="headerlink" title="按事件类型获取执行程序的集合"></a>按事件类型获取执行程序的集合</h3><pre><code class="lang-js">/* listeners 方法 */
+// 获取事件类型对应的数组
+EventEmitter.prototype.listeners = function (type) {
+  return this._events[type];
+}
+</code></pre><h2 id="EventEmitter-的基本使用"><a href="#EventEmitter-的基本使用" class="headerlink" title="EventEmitter 的基本使用"></a>EventEmitter 的基本使用</h2><p><code>EventEmitter</code> 的核心逻辑已经实现，由于上面大多数方法需要组合使用，所以在没有一一验证，下面让我们通过一些案例来了解 <code>EventEmitter</code> 的用法。</p><p>我们在这里引入自己自定义的 <code>events</code> 模块，并使用 <code>util</code> 模块的 <code>inherits</code> 继承 <code>EventEmitter</code>，下面是前置代码，后面将不在重复。</p><pre><code class="lang-js">/* 文件：events-demo.js */
+// 引入依赖
+const EventEmitter = require(&#39;./events&#39;);
+const util = require(&#39;util&#39;);
+
+function Girl() {}
+
+// 使 Girl 继承 EventEmitter
+util.inherits(Girl, EventEmitter);
+
+// 创建 Girl 的实例
+const girl = new Girl();
+</code></pre><p><strong>案例 1：设置和获取同类型事件的最大监听个数</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+// 获取事件最大监听个数
+console.log(girl.getMaxListeners()); // 10
+
+// 设置事件最大监听个数
+girl.setMaxListeners(2);
+console.log(girl.getMaxListeners()); // 2
+</code></pre><p><strong>案例 2：使用 <code>on</code> 添加事件并执行</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;哭了&#39;));
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;喝酒&#39;));
+
+girl.emit(&#39;失恋&#39;);
+
+// 哭了
+// 喝酒
+</code></pre><p><strong>案例 3：使用 <code>prependListener</code> 添加事件并执行</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;哭了&#39;));
+girl.prependListener(&#39;失恋&#39;, () =&gt; console.log(&#39;喝酒&#39;));
+
+girl.emit(&#39;失恋&#39;);
+
+// 喝酒
+// 哭了
+</code></pre><p><strong>案例 4：添加 <code>newListener</code> 类型的事件</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+girl.on(&#39;newListener&#39;, (type) =&gt; console.log(type));
+
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;哭了&#39;));
+girl.on(&#39;和好&#39;, () =&gt; console.log(&#39;开心&#39;));
+
+// 失恋
+// 和好
+</code></pre><p><strong>案例 5：添加同类型事件超出最大个数并执行事件</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+// 设置事件最大监听个数
+girl.setMaxListeners(2);
+
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;哭了&#39;));
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;喝酒&#39;));
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;吸烟&#39;));
+
+girl.emit(&#39;失恋&#39;);
+
+// MaxListenersExceededWarning: 3 失恋 listeners added
+// 哭了
+// 喝酒
+// 吸烟
+</code></pre><p><strong>案例 6：对比 <code>on</code> 和 <code>once</code></strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;哭了&#39;));
+girl.once(&#39;失恋&#39;, () =&gt; console.log(&#39;喝酒&#39;));
+
+girl.emit(&#39;失恋&#39;);
+girl.emit(&#39;失恋&#39;);
+
+// 哭了
+// 喝酒
+// 哭了
+</code></pre><p><strong>案例 7：移除 <code>on</code> 和 <code>once</code> 添加的事件监听</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+const cry = () =&gt; console.log(&#39;哭了&#39;);
+const drink = () =&gt; console.log(&#39;喝酒&#39;);
+
+girl.on(&#39;失恋&#39;, cry);
+girl.once(&#39;失恋&#39;, drink);
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;吸烟&#39;));
+
+girl.removeListener(&#39;失恋&#39;, cry);
+girl.removeListener(&#39;失恋&#39;, drink);
+girl.emit(&#39;失恋&#39;);
+
+// 吸烟
+</code></pre><p><strong>案例 8：使用 <code>prependOnceListener</code> 添加事件监听</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;哭了&#39;));
+girl.prependOnceListener(&#39;失恋&#39;, () =&gt; console.log(&#39;喝酒&#39;));
+
+girl.emit(&#39;失恋&#39;);
+girl.emit(&#39;失恋&#39;);
+
+// 喝酒
+// 哭了
+// 哭了
+</code></pre><p><strong>案例 9：获取某个事件类型执行程序的集合</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+const cry = () =&gt; console.log(&#39;哭了&#39;);
+const drink = () =&gt; console.log(&#39;喝酒&#39;);
+
+girl.on(&#39;失恋&#39;, cry);
+girl.once(&#39;失恋&#39;, drink);
+girl.once(&#39;失恋&#39;, () =&gt; console.log(&#39;吸烟&#39;));
+
+console.log(girl.listeners(&#39;失恋&#39;));
+
+// [ [Function: cry], [Function: drink], [Function] ]
+</code></pre><p><strong>案例 10：获取所有事件类型名称</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;哭了&#39;));
+girl.on(&#39;和好&#39;, () =&gt; console.log(&#39;开心&#39;));
+
+console.log(girl.eventNames());
+
+// [ &#39;失恋&#39;, &#39;和好&#39; ]
+</code></pre><p><strong>案例 11：使用 <code>removeAllListeners</code> 按类型移除事件监听</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;哭了&#39;));
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;喝酒&#39;));
+girl.on(&#39;和好&#39;, () =&gt; console.log(&#39;开心&#39;));
+
+// 移除 “失恋” 类型事件监听
+girl.removeAllListeners(&#39;失恋&#39;);
+
+console.log(girl.listeners(&#39;失恋&#39;));
+
+// []
+</code></pre><p><strong>案例 12：使用 <code>removeAllListeners</code> 移除全部事件监听</strong></p><pre><code class="lang-js">/* 文件：events-demo.js */
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;哭了&#39;));
+girl.on(&#39;失恋&#39;, () =&gt; console.log(&#39;喝酒&#39;));
+girl.on(&#39;和好&#39;, () =&gt; console.log(&#39;开心&#39;));
+
+// 移除全部事件监听
+girl.removeAllListeners();
+
+console.log(girl._events);
+
+// {}
+</code></pre><h2 id="EventEmitter-总结"><a href="#EventEmitter-总结" class="headerlink" title="EventEmitter 总结"></a>EventEmitter 总结</h2><blockquote class="pullquote success"><p><strong><code>events</code> 模块在 <code>Node.js</code> 中的使用率非常高，很多其他模块的事件执行机制都是通过继承该模块的 <code>EventEmitter</code> 类来实现的，比如 <code>ReadStream</code>（可读流）、<code>WriteStream</code>（可写流）、<code>net</code>（tcp）和 <code>http</code> 等等，包括 <code>Vue</code> 事件机制的 <code>on</code> 和 <code>emit</code> 的实现与 <code>EventEmitter</code> 也非常相似，我们也可以通过上面案例的方式创建自己的类去继承 <code>EventEmitter</code> 来实现事件的管理。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180628204755/" target="_blank" rel="external">https://www.overtaking.top/20180628204755/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/EventEmitter/" rel="tag">EventEmitter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180628204755/&title=《EventEmitter 源码分析与简易实现》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180628204755/&title=《EventEmitter 源码分析与简易实现》 — Shen's Blog&source=EventEmitter 简介EventEmitter 是 Node.js 的核心模块 events 中的类，用于对 Node.js 中的事件进行统一管理..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180628204755/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《EventEmitter 源码分析与简易实现》 — Shen's Blog&url=https://www.overtaking.top/20180628204755/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180628204755/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180629115313/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Node.js —— Buffer 解读</h4></a></div><div class="waves-block waves-effect next"><a href="/20180626142825/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">CommonJS 模块化简易实现</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180628204755/&title=《EventEmitter 源码分析与简易实现》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180628204755/&title=《EventEmitter 源码分析与简易实现》 — Shen's Blog&source=EventEmitter 简介EventEmitter 是 Node.js 的核心模块 events 中的类，用于对 Node.js 中的事件进行统一管理..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180628204755/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《EventEmitter 源码分析与简易实现》 — Shen's Blog&url=https://www.overtaking.top/20180628204755/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180628204755/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABwklEQVR42u3ayQ7CMAxF0f7/T5c1EoX77DitxM0KMSSnLKx4OA68znDxPY+JJVeu3DaXHPz9Nf/0ihs8vFy5cjdy+XZXvyL78N0u35crV+6Dud8DkFy5cv+HyxMhgpMrV+7zuST5WVX4IPsvyNXkypXb4KYHT7weqe/KlSu3xD0bixRHyLUmOFGuXLlbuGnQ4WgStsh16sNv5cqVeyuXX0R4IbWWDsX/gVy5chtcHlw6JQ8etn6cK1eu3O3cfnGToGvjXG+5mly5coe5JPTwUFUbsIi/L1eu3GEuga4avUoTrcvkR65cuVu46dWEPxhC8OxGrly5D+B2xqfSggt5SLly5e7hpqnI2gSpVhGVK1fuNLdf4CDcWpM1KJXKlSt3KZePXPDWadpkjVu8cuXKHebySwxZtRENXkyRK1fuHi4PW+lFJ02WeGlGrly509wzXLXwxFnBnIhcuXLHuGkps1PgSMujLbRcuXLbXB680qBDLknxZUiuXLkbuTzQdFqwI7maXLlyb+XycknaMonHsOTKlfsYbidZqp2Oxi/kypU7xuXJD0+H0iYuadvIlSt3D5cHpk4DJi2tLqjvypUrt8J9ATbzTdS3PnjgAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

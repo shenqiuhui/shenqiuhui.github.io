@@ -1,0 +1,430 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>React 基础篇 —— 组件间的参数传递 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="React"><meta name="description" content="单向数据流支持组件化开发的前端框架如 React、Vue，组件间的参数传递都是很重要的，而 React 中数据传递是单向的，也被称为单向数据流，即数据只能从父组件传递到子组件，而子组件只需要通过 props 属性渲染即可，如果顶层组件的某个属性的值改变了，React 将由外向内遍历整个组件树，将使用了该属性的组件重新渲染。"><meta property="og:type" content="article"><meta property="og:title" content="React 基础篇 —— 组件间的参数传递"><meta property="og:url" content="https://www.overtaking.top/20180919002629/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="单向数据流支持组件化开发的前端框架如 React、Vue，组件间的参数传递都是很重要的，而 React 中数据传递是单向的，也被称为单向数据流，即数据只能从父组件传递到子组件，而子组件只需要通过 props 属性渲染即可，如果顶层组件的某个属性的值改变了，React 将由外向内遍历整个组件树，将使用了该属性的组件重新渲染。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/React/20180919002629/react-props-transmit.png"><meta property="article:published_time" content="2018-09-18T16:26:29.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="React"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/React/20180919002629/react-props-transmit.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">React 基础篇 —— 组件间的参数传递</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">React 基础篇 —— 组件间的参数传递</h1><h5 class="subtitle"><time datetime="2018-09-18T16:26:29.000Z" itemprop="datePublished" class="page-time">2018-09-19</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/React/">React</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#单向数据流"><span class="post-toc-number">1.</span> <span class="post-toc-text">单向数据流</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#创建项目"><span class="post-toc-number">2.</span> <span class="post-toc-text">创建项目</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#父组件传参给子组件"><span class="post-toc-number">3.</span> <span class="post-toc-text">父组件传参给子组件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#子组件修改父组件的数据"><span class="post-toc-number">4.</span> <span class="post-toc-text">子组件修改父组件的数据</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#context-实现跨组件传参"><span class="post-toc-number">5.</span> <span class="post-toc-text">context 实现跨组件传参</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#旧版-context"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">旧版 context</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#新版-context"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">新版 context</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">6.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-React/20180919002629" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">React 基础篇 —— 组件间的参数传递</h1><div class="post-meta"><time class="post-time" title="2018-09-19 00:26:29" datetime="2018-09-18T16:26:29.000Z" itemprop="datePublished">2018-09-19</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/React/">React</a></li></ul><span id="/20180919002629/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="React 基础篇 —— 组件间的参数传递"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/React/20180919002629/react-props-transmit.png" title="React 组件间参数传递"><p><br></p><h2 id="单向数据流"><a href="#单向数据流" class="headerlink" title="单向数据流"></a>单向数据流</h2><blockquote class="pullquote default"><p><strong>支持组件化开发的前端框架如 <code>React</code>、<code>Vue</code>，组件间的参数传递都是很重要的，而 <code>React</code> 中数据传递是单向的，也被称为单向数据流，即数据只能从父组件传递到子组件，而子组件只需要通过 <code>props</code> 属性渲染即可，如果顶层组件的某个属性的值改变了，<code>React</code> 将由外向内遍历整个组件树，将使用了该属性的组件重新渲染。</strong></p></blockquote><a id="more"></a><h2 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h2><p>首先使用 <code>create-react-app</code> 脚手架创建 <code>React</code> 项目，项目生成后删除 <code>src</code> 文件目录下的多余文件，留下 <code>index.js</code>，命令如下：</p><pre><code class="lang-bash"># 安装脚手架
+$ npm install -g create-react-app
+# 创建项目
+$ create-react-app transfer-props
+</code></pre><p><strong>该项目最后的目录结构如下：</strong></p><pre class="language-treeview">
+  <code class="language-treeview">
+    transfer-props
+      |- public
+      | |- favicon.ico
+      | |- index.html
+      | |- manifest.json
+      |- src
+      | |- components
+      | | |- App.js
+      | | |- Child.js
+      | | |- Parent.js
+      | |- context.js
+      | |- index.js
+      |- .gitignore
+      |- package.json
+      |- README.md
+      |- yarn.lock
+  </code>
+</pre><h2 id="父组件传参给子组件"><a href="#父组件传参给子组件" class="headerlink" title="父组件传参给子组件"></a>父组件传参给子组件</h2><p>创建一个最外层组件 <code>App</code>，并在 <code>index.js</code> 中进行渲染。</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/index.js */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react&#39;;
+import App from &#39;./components/App&#39;;
+
+ReactDOM.render(&lt;App /&gt;, window.root);
+</code></pre><p><code>App</code> 组件内部状态中含有 <code>users</code> 属性，值为数组，含有 <code>title</code> 属性，现在要将这两个参数传递给 <code>Parent</code> 组件，传参方式如下：</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/components/App.js */
+import React, { Component } from &#39;react&#39;;
+import Parent from &#39;./Parent&#39;;
+
+export default class App extends Component {
+  // 状态
+  state = {
+    users: [
+      { id: 1, name: &#39;panda&#39;, age: &#39;28&#39; },
+      { id: 2, name: &#39;shen&#39;, age: &#39;18&#39; }
+    ],
+    title: &#39;学生信息&#39;
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;Parent {...this.state} /&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p><code>Parent</code> 组件中接收到参数，要根据参数中数组的数量来渲染下一个子组件 <code>Child</code>，<code>Child</code> 组件中需要使用父组件 <code>users</code> 数组的学生 <code>id</code>，传参如下：</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/components/Parent.js */
+import React, { Component } from &#39;react&#39;;
+import Child from &#39;./Child&#39;;
+
+export default class App extends Component {
+  render() {
+    const { users, title } = this.props;
+
+    return (
+      &lt;div&gt;
+        &lt;h1&gt;{title}&lt;/h1&gt; {/* 显示标题 */}
+        &lt;ul&gt;
+          {
+            // 循环创建 Child 组件
+            users.map(item =&gt; {
+              return (
+                &lt;Child key={item.id} {...item} /&gt;
+              )
+            })
+          }
+        &lt;/ul&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>最后是 <code>Child</code> 组件，用来渲染学生的基本信息，在 <code>Parent</code> 中我们已经将参数传递，最后看看在 <code>Child</code> 中的接收。</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/components/Child.js */
+import React, { Component } from &#39;react&#39;;
+
+export default class App extends Component {
+  render() {
+    const { id, name, age } = this.props;
+    return (
+      &lt;li&gt;
+        &lt;span&gt;{id}&lt;/span&gt;
+        &lt;span&gt;{name}&lt;/span&gt;
+        &lt;span&gt;{age}&lt;/span&gt;
+      &lt;/li&gt;
+    )
+  }
+}
+</code></pre><blockquote class="pullquote danger"><p><strong>注意：子组件接收父组件的 <code>props</code> 属性是只读的，不可以修改，修改会报错。</strong></p></blockquote><p>其实在这个过程中参数经历了三个组件，都是由父组件传向子组件，可以看出 <code>React</code> 单向数据流的特点，但是子组件是不可以直接修改父组件的数据的，下面来看看子组件如何修改父组件的数据。</p><h2 id="子组件修改父组件的数据"><a href="#子组件修改父组件的数据" class="headerlink" title="子组件修改父组件的数据"></a>子组件修改父组件的数据</h2><p>在 <code>React</code> 中如果要修改父组件的参数，可以给子组件传入一个修改父组件参数的函数，然后在子组件中执行这个函数，就可以实现父组件数据的更新。</p><p>我们创建一个与 <code>Parent</code> 组件平行的 <code>Input</code> 组件，两个组件都是 <code>App</code> 的直接子组件，在 <code>Input</code> 组件内通过某些操作给父组件的状态中的 <code>users</code> 属性新增一条数据。</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/components/Input.js */
+import React, { Component } from &#39;react&#39;;
+
+export default class Input extends Component {
+  name = React.createRef();
+  age = React.createRef();
+
+  handleSubmit = e =&gt; {
+    // 取消默认事件
+    e.preventDefault();
+
+    // 执行父组件方法，取出输入框的值构造成对象作为参数传入
+    this.props.addStudent({
+      name: this.name.current.value,
+      age: this.age.current.value
+    });
+  }
+
+  render() {
+    return (
+      &lt;form onSubmit={this.handleSubmit}&gt;
+        姓名：&lt;input type=&quot;text&quot; required ref={this.name} /&gt;
+        &lt;br /&gt;
+        年龄：&lt;input type=&quot;text&quot; required ref={this.age} /&gt;
+        &lt;br /&gt;
+        &lt;button type=&quot;submit&quot;&gt;Add&lt;/button&gt;
+      &lt;/form&gt;
+    )
+  }
+}
+</code></pre><p>上面是 <code>Input</code> 组件，在修改时没有直接使用按钮的点击事件，而是添加了 <code>form</code> 标签并使用 <code>submit</code> 事件，是因为可以使用 <code>H5</code> 的自带的校验功能，但是使用 <code>form</code> 会自动提交页面，所以在执行 <code>submit</code> 事件时应取消默认事件，然后调用父组件传来的方法 <code>addStudent</code>，并传入输入框获取的值（非受控组件的取值方式），父组件 <code>App</code> 修改如下：</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/components/App.js —— 修改后 */
+import React, { Component } from &#39;react&#39;;
+import Parent from &#39;./Parent&#39;;
+import Input from &#39;./Input&#39;;
+
+export default class App extends Component {
+  // 状态
+  state = {
+    users: [
+      { id: 1, name: &#39;panda&#39;, age: &#39;28&#39; },
+      { id: 2, name: &#39;shen&#39;, age: &#39;18&#39; }
+    ],
+    title: &#39;学生信息&#39;
+  }
+
+  // 添加学生信息事件
+  addStudent = val =&gt; {
+    // 使用 push 添加
+    // this.state.users.push({ id: this.state.users.length + 1, ...val });
+    // this.setState({});
+
+    // 使用 setState 添加
+    this.setState({
+      users: [
+        ...this.state.users,
+        { id: this.state.users.length + 1, ...val }
+      ]
+    });
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;Parent {...this.state} /&gt;
+        &lt;Input addStudent={this.addStudent} /&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>首先父组件 <code>App</code> 应该创建 <code>addStudent</code> 方法作为参数传递给子组件 <code>Input</code>，而在 <code>addStudent</code> 方法内部通过 <code>push</code> 和 <code>setState</code> 两种方式进行添加，发现都可以更新状态和视图，区别是 <code>push</code> 操作的原来的引用，而 <code>setState</code> 创建了新的引用空间。</p><blockquote class="pullquote info"><p><strong>在 <code>React</code> 所有状态的更改都不建议操作原来的引用，通常做法都是通过 <code>setState</code> 返回一个新的 <code>state</code>（创建新的引用），使用解构赋值的方式来保留原始数据，用新数据覆盖旧数据，原因是在 <code>React</code> 类组件种有一个 <code>PureComponent</code> 纯组件类型，对 <code>shouldComponentUpdate</code> 生命周期 “钩子” 做了优化，使用了 <code>props</code> 和 <code>state</code> 的浅比较，所以在纯组件类型操作原来的引用是无法更新视图的。</strong></p></blockquote><h2 id="context-实现跨组件传参"><a href="#context-实现跨组件传参" class="headerlink" title="context 实现跨组件传参"></a>context 实现跨组件传参</h2><p>在上面的案例当中，父子组件关系的层级是三层，无论是普通的数据还是修改父组件的事件都是作为参数一级一级往下传的，如果组件的层级多了，当跨组件传参时是非常不方便的（通常三级还可以接受）。</p><p>跨组件传参是指父级组件与非直接子组件的传参、同级组件之间的传参，同级之间可以找到相同的父级，没有相同的父级就创造相同的父级，最后将问题统一到了父级组件与非直接子组件的传参传递。</p><p>在 <code>React</code> 中给我们提供了 <code>context</code> <code>API</code> 用来实现组件树数据的共享，分为新旧两个版本，这里旧版和新版的 API 都会介绍。</p><h3 id="旧版-context"><a href="#旧版-context" class="headerlink" title="旧版 context"></a>旧版 context</h3><p>在旧版的 <code>context</code> 需要配合属性类型检测的 <code>prop-types</code> 模块共同使用，需要在共同的父组件上定义一个方法 <code>getChildContext</code>，返回值为一个对象，对象中存储的是当前要传递给其他子组件的数据，同时还有一个静态属性 <code>childContextTypes</code>，值为一个对象，属性的值与 <code>getChildContext</code> 方法内返回的对象的属性一一对应，并用 <code>prop-types</code> 模块对每一个传递给子组件属性的数据类型进行定义，在使用父组件传递属性的子组件中需要定义静态属性 <code>contextTypes</code> 对所使用的属性的数据类型进行校验，需要父组件与 <code>childContextTypes</code> 内的定义一致，然后可以通过子组件实例的 <code>context</code> 属性获取，我们可以使用 <code>context</code> 将上面的案例修改如下：</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/components/App.js —— 旧版 context */
+import React, { Component } from &#39;react&#39;;
+import Parent from &#39;./Parent&#39;;
+import Input from &#39;./Input&#39;;
+import PropTypes from &#39;prop-types&#39;; // 引入参数类型检测模块
+
+export default class App extends Component {
+  // 状态
+  state = {
+    users: [
+      { id: 1, name: &#39;panda&#39;, age: &#39;28&#39; },
+      { id: 2, name: &#39;shen&#39;, age: &#39;18&#39; }
+    ],
+    title: &#39;学生信息&#39;
+  }
+
+  // 定义参数类型
+  static childContextTypes = {
+    state: PropTypes.object,
+    addStudent: PropTypes.func
+  }
+
+  // 上下文对象传给子组件的参数
+  getChildContext() {
+    return {
+      state: this.state,
+      addStudent: this.addStudent
+    }
+  }
+
+  // 添加学生信息事件
+  addStudent = val =&gt; {
+    // 使用 setState 添加
+    this.setState({
+      users: [
+        ...this.state.users,
+        { id: this.state.users.length + 1, ...val }
+      ]
+    });
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        {/* 不再需要传参 */}
+        &lt;Parent /&gt;
+        &lt;Input /&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>上面只是将 <code>APP</code> 组件中原本传给子组件的参数去掉，按照要求添加了 <code>getChildContext</code> 方法和 <code>childContextTypes</code> 静态属性。</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/components/Input.js —— 旧版 context */
+import React, { Component } from &#39;react&#39;;
+
+export default class Input extends Component {
+  name = React.createRef();
+  age = React.createRef();
+
+  // 类型检测与父组件定义的类型对应
+  static contextTypes = {
+    addStudent: PropTypes.func
+  }
+
+  handleSubmit = e =&gt; {
+    // 取消默认事件
+    e.preventDefault();
+
+    // 从上下文对象上获取父组件的方法并执行
+    this.context.addStudent({
+      name: this.name.current.value,
+      age: this.age.current.value
+    });
+  }
+
+  render() {
+    return (
+      &lt;form onSubmit={this.handleSubmit}&gt;
+        姓名：&lt;input type=&quot;text&quot; required ref={this.name} /&gt;
+        &lt;br/&gt;
+        年龄：&lt;input type=&quot;text&quot; required ref={this.age} /&gt;
+        &lt;br/&gt;
+        &lt;button type=&quot;submit&quot;&gt;Add&lt;/button&gt;
+      &lt;/form&gt;
+    )
+  }
+}
+</code></pre><p>在 <code>Input</code> 组件中定义 <code>contextTypes</code> 属性，将 <code>addStudent</code> 方法从原来的 <code>props</code> 获取改为了从 <code>context</code> 上获取。</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/components/Parent.js —— 旧版 context */
+import React, { Component } from &#39;react&#39;;
+import Child from &#39;./Child&#39;;
+
+export default class Parent extends Component {
+  // 类型检测与父组件定义的类型对应
+  static contextTypes = {
+    state: PropTypes.object
+  }
+
+  render() {
+    // 从 context 对象上获取 state 并解构
+    const { users, title } = this.context.state;
+    return (
+      &lt;div&gt;
+        &lt;h1&gt;{title}&lt;/h1&gt; {/* 显示标题 */}
+        &lt;ul&gt;
+          {
+            // 循环创建 Child 组件
+            users.map(item =&gt; {
+              return (
+                &lt;Child key={item.id} {...item} /&gt;
+              )
+            })
+          }
+        &lt;/ul&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>在 <code>Parent</code> 组件中同样定义 <code>contextTypes</code> 属性，将 <code>state</code> 属性从原来的 <code>props</code> 获取改为了从 <code>context</code> 上获取。</p><h3 id="新版-context"><a href="#新版-context" class="headerlink" title="新版 context"></a>新版 context</h3><p>新版 <code>context</code> 其实是 <code>React</code> 对象提供给我们的方法 <code>createContext</code> 实现的，方法在调用时返回一个对象，对象上有两个组件分别为 <code>Provider</code>（提供者）和 <code>Consumer</code>（消费者），由于两个配合使用的组件必须由同一次调用 <code>createContext</code> 时创建，所以我们单独创建文件 <code>context.js</code> 代码如下：</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/context.js —— 新版 context */
+import React from &#39;react&#39;;
+
+// 创建上下文对象
+const { Provider, Consumer } = React.createContext();
+
+// 到处上下文对象的组件
+export { Provider, Consumer };
+</code></pre><p>还是之前的案例，我们可以使用新版 <code>context</code> 修改如下：</p><pre><code class="lang-jsx">// 路径：~transfer-props/src/components/App.js —— 新版 context
+import React, { Component } from &#39;react&#39;;
+import Parent from &#39;./Parent&#39;;
+import Input from &#39;./Input&#39;;
+import { Provider } from &#39;../context&#39;;
+
+export default class App extends Component {
+  // 状态
+  state = {
+    users: [
+      { id: 1, name: &#39;panda&#39;, age: &#39;28&#39; },
+      { id: 2, name: &#39;shen&#39;, age: &#39;18&#39; }
+    ],
+    title: &#39;学生信息&#39;
+  }
+
+  // 添加学生信息事件
+  addStudent = val =&gt; {
+    // 使用 setState 添加
+    this.setState({
+      users: [
+        ...this.state.users,
+        { id: this.state.users.length + 1, ...val }
+      ]
+    });
+  }
+
+  render() {
+    return (
+      &lt;Provider value={{
+        addStudent: this.addStudent,
+        state: this.state
+      }}&gt;
+        &lt;div&gt;
+          &lt;Parent {...this.state} /&gt;
+          &lt;Input addStudent={this.addStudent} /&gt;
+        &lt;/div&gt;
+      &lt;/Provider&gt;
+    )
+  }
+}
+</code></pre><p>提供参数的父组件 <code>App</code> 应该使用 <code>Provider</code> 进行包裹，将传入的参数以 <code>value</code> 为参数名（规定），传入 <code>context</code> 对象中。</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/components/Input.js —— 新版 context */
+import React, { Component } from &#39;react&#39;;
+import { Consumer } from &#39;../context.js&#39;;
+
+export default class Input extends Component {
+  name = React.createRef();
+  age = React.createRef();
+
+  handleSubmit = (e, addStudent) =&gt; {
+    // 取消默认事件
+    e.preventDefault();
+
+    // 执行父组件方法，取出输入框的值构造成对象作为参数传入
+    addStudent({
+      name: this.name.current.value,
+      age: this.age.current.value
+    });
+  }
+
+  render() {
+    return (
+      &lt;Consumer&gt;
+        {
+          ({ addStudent }) =&gt; (
+            &lt;form onSubmit={e =&gt; handleSubmit(e, addStudent)}&gt;
+              姓名：&lt;input type=&quot;text&quot; required ref={this.name} /&gt;
+              &lt;br/&gt;
+              年龄：&lt;input type=&quot;text&quot; required ref={this.age} /&gt;
+              &lt;br/&gt;
+              &lt;button type=&quot;submit&quot;&gt;Add&lt;/button&gt;
+            &lt;/form&gt;
+          )
+        }
+      &lt;/Consumer&gt;
+    )
+  }
+}
+</code></pre><p>在使用 “提供者” 提供数据的 “消费者” 子组件中，应该引入与 <code>Provider</code> 对应的 <code>Consumer</code> 组件，用 <code>Consumer</code> 组件替换原本组件返回的 <code>JSX</code>，内部传入一个函数，函数的形参即为 <code>context</code> 对象，函数内部返回值为原本子组件返回的 <code>JSX</code>，子组件使用父组件的属性可直接从函数的形参获取或解构。</p><pre><code class="lang-jsx">/* 路径：~transfer-props/src/components/Parent.js —— 新版 context */
+import React, { Component } from &#39;react&#39;;
+import Child from &#39;./Child&#39;;
+import { Consumer } from &#39;../context.js&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;Consumer&gt;
+        {
+          ({ states }) =&gt; (
+            &lt;div&gt;
+              &lt;h1&gt;{states.title}&lt;/h1&gt; {/* 显示标题 */}
+              &lt;ul&gt;
+                {
+                  // 循环创建 Child 组件
+                  states.users.map(item =&gt; (
+                    &lt;Child {...item} key={item.id}&gt;&lt;/Child&gt;
+                  ))
+                }
+              &lt;/ul&gt;
+            &lt;/div&gt;
+          )
+        }
+      &lt;/Consumer&gt;
+    )
+  }
+}
+</code></pre><p><code>Parent</code> 作为 <code>App</code> 的子组件，修改的方式同 <code>Input</code> 组件相同，如上面代码。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>关于 <code>React</code> 组件之间传参的各中放式上面基本介绍完了，但是这些传参方式并不能满足于所有的需求，如果是两个毫不相关的组件并且距离共同的父组件层级比较远，即使使用 <code>context</code> 的方式也会显得有些无力，组件间互相传参的需求比较多代码也会冗余和繁琐，因此就有了 <code>Redux</code>、<code>Mobx</code> 等数据状态管理工具，可以将各个组件的状态数据统一管理，各个组件的之间的参数都更容易获取。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180919002629/" target="_blank" rel="external">https://www.overtaking.top/20180919002629/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/" rel="tag">React</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180919002629/&title=《React 基础篇 —— 组件间的参数传递》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180919002629/&title=《React 基础篇 —— 组件间的参数传递》 — Shen's Blog&source=单向数据流支持组件化开发的前端框架如 React、Vue，组件间的参数传递都是很重要的，而 React 中数据传递是单向的，也被称为单向数据流，即数据只能..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180919002629/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《React 基础篇 —— 组件间的参数传递》 — Shen's Blog&url=https://www.overtaking.top/20180919002629/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180919002629/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180921182754/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">React 基础篇 —— Router 4.0 的基本使用</h4></a></div><div class="waves-block waves-effect next"><a href="/20180915194439/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">React 基础篇 —— 生命周期详解</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180919002629/&title=《React 基础篇 —— 组件间的参数传递》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180919002629/&title=《React 基础篇 —— 组件间的参数传递》 — Shen's Blog&source=单向数据流支持组件化开发的前端框架如 React、Vue，组件间的参数传递都是很重要的，而 React 中数据传递是单向的，也被称为单向数据流，即数据只能..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180919002629/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《React 基础篇 —— 组件间的参数传递》 — Shen's Blog&url=https://www.overtaking.top/20180919002629/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180919002629/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABv0lEQVR42u3aS46DMBAFwNz/0swBZnBetz+gUXmFAoSCxZO77c8nHtevcXf27pfx9YsHLi7uNPcajjEoQVfPjj8NLi7uSe5dYiTH+Usm///FhouL+2LumJjPTHBxcf8HNylmkskKLi7u+7m9oEkeUC2ultVquLi4E9wqYsfxlv4uLi5ui3sVR6+kqd57+5+4uLhHuHmg9Nof4yjsPRcXF3c3d9VCaTXCmls9cHFxj3Or0VOlzGy/+CPIcHFxt3FnoiqJnmpBFTVQcHFxN3OnlitaRVF14eS2i4OLi7uNuypu1m6/mFoTxsXFneb2YqgaZNUmSyF3cXFxt3GTSEqIedt0PKm6NeDi4h7hPrWIMvNpcHFxT3KTzZoz7ZLqvc2n4+LiLuLmLc5qGyWPwvwXXFzck9x82pG0P/IXy4srXFzcp7hrF1N7E6Yv1+Di4m7mXsWRx1k+ASqUSbi4uEe4822OmdjKY7HZy8HFxZ3gzjQ4qmVMvqDSnOjg4uIu5fYapkljZUuthouL+zJuHkPVsqpQseHi4r6Mm0xr8tZJeQsILi7uQe58c7PHGn8UXFzcp7jVKFkcTK1GLS4u7jbuD96JUsFtLa9EAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

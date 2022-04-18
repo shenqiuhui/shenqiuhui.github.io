@@ -1,0 +1,1563 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Express 源码分析及简易封装 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,源码分析,中间件,Express"><meta name="description" content="前言Express 是 Node.js 的 Web 框架，与 Koa 的轻量相比，功能要更多一些，依然是当前使用最广泛的 Node.js 框架，本篇参考 Express 的核心逻辑来实现一个简易版，Express 源码较多，逻辑复杂，看一周可能也看不完，如果你已经使用过 Express，又想快速的了解 Express 常用功能的原理，那读这篇文章算往前迈一小步，也可以为读真正的源码做铺垫，本篇内容"><meta property="og:type" content="article"><meta property="og:title" content="Express 源码分析及简易封装"><meta property="og:url" content="https://www.overtaking.top/20180825162129/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言Express 是 Node.js 的 Web 框架，与 Koa 的轻量相比，功能要更多一些，依然是当前使用最广泛的 Node.js 框架，本篇参考 Express 的核心逻辑来实现一个简易版，Express 源码较多，逻辑复杂，看一周可能也看不完，如果你已经使用过 Express，又想快速的了解 Express 常用功能的原理，那读这篇文章算往前迈一小步，也可以为读真正的源码做铺垫，本篇内容"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180825162129/express.png"><meta property="article:published_time" content="2018-08-25T08:21:29.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="源码分析"><meta property="article:tag" content="中间件"><meta property="article:tag" content="Express"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180825162129/express.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Express 源码分析及简易封装</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Express 源码分析及简易封装</h1><h5 class="subtitle"><time datetime="2018-08-25T08:21:29.000Z" itemprop="datePublished" class="page-time">2018-08-25</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#搭建基本服务"><span class="post-toc-number">2.</span> <span class="post-toc-text">搭建基本服务</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#路由的实现"><span class="post-toc-number">3.</span> <span class="post-toc-text">路由的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#扩展请求对象属性"><span class="post-toc-number">4.</span> <span class="post-toc-text">扩展请求对象属性</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现响应方法-send-和-sendFile"><span class="post-toc-number">5.</span> <span class="post-toc-text">实现响应方法 send 和 sendFile</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#内置中间件的实现"><span class="post-toc-number">6.</span> <span class="post-toc-text">内置中间件的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#内置模板引擎的实现"><span class="post-toc-number">7.</span> <span class="post-toc-text">内置模板引擎的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#内置静态资源中间件的实现"><span class="post-toc-number">8.</span> <span class="post-toc-text">内置静态资源中间件的实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现重定向"><span class="post-toc-number">9.</span> <span class="post-toc-text">实现重定向</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">10.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180825162129" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Express 源码分析及简易封装</h1><div class="post-meta"><time class="post-time" title="2018-08-25 16:21:29" datetime="2018-08-25T08:21:29.000Z" itemprop="datePublished">2018-08-25</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180825162129/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Express 源码分析及简易封装"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180825162129/express.png" title="Express 源码解析"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote success"><p><strong><code>Express</code> 是 <code>Node.js</code> 的 <code>Web</code> 框架，与 <code>Koa</code> 的轻量相比，功能要更多一些，依然是当前使用最广泛的 <code>Node.js</code> 框架，本篇参考 <code>Express</code> 的核心逻辑来实现一个简易版，<code>Express</code> 源码较多，逻辑复杂，看一周可能也看不完，如果你已经使用过 <code>Express</code>，又想快速的了解 <code>Express</code> 常用功能的原理，那读这篇文章算往前迈一小步，也可以为读真正的源码做铺垫，本篇内容每部分代码较多，因为按照 <code>Express</code> 的封装思想很难拆分，所以建议以星号标注区域为主其他代码为辅。</strong></p></blockquote><a id="more"></a><h2 id="搭建基本服务"><a href="#搭建基本服务" class="headerlink" title="搭建基本服务"></a>搭建基本服务</h2><p>下面我们使用 <code>Express</code> 来搭建一个最基本的服务，只有三行代码，只能访问不能响应。</p><pre><code class="lang-js">/* 三行代码搭建的最基本服务 */
+// 引入 Express
+const express = require(&#39;express&#39;);
+
+// 创建服务
+const app = express();
+
+// 监听服务
+app.listen(3000);
+</code></pre><p>从上面我们可以分析出，<code>express</code> 模块给我们提供了一个函数，调用后返回了一个函数或对象给上面有 <code>listen</code> 方法给我们创建了一个 <code>http</code> 服务，我们就按照官方的设计返回一个函数 <code>app</code>。</p><pre><code class="lang-js">/* 文件：express.js */
+const http = require(&#39;http&#39;);
+
+function createApplication() {
+  // 创建 app 函数，身份类似 “总管家”，用于将请求分派给别人处理
+  const app = function (req, res) {}
+
+  // 启动服务的 listen 方法
+  app.listen = function () {
+    // 创建服务器
+    const server = http.createServer(app);
+
+    // 监听服务，可能传入多个参数，如第一个参数为端口号，最后一个参数为服务启动后回调
+    server.listen(...arguments);
+  }
+
+  // 返回 app
+  return app;
+}
+
+module.exports = createApplication;
+</code></pre><p>我们创建一个模块 <code>express.js</code>，导出了 <code>createApplication</code> 函数并返回在内部创建 <code>app</code> 函数，<code>createApplication</code> 等于我们引入 <code>Express</code> 模块时所调用的那个函数，返回值就是我们接收的 <code>app</code>，在 <code>createApplication</code> 返回的 <code>app</code> 函数上挂载了静态方法 <code>listen</code>，用于帮助我们启动 <code>http</code> 服务。</p><p><code>createApplication</code> 函数内我们使用引入的 <code>http</code> 模块创建了服务，并调用了创建服务 <code>server</code> 的 <code>listen</code> 方法，将 <code>app.listen</code> 的所有参数传递进去，这就等于做了一层封装，将真正创建服务器的过程都包在了 <code>app.listen</code> 内部，我们自己封装的 <code>Express</code> 模块只有在调用导出函数并调用 <code>app.listen</code> 时才会真正的创建服务器和启动服务器，相当于将原生的两步合二为一。</p><h2 id="路由的实现"><a href="#路由的实现" class="headerlink" title="路由的实现"></a>路由的实现</h2><p>在 <code>Express</code> 框架中有多个路由方法，方法名分别对应不同的请求方式，可以帮助我们匹配路径和请求，在完全匹配时执行路由内部的回调函数，目的是在不同路由不同请求方法的情况下让服务器做出不同的响应，路由的使用方式如下。</p><pre><code class="lang-js">/* 路由的使用方式 */
+// 引入 Express
+const express = require(&#39;express&#39;);
+
+// 创建服务
+const app = express();
+
+// 创建路由
+app.get(&#39;/&#39;, function (req, res) {
+  res.end(&#39;home&#39;);
+});
+
+app.post(&#39;/about&#39;, function (req, res) {
+  res.end(&#39;about&#39;);
+});
+
+app.all(&#39;*&#39;, function (req, res) {
+  res.end(&#39;Not Found&#39;);
+});
+
+// 监听服务
+app.listen(3000);
+</code></pre><p>如果启动上面的服务，通过浏览器访问定义的路由时可以匹配到 <code>app.get</code>、<code>app.post</code> 或 <code>app.all</code> 并执行回调，但其实我们可以发现这些方法的名字是与请求类型严格对应的，不仅仅这几个，下面来看看实现路由的核心逻辑（直接找到星号提示新增或修改位置即可）。</p><pre><code class="lang-js">/* 文件：express.js */
+const http = require(&#39;http&#39;);
+
+// ************************** 以下为新增代码 **************************
+// methods 模块返回存储所有请求方法名称的数组
+const methods = require(&#39;methods&#39;);
+// ************************** 以上为新增代码 **************************
+
+function createApplication() {
+  // 创建 app 函数，身份类似 “总管家”，用于将请求分派给别人处理
+  const app = function (req, res) {
+// ************************** 以下为新增代码 **************************
+    // 获取方法名统一转换成小写
+    const method = req.method.toLowerCase();
+
+    // 访问路径解构成路由和查询字符串两部分 /user?a=1&amp;b=2
+    const [reqPath, query = &#39;&#39;] = req.url.split(&#39;?&#39;);
+
+    // 循环匹配路径
+    for (let i = 0; i &lt; app.routes.lenth; i++) {
+      // 循环取得每一层
+      const layer = app.routes[i];
+
+      // 如果说路径和请求类型都能匹配，则执行该路由层的回调
+      if ((reqPath === layer.pathname || layer.pathname === &#39;*&#39;) &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+        return layer.hanlder(req, res);
+      }
+    }
+
+    // 如果都没有匹配上，则响应错误信息
+    res.end(&#39;CANNOT &#39; + req.method + &#39; &#39; + reqPath);
+// ************************** 以上为新增代码 **************************
+  }
+
+// ************************** 以下为新增代码 **************************
+  // 存储路由层的请求类型、路径和回调
+  app.routes = [];
+
+  // 返回一个函数体用于将路由层存入 app.routes 中
+  function createRouteMethod(method) {
+    return function (pathname, handler) {
+      const layer = {
+        method,
+        pathname, // 不包含查询字符串
+        handler
+      };
+
+      // 把这一层放入存储所有路由层信息的数组中
+      app.routes.push(layer);
+    }
+  }
+
+  // 循环构建所有路由方法，如 app.get app.post 等
+  methods.forEach(function (method) {
+    // 匹配路由的 get 方法
+    app[method] = createRouteMethod(method);
+  });
+
+  // all 方法，通吃所有请求类型
+  app.all = createRouteMethod(&#39;all&#39;);
+// ************************** 以上为新增代码 **************************
+
+  // 启动服务的 listen 方法
+  app.listen = function () {
+    // 创建服务器
+    const server = http.createServer(app);
+
+    // 监听服务，可能传入多个参数，如第一个参数为端口号，最后一个参数为服务启动后回调
+    server.listen(...arguments);
+  }
+
+  // 返回 app
+  return app;
+}
+
+module.exports = createApplication;
+</code></pre><p>我们的逻辑大体可以分为两个部分，路由方法的创建以及路由的匹配，首先是路由方法的创建阶段，每一个方法的内部所做的事情就是将路由的路径、请求方式和回调函数作为对象的属性，并将对象存入一个数组中统一管理，所以我们创建了 <code>app.routes</code> 数组用来存储这些路由对象。</p><p>方法名对应请求类型，请类型有很多，我们不会一一的创建每一个方法，所以选择引入专门存储请求类型名称的 <code>methods</code> 模块，其实路由方法逻辑相同，我们封装了 <code>createRouteMethod</code> 方法用来生成不同路由方法的函数体，之所以这样做是因为有个特殊的路由方法 <code>app.all</code>，导致请求类型有差别，其他的可以从 <code>methods</code> 中取，<code>app.all</code> 我们定义类型为 <code>all</code> 通过 <code>createRouteMethod</code> 函数的参数传入。</p><p>接着就是循环 <code>methods</code> 调用 <code>createRouteMethod</code> 函数创建路由方法，并单独创建 <code>app.all</code> 方法。</p><p>路由匹配阶段实在函数 <code>app</code> 内完成的，因为启动服务接收到请求时会执行 <code>createServer</code> 中的回调，即执行 <code>app</code>，先通过原生自带的 <code>req.method</code> 取出请求方式并处理成小写，通过 <code>req.path</code> 取出完整路径并分成路由名和查询字符串两个部分。</p><p>循环 <code>app.routes</code> 用取到请求的类型和路由名称匹配，两者都相等则执行对应路由对象上的回调函数，在判断条件中，请求方式兼容了我们之前定义的 <code>all</code>，为了所有的请求类型只要路由匹配都可以执行 <code>app.all</code> 的回调，请求路径兼容了 <code>*</code>，因为如果某个路由方法定义的路径为 <code>*</code>，则任意路由都可以执行这个路由对象上的回调。</p><h2 id="扩展请求对象属性"><a href="#扩展请求对象属性" class="headerlink" title="扩展请求对象属性"></a>扩展请求对象属性</h2><p>且在路由内部可以通过 <code>req</code> 访问一些原生没有的属性如 <code>req.path</code>、<code>req.query</code>、<code>req.host</code> 和 <code>req.params</code>，这说明 <code>Express</code> 在实现的过程中对 <code>req</code> 进行了处理。</p><pre><code class="lang-js">/* req 属性的使用 */
+// 引入 Express
+const express = require(&#39;express&#39;);
+
+// 创建服务
+const app = express();
+
+// 创建路由
+app.get(&#39;/&#39;, function (req, res) {
+  console.log(req.path);
+  console.log(req.query);
+  console.log(req.host);
+  res.end(&#39;home&#39;);
+});
+
+app.get(&#39;/about/:id/:name&#39;, function (req, res) {
+  console.log(req.params);
+  res.end(&#39;about&#39;);
+});
+
+// 监听服务
+app.listen(3000);
+</code></pre><p>在上面的使用中我们写了两个路由，分别打印了原生所不具备而 <code>Express</code> 帮我们处理并新增的属性，下面我们就来在之前自己实现的 <code>express.js</code> 的基础上增加这些属性（直接找到星号提示新增或修改位置即可）。</p><pre><code class="lang-js">/* 文件：express.js */
+const http = require(&#39;http&#39;);
+
+// methods 模块返回存储所有请求方法名称的数组
+const methods = require(&#39;methods&#39;);
+
+// ************************** 以下为新增代码 **************************
+const querystring = require(&#39;querystring&#39;);
+// ************************** 以上为新增代码 **************************
+
+function createApplication() {
+  // 创建 app 函数，身份类似 “总管家”，用于将请求分派给别人处理
+  const app = function (req, res) {
+    // 获取方法名统一转换成小写
+    const method = req.method.toLowerCase();
+
+    // 访问路径解构成路由和查询字符串两部分 /user?a=1&amp;b=2
+    const [reqPath, query = &#39;&#39;] = req.url.split(&#39;?&#39;);
+
+// *************************** 以下为修改代码 **************************
+    // 将路径名赋值给 req.path
+    req.path = reqPath;
+    // 将查询字符串转换成对象赋值给 req.query
+    req.query = querystring.parse(query);
+    // 将主机名赋值给 req.host
+    req.host = req.headers.host.split(&#39;:&#39;)[0];
+
+    // 循环匹配路径
+    for (let i = 0; i &lt; app.routes.lenth; i++) {
+      // 循环取得每一层
+      const layer = app.routes[i];
+
+      // 如果路由对象上存在正则说明存在路由参数，否则正常匹配路径和请求类型
+      if (layer.regexp) {
+        // 使用路径配置的正则匹配请求路径
+        const result = pathname.match(layer.regexp);
+
+        // 如果匹配到结果且请求方式匹配
+        if (result &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+          // 则将路由对象 paramNames 属性中的键与匹配到的值构建成一个对象
+          req.params = layer.paramNames.reduce(function (memo, key, index) {
+            memo[key] = result[index + 1];
+            return memo;
+          }, {});
+
+          // 执行对应的回调
+          return layer.hanlder(req, res);
+        }
+      } else {
+        // 如果说路径和请求类型都能匹配，则执行该路由层的回调
+        if ((reqPath === layer.pathname || layer.pathname === &#39;*&#39;) &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+          return layer.hanlder(req, res);
+        }
+      }
+// ************************** 以上为修改代码 **************************
+    }
+
+    // 如果都没有匹配上，则响应错误信息
+    res.end(&#39;CANNOT &#39; + req.method + &#39; &#39; + reqPath);
+  }
+
+  // 存储路由层的请求类型、路径和回调
+  app.routes = [];
+
+  // 返回一个函数体用于将路由层存入 app.routes 中
+  function createRouteMethod(method) {
+    return function (pathname, handler) {
+      const layer = {
+        method,
+        pathname, // 不包含查询字符串
+        handler
+      };
+
+// ************************** 以下为新增代码 **************************
+      // 如果含有路由参数，如 /xxx/:aa/:bb
+      // 取出路由参数的键 aa bb 存入数组并挂在路由对象上
+      // 并生匹配 /xxx/aa/bb 的正则挂在路由对象上
+      if (pathname.indexOf(&#39;:&#39;) !== -1) {
+        const paramNames = []; // 存储路由参数
+
+        // 将路由参数取出存入数组，并返回正则字符串
+        const regStr = pathname.replace(/:(\w+)/g, function (matched, attr) {
+          paramNames.push(attr);
+          return &#39;(\\w+)&#39;;
+        });
+
+        const regexp = new RegExp(regStr); // 生成正则类型
+        layer.regexp = regexp; // 将正则挂在路由对象上
+        layer.paramNames = paramNames; // 将存储路由参数的数组挂载对象上
+      }
+// ************************** 以上为新增代码 **************************
+
+      // 把这一层放入存储所有路由层信息的数组中
+      app.routes.push(layer);
+    }
+  }
+
+  // 循环构建所有路由方法，如 app.get app.post 等
+  methods.forEach(function (method) {
+    // 匹配路由的 get 方法
+    app[method] = createRouteMethod(method);
+  });
+
+  // all 方法，通吃所有请求类型
+  app.all = createRouteMethod(&#39;all&#39;);
+
+  // 启动服务的 listen 方法
+  app.listen = function () {
+    // 创建服务器
+    const server = http.createServer(app);
+
+    // 监听服务，可能传入多个参数，如第一个参数为端口号，最后一个参数为服务启动后回调
+    server.listen(...arguments);
+  }
+
+  // 返回 app
+  return app;
+}
+
+module.exports = createApplication;
+</code></pre><p>上面代码有些长，我们一点一点分析，首先是 <code>req.path</code>，就是我们浏览器地址栏里查询字符串前的路径，值其实就是我们之前从 <code>req.url</code> 中解构出来的 <code>pathname</code>，我们只需要将 <code>pathname</code> 赋值给 <code>req.path</code> 即可。</p><p><code>req.query</code> 是浏览器地址栏的查询字符串传递的参数，就是我们从 <code>req.url</code> 解构出来的查询字符串，借助 <code>querystring</code> 模块将查询字符串处理成对象赋值给 <code>req.query</code> 即可。</p><p><code>req.host</code> 是访问的主机名，请求头中的 <code>host</code> 包含了主机名和端口号，我们只要截取出前半部分赋值给 <code>req.host</code> 即可。</p><p>最复杂的是 <code>req.params</code> 的实现，大概分为两个步骤，首先是在路由方法创建时需要检查定义的路由是否含有路由参数，如果有则取出参数的键存入数组 <code>paramNames</code> 中，然后创建一个匹配路由参数的正则，通过 <code>replace</code> 实现正则字符串的创建，再通过 <code>RegExp</code> 构造函数来创建正则，并挂在路由对象上，之所以使用 <code>replace</code> 是因为创建的规则内的分组要和路由参数的个数是相同的，我们将这些逻辑完善进了 <code>createRouteMethod</code> 函数中。</p><h2 id="实现响应方法-send-和-sendFile"><a href="#实现响应方法-send-和-sendFile" class="headerlink" title="实现响应方法 send 和 sendFile"></a>实现响应方法 send 和 sendFile</h2><p>之前的例子中我们都是用原生的 <code>end</code> 方法响应浏览器，我们知道 <code>end</code> 方法只能接收字符串和 <code>Buffer</code> 作为响应的值，非常不方便，其实在 <code>Express</code> 中封装了一个 <code>send</code> 方法挂在 <code>res</code> 对象下，可以接收数组、对象、字符串、<code>Buffer</code>、数字处理后响应给浏览器，在 <code>Express</code> 内部同样封装了一个 <code>sendFile</code> 方法用于读取请求的文件。</p><pre><code class="lang-js">/* send 响应 */
+// 引入 Express
+const express = require(&#39;express&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建服务
+const app = express();
+
+// 创建路由
+app.get(&#39;/&#39;, function (req, res) {
+  res.send({ name: &#39;panda&#39;, age: 28 });
+});
+
+app.get(&#39;/test.txt&#39;, function (req, res) {
+  // 必须传入绝对路径
+  res.sendFile(path.join(__dirname, req.path));
+});
+
+// 监听服务
+app.listen(3000);
+</code></pre><p>通过我们的分析，封装的 <code>send</code> 方法应该是将 <code>end</code> 不支持的类型数据转换成了字符串，在内部再次调用 <code>end</code>，而 <code>sendFile</code> 方法规定参数必须为绝对路径，内部实现应该是利用可读流读取文件内容相应给浏览器，下面是两个方法的实现（直接找到星号提示新增或修改位置即可）。</p><pre><code class="lang-js">/* 文件：express.js */
+const http = require(&#39;http&#39;);
+
+// methods 模块返回存储所有请求方法名称的数组
+const methods = require(&#39;methods&#39;);
+const querystring = require(&#39;querystring&#39;);
+
+// ************************** 以下为新增代码 **************************
+const util = require(&#39;util&#39;);
+const httpServer = require(&#39;_http_server&#39;); // 存储 node 服务相关信息
+const fs = require(&#39;fs&#39;);
+// ************************** 以上为新增代码 **************************
+
+function createApplication() {
+  // 创建 app 函数，身份类似 “总管家”，用于将请求分派给别人处理
+  const app = function (req, res) {
+    // 获取方法名统一转换成小写
+    const method = req.method.toLowerCase();
+
+    // 访问路径解构成路由和查询字符串两部分 /user?a=1&amp;b=2
+    const [reqPath, query = &#39;&#39;] = req.url.split(&#39;?&#39;);
+
+    // 将路径名赋值给 req.path
+    req.path = reqPath;
+    // 将查询字符串转换成对象赋值给 req.query
+    req.query = querystring.parse(query);
+    // 将主机名赋值给 req.host
+    req.host = req.headers.host.split(&#39;:&#39;)[0];
+
+// ************************** 以下为新增代码 **************************
+    // 响应方法
+    res.send = function (params) {
+      // 设置响应头
+      res.setHeader(&#39;Content-Type&#39;, &#39;text/plain;charset=utf8&#39;);
+
+      // 检测传入值得数据类型
+      switch (typeof params) {
+        case &#39;object&#39;:
+          res.setHeader(&#39;Content-Type&#39;, &#39;application/json;charset=utf8&#39;);
+
+          // 将任意类型的对象转换成字符串
+          params = util.inspect(params);
+          break;
+        case &#39;number&#39;:
+          // 数字则直接取出状态吗对应的名字返回
+          params = httpServer.STATUS_CODES[params];
+          break;
+        default:
+          break;
+      }
+
+      // 响应
+      res.end(params);
+    }
+
+    // 响应文件方法
+    res.sendFile = function (pathname) {
+      fs.createReadStream(pathname).pipe(res);
+    }
+// ************************** 以上为新增代码 **************************
+
+    // 循环匹配路径
+    for (let i = 0; i &lt; app.routes.lenth; i++) {
+      // 循环取得每一层
+      const layer = app.routes[i];
+
+      // 如果路由对象上存在正则说明存在路由参数，否则正常匹配路径和请求类型
+      if (layer.regexp) {
+        // 使用路径配置的正则匹配请求路径
+        const result = reqPath.match(layer.regexp);
+
+        // 如果匹配到结果且请求方式匹配
+        if (result &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+          // 则将路由对象 paramNames 属性中的键与匹配到的值构建成一个对象
+          req.params = layer.paramNames.reduce(function (memo, key, index) {
+            memo[key] = result[index + 1];
+            return memo;
+          }, {});
+
+          // 执行对应的回调
+          return layer.hanlder(req, res);
+        }
+      } else {
+        // 如果说路径和请求类型都能匹配，则执行该路由层的回调
+        if ((reqPath === layer.pathname || layer.pathname === &#39;*&#39;) &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+          return layer.hanlder(req, res);
+        }
+      }
+    }
+
+      // 如果都没有匹配上，则响应错误信息
+    res.end(&#39;CANNOT &#39; + req.method + &#39; &#39; + reqPath);
+  }
+
+  // 存储路由层的请求类型、路径和回调
+  app.routes = [];
+
+  // 返回一个函数体用于将路由层存入 app.routes 中
+  function createRouteMethod(method) {
+    return function (pathname, handler) {
+      const layer = {
+        method,
+        pathname, // 不包含查询字符串
+        handler
+      };
+
+      // 如果含有路由参数，如 /xxx/:aa/:bb
+      // 取出路由参数的键 aa bb 存入数组并挂在路由对象上
+      // 并生匹配 /xxx/aa/bb 的正则挂在路由对象上
+      if (pathname.indexOf(&#39;:&#39;) !== -1) {
+        const paramNames = []; // 存储路由参数
+
+        // 将路由参数取出存入数组，并返回正则字符串
+        const regStr = pathname.replace(/:(\w+)/g, function (matched, attr) {
+          paramNames.push(attr);
+          return &#39;(\\w+)&#39;;
+        });
+
+        const regexp = new RegExp(regStr); // 生成正则类型
+        layer.regexp = regexp; // 将正则挂在路由对象上
+        layer.paramNames = paramNames; // 将存储路由参数的数组挂载对象上
+      }
+
+      // 把这一层放入存储所有路由层信息的数组中
+      app.routes.push(layer);
+    }
+  }
+
+  // 循环构建所有路由方法，如 app.get app.post 等
+  methods.forEach(function (method) {
+    // 匹配路由的 get 方法
+    app[method] = createRouteMethod(method);
+  });
+
+  // all 方法，通吃所有请求类型
+  app.all = createRouteMethod(&#39;all&#39;);
+
+  // 启动服务的 listen 方法
+  app.listen = function () {
+    // 创建服务器
+    const server = http.createServer(app);
+
+    // 监听服务，可能传入多个参数，如第一个参数为端口号，最后一个参数为服务启动后回调
+    server.listen(...arguments);
+  }
+
+  // 返回 app
+  return app;
+}
+
+module.exports = createApplication;
+</code></pre><p>有一点需要注意，在 <code>Node</code> 环境中想把任何对象类型转换成字符串应该使用 <code>util.inspect</code> 方法，而当 <code>send</code> 方法输入数字类型时，要返回对应状态码的名称，可通过 <code>_http_server</code> 模块的 <code>STATUS_CODES</code> 对象获取。</p><h2 id="内置中间件的实现"><a href="#内置中间件的实现" class="headerlink" title="内置中间件的实现"></a>内置中间件的实现</h2><p><code>Express</code> 最大的特点就是中间件机制，中间件就是用来处理请求的函数，用来完成不同场景的请求处理，一个中间件处理完请求后可以再传递给下一个中间件，具有回调函数 <code>next</code>，不执行 <code>next</code> 则会卡在一个位置，调用 <code>next</code> 则继续向下传递。</p><pre><code class="lang-js">/* use 的使用 */
+// 引入 Express
+const express = require(&#39;express&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建服务
+const app = express();
+
+// 创建路由
+app.use(function (req, res, next) {
+  res.setHeader(&#39;Content-Type&#39;, &#39;text/html;charset=utf8&#39;);
+  next();
+});
+
+// 创建路由
+app.get(&#39;/&#39;, function (req, res) {
+  res.send({ name: &#39;panda&#39;, age: 28 });
+});
+
+// 监听服务
+app.listen(3000);
+</code></pre><p>在上面代码中使用 <code>use</code> 方法执行了传入的回调函数，实现公共逻辑，起到了中间件的作用，调用回调参数的 <code>next</code> 方法向下继续执行，下面来实现 <code>use</code> 方法（直接找到星号提示新增或修改位置即可）。</p><pre><code class="lang-js">/* 文件：express.js */
+const http = require(&#39;http&#39;);
+
+// methods 模块返回存储所有请求方法名称的数组
+const methods = require(&#39;methods&#39;);
+const querystring = require(&#39;querystring&#39;);
+const util = require(&#39;util&#39;);
+const httpServer = require(&#39;_http_server&#39;); // 存储 node 服务相关信息
+const fs = require(&#39;fs&#39;);
+
+function createApplication() {
+  // 创建 app 函数，身份类似 “总管家”，用于将请求分派给别人处理
+  const app = function (req, res) {
+// ************************** 以下为修改代码 **************************
+    // 循环匹配路径
+    let index = 0;
+
+    function next(err) {
+      // 获取第一个回调函数
+      const layer = app.routes[index++];
+
+      if (layer) {
+        // 将当前中间件函数的属性解构出来
+        const { method, pathname, handler } = layer;
+
+        if (err) { // 如果存在错误将错误交给错误处理中间件，否则
+          if (method === &#39;middle&#39;, handle.length === 4) {
+            return hanlder(err, req, res, next);
+          } else {
+            next(err);
+          }
+        } else { // 如果不存在错误则继续向下执行
+          // 判断是中间件还是路由
+          if (method === &#39;middle&#39;) {
+            // 匹配路径判断
+            if (pathname === &#39;/&#39; || pathname === req.path || req.path.startWidth(pathname)) {
+              handler(req, res, next);
+            } else {
+              next();
+            }
+          } else {
+            // 如果路由对象上存在正则说明存在路由参数，否则正常匹配路径和请求类型
+            if (layer.regexp) {
+              // 使用路径配置的正则匹配请求路径
+              const result = req.path.match(layer.regexp);
+
+              // 如果匹配到结果且请求方式匹配
+              if (result &amp;&amp; ( method === layer.method || layer.method === &#39;all&#39;)) {
+                // 则将路由对象 paramNames 属性中的键与匹配到的值构建成一个对象
+                req.params = layer.paramNames.reduce(function (memo, key, index ) {
+                  memo[key] = result[index + 1];
+                  return memo;
+                }, {});
+
+                // 执行对应的回调
+                return layer.hanlder(req, res);
+              } else {
+                next();
+              }
+            } else {
+              // 如果说路径和请求类型都能匹配，则执行该路由层的回调
+              if ((req.path === layer.pathname || layer.pathname === &#39;*&#39;) &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+                return layer.hanlder(req, res);
+              } else {
+                next();
+              }
+            }
+          }
+        }
+      } else {
+        // 如果都没有匹配上，则响应错误信息
+        res.end(&#39;CANNOT &#39; + req.method + &#39; &#39; req.path);
+      }
+    }
+
+    next();
+// ************************** 以上为修改代码 **************************
+  }
+
+// ************************** 以下为新增代码 **************************
+  function init() {
+    return function (req, res, next) {
+      // 获取方法名统一转换成小写
+      const method = req.method.toLowerCase();
+
+      // 访问路径解构成路由和查询字符串两部分 /user?a=1&amp;b=2
+      const [reqPath, query = &#39;&#39;] = req.url.split(&#39;?&#39;);
+
+      // 将路径名赋值给 req.path
+      req.path = reqPath;
+      // 将查询字符串转换成对象赋值给 req.query
+      req.query = querystring.parse(query);
+      // 将主机名赋值给 req.host
+      req.host = req.headers.host.split(&#39;:&#39;)[0];
+
+      // 响应方法
+      res.send = function (params) {
+        // 设置响应头
+        res.setHeader(&#39;Content-Type&#39;, &#39;text/plain;charset=utf8&#39;);
+
+        // 检测传入值得数据类型
+        switch (typeof params) {
+          case &#39;object&#39;:
+            res.setHeader(&#39;Content-Type&#39;, &#39;application/json;charset=utf8&#39;);
+
+            // 将任意类型的对象转换成字符串
+            params = util.inspect(params);
+            break;
+          case &#39;number&#39;:
+            // 数字则直接取出状态吗对应的名字返回
+            params = httpServer.STATUS_CODES[params];
+            break;
+          default:
+            break;
+        }
+
+        // 响应
+        res.end(params);
+      }
+
+      // 响应文件方法
+      res.sendFile = function (pathname) {
+        fs.createReadStream(pathname).pipe(res);
+      }
+
+      // 向下执行
+      next();
+    }
+  }
+// ************************** 以上为新增代码 **************************
+
+  // 存储路由层的请求类型、路径和回调
+  app.routes = [];
+
+    // 返回一个函数体用于将路由层存入 app.routes 中
+  function createRouteMethod(method) {
+    return function (pathname, handler) {
+      const layer = {
+        method,
+        pathname, // 不包含查询字符串
+        handler
+      };
+
+      // 如果含有路由参数，如 /xxx/:aa/:bb
+      // 取出路由参数的键 aa bb 存入数组并挂在路由对象上
+      // 并生匹配 /xxx/aa/bb 的正则挂在路由对象上
+// ************************** 以下为修改代码 **************************
+      if (pathname.indexOf(&#39;:&#39;) !== -1 &amp;&amp; pathname.method !== &#39;middle&#39;) {
+// ************************** 以上为修改代码 **************************
+        const paramNames = []; // 存储路由参数
+
+        // 将路由参数取出存入数组，并返回正则字符串
+        const regStr = pathname.replace(/:(\w+)/g, function (matched, attr) {
+          paramNames.push(attr);
+          return &#39;(\\w+)&#39;;
+        });
+
+        const regexp = new RegExp(regStr); // 生成正则类型
+        layer.regexp = regexp; // 将正则挂在路由对象上
+        layer.paramNames = paramNames; // 将存储路由参数的数组挂载对象上
+      }
+
+      // 把这一层放入存储所有路由层信息的数组中
+      app.routes.push(layer);
+    }
+  }
+
+  // 循环构建所有路由方法，如 app.get app.post 等
+  methods.forEach(function (method) {
+    // 匹配路由的 get 方法
+    app[method] = createRouteMethod(method);
+  });
+
+  // all 方法，通吃所有请求类型
+  app.all = createRouteMethod(&#39;all&#39;);
+
+// ************************** 以下为新增代码 **************************
+  // 添加中间件方法
+  app.use = function (pathname, handler) {
+    // 处理没有传入路径的情况
+    if (typeof handler !== &#39;function&#39;) {
+      handler = pathname;
+      pathname = &#39;/&#39;;
+    }
+
+    // 生成函数并执行
+    createRouteMethod(&#39;middle&#39;)(pathname, handler);
+  }
+
+  // 将初始逻辑作为中间件执行
+  app.use(init());
+// ************************** 以上为新增代码 **************************
+
+  // 启动服务的 listen 方法
+  app.listen = function () {
+    // 创建服务器
+    const server = http.createServer(app);
+
+    // 监听服务，可能传入多个参数，如第一个参数为端口号，最后一个参数为服务启动后回调
+    server.listen(...arguments);
+  }
+
+  // 返回 app
+  return app;
+}
+
+module.exports = createApplication;
+</code></pre><p><code>use</code> 方法第一个参数为路径，与路由相同，不传默认为 <code>/</code>，如果不传所有的路径都会经过该中间件，如果传入指定的值，则匹配后的请求才会通过该中间件。</p><p>中间件的执行可能存在异步的情况，但之前匹配路径使用的是 <code>for</code> 循环同步匹配，我们将其修改为异步并把路由匹配的逻辑与中间件路径匹配的逻辑进行了整合，并创建了 <code>use</code> 方法，对是否传了第一个参数做了一个兼容，其他将带有请求方式、路径和回调的逻辑统一使用 <code>createRouteMethod</code> 方法创建，并传入 <code>middle</code> 类型，<code>createRouteMethod</code> 中路由参数匹配的逻辑对 <code>middle</code> 类型做了一个排除。</p><p>使用 <code>Express</code> 中间件调用 <code>next</code> 方法时，不传递参数和参数为 <code>null</code> 代表执行成功，如果传入了其他的参数，表示执行出错，会跳过所有正常的中间件和路由，直接交给错误处理中间件处理，并将 <code>next</code> 传入的参数作为错误处理中间件回调函数的第一个参数 <code>err</code>，后面三个参数分别为 <code>req</code>、<code>res</code> 和 <code>next</code>。</p><p>代码种创建了 <code>index</code> 变量，默认调用了一次 <code>next</code> 方法，每次然后取出数组 <code>app.routes</code> 中的路由对象的回调函数执行，并在内部执行 <code>handler</code>，而 <code>handler</code> 回调中又调用了 <code>next</code> 方法，就这样将整个中间件和路由的回调串联起来。</p><p>我们发现在第一次调用 <code>next</code> 之前的所有逻辑，如给 <code>req</code> 添加属性，给 <code>res</code> 添加方法，都是公共逻辑，是任何中间件和路由在匹配之前都会执行的逻辑，我们既然有了中间件方法 <code>app.user</code>，可以将这些逻辑抽取出来作为一个单独的中间件回调函数执行，所以创建了 <code>init</code> 函数，内部返回了一个函数作为回调函数，形参为 <code>req</code>、<code>res</code> 和 <code>next</code>，并在<code>init</code> 调用返回的函数内部调用 <code>next</code> 向下执行。</p><h2 id="内置模板引擎的实现"><a href="#内置模板引擎的实现" class="headerlink" title="内置模板引擎的实现"></a>内置模板引擎的实现</h2><p>在 <code>Express</code> 框架中内置支持了 <code>ejs</code>、<code>jade</code> 等模板，使用方法 “三部曲” 如下。</p><pre><code class="lang-js">/* 模板的使用 */
+// 引入 Express
+const express = require(&#39;express&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建服务
+const app = express();
+
+// 1、指定模板引擎，其实就是模板文件的后缀名
+app.set(&#39;view engine&#39;, &#39;ejs&#39;);
+
+// 2、指定模板的存放根目录
+app.set(&#39;views&#39;, path.resolve(__dirname, &#39;views&#39;));
+
+// 3、如果要自定义模板后缀和函数的关系
+app.engine(&#39;.html&#39;, require(&#39;./ejs&#39;).__express);
+
+// 创建路由
+app.get(&#39;/user&#39;, function (req, res) {
+  //使用指定的模板引擎渲染 user 模板
+  res.render(&#39;user&#39;, { title: &#39;用户管理&#39; });
+});
+
+// 监听服务
+app.listen(3000);
+</code></pre><p>上面将模板根目录设置为 <code>views</code> 文件夹，并规定了模板类型为 <code>ejs</code>，可以同时给多种模板设置，并不冲突，如果需要将其他后缀名的模板按照另一种模板的渲染引擎渲染则使用 <code>app.engine</code> 进行设置，下面看一下实现代码（直接找到星号提示新增或修改位置即可）。</p><pre><code class="lang-js">/* 文件：express.js */
+const http = require(&#39;http&#39;);
+
+// methods 模块返回存储所有请求方法名称的数组
+const methods = require(&#39;methods&#39;);
+const querystring = require(&#39;querystring&#39;);
+const util = require(&#39;util&#39;);
+const httpServer = require(&#39;_http_server&#39;); // 存储 node 服务相关信息
+const fs = require(&#39;fs&#39;);
+
+// ************************** 以下为新增代码 **************************
+const path = require(&#39;path&#39;);
+// ************************** 以上为新增代码 **************************
+
+function createApplication() {
+  // 创建 app 函数，身份类似 “总管家”，用于将请求分派给别人处理
+  const app = function (req, res) {
+    // 循环匹配路径
+    let index = 0;
+
+    function next(err) {
+      // 获取第一个回调函数
+      const layer = app.routes[index++];
+
+      if (layer) {
+        // 将当前中间件函数的属性解构出来
+        const { method, pathname, handler } = layer;
+
+        if (err) { // 如果存在错误将错误交给错误处理中间件，否则
+          if (method === &#39;middle&#39;, handle.length === 4) {
+            return hanlder(err, req, res, next);
+          } else {
+            next(err);
+          }
+        } else { // 如果不存在错误则继续向下执行
+          // 判断是中间件还是路由
+          if (method === &#39;middle&#39;) {
+              // 匹配路径判断
+              if (pathname === &#39;/&#39; || pathname === req.path || req.path.startWidth(pathname)) {
+                handler(req, res, next);
+              } else {
+                next();
+              }
+          } else {
+            // 如果路由对象上存在正则说明存在路由参数，否则正常匹配路径和请求类型
+            if (layer.regexp) {
+              // 使用路径配置的正则匹配请求路径
+              const result = req.path.match(layer.regexp);
+
+              // 如果匹配到结果且请求方式匹配
+              if (result &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+                // 则将路由对象 paramNames 属性中的键与匹配到的值构建成一个对象
+                req.params = layer.paramNames.reduce(function (memo, key, index) {
+                  memo[key] = result[index + 1];
+                  return memo;
+                }, {});
+
+                // 执行对应的回调
+                return layer.hanlder(req, res);
+              } else {
+                next();
+              }
+            } else {
+              // 如果说路径和请求类型都能匹配，则执行该路由层的回调
+              if ((req.path === layer.pathname || layer.pathname === &#39;*&#39;) &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+                return layer.hanlder(req, res);
+              } else {
+                next();
+              }
+            }
+          }
+        }
+      } else {
+        // 如果都没有匹配上，则响应错误信息
+        res.end(&#39;CANNOT &#39; + req.method + &#39; &#39; + req.path);
+      }
+    }
+
+    next();
+  }
+
+  function init() {
+    return function (req, res, next) {
+      // 获取方法名统一转换成小写
+      const method = req.method.toLowerCase();
+
+      // 访问路径解构成路由和查询字符串两部分 /user?a=1&amp;b=2
+      const [reqPath, query = &#39;&#39;] = req.url.split(&#39;?&#39;);
+
+      // 将路径名赋值给 req.path
+      req.path = reqPath;
+      // 将查询字符串转换成对象赋值给 req.query
+      req.query = querystring.parse(query);
+      // 将主机名赋值给 req.host
+      req.host = req.headers.host.split(&#39;:&#39;)[0];
+
+      // 响应方法
+      res.send = function (params) {
+        // 设置响应头
+        res.setHeader(&#39;Content-Type&#39;, &#39;text/plain;charset=utf8&#39;);
+
+        // 检测传入值得数据类型
+        switch (typeof params) {
+          case &#39;object&#39;:
+            res.setHeader(&#39;Content-Type&#39;, &#39;application/json;charset=utf8&#39;);
+
+            // 将任意类型的对象转换成字符串
+            params = util.inspect(params);
+            break;
+          case &#39;number&#39;:
+            // 数字则直接取出状态吗对应的名字返回
+            params = httpServer.STATUS_CODES[params];
+            break;
+          default:
+            break;
+        }
+
+        // 响应
+        res.end(params);
+      }
+
+      // 响应文件方法
+      res.sendFile = function (pathname) {
+        fs.createReadStream(pathname).pipe(res);
+      }
+
+// ************************** 以下为新增代码 **************************
+      // 模板渲染方法
+      res.render = function (filename, data) {
+        // 将文件名和模板路径拼接
+        let filepath = path.join(app.get(&#39;views&#39;), filename);
+
+        // 获取扩展名
+        let extname = path.extname(filename.split(path.sep).pop());
+
+        // 如果没有扩展名，则使用默认的扩展名
+        if (!extname) {
+          extname = &#39;.&#39; + app.get(&#39;view engine&#39;)
+          filepath += extname;
+        }
+
+        // 读取模板文件并使用渲染引擎相应给浏览器
+        app.engines[extname](filepath, data, function (err, html) {
+          res.setHeader(&#39;Content-Type&#39;, &#39;text/html;charset=utf8&#39;);
+          res.end(html);
+        });
+      }
+// ************************** 以上为新增代码 **************************
+
+      // 向下执行
+      next();
+    }
+  }
+
+  // 存储路由层的请求类型、路径和回调
+  app.routes = [];
+
+  // 返回一个函数体用于将路由层存入 app.routes 中
+  function createRouteMethod(method) {
+    return function (pathname, handler) {
+// ************************** 以下为修改代码 **************************
+      // 满足条件说明是取值方法
+      if (method === &#39;get&#39; &amp;&amp; arguments.length === 1) {
+        return app.settings[pathname];
+      }
+// ************************** 以上为修改代码 **************************
+
+      const layer = {
+        method,
+        pathname, // 不包含查询字符串
+        handler
+      };
+
+      // 如果含有路由参数，如 /xxx/:aa/:bb
+      // 取出路由参数的键 aa bb 存入数组并挂在路由对象上
+      // 并生匹配 /xxx/aa/bb 的正则挂在路由对象上
+      if (pathname.indexOf(&#39;:&#39;) !== -1 &amp;&amp; pathname.method !== &#39;middle&#39;) {
+        const paramNames = []; // 存储路由参数
+
+        // 将路由参数取出存入数组，并返回正则字符串
+        const regStr = pathname.replace(/:(\w+)/g, function (matched, attr) {
+          paramNames.push(attr);
+          return &#39;(\\w+)&#39;;
+        });
+
+        const regexp = new RegExp(regStr); // 生成正则类型
+        layer.regexp = regexp; // 将正则挂在路由对象上
+        layer.paramNames = paramNames; // 将存储路由参数的数组挂载对象上
+      }
+
+      // 把这一层放入存储所有路由层信息的数组中
+      app.routes.push(layer);
+    }
+  }
+
+  // 循环构建所有路由方法，如 app.get app.post 等
+  methods.forEach(function (method) {
+    // 匹配路由的 get 方法
+    app[method] = createRouteMethod(method);
+  });
+
+  // all 方法，通吃所有请求类型
+  app.all = createRouteMethod(&#39;all&#39;);
+
+  // 添加中间件方法
+  app.use = function (pathname, handler) {
+    // 处理没有传入路径的情况
+    if (typeof handler !== &#39;function&#39;) {
+      handler = pathname;
+      pathname = &#39;/&#39;;
+    }
+
+    // 生成函数并执行
+    createRouteMethod(&#39;middle&#39;)(pathname, handler);
+  }
+
+  // 将初始逻辑作为中间件执行
+  app.use(init());
+
+// ************************** 以下为新增代码 **************************
+  // 存储设置的对象
+  app.setting ={};
+
+  // 存储模板渲染方法
+  app.engines = {};
+
+  // 添加设置的方法
+  app.set = function (key, value) {
+    app.use[key] = value;
+  }
+
+  // 添加渲染引擎的方法
+  app.engine = function (ext, renderFile) {
+    app.engines[ext] = renderFile;
+  }
+// ************************** 以上为新增代码 **************************
+
+  // 启动服务的 listen 方法
+  app.listen = function () {
+    // 创建服务器
+    const server = http.createServer(app);
+
+    // 监听服务，可能传入多个参数，如第一个参数为端口号，最后一个参数为服务启动后回调
+    server.listen(...arguments);
+  }
+
+  // 返回 app
+  return app;
+}
+
+module.exports = createApplication;
+</code></pre><p>在上面新增代码中设置了两个缓存 <code>settings</code> 和 <code>engines</code>，前者用来存储模板相关的设置，如渲染成什么类型的文件、读取模板文件的根目录，后者用来存储渲染引擎，即渲染模板的方法，这所以设置这两个缓存对象是为了实现 <code>Express</code> 多种不同模板共存的功能，可以根据需要进行设置和使用，而设置的方法分别为 <code>app.set</code> 和 <code>app.engine</code>，有设置值的方法就应该有取值的方法，但是 <code>app.get</code> 方法已经被设置为路由方法了，为了语义我们在 <code>app.get</code> 方法逻辑中进行了兼容，当参数为 <code>1</code> 个时，从 <code>settings</code> 中取值并返回，否则执行添加路由方法的逻辑。</p><p>之前都是准备工作，在使用时无论是中间件还是路由中都是靠调用 <code>res.render</code> 方法并传入模板路径和渲染数据来真正实现渲染和响应的，<code>render</code> 方法是在 <code>init</code> 函数初始化时就挂在了 <code>res</code> 上，核心逻辑是取出传入的模板文件后缀名，如果存在则使用后缀名，将文件名与默认读取模板的文件夹路径拼接传递给设置的渲染引擎的渲染方法，如果不存在后缀名则默认拼接 <code>.html</code> 当作后缀名，再与默认读取模板路径进行拼接，在渲染函数的回调中将渲染引擎渲染的模板字符串响应给浏览器。</p><h2 id="内置静态资源中间件的实现"><a href="#内置静态资源中间件的实现" class="headerlink" title="内置静态资源中间件的实现"></a>内置静态资源中间件的实现</h2><p>在 <code>Express</code> 内部可以通过路由处理静态文件，但是如果可能请求多个文件不可能一个文件对应一个路由，因此 <code>Express</code> 内部实现了静态文件中间件，使用如下。</p><pre><code class="lang-js">/* 静态文件中间件的使用 */
+// 引入 Express
+const express = require(&#39;express&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建服务
+const app = express();
+
+// 使用处理静态文件中间件
+app.use(express.static(path.resolve(__dirname, &#39;public&#39;)));
+
+// 监听服务
+app.listen(3000);
+</code></pre><p>从上面使用可以看出，<code>express.static</code> 是一个函数，执行的时候传入了一个参数，为默认查找文件的根路径，而添加中间件的 <code>app.use</code> 方法传入的参数正好是回调函数，这说明 <code>express.static</code> 方法需要返回一个函数，形参为 <code>req</code>、<code>res</code> 和 <code>next</code>，通过调用方式我们能看出 <code>static</code> 是静态方法，挂在了模块返回的函数上，实现代码如下（直接找到星号提示新增或修改位置即可）。</p><pre><code class="lang-js">/* 文件：express.js */
+const http = require(&#39;http&#39;);
+
+// methods 模块返回存储所有请求方法名称的数组
+const methods = require(&#39;methods&#39;);
+const querystring = require(&#39;querystring&#39;);
+const util = require(&#39;util&#39;);
+const httpServer = require(&#39;_http_server&#39;); // 存储 node 服务相关信息
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+
+// ************************** 以下为新增代码 **************************
+const mime = require(&#39;mime&#39;);
+// ************************** 以上为新增代码 **************************
+
+function createApplication() {
+  // 创建 app 函数，身份类似 “总管家”，用于将请求分派给别人处理
+  const app = function (req, res) {
+    // 循环匹配路径
+    let index = 0;
+
+    function next(err) {
+      // 获取第一个回调函数
+      const layer = app.routes[index++];
+
+      if (layer) {
+        // 将当前中间件函数的属性解构出来
+        const { method, pathname, handler } = layer;
+
+        if (err) { // 如果存在错误将错误交给错误处理中间件，否则
+          if (method === &#39;middle&#39;, handle.length === 4) {
+            return hanlder(err, req, res, next);
+          } else {
+            next(err);
+          }
+        } else { // 如果不存在错误则继续向下执行
+          // 判断是中间件还是路由
+          if (method === &#39;middle&#39;) {
+            // 匹配路径判断
+            if (pathname === &#39;/&#39; || pathname === req.path || req.path.startWidth(pathname)) {
+              handler(req, res, next);
+            } else {
+              next();
+            }
+          } else {
+            // 如果路由对象上存在正则说明存在路由参数，否则正常匹配路径和请求类型
+            if (layer.regexp) {
+              // 使用路径配置的正则匹配请求路径
+              const result = req.path.match(layer.regexp);
+
+              // 如果匹配到结果且请求方式匹配
+              if (result &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+                // 则将路由对象 paramNames 属性中的键与匹配到的值构建成一个对象
+                req.params = layer.paramNames.reduce(function (memo, key, index) {
+                  memo[key] = result[index + 1];
+                  return memo;
+                }, {});
+
+                // 执行对应的回调
+                return layer.hanlder(req, res);
+              } else {
+                next();
+              }
+            } else {
+              // 如果说路径和请求类型都能匹配，则执行该路由层的回调
+              if ((req.path === layer.pathname || layer.pathname === &#39;*&#39;) &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+                return layer.hanlder(req, res);
+              } else {
+                next();
+              }
+            }
+          }
+        }
+      } else {
+        // 如果都没有匹配上，则响应错误信息
+        res.end(&#39;CANNOT &#39; + req.method + &#39; &#39; + req.path);
+      }
+    }
+
+    next();
+  }
+
+  function init() {
+    return function (req, res, next) {
+      // 获取方法名统一转换成小写
+      const method = req.method.toLowerCase();
+
+      // 访问路径解构成路由和查询字符串两部分 /user?a=1&amp;b=2
+      const [reqPath, query = &#39;&#39;] = req.url.split(&#39;?&#39;);
+
+      // 将路径名赋值给 req.path
+      req.path = reqPath;
+      // 将查询字符串转换成对象赋值给 req.query
+      req.query = querystring.parse(query);
+      // 将主机名赋值给 req.host
+      req.host = req.headers.host.split(&#39;:&#39;)[0];
+
+      // 响应方法
+      res.send = function (params) {
+        // 设置响应头
+        res.setHeader(&#39;Content-Type&#39;, &#39;text/plain;charset=utf8&#39;);
+
+        // 检测传入值得数据类型
+        switch (typeof params) {
+          case &#39;object&#39;:
+            res.setHeader(&#39;Content-Type&#39;, &#39;application/json;charset=utf8&#39;);
+            // 将任意类型的对象转换成字符串
+            params = util.inspect(params);
+            break;
+          case &#39;number&#39;:
+            // 数字则直接取出状态吗对应的名字返回
+            params = httpServer.STATUS_CODES[params];
+            break;
+          default:
+            break;
+        }
+
+        // 响应
+        res.end(params);
+      }
+
+      // 响应文件方法
+      res.sendFile = function (pathname) {
+        fs.createReadStream(pathname).pipe(res);
+      }
+
+      // 模板渲染方法
+      res.render = function (filename, data) {
+        // 将文件名和模板路径拼接
+        let filepath = path.join(app.get(&#39;views&#39;), filename);
+
+        // 获取扩展名
+        let extname = path.extname(filename.split(path.sep).pop());
+
+        // 如果没有扩展名，则使用默认的扩展名
+        if (!extname) {
+          extname = &#39;.&#39; + app.get(&#39;view engine&#39;)}
+          filepath += extname;
+        }
+
+        // 读取模板文件并使用渲染引擎相应给浏览器
+        app.engines[extname](filepath, data, function (err, html) {
+          res.setHeader(&#39;Content-Type&#39;, &#39;text/html;charset=utf8&#39;);
+          res.end(html);
+        });
+      }
+
+      // 向下执行
+      next();
+    }
+  }
+
+  // 存储路由层的请求类型、路径和回调
+  app.routes = [];
+
+  // 返回一个函数体用于将路由层存入 app.routes 中
+  function createRouteMethod(method) {
+    return function (pathname, handler) {
+      // 满足条件说明是取值方法
+      if (method === &#39;get&#39; &amp;&amp; arguments.length === 1) {
+        return app.settings[pathname];
+      }
+
+      const layer = {
+        method,
+        pathname, // 不包含查询字符串
+        handler
+      };
+
+      // 如果含有路由参数，如 /xxx/:aa/:bb
+      // 取出路由参数的键 aa bb 存入数组并挂在路由对象上
+      // 并生匹配 /xxx/aa/bb 的正则挂在路由对象上
+      if (pathname.indexOf(&#39;:&#39;) !== -1 &amp;&amp; pathname.method !== &#39;middle&#39;) {
+        const paramNames = []; // 存储路由参数
+
+        // 将路由参数取出存入数组，并返回正则字符串
+        const regStr = pathname.replace(/:(\w+)/g, function (matched, attr) {
+          paramNames.push(attr);
+          return &#39;(\\w+)&#39;;
+        });
+
+        const regexp = new RegExp(regStr); // 生成正则类型
+        layer.regexp = regexp; // 将正则挂在路由对象上
+        layer.paramNames = paramNames; // 将存储路由参数的数组挂载对象上
+      }
+
+      // 把这一层放入存储所有路由层信息的数组中
+      app.routes.push(layer);
+    }
+  }
+
+  // 循环构建所有路由方法，如 app.get app.post 等
+  methods.forEach(function (method) {
+    // 匹配路由的 get 方法
+    app[method] = createRouteMethod(method);
+  });
+
+  // all 方法，通吃所有请求类型
+  app.all = createRouteMethod(&#39;all&#39;);
+
+  // 添加中间件方法
+  app.use = function (pathname, handler) {
+    // 处理没有传入路径的情况
+    if (typeof handler !== &#39;function&#39;) {
+      handler = pathname;
+      pathname = &#39;/&#39;;
+    }
+
+    // 生成函数并执行
+    createRouteMethod(&#39;middle&#39;)(pathname, handler);
+  }
+
+  // 将初始逻辑作为中间件执行
+  app.use(init());
+
+  // 存储设置的对象
+  app.setting ={};
+
+  // 存储模板渲染方法
+  app.engines = {};
+
+  // 添加设置的方法
+  app.set = function (key, value) {
+    app.use[key] = value;
+  }
+
+  // 添加渲染引擎的方法
+  app.engine = function (ext, renderFile) {
+    app.engines[ext] = renderFile;
+  }
+
+  // 启动服务的 listen 方法
+  app.listen = function () {
+    // 创建服务器
+    const server = http.createServer(app);
+
+    // 监听服务，可能传入多个参数，如第一个参数为端口号，最后一个参数为服务启动后回调
+    server.listen(...arguments);
+  }
+
+  // 返回 app
+  return app;
+}
+
+// ************************** 以下为新增代码 **************************
+createApplication.static = function (staticRoot) {
+  return function (req, res, next) {
+    // 获取文件的完整路径
+    const filename = path.join(staticRoot, req.path);
+
+    // 如果没有权限就向下执行其他中间件，如果有权限读取文件并响应
+    fs.access(filename, function (err) {
+      if (err) {
+        next();
+      } else {
+        // 设置响应头类型和响应文件内容
+        res.setHeader(&#39;Content-Type&#39;, mime.getType() + &#39;;charset=utf8&#39;);
+        fs.createReadStream(filename).pipe(res);
+      }
+    });
+  }
+}
+// ************************** 以上为新增代码 **************************
+
+module.exports = createApplication;
+</code></pre><p>这个方法的核心逻辑是获取文件的路径，检查文件的权限，如果没有权限，则调用 <code>next</code> 交给其他中间件，这里注意的是 <code>err</code> 错误对象不要传递给 <code>next</code>，因为后面的中间件还要执行，如果传递后会直接执行错误处理中间件，有权限的情况下就正常读取文件内容，给 <code>Content-Type</code> 响应头设置文件类型，并将文件的可读流通过 <code>pipe</code> 方法传递给可写流 <code>res</code>，即响应给浏览器。</p><h2 id="实现重定向"><a href="#实现重定向" class="headerlink" title="实现重定向"></a>实现重定向</h2><p>在 <code>Express</code> 中有一个功能在我们匹配到的某一个路由中调用可以直接跳转到另一个路由，即 <code>302</code> 重定向。</p><pre><code class="lang-js">/* 使用重定向 */
+// 引入 Express
+const express = require(&#39;express&#39;);
+const path = require(&#39;path&#39;);
+
+// 创建服务
+const app = express();
+
+// 创建路由
+app.get(&#39;/user&#39;, function (req, res, next) {
+  res.end(&#39;user&#39;);
+});
+
+app.get(&#39;/detail&#39;, function (req, res, next) {
+  // 访问 /detail 重定向到 /user
+  res.redirect(&#39;/user&#39;);
+});
+
+// 监听服务
+app.listen(3000);
+</code></pre><p>看到上面的使用方式，我们根据前面的套路知道是 <code>Express</code> 在 <code>res</code> 对象上给挂载了一个 <code>redirect</code> 方法，参数为状态码（可选）和要跳转路由的路径，并且这个方法应该在 <code>init</code> 函数调用时挂在 <code>res</code> 上的，下面是实现的代码（直接找到星号提示新增或修改位置即可）。</p><pre><code class="lang-js">/* 文件：express.js */
+const http = require(&#39;http&#39;);
+
+// methods 模块返回存储所有请求方法名称的数组
+const methods = require(&#39;methods&#39;);
+const querystring = require(&#39;querystring&#39;);
+const util = require(&#39;util&#39;);
+const httpServer = require(&#39;_http_server&#39;); // 存储 node 服务相关信息
+const fs = require(&#39;fs&#39;);
+const path = require(&#39;path&#39;);
+const mime = require(&#39;mime&#39;);
+
+function createApplication() {
+  // 创建 app 函数，身份类似 “总管家”，用于将请求分派给别人处理
+  const app = function (req, res) {
+    // 循环匹配路径
+    let index = 0;
+
+    function next(err) {
+      // 获取第一个回调函数
+      const layer = app.routes[index++];
+
+      if (layer) {
+        // 将当前中间件函数的属性解构出来
+        const { method, pathname, handler } = layer;
+
+        if (err) { // 如果存在错误将错误交给错误处理中间件，否则
+          if (method === &#39;middle&#39;, handle.length === 4) {
+            return hanlder(err, req, res, next);
+          } else {
+            next(err);
+          }
+        } else { // 如果不存在错误则继续向下执行
+          // 判断是中间件还是路由
+          if (method === &#39;middle&#39;) {
+            // 匹配路径判断
+            if (pathname === &#39;/&#39; || pathname === req.path || req.path.startWidth(pathname)) {
+              handler(req, res, next);
+            } else {
+              next();
+            }
+          } else {
+            // 如果路由对象上存在正则说明存在路由参数，否则正常匹配路径和请求类型
+            if (layer.regexp) {
+              // 使用路径配置的正则匹配请求路径
+              const result = req.path.match(layer.regexp);
+
+              // 如果匹配到结果且请求方式匹配
+              if (result &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+                // 则将路由对象 paramNames 属性中的键与匹配到的值构建成一个对象
+                req.params = layer.paramNames.reduce(function (memo, key, index) {
+                  memo[key] = result[index + 1];
+                  return memo;
+                }, {});
+
+                // 执行对应的回调
+                return layer.hanlder(req, res);
+              } else {
+                next();
+              }
+            } else {
+              // 如果说路径和请求类型都能匹配，则执行该路由层的回调
+              if ((req.path === layer.pathname || layer.pathname === &#39;*&#39;) &amp;&amp; (method === layer.method || layer.method === &#39;all&#39;)) {
+                return layer.hanlder(req, res);
+              } else {
+                next();
+              }
+            }
+          }
+        }
+      } else {
+        // 如果都没有匹配上，则响应错误信息
+        res.end(&#39;CANNOT &#39; + req.method} + &#39;&#39; + req.path);
+      }
+    }
+
+    next();
+  }
+
+  function init() {
+    return function (req, res, next) {
+      // 获取方法名统一转换成小写
+      const method = req.method.toLowerCase();
+
+      // 访问路径解构成路由和查询字符串两部分 /user?a=1&amp;b=2
+      const [reqPath, query = &#39;&#39;] = req.url.split(&#39;?&#39;);
+
+      // 将路径名赋值给 req.path
+      req.path = reqPath;
+      // 将查询字符串转换成对象赋值给 req.query
+      req.query = querystring.parse(query);
+      // 将主机名赋值给 req.host
+      req.host = req.headers.host.split(&#39;:&#39;)[0];
+
+      // 响应方法
+      res.send = function (params) {
+        // 设置响应头
+        res.setHeader(&#39;Content-Type&#39;, &#39;text/plain;charset=utf8&#39;);
+
+        // 检测传入值得数据类型
+        switch (typeof params) {
+          case &#39;object&#39;:
+            res.setHeader(&#39;Content-Type&#39;, &#39;application/json;charset=utf8&#39;);
+
+            // 将任意类型的对象转换成字符串
+            params = util.inspect(params);
+            break;
+          case &#39;number&#39;:
+            // 数字则直接取出状态吗对应的名字返回
+            params = httpServer.STATUS_CODES[params];
+            break;
+          default:
+            break;
+        }
+
+        // 响应
+        res.end(params);
+      }
+
+      // 响应文件方法
+      res.sendFile = function (pathname) {
+        fs.createReadStream(pathname).pipe(res);
+      }
+
+      // 模板渲染方法
+      res.render = function (filename, data) {
+        // 将文件名和模板路径拼接
+        let filepath = path.join(app.get(&#39;views&#39;), filename);
+
+        // 获取扩展名
+        let extname = path.extname(filename.split(path.sep).pop());
+
+        // 如果没有扩展名，则使用默认的扩展名
+        if (!extname) {
+          extname = &#39;.&#39; + app.get(&#39;view engine&#39;)
+          filepath += extname;
+        }
+
+        // 读取模板文件并使用渲染引擎相应给浏览器
+        app.engines[extname](filepath, data, function (err, html) {
+          res.setHeader(&#39;Content-Type&#39;, &#39;text/html;charset=utf8&#39;);
+          res.end(html);
+        });
+      }
+
+// ************************** 以下为新增代码 **************************
+      // 重定向方法
+      res.redirect = function (status, target) {
+        // 如果第一个参数是字符串类型说明没有传状态码
+        if (typeof status === &#39;string&#39;) {
+          // 将第二个参数（重定向的目标路径）设置给 target
+          target = status;
+
+          // 再把状态码设置成 302
+          status = 302;
+        }
+
+        // 响应状态码，设置重定向响应头
+        res.statusCode = status;
+        res.setHeader(&#39;Location&#39;, target);
+        res.end();
+      }
+// ************************** 以上为新增代码 **************************
+
+      // 向下执行
+      next();
+    }
+  }
+
+  // 存储路由层的请求类型、路径和回调
+  app.routes = [];
+
+  // 返回一个函数体用于将路由层存入 app.routes 中
+  function createRouteMethod(method) {
+    return function (pathname, handler) {
+      // 满足条件说明是取值方法
+      if (method === &#39;get&#39; &amp;&amp; arguments.length === 1) {
+        return app.settings[pathname];
+      }
+
+      const layer = {
+        method,
+        pathname, // 不包含查询字符串
+        handler
+      };
+
+      // 如果含有路由参数，如 /xxx/:aa/:bb
+      // 取出路由参数的键 aa bb 存入数组并挂在路由对象上
+      // 并生匹配 /xxx/aa/bb 的正则挂在路由对象上
+      if (pathname.indexOf(&#39;:&#39;) !== -1 &amp;&amp; pathname.method !== &#39;middle&#39;) {
+        const paramNames = []; // 存储路由参数
+
+        // 将路由参数取出存入数组，并返回正则字符串
+        const regStr = pathname.replace(/:(\w+)/g, function (matched, attr) {
+          paramNames.push(attr);
+          return &#39;(\\w+)&#39;;
+        });
+
+        const regexp = new RegExp(regStr); // 生成正则类型
+        layer.regexp = regexp; // 将正则挂在路由对象上
+        layer.paramNames = paramNames; // 将存储路由参数的数组挂载对象上
+      }
+
+      // 把这一层放入存储所有路由层信息的数组中
+      app.routes.push(layer);
+    }
+  }
+
+  // 循环构建所有路由方法，如 app.get app.post 等
+  methods.forEach(function (method) {
+    // 匹配路由的 get 方法
+    app[method] = createRouteMethod(method);
+  });
+
+  // all 方法，通吃所有请求类型
+  app.all = createRouteMethod(&#39;all&#39;);
+
+  // 添加中间件方法
+  app.use = function (pathname, handler) {
+    // 处理没有传入路径的情况
+    if (typeof handler !== &#39;function&#39;) {
+      handler = pathname;
+      pathname = &#39;/&#39;;
+    }
+
+    // 生成函数并执行
+    createRouteMethod(&#39;middle&#39;)(pathname, handler);
+  }
+
+  // 将初始逻辑作为中间件执行
+  app.use(init());
+
+  // 存储设置的对象
+  app.setting ={};
+
+  // 存储模板渲染方法
+  app.engines = {};
+
+  // 添加设置的方法
+  app.set = function (key, value) {
+    app.use[key] = value;
+  }
+
+  // 添加渲染引擎的方法
+  app.engine = function (ext, renderFile) {
+    app.engines[ext] = renderFile;
+  }
+
+  // 启动服务的 listen 方法
+  app.listen = function () {
+    // 创建服务器
+    const server = http.createServer(app);
+
+    // 监听服务，可能传入多个参数，如第一个参数为端口号，最后一个参数为服务启动后回调
+    server.listen(...arguments);
+  }
+
+  // 返回 app
+  return app;
+}
+
+createApplication.static = function (staticRoot) {
+  return function (req, res, next) {
+    // 获取文件的完整路径
+    const filename = path.join(staticRoot, req.path);
+
+    // 如果没有权限就向下执行其他中间件，如果有权限读取文件并响应
+    fs.access(filename, function (err) {
+      if (err) {
+        next();
+      } else {
+        // 设置响应头类型和响应文件内容
+        res.setHeader(&#39;Content-Type&#39;, mime.getType() + &#39;;charset=utf8&#39;);
+        fs.createReadStream(filename).pipe(res);
+      }
+    });
+  }
+}
+
+module.exports = createApplication;
+</code></pre><p>其实 <code>res.redirect</code> 方法的核心逻辑就是处理参数，如果没有传状态码的时候将参数设置给 <code>target</code>，将状态码设置为 <code>302</code>，并设置重定向响应头 <code>Location</code>。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>到此为止 <code>Express</code> 的大部分内置功能就都简易的实现了，由于 <code>Express</code> 内部的封装思想，以及代码复杂、紧密的特点，各个功能代码很难单独拆分，总结一下就是很难表述清楚，只能通过大量代码来堆砌，好在每一部分实现我都标记了 “重点”，但看的时候还是要经历 “痛苦”，这已经将 <code>Express</code> 中的逻辑 “阉割” 到了一定的程度，读 <code>Express</code> 的源码一定比读这篇文章更需要耐心，当然如果你已经读到了这里证明困难都被克服了，继续加油。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180825162129/" target="_blank" rel="external">https://www.overtaking.top/20180825162129/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Express/" rel="tag">Express</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag">中间件</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180825162129/&title=《Express 源码分析及简易封装》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180825162129/&title=《Express 源码分析及简易封装》 — Shen's Blog&source=前言Express 是 Node.js 的 Web 框架，与 Koa 的轻量相比，功能要更多一些，依然是当前使用最广泛的 Node.js 框架，本篇参考 ..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180825162129/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Express 源码分析及简易封装》 — Shen's Blog&url=https://www.overtaking.top/20180825162129/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180825162129/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180828022147/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Express 中间件 body-parser 原理分析</h4></a></div><div class="waves-block waves-effect next"><a href="/20180820200342/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Koa2 中间件原理解析 —— 看了就会写</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180825162129/&title=《Express 源码分析及简易封装》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180825162129/&title=《Express 源码分析及简易封装》 — Shen's Blog&source=前言Express 是 Node.js 的 Web 框架，与 Koa 的轻量相比，功能要更多一些，依然是当前使用最广泛的 Node.js 框架，本篇参考 ..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180825162129/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Express 源码分析及简易封装》 — Shen's Blog&url=https://www.overtaking.top/20180825162129/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180825162129/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABzUlEQVR42u3awY7DIAxF0fz/T6fbSlPIfQasjHRZVVVKTjcWz+a68Lq/1vc3o8/8yevEkitX7jL3nq456O+TI0ptzx9/Sa5cuY3cUcWYv370shGR7z/8Xq5cua/k8tfUjj5y5cr9X1xSzmrHILly5b6TS8LPSluE778tq8mVK3eBy7uU5z4f6e/KlSu3xL3DlR5reEBCb5crV24LtzZK4SUvbb+iCCRXrtxG7vpGPK7UBrRy5crt4c5xnJ5e2kivX8iVK7efy8MJH6vU2qAPUUquXLkt3JVrWOnxiASqYJQiV67cRi4fr/LSRkJRHKLkypV7jEuOKbWWRxp4UFNGrly5LdyVq1TzTdMhKz9syZUr9zR3b8uDl7xaHJIrV24Pd32MyiNN7aLGlZ625MqVu4mbPlpD72q1yJUrt4ebvoyPWEiIigcqcuXKbefGUQQ3QdJCGXRk5cqVu5V7h2uFSNqyD7+SK1duC5evNPCkRW19uCtXrty9XB5Rape3CCX4rVy5chu5tSFKSklL5/AShly5cl/GTQ8uvGFKrn3IlSv3ndw0xvDGKwpRcuXKbeSm8YZTaiOZh0ImV67cw9y4lCyHnPTJYn9Xrly5Fe4HxjgLCSAwu9cAAAAASUVORK5CYII=" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

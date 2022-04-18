@@ -1,0 +1,433 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Webpack4 —— 应用篇 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,Webpack,构建"><meta name="description" content="系列文章链接：Webpack4 —— 基础篇Webpack4 —— 优化篇多页面打包通用方案多页面应用简介多页面（MPA）和单页面（SPA）是对应用两种不同的处理方式，单页面应用一般是只有一个主页面，其他的页面切换都是靠路由和组件切换来实现，多页应用是每次跳转的时候服务端会返回一个新的 .html 页面，每一个页面是一个独立的应用，只是多个应用之间共用了同一个域名。"><meta property="og:type" content="article"><meta property="og:title" content="Webpack4 —— 应用篇"><meta property="og:url" content="https://www.overtaking.top/20181115105656/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="系列文章链接：Webpack4 —— 基础篇Webpack4 —— 优化篇多页面打包通用方案多页面应用简介多页面（MPA）和单页面（SPA）是对应用两种不同的处理方式，单页面应用一般是只有一个主页面，其他的页面切换都是靠路由和组件切换来实现，多页应用是每次跳转的时候服务端会返回一个新的 .html 页面，每一个页面是一个独立的应用，只是多个应用之间共用了同一个域名。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Compile/20181115105656/webpack-use.jpg"><meta property="article:published_time" content="2018-11-15T02:56:56.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="Webpack"><meta property="article:tag" content="构建"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Compile/20181115105656/webpack-use.jpg"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Webpack4 —— 应用篇</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Webpack4 —— 应用篇</h1><h5 class="subtitle"><time datetime="2018-11-15T02:56:56.000Z" itemprop="datePublished" class="page-time">2018-11-15</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Webpack/">Webpack</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#多页面打包通用方案"><span class="post-toc-number">1.</span> <span class="post-toc-text">多页面打包通用方案</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#多页面应用简介"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">多页面应用简介</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#基础的多页面配置"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">基础的多页面配置</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#动态的多页面配置"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">动态的多页面配置</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#集成-ESlint"><span class="post-toc-number">2.</span> <span class="post-toc-text">集成 ESlint</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#ESlint-介绍"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">ESlint 介绍</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Webpack-中使用-ESlint"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">Webpack 中使用 ESlint</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#通过-Webpack-构建组件和基础库"><span class="post-toc-number">3.</span> <span class="post-toc-text">通过 Webpack 构建组件和基础库</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#构建描述"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">构建描述</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#构建一个基础库"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">构建一个基础库</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#目录结构"><span class="post-toc-number">3.2.1.</span> <span class="post-toc-text">目录结构</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#功能函数"><span class="post-toc-number">3.2.2.</span> <span class="post-toc-text">功能函数</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#package-json"><span class="post-toc-number">3.2.3.</span> <span class="post-toc-text">package.json</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#主文件"><span class="post-toc-number">3.2.4.</span> <span class="post-toc-text">主文件</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#构建配置"><span class="post-toc-number">3.2.5.</span> <span class="post-toc-text">构建配置</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#构建-SSR-应用"><span class="post-toc-number">4.</span> <span class="post-toc-text">构建 SSR 应用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#为什么要有-SSR-应用"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">为什么要有 SSR 应用</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#什么是服务端渲染"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">什么是服务端渲染</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#构建服务端和客户端"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">构建服务端和客户端</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#构建配置-1"><span class="post-toc-number">4.4.</span> <span class="post-toc-text">构建配置</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Webpack-SSR-注意的问题"><span class="post-toc-number">4.5.</span> <span class="post-toc-text">Webpack SSR 注意的问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#定制构建命令行的显示日志"><span class="post-toc-number">5.</span> <span class="post-toc-text">定制构建命令行的显示日志</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#构建异常和中断处理"><span class="post-toc-number">6.</span> <span class="post-toc-text">构建异常和中断处理</span></a></li></ol></nav></aside><article id="post-Compile/20181115105656" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Webpack4 —— 应用篇</h1><div class="post-meta"><time class="post-time" title="2018-11-15 10:56:56" datetime="2018-11-15T02:56:56.000Z" itemprop="datePublished">2018-11-15</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Webpack/">Webpack</a></li></ul><span id="/20181115105656/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Webpack4 —— 应用篇"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Compile/20181115105656/webpack-use.jpg" title="webpack use"><p><br></p><blockquote class="pullquote default"><p><strong>系列文章链接：</strong></p><ul><li><a href="/20181002041434/" target="_blank">Webpack4 —— 基础篇</a></li><li><a href="/20181110203121/" target="_blank">Webpack4 —— 优化篇</a></li></ul></blockquote><h2 id="多页面打包通用方案"><a href="#多页面打包通用方案" class="headerlink" title="多页面打包通用方案"></a>多页面打包通用方案</h2><h3 id="多页面应用简介"><a href="#多页面应用简介" class="headerlink" title="多页面应用简介"></a>多页面应用简介</h3><blockquote class="pullquote info"><p><strong>多页面（<code>MPA</code>）和单页面（<code>SPA</code>）是对应用两种不同的处理方式，单页面应用一般是只有一个主页面，其他的页面切换都是靠路由和组件切换来实现，多页应用是每次跳转的时候服务端会返回一个新的 <code>.html</code> 页面，每一个页面是一个独立的应用，只是多个应用之间共用了同一个域名。</strong></p></blockquote><a id="more"></a><blockquote class="pullquote danger"><p><strong>多页面的优势是页面与页面之间是相互解耦的，对 <code>SEO</code> 更加友好，缺点是每次新增或删除页面都需要更改构建的配置。</strong></p></blockquote><h3 id="基础的多页面配置"><a href="#基础的多页面配置" class="headerlink" title="基础的多页面配置"></a>基础的多页面配置</h3><pre><code class="lang-js">const path = require(&#39;path&#39;);
+const HtmlWebpackPlugin = require(&#39;html-webpack-plugin&#39;);
+
+module.exports = {
+  entry: {
+    admin: path.resolve(__dirname. &#39;src/pages/admin/index.js&#39;),
+    search: path.resolve(__dirname. &#39;src/pages/search/index.js&#39;)
+  },
+  output: {
+    filename: &#39;[name][chunkhash:8].js&#39;,
+    path: &#39;./dist&#39;
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: &#39;./src/index.html&#39;, // 模板文件路径
+      filename: &#39;index.html&#39;, // 输出文件名称
+      // ...
+    }),
+    new HtmlWebpackPlugin({
+      template: &#39;./src/search.html&#39;,
+      filename: &#39;search.html&#39;,
+      // ...
+    }),
+  ]
+  // ...
+}
+</code></pre><p>上面是一个基础的多页面配置，如果开发过程成页面的增加非常快速，且多人同时开发，这样每增加一个页面都需要在 <code>entry</code> 中增加一个入口，在 <code>plugins</code> 中增加一个 <code>HtmlWebpackPlugin</code> 插件的实例，这样的维护方式并不优雅。</p><p>我们更希望增加页面时不需要更改 <code>Webpack</code> 配置文件，而是可以动态的向 <code>entry</code> 和 <code>plugins</code> 中添加配置。</p><h3 id="动态的多页面配置"><a href="#动态的多页面配置" class="headerlink" title="动态的多页面配置"></a>动态的多页面配置</h3><p>按照上面的优化思路，我们需要在 <code>Webpack</code> 配置中读取本地某一个固定目录的文件，以知道有哪些页面需要配置，当然我们可以使用 <code>fs</code> 模块自己实现，在这里更推荐使用 <code>glob</code> 模块，<code>glob</code> 模块可以通过通配符的方式按照定义的规则去匹配文件目录。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install glob html-webpack-plugin -D
+</code></pre><p><strong>动态生成页面配置：</strong></p><pre><code class="lang-js">const path = require(&#39;path&#39;);
+const glob = require(&#39;glob&#39;);
+const HtmlWebpackPlugin = require(&#39;html-webpack-plugin&#39;);
+
+const setMPA = () =&gt; {
+  const entry = {};
+  const htmlPlugins = [];
+
+  const pathMatch = path.resolve(__dirname, &#39;./src/pages/*/index.js&#39;)
+  const entryFiles = glob.sync(pathMatch);
+
+  entryFiles.map((pagePath) =&gt; {
+    const pageName = pagePath.match(/.*\/(.*)\/index.js/)[1];
+    entry[pageName] = pagePath;
+
+    htmlPlugins.push(new HtmlWebpackPlugin({
+      template: &#39;./src/pages/&#39; + pageName + &#39;/index.html&#39;, // 模板文件路径
+      filename: pageName + &#39;.html&#39;, // 输出文件名称
+      chunks: [pageName], // 使用的 chunk 名称
+      inject: true, // 将 js 资源放在 body 底部
+      minify: {
+        collapseWhitespace: true, // 是否删除空白符与换行符
+        removeAttributeQuotes: true, // 是否移除引号
+        minifyCSS: true, // 压缩 CSS
+        minifyJS: true, // 压缩 JS
+        removeComments: true // 是否移除 HTML 中的注释
+      }
+    }));
+  });
+
+  return {
+    entry,
+    htmlPlugins
+  };
+}
+
+module.exports = setMPA();
+</code></pre><p>首先我们创建一个模块，模块中创建 <code>setMPA</code> 函数专门用来对页面进行动态化处理，函数返回 <code>entry</code> 和 <code>HtmlWebpackPlugin</code> 的实例，首先通过 <code>glob</code> 的 <code>sync</code> 同步读取本地目录 <code>pages</code> 下的文件，获取页面文件的绝对路径（数组），循环的过程中匹配页面名称，并根据页面名称动态的创建 <code>entry</code> 和 <code>HtmlWebpackPlugin</code>。</p><p><strong>动态化配置示例：</strong></p><pre><code class="lang-js">const path = require(&#39;path&#39;);
+const {entry, htmlPlugins} = require(&#39;./setMPA&#39;);
+
+module.exports = {
+  entry,
+  output: {
+    path: path.resolve(__dirname, &#39;dist&#39;),
+    filename: &#39;[name][chunkhash:8].js&#39;
+  },
+  plugins: [
+    ...htmlPlugins
+  ]
+}
+</code></pre><p>在 <code>Webpack</code> 配置中只需要引入 <code>setMPA</code> 模块，解构出 <code>entry</code> 和 <code>HtmlWebpackPlugin</code> 的集合，并写在对应的配置上，这样就化解了有人新增页面就要增加对应页面配置的尴尬。</p><h2 id="集成-ESlint"><a href="#集成-ESlint" class="headerlink" title="集成 ESlint"></a>集成 ESlint</h2><h3 id="ESlint-介绍"><a href="#ESlint-介绍" class="headerlink" title="ESlint 介绍"></a>ESlint 介绍</h3><p><code>ESlint</code> 的作用是对项目的 <code>JS</code> 代码进行规范检查和风格统一，可以减少代码中的隐患和潜在问题，团队越大开发人员越多体现越明显，团队也可以根据实际情况制定规范。</p><p><code>ESlint</code> 可以与 <code>lint-staged</code> 和 <code>husky</code> 等模块在代码提交阶段进行检测，可以与 <code>Gitlab</code> 和 <code>Github</code> 等代码管理平台中的 <code>CI/CD</code> 进行集成，也可以在发布平台云构建过程中进行规范检查。</p><pre><code class="lang-json">/* package.json */
+{
+  &quot;script&quot;: {
+    &quot;precommit&quot;: &quot;lint-staged&quot;
+  },
+  &quot;husky&quot;: {
+    &quot;hooks&quot;: {
+      &quot;pre-commit&quot;: &quot;lint-staged&quot;
+    }
+  },
+  &quot;lint-staged&quot;: {
+    &quot;linters&quot;: {
+      &quot;*.{js,scss}&quot;: [
+        &quot;eslint --fix&quot;,
+        &quot;git add&quot;
+      ]
+    }
+  }
+}
+</code></pre><p>也有些优秀的 <code>ESlint</code> 规范模块可以使用，如腾讯的 <code>eslint-config-airbnb</code>、<code>eslint-config-airbnb-base</code> 等。</p><h3 id="Webpack-中使用-ESlint"><a href="#Webpack-中使用-ESlint" class="headerlink" title="Webpack 中使用 ESlint"></a>Webpack 中使用 ESlint</h3><p>也可以在 <code>Webpack</code> 构建中集成 <code>ESlint</code> 规范检查，需要借助 <code>eslint-loader</code>，如果代码不符合 <code>ESlint</code> 规范，构建会中断。</p><p><strong>安装依赖：</strong></p><pre><code class="lang-bash">$ npm install babel-loader eslint-loader -D
+</code></pre><p><strong><code>Webpack</code> 配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  module: {
+    rules: [
+      // ...
+      {
+        test: /.js$/,
+        exclude: /node_modules/, // 排除项
+        use: [
+          &#39;babel-loader&#39;,
+          &#39;eslint-loader&#39;
+        ]
+      }
+      // ...
+    ]
+  }
+}
+</code></pre><p><strong><code>ESlint</code> 配置示例：</strong></p><pre><code class="lang-js">/* .eslint.js */
+module.exports = {
+  parser: &#39;babel-eslint&#39;, // 使用的 eslint 规范
+  extends: [&#39;airbnb&#39;], // 继承的 eslint 规犯
+  // 启用的环境
+  env: {
+    browser: true,
+    node: true
+  }
+  // 自定义规则
+  rules: {
+    // 规则名称
+    indent: [
+      &#39;error&#39;, // 错误级别
+      2 // 配置项的值
+    ]
+  }
+}
+</code></pre><blockquote class="pullquote success"><p><strong>自定义 <code>ESlint</code> 规则或想要根据成熟的 <code>ESlint</code> 规则做定制化修改，可以在 <code>.eslintrc</code> 、<code>.eslint.js</code> 或 <code>.eslint.yml</code> 文件中进行配置。</strong></p></blockquote><h2 id="通过-Webpack-构建组件和基础库"><a href="#通过-Webpack-构建组件和基础库" class="headerlink" title="通过 Webpack 构建组件和基础库"></a>通过 Webpack 构建组件和基础库</h2><h3 id="构建描述"><a href="#构建描述" class="headerlink" title="构建描述"></a>构建描述</h3><p>这里所说的打包组件和基础库其实就是 “造轮子” 时，对于自己封装的模块进行构建，在做这个事情的时候使用 <code>rollup</code> 其实更适合，因为 <code>rollup</code> 更纯粹，也更简单一些，<code>Webpack</code> 功能比较强大，除了对于平时开发的业务项目进行构建，对于打包组件和基础库也完全胜任。</p><blockquote class="pullquote warning"><p><strong>开发组件或基础库通常需要满足下面两个要求：</strong></p><ul><li><strong>输出的文件要构建成压缩版本和非压缩版本，非压缩版本用于开发阶段，压缩版本用于线上；</strong></li><li><strong>要支持多种模块化方式，如 <code>AMD</code>、<code>CommonJS</code>、<code>ES-Module</code> 以及 <code>script</code> 标签引入。</strong></li></ul></blockquote><p><strong>各种引入方式：</strong></p><pre><code class="lang-js">/* AMD */
+require([&#39;large-number&#39;], function (largeNumber) {
+  largeNumber.add(&#39;999&#39;, &#39;1&#39;);
+})
+</code></pre><pre><code class="lang-js">/* CommonJS */
+const largeNumber = require(&#39;large-number&#39;);
+
+largeNumber.add(&#39;999&#39;, &#39;1&#39;);
+</code></pre><pre><code class="lang-js">/* ES-Module */
+import * as largeNumber from &#39;large-number&#39;;
+
+largeNumber.add(&#39;999&#39;, &#39;1&#39;);
+</code></pre><pre><code class="lang-html">&lt;!-- script --&gt;
+&lt;script src=&quot;//xxcnd/large-number.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+  largeNumber.add(&#39;999&#39;, &#39;1&#39;);
+&lt;/script&gt;
+</code></pre><h3 id="构建一个基础库"><a href="#构建一个基础库" class="headerlink" title="构建一个基础库"></a>构建一个基础库</h3><h4 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h4><p>下面我们封装一个计算大数字加法的库，并把这个库作为第三方模块使用 <code>Webpack</code> 进行构建，项目目录结构如下：</p><pre class="language-treeview">
+  <code class="language-treeview">
+    large-number
+      |- dist
+      | |- large-number.js
+      | |- large-number.min.js
+      |- src
+      | |- index.js
+      |- index.js
+      |- package.json
+      |- webpack.config.js
+  </code>
+</pre><blockquote class="pullquote primary"><ul><li><strong><code>dist</code> 是我们希望输出的目录，<code>large-number.js</code> 为非压缩版，<code>large-number.min.js</code> 为非压缩版；</strong></li><li><strong><code>src</code> 是构建的目录，<code>index.js</code> 是大整数加法功能函数所在文件；</strong></li><li><strong><code>index.js</code>：入口文件；</strong></li><li><strong><code>package.josn</code>：依赖配置文件；</strong></li><li><strong><code>webpack.config.js</code>：<code>Webpack</code> 配置文件。</strong></li></ul></blockquote><h4 id="功能函数"><a href="#功能函数" class="headerlink" title="功能函数"></a>功能函数</h4><pre><code class="lang-js">/* ~src/index.js */
+export default function add(a, b) {
+  // 相加两数的当前位的指针
+  let i = a.length - 1;
+  let j = b.length - 1;
+
+  let carry = 0; // 是否进位
+  let ret = &#39;&#39;; // 最后输出结果
+
+  // 循环，个位个位相加，十位十位相加...
+  while (i &gt;= 0 || j &gt;= 0) {
+    let x = 0; // a 的当前位
+    let y = 0; // b 的当前位
+    let sum; // 当前位数的和
+
+    // 如果存在当前位数将 a 的数字转化为数字，并将指针指向上一位
+    if (i &gt;= 0) {
+      x = a[i] - &#39;0&#39;;
+      i--;
+    }
+
+    // 如果存在当前位数将 b 的数字转化为数字，并将指针指向上一位
+    if (j &gt;= 0) {
+      y = b[j] - &#39;0&#39;;
+      j--;
+    }
+
+    sum = x + y + carry; // 求总和
+
+    // 如果总和大于 10 进位，并修正当前位数
+    if (sum &gt;= 10) {
+      carry = 1;
+      sum -= 10;
+    } else {
+      carry = 0;
+    }
+
+    ret = sum + ret; // 将求和数子转换字符串
+  }
+
+  // 循环结束，如果仍然存在进位，则将进位的值与之前结果拼接
+  if (carry) {
+    ret = carry + ret;
+  }
+
+  return ret; // 返回最终结果
+}
+</code></pre><h4 id="package-json"><a href="#package-json" class="headerlink" title="package.json"></a>package.json</h4><pre><code class="lang-json">{
+  &quot;name&quot;: &quot;large-number&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;description&quot;: &quot;大整数加法&quot;,
+  &quot;main&quot;: &quot;index.js&quot;,
+  &quot;scripts&quot;: {
+    &quot;build&quot;: &quot;webpack&quot;,
+    &quot;prepublish&quot;: &quot;npm run build&quot;
+  },
+  &quot;keywords&quot;: [],
+  &quot;author&quot;: &quot;&quot;,
+  &quot;license&quot;: &quot;ISC&quot;,
+  &quot;devDependencies&quot;: {
+    &quot;terser-webpack-plugin&quot;: &quot;^2.1.3&quot;,
+    &quot;webpack&quot;: &quot;^4.41.2&quot;,
+    &quot;webpack-cli&quot;: &quot;^3.3.9&quot;
+  }
+}
+</code></pre><p>其中 <code>main</code> 是模块指定执行的文件，指向根目录的主文件。</p><h4 id="主文件"><a href="#主文件" class="headerlink" title="主文件"></a>主文件</h4><pre><code class="lang-js">/* index.js */
+if (process.env.NODE_ENV === &#39;production&#39;) {
+  module.exports = require(&#39;./dist/large-number.min.js&#39;);
+} else {
+  module.exports = require(&#39;./dist/large-number.js&#39;);
+}
+</code></pre><p>主文件中根据当前的引用环境区分提供压缩版和非压缩文件版。</p><h4 id="构建配置"><a href="#构建配置" class="headerlink" title="构建配置"></a>构建配置</h4><p>下面是整个模块构建最重要的，就是 <code>Webpack</code> 的配置文件。</p><pre><code class="lang-js">/* webpack.config.js */
+const TerserWebpackPlugin = require(&#39;terser-webpack-plugin&#39;);
+
+module.exports = {
+  mode: &#39;none&#39;,
+  entry: {
+    &#39;large-number&#39;: &#39;./src/index.js&#39;,
+    &#39;large-number.min&#39;: &#39;./src/index.js&#39;
+  },
+  output: {
+    filename: &#39;[name].js&#39;,
+    library: &#39;largeNumber&#39;,
+    libraryExport: &#39;default&#39;,
+    libraryTarget: &#39;umd&#39;
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      // 压缩的同时转换 ES6 语法，基于 uglifyPlugin 改造
+      new TerserWebpackPlugin({
+        include: /\.min\.js$/
+      })
+    ]
+  }
+}
+</code></pre><blockquote class="pullquote success"><p><strong>配置文件参数解析：</strong></p><ul><li><strong><code>entry</code>：</strong><ul><li><strong><code>large-number</code>：压缩版入口文件路径；</strong></li><li><strong><code>large-number.min</code>：非压缩版入口文件路径。</strong></li></ul></li><li><strong><code>output</code>：</strong><ul><li><strong><code>filename</code>：出口文件名；</strong></li><li><strong><code>library</code>：导出的文件所提供的全局变量名；</strong></li><li><strong><code>libraryExport</code>：默认值为 <code>default</code>，如不配置访问导出对象的<code>default</code> 属性才可以获取对应的方法；</strong></li><li><strong><code>libraryTarget</code>：打包的模块规则，如 <code>CommonJS</code>，<code>ES-Module</code> 等，详情见</strong> <a href="https://webpack.js.org/configuration/output/#outputlibrarytarget" target="_blank">Webpack 官网</a><strong>。</strong></li></ul></li><li><strong><code>TerserWebpackPlugin</code>：基于 <code>UglifyPlugin</code> 插件实现的，相较于 <code>UglifyPlugin</code>，压缩的同时可以转换 <code>ES6</code> 语法。</strong><ul><li><strong><code>include</code>：属性的值为正则，默认匹配了 <code>large-number.min.js</code> 文件。</strong></li></ul></li></ul></blockquote><h2 id="构建-SSR-应用"><a href="#构建-SSR-应用" class="headerlink" title="构建 SSR 应用"></a>构建 SSR 应用</h2><h3 id="为什么要有-SSR-应用"><a href="#为什么要有-SSR-应用" class="headerlink" title="为什么要有 SSR 应用"></a>为什么要有 SSR 应用</h3><blockquote class="pullquote default"><p><strong>通常的客户端渲染流程如下：</strong></p><ul><li><strong>开始加载（白屏）；</strong></li><li><strong><code>HTML</code> 加载成功（提供 <code>loading</code>）;</strong></li><li><strong>请求 <code>CSS</code>、<code>JS</code> 等资源；</strong></li><li><strong>解析 <code>CSS</code>、<code>JS</code> 等资源；</strong></li><li><strong>页面渲染样式、执行 <code>JS</code> 逻辑；</strong></li><li><strong>如发送数据、图片请求；</strong></li><li><strong>页面达到可交互状态。</strong></li></ul></blockquote><p>从客户端的渲染流程看，我们可以发现从请求 <code>HTML</code> 到达到可交互状态中的请求是串行执行的，会导致白屏时间长，并且刚刚请求回的 <code>.html</code> 文件上的动态数据是空的，不利于搜索引擎的爬虫分析页面（不利于 <code>SEO</code>）。</p><h3 id="什么是服务端渲染"><a href="#什么是服务端渲染" class="headerlink" title="什么是服务端渲染"></a>什么是服务端渲染</h3><p><code>SSR</code>（<code>Server Side Rendering</code>） 又称为服务端渲染，将渲染后的 <code>.html</code> 整个返回给客户端，可以让客户端在加载 <code>.html</code> 后直接看到页面。</p><blockquote class="pullquote warning"><p><strong>服务端渲染流程：</strong></p><ul><li><strong>开始加载（白屏）；</strong></li><li><strong>服务端同构，将 <code>HTML</code>、<code>Data</code>、<code>CSS</code> 等进行组合；</strong></li><li><strong>返回给客户端解析并渲染；</strong></li><li><strong>页面达到可交互状态。</strong></li></ul></blockquote><blockquote class="pullquote info"><p><strong>跟客户端渲染的流程对比，可以发现服务端渲染的优势：</strong></p><ul><li><strong>串行的请求在服务端，内网拉取资源更快；</strong></li><li><strong>服务端渲染把客户端渲染的多个串行的请求优化成了一个请求（减少请求数）；</strong></li><li><strong>返回页面就能直接渲染出内容，减少了白屏的时间；</strong></li><li><strong>页面返回首屏所有数据，对 <code>SEO</code> 更友好。</strong></li></ul></blockquote><p><strong>客户端渲染和服务端渲染的差别对比：</strong></p><table><thead><tr><th style="width:20%"></th><th style="width:40%">客户端渲染</th><th>服务端渲染</th></tr></thead><tbody><tr><td>请求</td><td>多个请求（HTML，数据等）</td><td>1 个请求</td></tr><tr><td>加载过程</td><td>HTML 与数据串行加载</td><td>1 个请求返回 HTML 和数据</td></tr><tr><td>渲染</td><td>前端渲染</td><td>服务端渲染（如 Node.js）</td></tr><tr><td>可交互</td><td colspan="2">图片等静态资源加载完成，JS 逻辑执行完成可交互</td></tr></tbody></table><p><br></p><h3 id="构建服务端和客户端"><a href="#构建服务端和客户端" class="headerlink" title="构建服务端和客户端"></a>构建服务端和客户端</h3><p>假设负责服务端渲染的服务是由 <code>Express</code> 实现的，前端是使用 <code>React</code> 实现的，代码如下：</p><pre><code class="lang-bash">$ npm install express -D
+</code></pre><pre><code class="lang-js">/* ~server/index.js 服务端 */
+const express = require(&#39;express&#39;);
+const fs = require(&#39;fs&#39;);
+const axios = require(&#39;axios&#39;);
+
+// React 内部提供的方法，用于将 JSX 转换成 HTML 字符
+const { renderToString } = require(&#39;react-dom/server&#39;);
+// 引入需要转换的 JSX
+const SSR = require(&#39;./dist/index-server&#39;);
+// 引入构建后的模板
+const html = fs.readFile(&#39;./dist/index.html&#39;, &#39;utf-8&#39;);
+
+// 增加 hask，防止属于浏览器的对象在服务端报错
+if (window === undefined) {
+  global.window = {};
+}
+
+const server = (port) =&gt; {
+  const app = express();
+
+  app.use(express.static(&#39;dist&#39;));
+
+  app.get(&#39;/&#39;, (req, res) =&gt; {
+    const html = renderMarkup(renderToString(SSR));
+    res.status(200).send(html);
+  });
+
+  app.listen(port, () =&gt; {
+    console.log(`server start ${port}`);
+  });
+}
+
+const renderMarkup = async (str) =&gt; {
+  const data = await axios.get(&#39;/xxx/xxx&#39;);
+  return html.replace(&#39;&lt;!-- HTML_PLACEHOLDER --&gt;&#39;, str).replace(
+    &#39;&lt;!-- INITAIL_DATA_PLACEHOLDER --&gt;&#39;，
+    &#39;&lt;script&gt;window.__inital_data = &#39; + data + &#39;&lt;/script&gt;&#39;
+  );
+}
+
+server(process.env.PORT || 3000);
+</code></pre><pre><code class="lang-html">&lt;!-- ~dist/index.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot;&gt;
+  &lt;title&gt;Search&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;!-- 占位符，用于插入 HTML --&gt;
+  &lt;div id=&quot;root&quot;&gt;&lt;!-- HTML_PLACEHOLDER --&gt;&lt;/div&gt;
+  &lt;!-- 数据占位符，用于插入数据 --&gt;
+  &lt;!-- INITAIL_DATA_PLACEHOLDER --&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><pre><code class="lang-jsx">/* ~dist/index-server.js 客户端 */
+const React = require(&#39;react&#39;);
+
+class App extends React.Component {
+  render() {
+    return &lt;h1&gt;Hello world!&lt;/h1&gt;
+  }
+}
+
+module.exports = &lt;App /&gt;;
+</code></pre><blockquote class="pullquote danger"><p><strong>注意：由于 <code>React</code> 组件的 <code>JSX</code> 要通过服务端进行转换、渲染，所以不能使用 <code>ReactDom.render</code> 进行渲染，需要使用 <code>require</code> 引入， <code>module.exports</code> 导出。</strong></p></blockquote><h3 id="构建配置-1"><a href="#构建配置-1" class="headerlink" title="构建配置"></a>构建配置</h3><pre><code class="lang-js">const path = require(&#39;path&#39;);
+
+module.exports = {
+  // ...
+  output: {
+    path: path.join(__dirname, &#39;dist&#39;),
+    filename: &#39;[name]-server.js&#39;
+    libararyTarget: &#39;umd&#39;
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          &#39;ignore-loader&#39; // 使用构建后 `dist` 目录的 CSS
+        ]
+      }
+    ]
+  }
+  // ...
+}
+</code></pre><h3 id="Webpack-SSR-注意的问题"><a href="#Webpack-SSR-注意的问题" class="headerlink" title="Webpack SSR 注意的问题"></a>Webpack SSR 注意的问题</h3><blockquote class="pullquote warning"><ul><li><strong>需要兼容浏览器的全局变量，如 <code>window</code>、<code>document</code> 等；</strong></li><li><strong>组件适配：将不兼容的组件根据打包环境适配，如服务端为 <code>CommonJS</code> 模块化规范；</strong></li><li><strong>请求适配：将 <code>fetch</code> 或者 <code>ajax</code> 请求的写法改写成 <code>isomorphic-fetch</code> 或者 <code>axios</code>（对于服务端做过适配）；</strong></li><li><strong>样式无法解析，服务端打包通过 <code>ignore-loader</code> 忽略掉 <code>CSS</code> 解析，或者将 <code>style-loader</code> 替换成 <code>isomorphic-style-loader</code>（使用 <code>CSS-Module</code> 的编码方式）。</strong></li></ul></blockquote><h2 id="定制构建命令行的显示日志"><a href="#定制构建命令行的显示日志" class="headerlink" title="定制构建命令行的显示日志"></a>定制构建命令行的显示日志</h2><p>在每一次构建时，默认在命令行都会打印一堆的日志信息，但是对于一个关注业务的开发者来说，更希望在构建错误时才去关注日志，并且快速定位错误，在 <code>Webpack</code> 中提供了 <code>stat</code> 配置用来控制日志内容的显示。</p><p><strong>生产环境配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  stat: &#39;errors-only&#39;
+  // ...
+}
+</code></pre><p><strong>开发环境配置示例：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  devServer: {
+    // ...
+    stat: &#39;errors-only&#39;
+    // ...
+  }
+  // ...
+}
+</code></pre><blockquote class="pullquote default"><p><strong>生产环境控制执行构建命令时的日志显示，如 <code>npm run build</code>，而开发环境控制代码热更新重新构建时的日志显示。</strong></p></blockquote><p><strong><code>stat</code> 可选值如下：</strong></p><table><thead><tr><th style="width:30%">可选值</th><th>描述</th></tr></thead><tbody><tr><td>errors-only</td><td>只在发生错误时输出</td></tr><tr><td>errors-warnings</td><td>只在发生错误或有新的编译时输出</td></tr><tr><td>minimal</td><td>只在发生错误或有新的编译时输出</td></tr><tr><td>none</td><td>没有输出</td></tr><tr><td>normal</td><td>标准输出</td></tr><tr><td>verbose</td><td>全部输出</td></tr><tr><td>detailed</td><td>全部输出除了 chunkModules 和 chunkRootModules</td></tr></tbody></table><p>目前存在一个问题是成功、警告以及失败的日志信息不够明显，使用 <code>FriendlyErrorsWebpackPlugin</code> 插件，可以通过颜色区分更明显的标注日志信息。</p><p><strong>插件安装：</strong></p><pre><code class="lang-bash">$ npm install friendly-errors-webpack-plugin -D
+</code></pre><p><strong>插件配置示例：</strong></p><pre><code class="lang-js">const FriendlyErrorsWebpackPlugin = require(&#39;friendly-errors-webpack-plugin&#39;);
+
+module.exports = {
+  // ...
+  plugins: [
+    new FriendlyErrorsWebpackPlugin()
+  ]
+  // ...
+}
+</code></pre><h2 id="构建异常和中断处理"><a href="#构建异常和中断处理" class="headerlink" title="构建异常和中断处理"></a>构建异常和中断处理</h2><p>在执行构建时，如果构建成功，接下来可能会执行发布操作，如果构建失败，可能会做错误上报的操作，这就需要我们的 <code>Webpack</code> 配置中能构处理构建异常和中断，其实在 <code>Webpack4</code> 中每次进程执行构建后都会抛出结束的状态码，<code>0</code> 为构建成功，其他只为构建失败。</p><pre><code class="lang-bash"># 查看状态码
+echo $?
+</code></pre><p>但我们的目的并不是通过命令拿到错误码，而是在构建过程刚结束时，可以针对状态码去做不同的处理，其实根据 <code>Webpack</code> 的底层对象 <code>Compiler</code> 的特性去实现一个插件就可以实现构建异常和中断处理，在插件中通过 <code>process.exit</code> 抛出状态码。</p><blockquote class="pullquote info"><p><strong><code>process.exit</code> 方法：</strong></p><ul><li><strong>状态码为 <code>0</code>，构建成功，回调函数中 <code>err</code> 参数为 <code>null</code>；</strong></li><li><strong>状态码为其他值，构建失败或中断，回调函数中 <code>err</code> 为错误对象，<code>err.code</code> 就是状态码。</strong></li></ul></blockquote><p><strong>插件简易实现和配置：</strong></p><pre><code class="lang-js">module.exports = {
+  // ...
+  plugins: [
+    // ...
+    function () {
+      const interceptor = (stats) =&gt; {
+        if (stats.complation.errors &amp;&amp; process.argv.includes(&#39;--watch&#39;)) {
+          // 处理错误，上报
+          process.exit(1);
+        }
+      }
+
+      if (this.hooks) {
+        this.hooks.done.tap(&#39;done&#39;, interceptor); // Webpack4
+      } else {
+        this.plugin(&#39;done&#39;, interceptor); // Webpack3
+      }
+    }
+    // ...
+  ]
+  // ...
+}
+</code></pre><p><code>plugins</code> 不一定是类 <code>new</code> 出的插件实例对象，也可以是函数，上面的函数就可以作为插件被执行，在 <code>Webpack</code> 构建结束后会自动执行 <code>done</code> 事件，可以在 <code>done</code> 事件的回调函数中获取状态码和错误信息，做进一步的处理。</p><blockquote class="pullquote success"><p><strong>未完待续…</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20181115105656/" target="_blank" rel="external">https://www.overtaking.top/20181115105656/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Webpack/" rel="tag">Webpack</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9E%84%E5%BB%BA/" rel="tag">构建</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20181115105656/&title=《Webpack4 —— 应用篇》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20181115105656/&title=《Webpack4 —— 应用篇》 — Shen's Blog&source=系列文章链接：Webpack4 —— 基础篇Webpack4 —— 优化篇多页面打包通用方案多页面应用简介多页面（MPA）和单页面（SPA）是对应用两种不..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20181115105656/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Webpack4 —— 应用篇》 — Shen's Blog&url=https://www.overtaking.top/20181115105656/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20181115105656/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20190310233856/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Git 系列之 .git 内部刨析</h4></a></div><div class="waves-block waves-effect next"><a href="/20181110203121/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Webpack4 —— 优化篇</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20181115105656/&title=《Webpack4 —— 应用篇》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20181115105656/&title=《Webpack4 —— 应用篇》 — Shen's Blog&source=系列文章链接：Webpack4 —— 基础篇Webpack4 —— 优化篇多页面打包通用方案多页面应用简介多页面（MPA）和单页面（SPA）是对应用两种不..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20181115105656/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Webpack4 —— 应用篇》 — Shen's Blog&url=https://www.overtaking.top/20181115105656/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20181115105656/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABvElEQVR42u3aOXLDMAwF0Nz/0kqbRvQHINKazGOlsbYnFxgs/PmJ1/Vn3f2yvnJ9/PDCxcUdc6/lyl95d2/+GWsDLi7uee5dxEiuWX/k/Pm4uLjv534INHFKhIuL+z+41cCUJD24uLhv5s6TlUlhs6VWw8XFHXDzLuW+4y39XVxc3Bb3Kq5nWeW34+LiHuH2RinrcqjXHs3LKlxc3N3cvK1ZLV2qucq6FYKLi3uSmzQ18l96W7vydAcXF/db3DxIXePVHN7g4uIe4VbHovlAdF5Q3YZLXFzczdwc10uDkqIoH+ji4uLu5s4fMWmVVkMbLi7ut7jz5kV1uFL4C3BxcY9we6PQPGxVRynVcgsXF3c3t9ekqI5Lk7PRkAYXF/dL3DwpybduJFeWIy4uLu4G7iQnmg9ZywEUFxf3IDdKLFpNz164bEZTXFzcMffZrVS9JkihrMLFxT3CzddTW7V67VdcXNzz3LxEqW6kqBZO0b24uLgHuXmRUw1A5ahZ3TOCi4v7Sm717DogfohauLi4r+TmpUtvPPPhCbi4uAe5k5BUHa7kG7keqNVwcXFb3FEp0lrVENbs7+Li4na4v5JmuWjHIe0TAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

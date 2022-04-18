@@ -1,0 +1,448 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>命令行工具 —— 手写类似 http-server 的静态服务器 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,命令行,HTTP,http-server,npm"><meta name="description" content="前言npm 生态中的 http-server 模块，是一个简单的、零配置的 HTTP 服务，它非常强大，同时非常简单，可以方便的帮助我们开启本地服务器，以及局域网共享，可以用来做调试、开发、学习时的环境配置，我们本节就模拟 http-server 实现一个启动本地服务的命令行工具。"><meta property="og:type" content="article"><meta property="og:title" content="命令行工具 —— 手写类似 http-server 的静态服务器"><meta property="og:url" content="https://www.overtaking.top/20180722110147/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言npm 生态中的 http-server 模块，是一个简单的、零配置的 HTTP 服务，它非常强大，同时非常简单，可以方便的帮助我们开启本地服务器，以及局域网共享，可以用来做调试、开发、学习时的环境配置，我们本节就模拟 http-server 实现一个启动本地服务的命令行工具。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180722110147/static-server.png"><meta property="article:published_time" content="2018-07-22T03:01:47.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="命令行"><meta property="article:tag" content="HTTP"><meta property="article:tag" content="http-server"><meta property="article:tag" content="npm"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180722110147/static-server.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">命令行工具 —— 手写类似 http-server 的静态服务器</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">命令行工具 —— 手写类似 http-server 的静态服务器</h1><h5 class="subtitle"><time datetime="2018-07-22T03:01:47.000Z" itemprop="datePublished" class="page-time">2018-07-22</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#http-server-使用"><span class="post-toc-number">2.</span> <span class="post-toc-text">http-server 使用</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现命令行工具依赖的模块"><span class="post-toc-number">3.</span> <span class="post-toc-text">实现命令行工具依赖的模块</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#chalk-模块"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">chalk 模块</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#debug-模块"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">debug 模块</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#commander-模块"><span class="post-toc-number">3.3.</span> <span class="post-toc-text">commander 模块</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#实现静态服务的功能"><span class="post-toc-number">4.</span> <span class="post-toc-text">实现静态服务的功能</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#文件目录"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">文件目录</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配置文件"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">配置文件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建服务器-Server-类"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">创建服务器 Server 类</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#启动服务器的-start-方法"><span class="post-toc-number">4.4.</span> <span class="post-toc-text">启动服务器的 start 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#服务回调-handleRequest-方法"><span class="post-toc-number">4.5.</span> <span class="post-toc-text">服务回调 handleRequest 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#错误响应-sendError-方法"><span class="post-toc-number">4.6.</span> <span class="post-toc-text">错误响应 sendError 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#渲染目录-sendDirDetails-方法"><span class="post-toc-number">4.7.</span> <span class="post-toc-text">渲染目录 sendDirDetails 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#ejs-模板-index-html"><span class="post-toc-number">4.8.</span> <span class="post-toc-text">ejs 模板 index.html</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#返回文件内容-sendFile-方法"><span class="post-toc-number">4.9.</span> <span class="post-toc-text">返回文件内容 sendFile 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#缓存策略-cache-方法"><span class="post-toc-number">4.10.</span> <span class="post-toc-text">缓存策略 cache 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#服务器压缩-compress-方法"><span class="post-toc-number">4.11.</span> <span class="post-toc-text">服务器压缩 compress 方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#处理范围请求-range-方法"><span class="post-toc-number">4.12.</span> <span class="post-toc-text">处理范围请求 range 方法</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#将静态服务器关联到命令行"><span class="post-toc-number">5.</span> <span class="post-toc-text">将静态服务器关联到命令行</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#命令行启动服务器"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">命令行启动服务器</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#命令行的参数传递"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">命令行的参数传递</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#在启动服务时自动打开浏览器"><span class="post-toc-number">5.3.</span> <span class="post-toc-text">在启动服务时自动打开浏览器</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#发布命令行工具到-npm"><span class="post-toc-number">5.4.</span> <span class="post-toc-text">发布命令行工具到 npm</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">6.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180722110147" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">命令行工具 —— 手写类似 http-server 的静态服务器</h1><div class="post-meta"><time class="post-time" title="2018-07-22 11:01:47" datetime="2018-07-22T03:01:47.000Z" itemprop="datePublished">2018-07-22</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180722110147/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="命令行工具 —— 手写类似 http-server 的静态服务器"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180722110147/static-server.png" title="http-server 命令行工具"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote success"><p><strong><code>npm</code> 生态中的 <code>http-server</code> 模块，是一个简单的、零配置的 <code>HTTP</code> 服务，它非常强大，同时非常简单，可以方便的帮助我们开启本地服务器，以及局域网共享，可以用来做调试、开发、学习时的环境配置，我们本节就模拟 <code>http-server</code> 实现一个启动本地服务的命令行工具。</strong></p></blockquote><a id="more"></a><h2 id="http-server-使用"><a href="#http-server-使用" class="headerlink" title="http-server 使用"></a>http-server 使用</h2><p><strong><code>http-server</code> 服务器通过命令行启动，使用时需要安装，命令如下：</strong></p><pre><code class="lang-bash">$ npm install http-server -g
+</code></pre><p><strong>启动本地服务器时在根目录下执行下面命令即可：</strong></p><pre><code class="lang-bash">$ http-server [path] [option]
+</code></pre><p><code>path</code> 默认情况下是 <code>./public</code>，否则是 <code>./</code>，启动后可以通过 <a href="javascript:;">http://localhost:8080</a> 来访问服务器，<code>options</code> 为其他参数， <code>npm</code> 官方文档 <a href="https://www.npmjs.com/package/http-server" target="_blank">https://www.npmjs.com/package/http-server</a> 有详细说明。</p><blockquote class="pullquote warning"><p><strong>功能：当通过浏览器访问</strong> <a href="javascript:;">http://localhost:8080</a> <strong>以后，会将我们服务器根目录的目录结构显示在浏览器页面上，当点击文件夹时，可以继续显示内部的文件和文件夹，当点击文件时会直接通过服务器访问文件，并将文件内容显示在浏览器页面上。</strong></p></blockquote><h2 id="实现命令行工具依赖的模块"><a href="#实现命令行工具依赖的模块" class="headerlink" title="实现命令行工具依赖的模块"></a>实现命令行工具依赖的模块</h2><h3 id="chalk-模块"><a href="#chalk-模块" class="headerlink" title="chalk 模块"></a>chalk 模块</h3><p><strong><code>chalk</code> 模块是用来控制命令行输出的文字颜色的第三方模块，使用前需要安装，安装命令如下：</strong></p><pre><code class="lang-bash">$ npm install chalk
+</code></pre><p><code>chalk</code> 模块的用法如下，模块支持的颜色和更多的 <code>API</code> 可以在 <code>npm</code> 官方文档 <a href="https://www.npmjs.com/package/chalk" target="_blank">https://www.npmjs.com/package/chalk</a> 中查看。</p><pre><code class="lang-js">/* 文件位置：~static/tests/staticchalk-test.js */
+const chalk = require(&#39;chalk&#39;);
+
+// 在命令行打印绿色和红色的 hello
+console.log(chalk.green(&#39;hello&#39;));
+console.log(chalk.red(&#39;hello&#39;));
+</code></pre><p>在命令行窗口输入 <code>node chalk-test.js</code> 查看命令行打印 <code>hello</code> 的颜色。</p><h3 id="debug-模块"><a href="#debug-模块" class="headerlink" title="debug 模块"></a>debug 模块</h3><p><strong><code>debug</code> 模块可以匹配当前环境变量 <code>DEBUG</code> 的值并输出相关信息，作用在于命令行工具可以根据不同情况输出的信息进行调试，是第三方模块，使用前需安装，命令如下：</strong></p><pre><code class="lang-bash">$ npm install debug
+</code></pre><p><code>debug</code> 的简单使用如下，如果想了解更详细的 <code>API</code> 可以在 <code>npm</code> 官方文档 <a href="https://www.npmjs.com/package/debug" target="_blank">https://www.npmjs.com/package/debug</a> 中查看。</p><pre><code class="lang-js">/* 文件位置：~static/tests/debug-test1.js —— 用法 1 */
+const debug = require(&#39;debug&#39;)(&#39;hello&#39;);
+
+debug(&#39;hi panda&#39;);
+</code></pre><p>当我们在命令行中执行 <code>node debug-test1.js</code> 时发现命令窗口什么也没有打印，那是因为当前根目录的环境变量 <code>DEBUG</code> 的值必须和我们设置的 <code>hello</code> 相匹配才会打印相关信息。</p><p>设置环境变量，<code>Windows</code> 系统通过 <code>set DEBUG=hello</code> 设置，<code>Mac</code> 系统通过 <code>export DEBUG=hello</code> 设置，设置环境变量后再次执行 <code>node debug-test.js</code>，我们会发现命令行打印出了下面内容。</p><pre><code class="lang-bash">hello hi panda +0ms
+</code></pre><p>其中 <code>hello</code> 为我们设置 <code>DEBUG</code> 环境变量的值，<code>hi panda</code> 为 <code>debug</code> 调试方法打印的信息，<code>+0ms</code> 为距离上次执行的间隔时间。</p><pre><code class="lang-js">/* 文件位置：~static/tests/debug-test2.js —— 用法 2 */
+const debugA = require(&#39;debug&#39;)(&#39;hello:a&#39;);
+const debugB = require(&#39;debug&#39;)(&#39;hello:b&#39;);
+
+debugA(&#39;hi panda&#39;);
+debugB(&#39;hello panda&#39;);
+</code></pre><p>上面的代码目的是可以让我们不同的 <code>debug</code> 方法可以匹配不同的环境变量，所以需要重新将环境变量的值设置为 <code>hello:*</code>，这样再次执行 <code>node debug-test2.js</code> 发现命令窗口打印了如下内容。</p><pre><code class="lang-bash">hello:a hi panda +0ms
+hello:b hello panda +0ms
+</code></pre><p>使用 <code>debug</code> 的好处就是可以在开发的时候打印一些调试用的信息，在开发完成后因为匹配不到环境变量，这些信息就会被隐藏。</p><h3 id="commander-模块"><a href="#commander-模块" class="headerlink" title="commander 模块"></a>commander 模块</h3><p><strong><code>commander</code> 是一个开发命令行工具的解决方案（的作者是 <code>Node</code> 大神 <code>tj</code>），提供了用户命令行输入和参数解析的强大功能，<code>commander</code> 是第三方模块，使用时需要安装，命令如下：</strong></p><pre><code class="lang-bash">$ npm install commander
+</code></pre><p>基本用法如下：</p><pre><code class="lang-js">/* 文件位置：~static/tests/commander-test1.js */
+const commander = require(&#39;commander&#39;);
+
+// 解析 Node 进程执行时的参数
+commander.version(&#39;1.0.0&#39;).parse(process.argv);
+</code></pre><p>上面文件中 <code>version</code> 方法代表当前执行文件模块的版本，<code>parse</code> 是解析当前命令行进程参数的方法，<code>process.argv</code> 是参数集合（数组），第一个参数为执行的 <code>Node</code> 环境程序执行文件的绝对路径，第二个参数是 <code>node</code> 命令执行文件的绝对路径，后面为通过命令行传入的参数，如 <code>--host</code>、<code>--port</code> 等。</p><p><strong>在命令行执行 <code>node commander-test.js --help</code> 时默认会在命令行输出如下信息：</strong></p><pre><code class="lang-bash">Usage: [options]
+Options:
+    -V, --version  output the version number
+    -h, --help     output usage information
+</code></pre><p>当然在我们的命令行工具中，参数不只 <code>--version</code> 和 <code>--help</code> 两个，我们希望更多的参数更多的功能，并且可定制的描述信息，使用案例如下：</p><pre><code class="lang-js">/* 文件位置：~static/tests/commander-test2.js */
+const commander = require(&#39;commander&#39;);
+
+// 解析 Node 进程执行时的参数
+commander
+  .version(&#39;1.0.0&#39;)
+  .usage(&#39;[options]&#39;)
+  .option(&#39;-p, --port &lt;n&gt;&#39;, &#39;server port&#39;)
+  .option(&#39;-o, --host &lt;n&gt;&#39;, &#39;server host&#39;)
+  .option(&#39;-d, --dir &lt;n&gt;&#39;, &#39;server dir&#39;)
+  .parse(process.argv);
+
+console.log(commander.port); // 3000
+console.log(commander.host); // localhost
+console.log(commander.dir); // public
+</code></pre><p>在执行命令 <code>node commander-test2.js --help</code> 后会在命令窗口输出如下信息：</p><pre><code class="lang-bash">Usage: yourname-http-server [options]
+ptions:
+    -V, --version   output the version number
+    -p, --port &lt;n&gt;  server port
+    -o, --host &lt;n&gt;  server host
+    -d, --dir  &lt;n&gt;  server dir
+    -h, --help      output usage information
+</code></pre><p><code>usage</code> 方法可以让我们详细的定制参数的类型和描述，<code>option</code> 方法可以让我们添加执行 <code>--help</code> 指令时打印的命令以及对应的描述信息。</p><p><strong>执行下面命令：</strong></p><pre><code class="lang-bash">$ node commander-test2.js --port 3000 --host localhost --dir public
+</code></pre><p>执行命令后我们发现其实给我们的参数挂在了 <code>commander</code> 对象上，方便我们取值。</p><p>在我们使用别人的命令行工具时会发现在上面输出信息的时候经常会在下面输出 <code>How to use</code> 的列表，更详细的描述了每条命令的作用及用法。</p><pre><code class="lang-js">/* 文件位置：~static/tests/commander-test3.js */
+const commander = require(&#39;commander&#39;);
+
+// 必须写到 parse 方法的前面
+commander.on(&#39;--help&#39;, function () {
+  console.log(&#39;\r\n  How to use:&#39;)
+  console.log(&#39;    yourname-http-server --port &lt;val&gt;&#39;);
+  console.log(&#39;    yourname-http-server --host &lt;val&gt;&#39;);
+  console.log(&#39;    yourname-http-server --dir &lt;val&gt;&#39;);
+});
+
+// 解析 Node 进程执行时的参数
+commander
+  .version(&#39;1.0.0&#39;)
+  .usage(&#39;[options]&#39;)
+  .option(&#39;-p, --port &lt;n&gt;&#39;, &#39;server port&#39;)
+  .option(&#39;-o, --host &lt;n&gt;&#39;, &#39;server host&#39;)
+  .option(&#39;-d, --dir &lt;n&gt;&#39;, &#39;server dir&#39;)
+  .parse(process.argv);
+</code></pre><p>再次执行命令 <code>node commander-test2.js --help</code> 后会在命令窗口输出如下信息：</p><pre><code class="lang-bash">Usage: yourname-http-server [options]
+Options:
+    -V, --version  output the version number
+    -p, --port &lt;n&gt;  server port
+    -o, --host &lt;n&gt;  server host
+    -d, --dir &lt;n&gt;   server dir
+    -h, --help     output usage information
+How to use:
+    yourname-http-server --port &lt;val&gt;
+    yourname-http-server --host &lt;val&gt;
+    yourname-http-server --dir &lt;val&gt;
+</code></pre><p>以上是 <code>commander</code> 模块的基本用法，如想了解更详细的 <code>API</code> 和使用案例可以到 <code>npm</code> 官方文档查看，地址如下 <a href="https://www.npmjs.com/package/commander" target="_blank">https://www.npmjs.com/package/commander</a> 。</p><h2 id="实现静态服务的功能"><a href="#实现静态服务的功能" class="headerlink" title="实现静态服务的功能"></a>实现静态服务的功能</h2><h3 id="文件目录"><a href="#文件目录" class="headerlink" title="文件目录"></a>文件目录</h3><pre class="language-treeview">
+  <code class="language-treeview">
+    static
+      |- bin
+      | |- yourname-http-server.js
+      |- public
+      | |- css
+      | | |- style.css
+      | |- index.html
+      | |- 1.txt
+      |- tests
+      | |- chalk-test.js
+      | |- commander-test1.js
+      | |- commander-test2.js
+      | |- commander-test3.js
+      | |- debug-test1.js
+      | |- debug-test2.js
+      |- config.js
+      |- index.html
+      |- index.js
+      |- package-lock.json
+      |- package.json
+  </code>
+</pre><h3 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h3><p>在启动静态服务的时候，我们希望可以通过命令行传参的形式来定义当前启动服务的主机名端口号，以及默认检索的文件根目录，所以需要配置文件来实现灵活传参。</p><pre><code class="lang-js">/* 文件位置：~static/config.js */
+module.exports = {
+  port: 3000,
+  host: &#39;localhost&#39;,
+  dir: process.cwd()
+}
+</code></pre><blockquote class="pullquote info"><p><strong>在上面的配置中，默认端口号为 <code>3000</code>，默认主机名为 <code>localhost</code>，我们设置默认检索文件的根目录为通过命令行启动服务器的目录，而 <code>process.cwd()</code> 的值就是我们启动命令行执行命令的目录的绝对路径。</strong></p></blockquote><h3 id="创建服务器-Server-类"><a href="#创建服务器-Server-类" class="headerlink" title="创建服务器 Server 类"></a>创建服务器 Server 类</h3><p>因为我们的命令行工具启动本地服务可能是在系统的任意位置，或者指定启动服务访问的域，提高可配置性，并且要更方便给服务器扩展更多的方法处理不同的逻辑，所以需要创建一个 <code>Server</code> 类。</p><pre><code class="lang-js">/* 文件位置：~static/index.js —— Server 类的创建 */
+// 引入依赖
+const http = require(&#39;http&#39;);
+const url = require(&#39;url&#39;);
+const path = require(&#39;path&#39;);
+const fs = require(&#39;mz/fs&#39;);
+const mime = require(&#39;mime&#39;);
+const zlib = require(&#39;zlib&#39;);
+const chalk = require(&#39;chalk&#39;);
+const ejs = require(&#39;ejs&#39;);
+const debug = require(&#39;debug&#39;)(&#39;http:a&#39;);
+
+// 引入配置文件
+const config = require(&#39;./config&#39;);
+
+// 读取模板文件
+const templateStr = fs.readFileSync(path.join(__dirname, &#39;index.html&#39;),&#39;utf8&#39;);
+
+class Server {
+  constructor() {
+    this.config = config; // 配置
+    this.template = templateStr; // 模板
+  }
+}
+</code></pre><p>我们在上面代码中引入了 <code>config.js</code> 配置文件，读取了用于启动服务后展示页面 <code>index.html</code> 的内容，并都挂在了 <code>Server</code> 类的实例上，目的是方便内部的方法使用以及达到不轻易操作全局变量的目的。</p><h3 id="启动服务器的-start-方法"><a href="#启动服务器的-start-方法" class="headerlink" title="启动服务器的 start 方法"></a>启动服务器的 start 方法</h3><p>后面为了方便代码的拆分，我们将原型上的方法统一使用 <code>Server.prototype.xxx</code> 的方式来书写，实际上是写在 <code>Server</code> 类里面的。</p><pre><code class="lang-js">/* 文件位置：~static/index.js —— start 方法 */
+Server.prototype.start = function () {
+  // 创建服务
+  const server = http.createServer(this.handleRequest.bind(this));
+
+  // 从配置中解构端口号和主机名
+  const { port, host } = this.config;
+
+  // 启动服务
+  server.listen(port, host, () =&gt; {
+    debug(&#39;server start http://&#39; + host + &#39;:&#39; + chalk.green(port));
+  });
+}
+</code></pre><p>在 <code>start</code> 方法中创建了服务，在启动服务时只需要创建 <code>Server</code> 的实例并调用 <code>start</code> 方法，由于服务的回调中会处理很多请求响应的逻辑，会导致 <code>start</code> 方法的臃肿，所以将服务的回调函数抽取成 <code>Server</code> 类的一个实例方法 <code>handleRequest</code>，需要注意的是 <code>handleRequest</code> 内部的 <code>this</code> 指向需要我们修正。</p><p>在启动服务时我们根据配置可以灵活的设置服务的地址，当设置 <code>host</code> 后，服务将只能通过 <code>host</code> 的值作为主机名的地址访问静态服务器，启动服务的提示我们通过匹配环境变量 <code>DEBUG</code> 的 <code>debug</code> 方法来打印，并将端口号设置成绿色。</p><h3 id="服务回调-handleRequest-方法"><a href="#服务回调-handleRequest-方法" class="headerlink" title="服务回调 handleRequest 方法"></a>服务回调 handleRequest 方法</h3><blockquote class="pullquote danger"><p><strong>在实现 <code>handleRequest</code> 之前我们应该了解要实现的功能：</strong></p><ul><li><strong>在 <code>http-server</code> 中，如果访问的服务地址路径后面指定具体要访问的文件，并且当前启动服务根目录按照访问路径可以查找到文件，将文件内容读取后响应给客户端；</strong></li><li><strong>如果没指定文件，应该检索当前启动服务根目录或默认设置的目录结构，并将文件的结构通过模板渲染成超链接后将页面响应给客户端；</strong></li><li><strong>再次点击页面的上的链接，如果是文件，直接读取并响应文件内容，如果是文件夹，则继续检索内部结构通过模板渲染成页面。</strong></li></ul></blockquote><pre><code class="lang-js">/* 文件位置：~static/index.js —— handleRequest 方法 */
+Server.prototype.handleRequest = async function (req, res) {
+  // 获取访问的路径，默认为 /
+  this.pathname = url.parse(req.url, true).pathname;
+
+  // 将访问的路径名转换成绝对路径，取到的 dir 就是绝对路径
+  this.realPath = path.join(this.config.dir, this.pathname);
+
+  debug(realPath); // 打印当前访问的绝对路径，用于调试
+
+  try {
+    // 获取 statObj 对象，如果 await 同步使用 try...catch 捕获非法路径
+    const statObj = await fs.stat(this.realPath);
+
+    if (statObj.isFile()) {
+      // 如果是文件，直接返回文件内容
+      this.sendFile(req, res, statObj);
+    } else {
+      // 如果是文件夹则检索文件夹通过模板渲染后返回页面
+      this.sendDirDetails(req, res, statObj);
+    }
+  } catch (e) {
+    // 如果路径非法，发送错误响应
+    this.sendError(req, res, e);
+  }
+}
+</code></pre><p><code>handleRequest</code> 由于内部需要使用异步操作获取 <code>statObj</code> 对象，所以我们使用了 <code>async</code> 函数，为了函数内部可以使用 <code>await</code> 避免异步回调嵌套，由于 <code>await</code> 会等待到异步执行完毕后继续向下执行，我们可以使用 <code>try...catch...</code> 捕获非法的访问路径，并做出错误响应。</p><p>如果路径合法，我们需要检测访问路径对应的是文件还是文件夹，如果是文件则执行响应内容的逻辑，是文件夹执行检索文件夹渲染内部文件列表返回页面的逻辑。</p><p>所以我们将错误处理逻辑、响应文件内容逻辑和返回文件夹详情页面的逻辑分别抽离成 <code>Server</code> 类的三个实例方法 <code>sendError</code>、<code>sendFile</code> 和 <code>sendDirDetails</code>，使得 <code>handleRequest</code> 方法逻辑清晰且不那么臃肿。</p><h3 id="错误响应-sendError-方法"><a href="#错误响应-sendError-方法" class="headerlink" title="错误响应 sendError 方法"></a>错误响应 sendError 方法</h3><p>在服务器处理不同的请求和响应时可能需要处理不同的错误，这些错误的不同就是捕获错误对象的不同，所以我们的 <code>sendError</code> 方法为了更方便的或取请求参数、处理响应以及更好的复用，将参数设置为请求对象、响应对象和错误对象。</p><pre><code class="lang-js">/* 文件位置：~static/index.js —— sendError 方法 */
+Server.prototype.sendError = function (req, res, err) {
+  // 打印错误对象，方便调试
+  console.log(chalk.red(err));
+
+  // 设置错误状态码并响应 Not Found
+  res.statusCode = 404;
+  res.end(&#39;Not Found&#39;);
+}
+</code></pre><h3 id="渲染目录-sendDirDetails-方法"><a href="#渲染目录-sendDirDetails-方法" class="headerlink" title="渲染目录 sendDirDetails 方法"></a>渲染目录 sendDirDetails 方法</h3><p>在渲染文件夹详情之前我们首先要做的就是异步读取文件目录，所以我们同样使用 <code>async</code> 函数来实现，<code>Node.js</code> 中有很多渲染页面的模板，我们本次使用 <code>ejs</code>，语法简单，比较常用，<code>ejs</code> 为第三方模块，使用前需安装，更详细的用法可参照 <code>npm</code> 官方文档 <a href="https://www.npmjs.com/package/ejs" target="_blank">https://www.npmjs.com/package/ejs</a>。</p><pre><code class="lang-bash">$ npm install ejs
+</code></pre><p><code>sendDirDetails</code> 的参数为请求对象、响应对象和 <code>statObj</code>。</p><pre><code class="lang-js">/* 文件位置：~static/index.js —— sendDirDetails 方法 */
+Server.prototype.sendDirDetails = async function (req, res, statObj) {
+  // 读取当前文件夹
+  let dirs = await fs.readdir(this.realPath);
+
+  // 构造模板需要的数据
+  dirs = dirs.map(dir =&gt; ({
+    name: dir,
+    path: path.join(this.pathname, dir)
+  }));
+
+  // 渲染模板
+  const pageStr = ejs.render(this.template, { dirs });
+
+  // 响应客户端
+  res.setHeader(&#39;Content-Type&#39;, &#39;text/html;charset=utf8&#39;);
+  res.end(pageStr);
+}
+</code></pre><p>还记得 <code>Server</code> 类的实例属性 <code>template</code> 存储的就是我们的模板（字符串），里面写的就是 <code>ejs</code> 的语法，我们使用 <code>ejs</code> 模块渲染的 <code>render</code> 方法可以将模板中的 <code>JS</code> 执行，并用传给该方法的参数的值替换掉模板中的变量，返回新的字符串，我们直接将字符串响应给客户端即可。</p><blockquote class="pullquote warning"><p><em><strong>注意：在构建模板数据的时候 <code>path</code> 为超链接标签要跳转的路径，如果直接使用 <code>dir</code> 的值，多级访问还是会在根目录去查找，所以路径非法会返回 <code>Not Found</code>，我们需要在每次访问的时候都将上一次访问的路径与当前访问的文件夹或文件名进行拼接，保证路径的正确性。</strong></em></p></blockquote><h3 id="ejs-模板-index-html"><a href="#ejs-模板-index-html" class="headerlink" title="ejs 模板 index.html"></a>ejs 模板 index.html</h3><p>上面已经知道了该怎样使用 <code>ejs</code> 对模板进行渲染，也对模板构造了数据，接下来就是使用 <code>ejs</code> 的语法编写我们的模板内容。</p><pre><code class="lang-ejs">&lt;!-- 文件位置：~static/index.html —— 模板 --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot;&gt;
+  &lt;title&gt;Server&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;% dirs.forEach(function (item) { %&gt;
+    &lt;li&gt;
+      &lt;a href=&quot;&lt;%= item.path%&gt;&quot;&gt;&lt;%= item.name %&gt;&lt;/a&gt;
+    &lt;/li&gt;
+  &lt;% }) %&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><blockquote class="pullquote info"><p><em><strong>模板中 <code>JS</code> 逻辑使用 <code>&lt;% %&gt;</code> 包裹，使用 <code>&lt;%= %&gt;</code> 输出变量。</strong></em></p></blockquote><h3 id="返回文件内容-sendFile-方法"><a href="#返回文件内容-sendFile-方法" class="headerlink" title="返回文件内容 sendFile 方法"></a>返回文件内容 sendFile 方法</h3><p>由于都是根据路径查找或操作文件目录并做出响应，<code>sendFile</code> 方法与 <code>sendDirDetails</code> 方法的参数相同，分别为 <code>req</code>、<code>res</code> 和 <code>statObj</code>。</p><pre><code class="lang-js">/* 文件位置：~static/index.js —— sendFile 方法 */
+Server.prototype.sendFile = function (req, res, statObj) {
+  // 设置和处理缓存
+  if (this.cache(req, res, statObj)) {
+    res.statusCode = 304;
+    return res.end();
+  }
+
+  // 创建可读流
+  const rs = fs.createReadStream(this.realPath);
+
+  // 响应文件类型
+  res.setHeader(&#39;Content-Type&#39;, mime.getType(this.realPath) + &#39;;charset=utf8&#39;);
+
+  // 压缩
+  const zip = this.compress(req, res, statObj);
+  if (zip) return rs.pipe(zip).pipe(res);
+
+  // 处理范围请求
+  if (this.range(req, res, statObj)) return;
+
+  // 响应文件内容
+  rs.pipe(res);
+}
+</code></pre><p>其实上面的方法在根目录执行 <code>node index.js</code> 启动服务后，通过我们默认配置的地址访问服务器，表面上就已经实现了 <code>http-server</code> 的功能，但是我们为了服务器的性能和功能更强大，又在这基础上实现了缓存策略、服务器压缩和处理范围请求的逻辑。</p><blockquote class="pullquote primary"><p><strong>推荐阅读：</strong></p><ul><li><a href="/20180720110647/" target="_blank">HTTP 缓存的那些事儿</a></li><li><a href="/20180718181823/" target="_blank">Node.js 服务器实现 gzip 压缩</a></li><li><a href="/20180713130808/" target="_blank">Node.js 使用 Range 请求实现下载功能</a></li></ul></blockquote><p>我们将上面的三个功能分别抽离成了 <code>Server</code> 类的三个原型方法，<code>cache</code>、<code>compress</code> 和 <code>range</code>，并且这三个方法的参数都为 <code>req</code>、<code>res</code> 和 <code>statObj</code>。</p><h3 id="缓存策略-cache-方法"><a href="#缓存策略-cache-方法" class="headerlink" title="缓存策略 cache 方法"></a>缓存策略 cache 方法</h3><p>我们本次的缓存兼容 <code>HTTP 1.0</code> 和 <code>HTTP 1.1</code> 版本，并且同时使用强制缓存和协商缓存共同存在的策略。</p><pre><code class="lang-js">/* 文件位置：~static/index.js —— cache 方法 */
+Server.prototype.cache = function (req, res, statObj) {
+  // 创建协商缓存标识
+  const etag = statObj.ctime.toGMTString() + statObj.size;
+  const lastModified = statObj.ctime.toGMTString();
+
+  // 设置强制缓存
+  res.setHeader(&#39;Cache-Control&#39;, &#39;max-age=30&#39;);
+  res.setHeader(&#39;Expires&#39;, new Date(Date.now() + 30 * 1000).toUTCString());
+
+  // 设置协商缓存
+  res.setHeader(&#39;Etag&#39;, etag);
+  res.setHeader(&#39;Last-Modified&#39;, lastModified);
+
+  // 获取协商缓存请求头
+  const {
+    &#39;if-none-match&#39;: ifNodeMatch,
+    &#39;if-modified-since&#39;: ifModifiedSince
+  } = req.headers;
+
+  if (etag !== ifNodeMatch &amp;&amp; lastModified !== ifModifiedSince) {
+    return false;
+  } else {
+    return true;
+  }
+}
+</code></pre><blockquote class="pullquote success"><p><em><strong>我们使用的缓存策略为同时设置强制缓存和协商缓存，当强制缓存有效期内再次请求不会访问服务器，待强制缓存过期再次请求执行协商缓存策略，带标识访问服务器进行确认，确认的同时重新设置强制缓存和协商缓存的响应头信息，如果协商缓存任然生效，则直接返回 <code>304</code> 状态码，如果协商缓存失效则读取文件内容返回浏览器。</strong></em></p></blockquote><h3 id="服务器压缩-compress-方法"><a href="#服务器压缩-compress-方法" class="headerlink" title="服务器压缩 compress 方法"></a>服务器压缩 compress 方法</h3><p>为了减少文件数据在传输过程中消耗的流量和时间，我们在浏览器支持解压的情况下使用服务器压缩功能，浏览器会在请求时默认发送请求头 <code>Accept-Encoding</code> 通知我们的服务器当前支持的压缩格式，我们要做的就是按照压缩格式的优先级进行匹配，按照最高优先级的压缩格式进行压缩，将压缩后的数据返回，并通过响应头 <code>Content-Encoding</code> 通知浏览器当前的压缩格式（压缩流的本质为转化流）。</p><pre><code class="lang-js">/* 文件位置：~static/index.js —— compress 方法 */
+Server.prototype.compress = function (req, res, statObj) {
+  // 获取浏览器支持的压缩格式
+  const encoding = req.headers[&#39;accept-encoding&#39;];
+
+  // 支持 gzip 使用 gzip 压缩，支持 deflate 使用 deflate 压缩
+  if (encoding &amp;&amp; encoding.match(/\bgzip\b/)) {
+    res.setHeader(&#39;Content-Encoding&#39;, &#39;gzip&#39;);
+    return zlib.createGzip();
+  } else if (encoding &amp;&amp; encoding.match(/\bdeflate\b/)) {
+    res.setHeader(&#39;Content-Encoding&#39;, &#39;deflate&#39;);
+    return zlib.createDeflate();
+  } else {
+    return false; // 不支持压缩返回 false
+  }
+}
+</code></pre><p>当浏览器支持压缩时，<code>compress</code> 方法返回的为优先级最高压缩格式的压缩流，不支持返回 <code>false</code>，存在压缩流，则将数据压缩并响应浏览器，与不压缩响应不同的是，需要使用压缩流将可读流转化为可写流写入响应 <code>res</code> 中，所以可读流执行了两次 <code>pipe</code> 方法。</p><h3 id="处理范围请求-range-方法"><a href="#处理范围请求-range-方法" class="headerlink" title="处理范围请求 range 方法"></a>处理范围请求 range 方法</h3><p><code>range</code> 方法处理的场景为客户端发送请求只想获取文件的某个范围的数据，此时通过 <code>range</code> 方法读取文件范围对应的内容响应给客户端，通过响应头 <code>Accept-Ranges</code> 通知浏览器当前响应范围请求，通过响应头 <code>Content-Range</code> 通知客户端响应的范围以及文件的总字节数。</p><pre><code class="lang-js">/* 文件位置：~static/index.js —— range 方法 */
+Server.prototype.range = function (req, res, statObj) {
+  // 获取 range 请求头
+  const range = req.headers[&#39;range&#39;];
+
+  if (range) {
+    // 获取范围请求的开始和结束位置
+    let [, start, end] = range.match(/(\d*)-(\d*)/);
+
+    // 处理请求头中范围参数不传的问题
+    start = start ? ParseInt(start) : 0;
+    end = end ? ParseInt(end) : statObj.size - 1;
+
+    // 设置范围请求响应
+    res.statusCode = 206;
+    res.setHeader(&#39;Accept-Ranges&#39;, &#39;bytes&#39;);
+    res.setHeader(&#39;Content-Range&#39;, &#39;bytes &#39; + start + &#39;-&#39; + end + &#39;/&#39; + statObj.size);
+    fs.createReadStream(this.realPath, { start, end }).pipe(res);
+
+    return true;
+  } else {
+    return false;
+  }
+}
+</code></pre><p><code>range</code> 方法默认返回值为布尔值，当不是范围请求时返回值为 <code>false</code>，则直接向下执行 <code>sendFile</code> 中的代码，正常读取文件全部内容并响应给浏览器，如果是范围请求则会处理范围请求后在直接结束后返回 <code>true</code>，会在 <code>sendFile</code> 中直接 <code>return</code>，不再向下执行。</p><h2 id="将静态服务器关联到命令行"><a href="#将静态服务器关联到命令行" class="headerlink" title="将静态服务器关联到命令行"></a>将静态服务器关联到命令行</h2><h3 id="命令行启动服务器"><a href="#命令行启动服务器" class="headerlink" title="命令行启动服务器"></a>命令行启动服务器</h3><p><code>http-server</code> 实际上是通过命令行启动、并传参的，我们需要将我们的程序与命令行关联，关联命令行只需以下几个步骤。</p><p>首先，在根目录 <code>package.json</code> 文件中加入 <code>bin</code> 字段，值为对象，对象内属性为命令名称，值为对应执行文件的路径。</p><pre><code class="lang-json">// 文件位置：~static/package.json
+{
+  &quot;name&quot;: &quot;yourname-http-server&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;description&quot;: &quot;&quot;,
+  &quot;main&quot;: &quot;index.js&quot;,
+  &quot;dependencies&quot;: {
+    &quot;chalk&quot;: &quot;^2.4.1&quot;,
+    &quot;commander&quot;: &quot;^2.17.1&quot;,
+    &quot;debug&quot;: &quot;^3.1.0&quot;,
+    &quot;ejs&quot;: &quot;^2.6.1&quot;,
+    &quot;mime&quot;: &quot;^2.3.1&quot;,
+    &quot;mz&quot;: &quot;^2.7.0&quot;
+  },
+  &quot;bin&quot;: {
+    &quot;yourname-http-server&quot;: &quot;bin/yourname-http-server.js&quot;
+  },
+  &quot;devDependencies&quot;: {},
+  &quot;author&quot;: &quot;&quot;,
+  &quot;license&quot;: &quot;ISC&quot;
+}
+</code></pre><p>其次，在 <code>yourname-http-server.js</code> 文件中首行加入注释 <code>#! /usr/bin/env node</code>，在命令行执行命令时，默认会以 <code>Node</code> 执行 <code>yourname-http-server.js</code> 文件。</p><p>最后，想要使用我们的命令启动 <code>yourname-http-server.js</code> 文件，则需要将这条命令连接到全局（与 <code>-g</code> 安装效果相同），在当前根目录下执行以下命令。</p><pre><code class="lang-bash">$ npm link
+</code></pre><blockquote class="pullquote default"><p><em><strong>当在命令行执行 <code>yourname-http-server</code> 时，<code>Node</code> 会默认执行 <code>yourname-http-server.js</code> 文件。</strong></em></p></blockquote><h3 id="命令行的参数传递"><a href="#命令行的参数传递" class="headerlink" title="命令行的参数传递"></a>命令行的参数传递</h3><p>我们现在知道在命令行执行命令后用 Node 启动的文件为 <code>yourname-http-server.js</code>，在启动文件时我们应该启动我们的服务器，并结合 <code>commander</code> 模块的参数解析，则需要用命令行传递的参数替换掉 <code>config.js</code> 中的默认参数。</p><pre><code class="lang-js">/* 文件位置：~static/bin/yourname-http-server.js —— 命令行执行文件 */
+const commander = require(&#39;commander&#39;);
+const Server = require(&#39;../index&#39;);
+
+// 增加 How to use
+commander.on(&#39;--help&#39;, function () {
+  console.log(&#39;\r\n  How to use: \r\n&#39;)
+  console.log(&#39;    yourname-http-server --port &lt;val&gt;&#39;);
+  console.log(&#39;    yourname-http-server --host &lt;val&gt;&#39;);
+  console.log(&#39;    yourname-http-server --dir &lt;val&gt;&#39;);
+});
+
+// 解析 Node 进程执行时的参数
+commander
+  .version(&#39;1.0.0&#39;)
+  .usage(&#39;[options]&#39;)
+  .option(&#39;-p, --port &lt;n&gt;&#39;, &#39;server port&#39;)
+  .option(&#39;-o, --host &lt;n&gt;&#39;, &#39;server host&#39;)
+  .option(&#39;-d, --dir &lt;n&gt;&#39;, &#39;server dir&#39;)
+  .parse(process.argv);
+
+// 创建 Server 实例传入命令行解析的参数
+const server = new Server(commander);
+
+// 启动服务器
+server.start();
+</code></pre><p>我们之前把 <code>config.js</code> 的配置直接挂在了 <code>Server</code> 实例的 <code>config</code> 属性上，创建服务使用的参数也是直接从该属性上获取的，因此我们要用 <code>commander</code> 对象对应的参数覆盖实例上 <code>config</code> 的参数，所以在创建 <code>Server</code> 实例时传入了 <code>commander</code> 对象，下面稍微修改 <code>Server</code> 类的部分代码。</p><pre><code class="lang-js">/* 文件位置：~static/index.js —— Server 类 */
+class Server {
+  constructor(options) {
+    // 通过解构赋值将 options 的参数覆盖 config 的参数
+    this.config = { ...config, ...options }; // 配置
+    this.template = templateStr; // 模板
+  }
+}
+</code></pre><p>执行下面命令，并通过浏览器访问 <a href="javascript:;">http://127.0.0.1:4000</a> 来测试服务器功能。</p><pre><code class="lang-bash">$ yourname-http-server --port 4000 --host 127.0.0.1
+</code></pre><h3 id="在启动服务时自动打开浏览器"><a href="#在启动服务时自动打开浏览器" class="headerlink" title="在启动服务时自动打开浏览器"></a>在启动服务时自动打开浏览器</h3><p>由于 <code>JS</code> 是单线程的，在命令行输入命令启动服务的同时不能去做其他的事，此时要靠多进程来帮助我们打开浏览器，在 <code>JS</code> 中开启一个子进程来打开浏览器。</p><pre><code class="lang-js">/* 文件位置：~static/bin/yourname-http-server.js —— 命令行执行文件 */
+const commander = require(&#39;commander&#39;);
+const Server = require(&#39;../index&#39;);
+
+// 增加 How to use
+commander.on(&#39;--help&#39;, function () {
+  console.log(&#39;\r\n  How to use: \r\n&#39;)
+  console.log(&#39;    yourname-http-server --port &lt;val&gt;&#39;);
+  console.log(&#39;    yourname-http-server --host &lt;val&gt;&#39;);
+  console.log(&#39;    yourname-http-server --dir &lt;val&gt;&#39;);
+});
+
+// 解析 Node 进程执行时的参数
+commander
+  .version(&#39;1.0.0&#39;)
+  .usage(&#39;[options]&#39;)
+  .option(&#39;-p, --port &lt;n&gt;&#39;, &#39;server port&#39;)
+  .option(&#39;-o, --host &lt;n&gt;&#39;, &#39;server host&#39;)
+  .option(&#39;-d, --dir &lt;n&gt;&#39;, &#39;server dir&#39;)
+  .parse(process.argv);
+
+// 创建 Server 实例传入命令行解析的参数
+const server = new Server(commander);
+
+// 启动服务器
+server.start();
+
+// ********** 以下为新增代码 **********
+const { exec } = require(&#39;child_process&#39;);
+
+// 判断系统执行不同的命令打开浏览器
+const systemOrder = process.platform === &#39;win32&#39; ? &#39;start&#39; : &#39;open&#39;;
+exec(systemOrder + &#39;http://&#39; + commander.localhost + &#39;:&#39; + commander.port);
+// ********** 以上为新增代码 **********
+</code></pre><h3 id="发布命令行工具到-npm"><a href="#发布命令行工具到-npm" class="headerlink" title="发布命令行工具到 npm"></a>发布命令行工具到 npm</h3><p>在发布我们自己实现的 <code>npm</code> 模块之前需要先做一件事，就是解除当前模块与全局环境的 <code>link</code>，我们可以通过两种方式，第一种方式是直接到系统存储命令文件的文件夹删除模块对应命令的 <code>yourname-http-server.cmd</code> （<code>Windows</code>）文件，第二种方式是在模块根目录启动命令行并输入如下命令。</p><pre><code class="lang-bash">$ npm unlink
+</code></pre><p>输入下面命令进行登录：</p><pre><code class="lang-bash">$ npm login
+</code></pre><p>登录成功后执行下面命令进行发布：</p><pre><code class="lang-bash">$ npm publish
+</code></pre><p>发布成功后再次使用自己的模块需要通过 <code>npm</code> 下载并全局安装，命令如下：</p><pre><code class="lang-bash">$ npm install yourname-http-server -g
+</code></pre><p>任意文件夹内打开命令行，并执行命令启动服务验证。</p><blockquote class="pullquote warning"><p><em><strong>在发布模块之前如果使用 <code>nrm</code> 切换过其他的源，必须切换回 <code>npm</code>，再进行登录和发布操作。</strong></em></p></blockquote><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>其实我们实现的静态服务器核心还在于处理请求和响应的逻辑上，只是不再手动输入 <code>node</code> 命令启动，而是借助一些第三方模块关联到了命令行并通过命令启动，开发其他类型的命令行工具也需要借助这些第三方模块，静态服务器只是其中之一，其实类似这种命令行工具在开发的角度来讲属于 “造轮子” 系列，可以独立开发命令行工具是一个成为前端架构的必备技能，希望通过本篇文章可以了解命令行工具的开发流程，在未来 “造轮子” 的道路上提供帮助。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180722110147/" target="_blank" rel="external">https://www.overtaking.top/20180722110147/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http-server/" rel="tag">http-server</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/npm/" rel="tag">npm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/" rel="tag">命令行</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180722110147/&title=《命令行工具 —— 手写类似 http-server 的静态服务器》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180722110147/&title=《命令行工具 —— 手写类似 http-server 的静态服务器》 — Shen's Blog&source=前言npm 生态中的 http-server 模块，是一个简单的、零配置的 HTTP 服务，它非常强大，同时非常简单，可以方便的帮助我们开启本地服务器，以..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180722110147/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《命令行工具 —— 手写类似 http-server 的静态服务器》 — Shen's Blog&url=https://www.overtaking.top/20180722110147/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180722110147/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180725130233/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">AST 抽象语法树</h4></a></div><div class="waves-block waves-effect next"><a href="/20180720110647/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">HTTP 缓存的那些事儿</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180722110147/&title=《命令行工具 —— 手写类似 http-server 的静态服务器》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180722110147/&title=《命令行工具 —— 手写类似 http-server 的静态服务器》 — Shen's Blog&source=前言npm 生态中的 http-server 模块，是一个简单的、零配置的 HTTP 服务，它非常强大，同时非常简单，可以方便的帮助我们开启本地服务器，以..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180722110147/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《命令行工具 —— 手写类似 http-server 的静态服务器》 — Shen's Blog&url=https://www.overtaking.top/20180722110147/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180722110147/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABuklEQVR42u3aQY6EMAwEwPn/p1lprqugdpwERqqc0C4DxaVlO/l84nV91+gvyXXy32ULFxe3zb1u1/97Rr+qft7900ZPxsXFPcm9D6/RC5LndEINFxf3/dy5cieJP1xc3F/n5m3SFSxcXNw3czuPG0Vb3iBt6dVwcXEb3Ll4Wnu9cb6Li4tb5F7FlYdaPkItvB0XF/cItzOqqH5StWQpVGS4uLhLueUQaW+QtBobXFzcI9wdodPZaIk+CRcX9wi3kxvVkUcel1tiDhcXN+Ammxl5bM01P4VWChcX9wh39KBqkZEUMctSFhcX9yC3U9zkI5K5kggXF/ckt1rQzMXWqrDDxcV9ijt3eKKTo0lpFZ0WwcXFXcTtDzQ7w5Hq9i0uLu4ZbvUwVr5Rmv82v8bFxT3PzaGd4xr38besV8PFxW1wkyFIP7DmVoTGxcXdwL2Kq9qJdNonXFzcp7jVWJkrR5IhbGFPGBcX9wg3Ca/8nnwAmrwrGo7g4uJu4+5uZpb1ari4uC/jFuKmPZDFxcX9RW7yggXHNPP2DRcXdwM3b36qn91pjXBxcZ/i9gemcwPQ+3tarRcuLu489w/6CewLe3jr2AAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

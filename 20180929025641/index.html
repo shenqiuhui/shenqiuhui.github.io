@@ -1,0 +1,240 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>设计模式 JS 表现 —— 代理模式 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="JavaScript,设计模式,结构型模式"><meta name="description" content="前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模拟面向对象）编程的实现相较于其他强类型语言实现更为繁琐，所以代码主要以 JavaScript 表现。"><meta property="og:type" content="article"><meta property="og:title" content="设计模式 JS 表现 —— 代理模式"><meta property="og:url" content="https://www.overtaking.top/20180929025641/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模拟面向对象）编程的实现相较于其他强类型语言实现更为繁琐，所以代码主要以 JavaScript 表现。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/DesignPatterns/20180929025641/proxy.jpg"><meta property="og:image" content="https://static.overtaking.top/images/DesignPatterns/20180929025641/proxy-uml.jpg"><meta property="article:published_time" content="2018-09-28T18:56:41.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="JavaScript"><meta property="article:tag" content="设计模式"><meta property="article:tag" content="结构型模式"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/DesignPatterns/20180929025641/proxy.jpg"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">设计模式 JS 表现 —— 代理模式</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">设计模式 JS 表现 —— 代理模式</h1><h5 class="subtitle"><time datetime="2018-09-28T18:56:41.000Z" itemprop="datePublished" class="page-time">2018-09-29</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#代理模式概念"><span class="post-toc-number">2.</span> <span class="post-toc-text">代理模式概念</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基本实现"><span class="post-toc-number">3.</span> <span class="post-toc-text">基本实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#ES6-的-Proxy"><span class="post-toc-number">4.</span> <span class="post-toc-text">ES6 的 Proxy</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#代理模式、适配器模式和装饰器模式"><span class="post-toc-number">5.</span> <span class="post-toc-text">代理模式、适配器模式和装饰器模式</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#代理模式的应用"><span class="post-toc-number">6.</span> <span class="post-toc-text">代理模式的应用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#事件委托"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">事件委托</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#图片加载"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">图片加载</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#防抖代理"><span class="post-toc-number">6.3.</span> <span class="post-toc-text">防抖代理</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">7.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-DesignPatterns/20180929025641" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">设计模式 JS 表现 —— 代理模式</h1><div class="post-meta"><time class="post-time" title="2018-09-29 02:56:41" datetime="2018-09-28T18:56:41.000Z" itemprop="datePublished">2018-09-29</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a></li></ul><span id="/20180929025641/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="设计模式 JS 表现 —— 代理模式"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/DesignPatterns/20180929025641/proxy.jpg" title="代理模式"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote warning"><p><strong>这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 <code>JavaScript</code> 本身是弱类型，面向对象（模拟面向对象）编程的实现相较于其他强类型语言实现更为繁琐，所以代码主要以 <code>JavaScript</code> 表现。</strong></p></blockquote><a id="more"></a><blockquote class="pullquote info"><p><strong>系列文章链接：</strong></p><ul><li><a href="/20180925190503/" target="_blank">设计模式 JS 表现 —— 工厂模式</a></li><li><a href="/20180926201447/" target="_blank">设计模式 JS 表现 —— 单例模式</a></li><li><a href="/20180927230432/" target="_blank">设计模式 JS 表现 —— 适配器模式</a></li><li><a href="/20180928030105/" target="_blank">设计模式 JS 表现 —— 装饰器模式</a></li><li><a href="/20181001165125/" target="_blank">设计模式 JS 表现 —— 外观模式</a></li><li><a href="/20181004114907/" target="_blank">设计模式 JS 表现 —— 发布/订阅和观察者模式</a></li><li><a href="/20181005161213/" target="_blank">设计模式 JS 表现 —— 状态模式</a></li><li><a href="/20181006014812/" target="_blank">设计模式 JS 表现 —— 策略模式</a></li></ul></blockquote><h2 id="代理模式概念"><a href="#代理模式概念" class="headerlink" title="代理模式概念"></a>代理模式概念</h2><p>由于某些情况下一个对象不能直接引用另一个对象，所以需要代理对象在这两个对象之间起到中介作用或者实现控制，这样的模式叫 “代理模式”。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/DesignPatterns/20180929025641/proxy-uml.jpg" alt="代理模式 UML 图"></div><div class="image-caption">代理模式 UML 图</div></figure><p><br></p><h2 id="基本实现"><a href="#基本实现" class="headerlink" title="基本实现"></a>基本实现</h2><pre><code class="lang-js">// 假设无法客户端无法直接使用这个类
+class Google {
+  get(url) {
+    return url + &#39; is google&#39;;
+  }
+}
+
+// 只能通过代理操作 Google 类
+class Proxy {
+  constructor() {
+    this.google = new Google();
+  }
+  get(url) {
+    return this.google.get(url);
+  }
+}
+
+const proxy = new Proxy();
+const result = proxy.get(&#39;http://www.google.com&#39;);
+console.log(result); // http://www.google.com is google
+</code></pre><p>假设 <code>Google</code> 类我们无法直接使用，只有 <code>Proxy</code> 可以使用 <code>Google</code>，我们可以通过 <code>Proxy</code> 类去操作使用 <code>Google</code> 类，此时 <code>Proxy</code> 类就是一个代理。</p><h2 id="ES6-的-Proxy"><a href="#ES6-的-Proxy" class="headerlink" title="ES6 的 Proxy"></a>ES6 的 Proxy</h2><p>在 <code>ES6</code> 标准以后，<code>JavaScript</code> 提供了原生的代理模式 <code>Proxy</code> 类，可以代理其他对象，并在对象属性的获取和赋值时增加拦截。</p><pre><code class="lang-js">/* ES6 Proxy 的使用 */
+const lucy = {
+  name: &#39;lucy&#39;,
+  age: 20,
+  height: 165
+};
+
+const lucyMother = new Proxy(lucy, {
+  get(target, key) {
+    if (key === &#39;age&#39;) {
+      return target.age - 2;
+    } else if (key === &#39;height&#39;) {
+      return target.height + 5;
+    } else {
+      return target[key];
+    }
+  },
+  set(target, key, val) {
+    if (key === &#39;boyfriend&#39;) {
+      if (val.age &gt; 40) {
+        console.log(&#39;太老了&#39;);
+      } else if (val.salary &lt; 20000) {
+        console.log(&#39;太穷了&#39;);
+      } else {
+        target[key] = val;
+      }
+    }
+  }
+});
+
+console.log(lucyMother.name); // lucy
+console.log(lucyMother.age); // 18
+console.log(lucyMother.height); // 170
+
+lucyMother.boyfriend = {
+  age: 42,
+  salary: 25000
+}
+// 太老了
+
+lucyMother.boyfriend = {
+  age: 36,
+  salary: 18000
+}
+// 太穷了
+</code></pre><p>上面是一个接地气的案例，创建一个对象存储 <code>lucy</code> 的基本信息，使用代理创建 <code>lucyMother</code> 为 <code>lucy</code> 找男朋友，通过代理对象获取 <code>lucy</code> 的基本信息时会虚报年龄和身高，而在设置男朋友对象时会检查是否符合要求。</p><h2 id="代理模式、适配器模式和装饰器模式"><a href="#代理模式、适配器模式和装饰器模式" class="headerlink" title="代理模式、适配器模式和装饰器模式"></a>代理模式、适配器模式和装饰器模式</h2><p>从代码实现来看，代理模式、适配器模式、装饰器模式非常的相似，非常容易混淆，但其实是有本质区别的。</p><blockquote class="pullquote info"><ul><li><strong>代理模式和适配器模式：代理模式不会改变原有的接口，代理类和被代理的类属性方法使用方式完全一致，而适配器模式是因为旧的接口无法使用，通过适配器创建新的接口去兼容旧的接口；</strong></li><li><strong>代理模式和装饰器模式：装饰器功能会保证被装饰类功能正常使用的情况下新增功能，而代理模式保证原有接口，但会改变原来接口的功能；</strong></li><li><strong>适配器模式和装饰器模式：装饰器是对一个类的包装，而适配器更多是去建立提供接口的类与无法适配的类之间的联系。</strong></li></ul></blockquote><h2 id="代理模式的应用"><a href="#代理模式的应用" class="headerlink" title="代理模式的应用"></a>代理模式的应用</h2><h3 id="事件委托"><a href="#事件委托" class="headerlink" title="事件委托"></a>事件委托</h3><p>事件委托是浏览器事件注册的一种优化手段，如果同类型的元素非常多，且都有相同的事件，如列表，则不必给每一个元素注册这个事件，而是将事件注册给父元素，即将事件委托给父元素，避免了相同事件的重复注册，这种优化利用了 “代理模式”，又称事件代理。</p><pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;事件委托&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;ul id=&quot;list&quot;&gt;
+    &lt;li&gt;1&lt;/li&gt;
+    &lt;li&gt;2&lt;/li&gt;
+    &lt;li&gt;3&lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;script&gt;
+    const ulList = document.getElementById(&#39;list&#39;);
+
+    ulList.addEventListener(&#39;click&#39;, function (event) {
+      console.log(event.target.innerHTML);
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><p>在浏览器中，委托给父元素的事件触发后，可以通过事件对象的属性 <code>target</code> 获取到具体触发事件的子元素。</p><h3 id="图片加载"><a href="#图片加载" class="headerlink" title="图片加载"></a>图片加载</h3><p>图片加载是一个提高用户体验的功能，也是非常常见的，原因是浏览器向服务器请求资源图片是需要等待的，由于网络等因素的影响会导致等待的时间更长，此时我们需要一个 <code>loading</code> 图片来过渡，这就是图片加载的基本需求。</p><pre><code class="lang-js">/* node 服务器 */
+const express = require(&#39;express&#39;);
+const path = require(&#39;path&#39;);
+
+const app = express();
+
+app.get(&#39;/loading.gif&#39;, function (req, res) {
+  res.sendFile(path.resolve(&#39;img&#39;, &#39;loading.gif&#39;));
+});
+
+app.get(&#39;/img/:name&#39;, function (req, res) {
+  setTimeout(function () {
+    res.sendFile(path.join(__dirname, req.path));
+  }, 3000);
+});
+
+app.use(express.static(__dirname));
+
+app.listen(3000, function () {
+  console.log(&#39;server start 3000&#39;);
+});
+</code></pre><p>上面服务器模拟了加载图片响应慢的场景，<code>loading</code> 图片立即响应，其他图片则延迟 <code>3s</code> 响应。</p><pre><code class="lang-html">&lt;!-- Dom 结构 --&gt;
+&lt;ul id=&quot;menu&quot;&gt;
+  &lt;li data-src=&quot;/img/bg1.jpg&quot;&gt;图片1&lt;/li&gt;
+  &lt;li data-src=&quot;/img/bg2.jpg&quot;&gt;图片2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div id=&quot;bgimg&quot;&gt;&lt;/div&gt;
+</code></pre><pre><code class="lang-js">/* 没有实现 loading */
+const menu = document.getElementById(&#39;menu&#39;);
+const bgimg = document.getElementById(&#39;bgimg&#39;);
+
+const background = (function () {
+  const img = new Image();
+  bgimg.appendChild(img)
+  return {
+    setSrc(src) {
+      img.src = src;
+    }
+  }
+})();
+
+menu.addEventListener(&#39;click&#39;, function (event) {
+  const src = event.target.dataset.src;
+  background.setSrc(src);
+});
+</code></pre><p>上面的代码是没有实现懒加载的，当点击按钮向服务器请求图片时，并没有加入 <code>loading</code> 图片过渡，之所以说图片加载应用了 “代理模式” 并不是指加载功能本身，而是我们的实现方式，编写的代码质量要高至少要遵循单一职责原则和开放封闭原则，就是说最好不要直接在事件监听的函数中增加 <code>loading</code> 过渡的逻辑，而是把这个过渡功能交给代理对象去处理。</p><pre><code class="lang-js">/* 使用代理对象实现 loading 过渡 */
+const menu = document.getElementById(&#39;menu&#39;);
+const bgimg = document.getElementById(&#39;bgimg&#39;);
+
+// 请求图片的对象
+const background = (function () {
+  const img = new Image();
+  bgimg.appendChild(img)
+  return {
+    setSrc(src) {
+      img.src = src;
+    }
+  }
+})();
+
+// 增加 loading 过度的代理对象
+const proxyBackground = (function () {
+  const img = new Image();
+  img.onload = function () {
+    background.setSrc(this.src);
+  }
+  return {
+    setSrc(src) {
+      background.setSrc(&#39;./img/loading.gif&#39;);
+      img.src = src;
+    }
+  }
+})();
+
+// 监听获取图片的事件中使用的是代理对象 proxyBackground
+menu.addEventListener(&#39;click&#39;, function (event) {
+  const src = event.target.dataset.src;
+
+  // 防止缓存
+  proxyBackground.setSrc(src + &#39;?time=&#39; + Date.now());
+});
+</code></pre><p>上面的实现方式就符合 “代理模式”，<code>background</code> 对象是提供基本功能，而<code>proxyBackground</code>（代理对象）增强了基本功能，却并没有改变接口的使用方式，依然通过 <code>setSrc</code> 方法去请求图片。</p><h3 id="防抖代理"><a href="#防抖代理" class="headerlink" title="防抖代理"></a>防抖代理</h3><p>防抖的作用是在做一个操作时不需要很频繁，如搜索查询，在连续输入时如果每次触发输入事件都向后端发送请求，性能是极差的，我们希望的是连续输入只在最后一次统一发送请求，这种处理叫做防抖处理，是前端优化的手段。</p><pre><code class="lang-html">&lt;!-- 未使用防抖代理处理 --&gt;
+&lt;input type=&quot;text&quot; id=&quot;ipt&quot;&gt;
+&lt;script&gt;
+  const ipt = document.getElementById(&#39;ipt&#39;);
+
+  function post() {
+    console.log(&#39;发送请求了&#39;);
+  }
+
+  ipt.addEventListener(&#39;input&#39;, post);
+&lt;/script&gt;
+</code></pre><p>上面代码未使用防抖代理，每次输入都会打印 “发送请求了”。</p><pre><code class="lang-html">&lt;!-- 使用防抖代理优化 --&gt;
+&lt;input type=&quot;text&quot; id=&quot;ipt&quot;&gt;
+&lt;script&gt;
+  const ipt = document.getElementById(&#39;ipt&#39;);
+
+  function post() {
+    console.log(&#39;发送请求了&#39;);
+  }
+
+  // 代理函数去执行 post
+  const debouncePost = (function () {
+    let timer = null;
+    return function () {
+      clearInterval(timer);
+      timer = setTimeout(function () {
+        post();
+      }, 500);
+    }
+  })();
+
+  ipt.addEventListener(&#39;input&#39;, debouncePost);
+&lt;/script&gt;
+</code></pre><p>使用防抖代理函数优化后，保留了原有功能的基础上进行了增强，实现了连续输入停止 <code>500ms</code> 后统一发送一次请求，防抖的实现方式有很多种，包括并不限于函数式编程等，而上面代码使用了 “代理模式” 实现 。</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>使用 “代理模式” 的场景在后端会更多，比如代理跨域，<code>Nginx</code> 代理等等，还有一点需要注意的是，“代理模式” 并非单一的，对于同一个对象，可以有多个代理对象去增强不同的功能，最后附上</strong> <a href="https://github.com/shenqiuhui/design-pattern-js/tree/master/6.proxy" target="_blank">案例地址</a><strong>。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180929025641/" target="_blank" rel="external">https://www.overtaking.top/20180929025641/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180929025641/&title=《设计模式 JS 表现 —— 代理模式》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180929025641/&title=《设计模式 JS 表现 —— 代理模式》 — Shen's Blog&source=前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180929025641/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《设计模式 JS 表现 —— 代理模式》 — Shen's Blog&url=https://www.overtaking.top/20180929025641/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180929025641/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20181001165125/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">设计模式 JS 表现 —— 外观模式</h4></a></div><div class="waves-block waves-effect next"><a href="/20180928030105/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">设计模式 JS 表现 —— 装饰器模式</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180929025641/&title=《设计模式 JS 表现 —— 代理模式》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180929025641/&title=《设计模式 JS 表现 —— 代理模式》 — Shen's Blog&source=前言这是关于设计模式的系列文章，在每篇文章中将对常见设计模式进行讲解，因为针对前端方向，而且前端常用语言 JavaScript 本身是弱类型，面向对象（模..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180929025641/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《设计模式 JS 表现 —— 代理模式》 — Shen's Blog&url=https://www.overtaking.top/20180929025641/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180929025641/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAAByElEQVR42u3aS3KDMBAFQN//0uQACfCehGSq0lq5bBCNF1Oaz+cTr+PXyn+93vOzYuHi4k5zj8t1tnV+1xnr7Mqbl8fFxd3Ibbc7o5/dm19/Y8PFxX0lN/8GFxf3P3DbI077qri4uG/jtmnMWCkk3+2BXA0XF3eC2xY3V3xeUt/FxcUd4h4Prfwl8+D1x1NwcXG3cNug0x5x2vQpSo1wcXG3cJNTxIoZibZ0gouLu4dblCmHhrTasHXzB+Hi4m7k5g9IgtpM2Lr5FRcXdyM3CWTJi40NWBTX4+LibuTmJYmZkYu8UHKT/ODi4i7mzgSdth2S1GbqIikuLu4C7lgbdeyR7Z5RroaLi7uAm/dY2sPK2OjVYNzFxcV9lNumOi10pskahTBcXNwF3JY41hoZa7FEnWFcXNwF3CQ8tQ3RvFWTFFBOm6y4uLjLuEWGNBG22nTo5mCEi4u7mHuUqy2J5iMXdf0GFxd3GbctZc63UcdGMXBxcfdzW8T8oEbedsXFxf0udybQ5I98OFfDxcV9ATdHty2TIvnBxcV9GTdPb9riSD6QgYuLu5PbFjtaynUozNu6uLi4e7h5wbRtu7Z3PVzfxcXFHeH+ADU5TdTqMccLAAAAAElFTkSuQmCC" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

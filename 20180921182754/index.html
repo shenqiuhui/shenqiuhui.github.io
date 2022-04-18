@@ -1,0 +1,880 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>React 基础篇 —— Router 4.0 的基本使用 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="React,Router"><meta name="description" content="React 路由简介在 Web 应用中，路由系统是不可或缺的一部分，尤其是单页面应用，在浏览器 URL 发生变化时，路由系统会做出一些响应，来控制组件的加载与切换，React 全家桶中也有配套的路由系统，在路由 2.0 版本时叫做 react-router，在路由 4.0 时更名为 react-router-dom，我们本次就针对较新版本的 Router 系统进行介绍。"><meta property="og:type" content="article"><meta property="og:title" content="React 基础篇 —— Router 4.0 的基本使用"><meta property="og:url" content="https://www.overtaking.top/20180921182754/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="React 路由简介在 Web 应用中，路由系统是不可或缺的一部分，尤其是单页面应用，在浏览器 URL 发生变化时，路由系统会做出一些响应，来控制组件的加载与切换，React 全家桶中也有配套的路由系统，在路由 2.0 版本时叫做 react-router，在路由 4.0 时更名为 react-router-dom，我们本次就针对较新版本的 Router 系统进行介绍。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/React/20180921182754/react-router.png"><meta property="article:published_time" content="2018-09-21T10:27:54.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="React"><meta property="article:tag" content="Router"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/React/20180921182754/react-router.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">React 基础篇 —— Router 4.0 的基本使用</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">React 基础篇 —— Router 4.0 的基本使用</h1><h5 class="subtitle"><time datetime="2018-09-21T10:27:54.000Z" itemprop="datePublished" class="page-time">2018-09-21</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/React/">React</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#React-路由简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">React 路由简介</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#创建项目"><span class="post-toc-number">2.</span> <span class="post-toc-text">创建项目</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#HashRouter-和-BrowserRouter"><span class="post-toc-number">3.</span> <span class="post-toc-text">HashRouter 和 BrowserRouter</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Route-和-Link-组件"><span class="post-toc-number">4.</span> <span class="post-toc-text">Route 和 Link 组件</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建路由跳转的组件"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">创建路由跳转的组件</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#配合使用-Route-和-Link"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">配合使用 Route 和 Link</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Route-组件的-exact-属性"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">Route 组件的 exact 属性</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Switch-组件"><span class="post-toc-number">5.</span> <span class="post-toc-text">Switch 组件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Redirect-组件"><span class="post-toc-number">6.</span> <span class="post-toc-text">Redirect 组件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#二级路由"><span class="post-toc-number">7.</span> <span class="post-toc-text">二级路由</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实现二级路由"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">实现二级路由</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#解决默认路径不匹配的问题"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">解决默认路径不匹配的问题</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#编程式导航"><span class="post-toc-number">8.</span> <span class="post-toc-text">编程式导航</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#路由参数的传递"><span class="post-toc-number">9.</span> <span class="post-toc-text">路由参数的传递</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#withRouter-函数"><span class="post-toc-number">10.</span> <span class="post-toc-text">withRouter 函数</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#受保护的路由"><span class="post-toc-number">11.</span> <span class="post-toc-text">受保护的路由</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#NavLink-组件"><span class="post-toc-number">12.</span> <span class="post-toc-text">NavLink 组件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#自定义导航组件实现激活"><span class="post-toc-number">13.</span> <span class="post-toc-text">自定义导航组件实现激活</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">14.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-React/20180921182754" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">React 基础篇 —— Router 4.0 的基本使用</h1><div class="post-meta"><time class="post-time" title="2018-09-21 18:27:54" datetime="2018-09-21T10:27:54.000Z" itemprop="datePublished">2018-09-21</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/React/">React</a></li></ul><span id="/20180921182754/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="React 基础篇 —— Router 4.0 的基本使用"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/React/20180921182754/react-router.png" title="React Router"><p><br></p><h2 id="React-路由简介"><a href="#React-路由简介" class="headerlink" title="React 路由简介"></a>React 路由简介</h2><blockquote class="pullquote info"><p><strong>在 <code>Web</code> 应用中，路由系统是不可或缺的一部分，尤其是单页面应用，在浏览器 <code>URL</code> 发生变化时，路由系统会做出一些响应，来控制组件的加载与切换，<code>React</code> 全家桶中也有配套的路由系统，在路由 <code>2.0</code> 版本时叫做 <code>react-router</code>，在路由 <code>4.0</code> 时更名为 <code>react-router-dom</code>，我们本次就针对较新版本的 <code>Router</code> 系统进行介绍。</strong></p></blockquote><a id="more"></a><h2 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h2><p>为了方便演示如何 <code>Router</code>，我们使用 <code>create-react-app</code> 创建一个 <code>React</code> 项目，并删除 <code>src</code> 文件夹内多余文件，创建我们需要的文件 <code>index.js</code>，目录结构如下：</p><pre class="language-treeview">
+  <code class="language-treeview">
+    react-router
+      |- public
+      | |- favicon.ico
+      | |- index.html
+      | |- manifest.json
+      |- src
+      | |- pages
+      | | |- Add.js
+      | | |- Detail.js
+      | | |- Home.js
+      | | |- Index.js
+      | | |- List.js
+      | | |- Login.js
+      | | |- Logo.js
+      | | |- MenuLink.js
+      | | |- Profile.js
+      | | |- Protected.js
+      | | |- User.js
+      | |- App.js
+      | |- index.css
+      | |- index.js
+      |- .gitignore
+      |- package.json
+      |- README.md
+      |- yarn.lock
+  </code>
+</pre><p>其中主组件为 <code>App</code>，在 <code>index.js</code> 中渲染，<code>index.js</code> 代码如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/index.js */
+import React from &#39;react&#39;;
+import ReactDOM from &#39;react-dom&#39;;
+import App from &#39;./App&#39;;
+
+ReactDOM.render(&lt;App /&gt;, window.root);
+</code></pre><p>而 <code>App</code> 组件主要用来渲染菜单导航和路由组件，我们将在下面完善代码。</p><h2 id="HashRouter-和-BrowserRouter"><a href="#HashRouter-和-BrowserRouter" class="headerlink" title="HashRouter 和 BrowserRouter"></a>HashRouter 和 BrowserRouter</h2><p>在 <code>React Router</code> 中，给我们提供了一些路由相关的组件，其中最重要的就是实现路由的 <code>HashRouter</code> 和 <code>BrowserRouter</code>，我们知道浏览器的 <code>hash</code> 值发生变化会阻止页面的跳转，而 <code>HashRouter</code> 就是利用这个特性实现的，通过监听 <code>onhanshchange</code> 事件在 <code>hash</code> 值改变的时候做出响应，<code>BrowserRouter</code> 则是利用 <code>H5</code> 的新 <code>History API</code> 的 <code>pushState</code> 方法构造的的历史记录集合来实现的。</p><p>通常情况下，在开发的时候使用 <code>HashRouter</code> 更多，而在真正上线时替换成 <code>BrowserRouter</code>，两种 <code>Router</code> 在地址栏上的表现上区别只是是否含有 <code>#</code>，两种 <code>Router</code> 的使用如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/App.js —— HashRouter */
+import React, { Component } from &#39;react&#39;;
+import { HashRouter } from &#39;react-router-dom&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;HashRouter&gt;
+      {/* 路由相关代码 */}
+      &lt;/HashRouter&gt;
+    )
+  }
+}
+</code></pre><pre><code class="lang-jsx">/* 路径：~react-router/src/App.js —— BrowserRouter */
+import React, { Component } from &#39;react&#39;;
+import { BrowserRouter } from &#39;react-router-dom&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;BrowserRouter&gt;
+      {/* 路由相关代码 */}
+      &lt;/BrowserRouter&gt;
+    )
+  }
+}
+</code></pre><p>其实就是使用 <code>React Router</code> 中提供的这两种类型的路由组件对路由相关的 <code>JSX</code> 进行包裹。</p><h2 id="Route-和-Link-组件"><a href="#Route-和-Link-组件" class="headerlink" title="Route 和 Link 组件"></a>Route 和 Link 组件</h2><p><code>Route</code> 组件是用来定义路由跳转切换组件的区域，通过 <code>path</code> 属性定义匹配的路由，<code>component</code> 属性来定义渲染的组件，渲染后就是一个 <code>div</code> 标签，<code>Link</code> 是用来点击跳转路由的，通常用来定义导航栏内容，通过 <code>to</code> 属性设置匹配的路由，需要与 <code>Route</code> 的 <code>path</code> 一一对应，点击后可切换到对应的路由组件，渲染后为一个 <code>a</code> 标签。</p><h3 id="创建路由跳转的组件"><a href="#创建路由跳转的组件" class="headerlink" title="创建路由跳转的组件"></a>创建路由跳转的组件</h3><p>下面我们来创建三个路由对应的组件，分别为首页、用户、个人中心，对应的组件分别为 <code>Home.js</code>、<code>User.js</code>、<code>Profile.js</code></p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Home.js */
+import React, { Component } from &#39;react&#39;;
+
+export default class Home extends Component {
+  render() {
+    return (
+      &lt;div&gt;主页&lt;/div&gt;
+    )
+  }
+}
+</code></pre><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/User.js */
+import React, { Component } from &#39;react&#39;;
+
+export default class User extends Component {
+  render() {
+    return (
+      &lt;div&gt;用户&lt;/div&gt;
+    )
+  }
+}
+</code></pre><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Profile.js */
+import React, { Component } from &#39;react&#39;;
+
+export default class Profile extends Component {
+  render() {
+    return (
+      &lt;div&gt;个人中心&lt;/div&gt;
+    )
+  }
+}
+</code></pre><h3 id="配合使用-Route-和-Link"><a href="#配合使用-Route-和-Link" class="headerlink" title="配合使用 Route 和 Link"></a>配合使用 Route 和 Link</h3><p>使用 <code>Link</code> 和 <code>Route</code> 配合使用如下，点击 <code>Link</code> 会在类名 <code>container</code> 的元素种加载路由路径对应的组件。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/App.js */
+import React, { Component } from &#39;react&#39;;
+import { HashRouter, Route, Link } from &#39;react-router-dom&#39;;
+import Home from &#39;./pages/Home&#39;;
+import User from &#39;./pages/User&#39;;
+import Profile from &#39;./pages/Profile&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;HashRouter&gt;
+        &lt;div&gt;
+          &lt;ul className=&quot;nav&quot;&gt;
+            &lt;li&gt;
+              &lt;Link to=&quot;/home&quot;&gt;首页&lt;/Link&gt;
+            &lt;/li&gt;
+            &lt;li&gt;
+              &lt;Link to=&quot;/user&quot;&gt;用户&lt;/Link&gt;
+            &lt;/li&gt;
+            &lt;li&gt;
+              &lt;Link to=&quot;/profile&quot;&gt;个人中心&lt;/Link&gt;
+            &lt;/li&gt;
+          &lt;/ul&gt;
+          &lt;div className=&quot;container&quot;&gt;
+            &lt;Route path=&quot;/home&quot; component={Home} /&gt;
+            &lt;Route path=&quot;/user&quot; component={User} /&gt;
+            &lt;Route path=&quot;/profile&quot; component={Profile} /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/HashRouter&gt;
+    )
+  }
+}
+</code></pre><p>启动项目后上面的代码已经可以帮助我们实现页面路由的切换，但是上面的代码 <code>Link</code> 和 <code>Route</code> 组件混在一起，我们其实可以将 <code>App</code> 拆分成两个组件，一个用来存放 <code>Link</code> 部分，一个用来存放 <code>Route</code> 部分，创建 <code>Index</code> 组件，将 <code>Link</code> 的部分抽取出去，代码修改如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/App.js —— 修改后 */
+import React, { Component } from &#39;react&#39;;
+import { HashRouter, Route } from &#39;react-router-dom&#39;;
+import Home from &#39;./pages/Home&#39;;
+import User from &#39;./pages/User&#39;;
+import Profile from &#39;./pages/Profile&#39;;
+import Index from &#39;./pages/Index&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;HashRouter&gt;
+        &lt;Index&gt;
+          &lt;Route path=&quot;/home&quot; component={Home} /&gt;
+          &lt;Route path=&quot;/user&quot; component={User} /&gt;
+          &lt;Route path=&quot;/profile&quot; component={Profile} /&gt;
+        &lt;/Index&gt;
+      &lt;/HashRouter&gt;
+    )
+  }
+}
+</code></pre><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Index.js */
+import React, { Component } from &#39;react&#39;;
+import { Link } from &#39;react-router-dom&#39;;
+
+export default class Index extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;a className=&quot;navbar-brand&quot;&gt;管理系统&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;ul className=&quot;nav&quot;&gt;
+        &lt;li&gt;
+          &lt;Link to=&quot;/home&quot;&gt;首页&lt;/Link&gt;
+        &lt;/li&gt;
+        &lt;li&gt;
+          &lt;Link to=&quot;/user&quot;&gt;用户&lt;/Link&gt;
+        &lt;/li&gt;
+        &lt;li&gt;
+          &lt;Link to=&quot;/profile&quot;&gt;个人中心&lt;/Link&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;div className=&quot;container&quot;&gt;
+        {this.props.children}
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>经过修改之后 <code>Index</code> 组件专门用来维护导航组件 <code>Link</code>，<code>App</code> 组件专门用来维护路由组件 <code>Route</code>，这样代码看起来就不那么混乱了。</p><h3 id="Route-组件的-exact-属性"><a href="#Route-组件的-exact-属性" class="headerlink" title="Route 组件的 exact 属性"></a>Route 组件的 exact 属性</h3><p>上面我们所定义的路由为一级路由，在路由匹配并成功加载对应组件后，如果组件又由多个组件组成，并有类似导航的操作（当然不仅限于导航）来控制其他的组件视图的切换，则需要匹配二级路由，这就出现了一个问题，我们以 <code>/user</code> 为例，假设添加一个新的路由 <code>/user/add</code>，那么 <code>React</code> 会由上到下依次匹配，<code>/user/add</code> 中包含 <code>/user</code>，因此会同时渲染两个组件，这不是我们希望的。</p><p>在 <code>React Router</code> 内部给我们提供了解决方案，就是给路由设置严格匹配，我们只需要让 <code>/user</code> 对应的 <code>Route</code> 组件添加 <code>exact</code> 属性，并将值设置为 <code>true</code> 即可，所以匹配 <code>/user/add</code> 时就不会出现 <code>/user</code> 对应的路由组件也被渲染的情况，当然也可以将 <code>exact</code> 简写到 <code>Route</code> 组件上省略赋值为 <code>true</code> 的过程。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/App.js —— 添加 exact */
+import React, { Component } from &#39;react&#39;;
+import { HashRouter, Route } from &#39;react-router-dom&#39;;
+import Home from &#39;./pages/Home&#39;;
+import User from &#39;./pages/User&#39;;
+import Profile from &#39;./pages/Profile&#39;;
+import Index from &#39;./pages/Index&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;HashRouter&gt;
+        &lt;Index&gt;
+          &lt;Route path=&quot;/home&quot; component={Home} /&gt;
+          &lt;Route path=&quot;/user&quot; exact component={User} /&gt;
+          &lt;Route path=&quot;/user/add&quot; component={User} /&gt;
+          &lt;Route path=&quot;/profile&quot; component={Profile} /&gt;
+        &lt;/Index&gt;
+      &lt;/HashRouter&gt;
+    )
+  }
+}
+</code></pre><h2 id="Switch-组件"><a href="#Switch-组件" class="headerlink" title="Switch 组件"></a>Switch 组件</h2><p>因为 <code>React</code> 的路由是由上至下依次进行匹配的，如果有两个同名路由进行匹配，会同时加载两个组件，这也是我们需要优化的，<code>React Router</code> 的 <code>Switch</code> 组件就是来做这件事的，只需要将多个 <code>Route</code> 组件包裹起来，就可以实现只要成功匹配一个路由就不再继续匹配。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/App.js —— 添加 Switch 组件 */
+import React, { Component } from &#39;react&#39;;
+import { HashRouter, Route, Switch } from &#39;react-router-dom&#39;;
+import Home from &#39;./pages/Home&#39;;
+import User from &#39;./pages/User&#39;;
+import Profile from &#39;./pages/Profile&#39;;
+import Index from &#39;./pages/Index&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;HashRouter&gt;
+        &lt;Index&gt;
+          &lt;Switch&gt;
+            &lt;Route path=&quot;/home&quot; component={Home} /&gt;
+            &lt;Route path=&quot;/user&quot; exact component={User} /&gt;
+            &lt;Route path=&quot;/user/add&quot; component={User} /&gt;
+            &lt;Route path=&quot;/user/add&quot; component={User} /&gt; {/* 同名路由 */}
+            &lt;Route path=&quot;/profile&quot; component={Profile} /&gt;
+          &lt;/Switch&gt;
+        &lt;/Index&gt;
+      &lt;/HashRouter&gt;
+    )
+  }
+}
+</code></pre><p>使用 <code>Switch</code> 组件优化后，启动项目就可以发现只渲染了一个 <code>User</code> 组件。</p><h2 id="Redirect-组件"><a href="#Redirect-组件" class="headerlink" title="Redirect 组件"></a>Redirect 组件</h2><p>在 <code>React</code> 开发中经常遇到路径输入错误的情况，通常情况有两种处理方式，第一种是跳转到一个 <code>404</code> 页面，第二种方式是将页面路由重定向到主页，而 <code>React Router</code> 提供的 <code>Redirect</code> 组件就是帮助我们在所有路由都匹配失败时重定向的，使用时通常放在最后一个 <code>Route</code> 组件的下面用来 “兜底”，使用 <code>to</code> 属性来定义重定向的路由。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/App.js —— 添加 Redirect 组件 */
+import React, { Component } from &#39;react&#39;;
+import { HashRouter, Route, Switch, Redirect } from &#39;react-router-dom&#39;;
+import Home from &#39;./pages/Home&#39;;
+import User from &#39;./pages/User&#39;;
+import Profile from &#39;./pages/Profile&#39;;
+import Index from &#39;./pages/Index&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;HashRouter&gt;
+        &lt;Index&gt;
+          &lt;Switch&gt;
+            &lt;Route path=&quot;/home&quot; component={Home} /&gt;
+            &lt;Route path=&quot;/user&quot; exact={true} component={User} /&gt;
+            &lt;Route path=&quot;/profile&quot; component={Profile} /&gt;
+            &lt;Redirect to=&quot;/home&quot; /&gt; {/* 无法匹配路由时重定向 */}
+          &lt;/Switch&gt;
+        &lt;/Index&gt;
+      &lt;/HashRouter&gt;
+    )
+  }
+}
+</code></pre><blockquote class="pullquote warning"><p><strong>注意：<code>Redirect</code> 不能放在 <code>Route</code> 组件的上面，因为放在上面不会匹配任何的路由，而会直接重定向到设置的页面。</strong></p></blockquote><p>对于路由都没有匹配而返回 <code>404</code> 页面我们这里也简单说一下，但是这样的用法非常少，使用 <code>Redirect</code> 重定向到指定页面的方式会更多一些。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/App.js —— 匹配失败跳转 404 页面 */
+import React, { Component } from &#39;react&#39;;
+import { HashRouter, Route, Switch } from &#39;react-router-dom&#39;;
+import Home from &#39;./pages/Home&#39;;
+import User from &#39;./pages/User&#39;;
+import Profile from &#39;./pages/Profile&#39;;
+import Index from &#39;./pages/Index&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;HashRouter&gt;
+        &lt;Index&gt;
+          &lt;Switch&gt;
+            &lt;Route path=&quot;/home&quot; component={Home} /&gt;
+            &lt;Route path=&quot;/user&quot; exact={true} component={User} /&gt;
+            &lt;Route path=&quot;/profile&quot; component={Profile} /&gt;
+            &lt;Route path=&quot;/&quot; component={Error} /&gt; {/* Error 组件代表 404 */}
+          &lt;/Switch&gt;
+        &lt;/Index&gt;
+      &lt;/HashRouter&gt;
+    )
+  }
+}
+</code></pre><p>由于其他的路由都匹配失败，最后会和 <code>/</code> 匹配，所以会显示 <code>Error</code> 组件，这里处理 <code>404</code> 的 <code>Route</code> 的组件也必须放在最下面来 “兜底”。</p><h2 id="二级路由"><a href="#二级路由" class="headerlink" title="二级路由"></a>二级路由</h2><h3 id="实现二级路由"><a href="#实现二级路由" class="headerlink" title="实现二级路由"></a>实现二级路由</h3><p>在了解 <code>React Router</code> 的基本使用后，我们用同样的知识点来给 <code>User</code> 组件写一个二级路由，<code>User</code> 中有一个子导航，分别对应用户列表 <code>List</code> 组件和添加用户 <code>Add</code> 组件，代码的套路与之前相同。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/User.js */
+import React, { Component } from &#39;react&#39;;
+import { Link, Route, Switch } from &#39;react-router-dom&#39;;
+import Add from &#39;./Add&#39;;
+import List from &#39;./List&#39;;
+
+export default class User extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;ul className=&quot;sub-nav&quot;&gt;
+          &lt;li&gt;
+            &lt;Link to=&quot;/user/list&quot;&gt;用户列表&lt;/Link&gt;
+          &lt;/li&gt;
+          &lt;li&gt;
+            &lt;Link to=&quot;/user/add&quot;&gt;添加用户&lt;/Link&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;div className=&quot;sub-container&quot;&gt;
+          &lt;Switch&gt;
+            &lt;Route path=&quot;/user/list&quot; component={List} /&gt;
+            &lt;Route path=&quot;/user/add&quot; component={Add} /&gt;
+          &lt;/Switch&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><h3 id="解决默认路径不匹配的问题"><a href="#解决默认路径不匹配的问题" class="headerlink" title="解决默认路径不匹配的问题"></a>解决默认路径不匹配的问题</h3><p>当通过 <code>React Router</code> 访问 <code>/user</code> 的时候，会先加载 <code>User</code> 组件，再加载 <code>User</code> 内部的组件包括子导航，但是 <code>/user</code> 的路径既没有和 <code>/user/add</code> 匹配，也没有和 <code>/user/list</code> 匹配，这样渲染了一个空的类名为 <code>sub-containe</code> 的 <code>div</code> 标签，我们应该让 <code>User</code> 组件加载时子路由默认可以匹配一个路由组件，解决方式如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/User.js —— Redirect 组件重定向的方式 */
+import React, { Component } from &#39;react&#39;;
+import { Link, Route, Switch, Redirect } from &#39;react-router-dom&#39;;
+import Add from &#39;./Add&#39;;
+import List from &#39;./List&#39;;
+
+export default class User extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;ul className=&quot;sub-nav&quot;&gt;
+          &lt;li&gt;
+            &lt;Link to=&quot;/user/list&quot;&gt;用户列表&lt;/Link&gt;
+          &lt;/li&gt;
+          &lt;li&gt;
+            &lt;Link to=&quot;/user/add&quot;&gt;添加用户&lt;/Link&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;div className=&quot;sub-container&quot;&gt;
+          &lt;Switch&gt;
+            &lt;Route path=&quot;/user/list&quot; component={List} /&gt;
+            &lt;Route path=&quot;/user/add&quot; component={Add} /&gt;
+            &lt;Redirect to=&quot;/user/list&quot; /&gt; {/* 重定向到 List 组件 */}
+          &lt;/Switch&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>上面的方式是使用 <code>Redirect</code> 组件重定向的方式实现的，但是这样访问的 <code>/user</code>，路径会自动改变为 <code>/user/list</code>，感觉上有一些奇怪，当然还有另外的解决方式。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/User.js —— Route 组件严格匹配 */
+import React, { Component } from &#39;react&#39;;
+import { Link, Route, Switch } from &#39;react-router-dom&#39;;
+import Add from &#39;./Add&#39;;
+import List from &#39;./List&#39;;
+
+export default class User extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;ul className=&quot;sub-nav&quot;&gt;
+          &lt;li&gt;
+            &lt;Link to=&quot;/user/list&quot;&gt;用户列表&lt;/Link&gt;
+          &lt;/li&gt;
+          &lt;li&gt;
+            &lt;Link to=&quot;/user/add&quot;&gt;添加用户&lt;/Link&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;div className=&quot;sub-container&quot;&gt;
+          &lt;Switch&gt;
+            &lt;Route path=&quot;/user&quot; exact component={List} /&gt;
+            &lt;Route path=&quot;/user/list&quot; component={List} /&gt;
+            &lt;Route path=&quot;/user/add&quot; component={Add} /&gt;
+          &lt;/Switch&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>上面的方式是当匹配到了 <code>/user</code> 的路由也加载默认要渲染的 <code>List</code> 组件实现的，但是为了防止向下继续匹配，可以添加 <code>exact</code> 设置严格匹配，进一步优化可以使用 <code>Switch</code> 组件，让路由成功匹配一次后不再向下匹配。</p><h2 id="编程式导航"><a href="#编程式导航" class="headerlink" title="编程式导航"></a>编程式导航</h2><p>我们经常会遇到一个场景，就是在某些交互之后实现页面的自动跳转，而对于 <code>React</code> 搭建的单页面应用来说就是路由切换，在 <code>React</code> 中都最初是通过 <code>Link</code> 组件的点击手动实现的路由切换，那么怎么通过纯编程的方式在某些交互后自动切换路由呢，其实 <code>React Router</code> 的 <code>Route</code> 组件会给内部渲染的组件传递路由相关的三个参数 <code>history</code>、<code>location</code> 和 <code>match</code>。</p><blockquote class="pullquote warning"><p><strong><code>history</code> 上存储了 <code>length</code> 属性代表当前支持存入历史记录的数量，也同样存储了 <code>location</code>，用来存储路由路径的相关信息，还有用来操作路由跳转的方法 <code>go</code>（传入数字代表前进或后退几页）、<code>goBack</code>（后退）、<code>goForward</code>（前进）、<code>replace</code>（用其他路由替换当前历史）、<code>push</code>，其中最常用的就是 <code>push</code> 方法，下面会着重介绍，<code>match</code> 中存储了一些路由匹配的相关信息，如 <code>url</code>，即浏览器输入的路径，真正匹配的路径 <code>path</code> 属性以及是代表否严格匹配的 <code>isExact</code> 属性，在 <code>match</code> 中最重要的是 <code>params</code> 属性，值为对象，用来存储路由参数，这个我们放在后面来说。</strong></p></blockquote><p>下面在 <code>Add</code> 组件中添加一输入框和按钮，当点击按钮时将输入框的数据存入 <code>localStorage</code> 中，并自动将路由跳转到 <code>/user/list</code>，即渲染 <code>List</code> 组件，然后将数据取出渲染到 <code>List</code> 组件中，这是一个很常见的需求，添加数据然后跳到详情页的场景，下面是 <code>Add</code> 组件中的实现。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Add.js */
+import React, { Component } from &#39;react&#39;;
+
+export default class Add extends Component {
+  input = React.createRef() // 非受控组件取值
+
+  // 表单提交事件
+  handleSubmit = (e) =&gt; {
+    e.preventDefault(); // 取消默认的页面跳转事件
+
+    // 先从 localStorage 获取已有数据
+    const lists = JSON.parse(localStorage.getItem(&#39;lists&#39;)) || [];
+
+    // 添加新数据
+    lists.push({
+      id: lists.length + 1,
+      username: this.input.current.value
+    });
+
+    // 存入 localStorage
+    localStorage.setItem(&#39;lists&#39;, JSON.stringify(lists));
+
+    // 编程式导航，自动跳转到 List
+    this.props.history.push(&#39;/user/list&#39;);
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;form className=&quot;form&quot; onSubmit={this.handleSubmit}&gt;
+          &lt;label htmlFor=&quot;username&quot; className=&quot;control-label&quot;&gt;用户名&lt;/label&gt;
+          &lt;input
+            className=&quot;form-control&quot;
+            type=&quot;text&quot;
+            id=&quot;username&quot;
+            ref={this.input}
+          /&gt;
+          &lt;br /&gt;
+          &lt;input type=&quot;submit&quot; className=&quot;btn btn-success&quot; /&gt;
+        &lt;/form&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>在上面我们通过 <code>Route</code> 传递给渲染组件的 <code>history</code> 的 <code>push</code> 方法实现了路由的自动跳转，<code>push</code> 方法接收的参数就是将要跳转的路径字符串，<code>List</code> 组件代码如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/List.js */
+import React, { Component } from &#39;react&#39;;
+
+export default class List extends Component {
+  state = { users: [] }
+
+  componentWillMount() {
+    // 取出 localStorage 数据并更新状态
+    const users = JSON.parse(localStorage.getItem(&#39;lists&#39;)) || [];
+    this.setState({ users });
+  }
+
+  render() {
+    return (
+      &lt;table&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;
+            &lt;th&gt;用户 ID&lt;/th&gt;
+            &lt;th&gt;用户名&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          {
+            this.state.users.map(({ id, username }) =&gt; {
+              return (
+                &lt;tr key={id}&gt;
+                  &lt;td&gt;{id}&lt;/td&gt;
+                  &lt;td&gt;{username}&lt;/td&gt;
+                &lt;/tr&gt;
+              )
+            })
+          }
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    )
+  }
+}
+</code></pre><p>取出 <code>localStorage</code> 中的数据在 <code>List</code> 中渲染时有两点注意，第一是取出数据和设置状态应该在 <code>render</code> 渲染 <code>JSX</code> 之前，这样在没有执行 <code>render</code> 时会合并状态并只渲染一次，也就是说 <code>componentWillMount</code> “钩子” 和 <code>render</code> “钩子” 的 <code>return</code> 语句前更新状态都是可以的，如果在 <code>componentDidMount</code> “钩子” 中更新会导致组件渲染两次，在 <code>React</code> 开发中如果获取数据的过程是同步的（<code>localStorage</code> 取值是同步的），不需要渲染两次。</p><p>第二点是在使用表格元素 <code>table</code> 渲染时，必须要含有 <code>thead</code> 和 <code>tbody</code>，这是 <code>React</code> 规定的，不可以省略。</p><h2 id="路由参数的传递"><a href="#路由参数的传递" class="headerlink" title="路由参数的传递"></a>路由参数的传递</h2><p>现在在我们的 <code>List</code> 组件表格中，点击每一行都可以跳转到学生 <code>ID</code> 对应的详情 <code>Detail</code> 组件中，由于每一个学生的 <code>ID</code> 不同渲染的详情也不相同，此时需要将学生 <code>ID</code> 作为路由参数进行传递，并在 <code>Detail</code> 内渲染对应的内容，由于 <code>Detail</code> 组件的渲染与 <code>List</code> 组件是同一区域，所以仍然是二级路由，我们需要在 <code>User</code> 组件中进行添加。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/User.js —— 增加 Detail 二级路由 */
+import React, { Component } from &#39;react&#39;;
+import { Link, Route, Switch } from &#39;react-router-dom&#39;;
+import Add from &#39;./Add&#39;;
+import List from &#39;./List&#39;;
+import Detail from &#39;./Detail&#39;;
+
+export default class User extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;ul className=&quot;sub-nav&quot;&gt;
+          &lt;li&gt;
+            &lt;Link to=&quot;/user/list&quot;&gt;用户列表&lt;/Link&gt;
+          &lt;/li&gt;
+          &lt;li&gt;
+            &lt;Link to=&quot;/user/add&quot;&gt;添加用户&lt;/Link&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;div className=&quot;sub-container&quot;&gt;
+          &lt;Switch&gt;
+            &lt;Route path=&quot;/user&quot; exact component={List} /&gt;
+            &lt;Route path=&quot;/user/list&quot; component={List} /&gt;
+            &lt;Route path=&quot;/user/add&quot; component={Add} /&gt;
+            &lt;Route path=&quot;/user/detail/:id&quot; component={Detail} /&gt;
+          &lt;/Switch&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>在 <code>React Router</code> 中，我们通过给路由后面添加 <code>/:paramname</code> 的方式添加参数，也可以通过 <code>/:paramname/:paramname</code> 传递多个参数（形参），由于在 <code>List</code> 中点击表格的的某行的单元格跳转路由，所以 <code>List</code> 组件修改如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/List.js —— 点击跳转 Detail 并传递路由参数 */
+import React, { Component } from &#39;react&#39;;
+import { Link } from &#39;react-router-dom&#39;;
+
+export default class List extends Component {
+  state = { users: [] }
+
+  componentWillMount() {
+    // 取出 localStorage 数据并更新状态
+    const users = JSON.parse(localStorage.getItem(&#39;lists&#39;)) || [];
+    this.setState({ users });
+  }
+
+  render() {
+    return (
+      &lt;table&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;
+            &lt;th&gt;用户 ID&lt;/th&gt;
+            &lt;th&gt;用户名&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+            {
+              this.state.users.map(({ id, username }) =&gt; {
+                return (
+                  &lt;tr key={id}&gt;
+                    &lt;td&gt;{id}&lt;/td&gt;
+                    &lt;td&gt;
+                      &lt;Link to={`/user/detail/${id}`}&gt;{username}&lt;/Link&gt;
+                    &lt;/td&gt;
+                  &lt;/tr&gt;
+                )
+              })
+            }
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    )
+  }
+}
+</code></pre><p>在 <code>List</code> 组件中，同样使用 <code>Link</code> 组件对要点击切换路由的节点进行包裹，并用 <code>to</code> 属性设置跳转的路由和路由参数（实参），现在点击就可以实现从 <code>List</code> 组件到 <code>Detail</code> 组件的切换，如果我们有些 <code>List</code> 的数据想在跳转到 <code>Detail</code> 组件时直接带过去，则可以使用另一种写法如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/List.js —— 点击跳转 Detail 并传递路由参数和数据 */
+import React, { Component } from &#39;react&#39;;
+import { Link } from &#39;react-router-dom&#39;;
+
+export default class List extends Component {
+  state = { users: [] }
+
+  componentWillMount() {
+      // 取出 localStorage 数据并更新状态
+      const users = JSON.parse(localStorage.getItem(&#39;lists&#39;)) || [];
+      this.setState({ users });
+  }
+
+  render() {
+    return (
+      &lt;table&gt;
+        &lt;thead&gt;
+          &lt;tr&gt;
+            &lt;th&gt;用户 ID&lt;/th&gt;
+            &lt;th&gt;用户名&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          {
+            this.state.users.map(({ id, username }) =&gt; {
+              return (
+                &lt;tr key={id}&gt;
+                  &lt;td&gt;{id}&lt;/td&gt;
+                  &lt;td&gt;
+                    &lt;Link
+                      to={{
+                        pathname: `/user/detail/${id}`,
+                        state: username
+                      }}
+                    &gt;
+                      {username}
+                    &lt;/Link&gt;
+                  &lt;/td&gt;
+                &lt;/tr&gt;
+              )
+            })
+          }
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    )
+  }
+}
+</code></pre><p>不同的是给 <code>to</code> 属性传入的值从一个代表路由的字符串变成了一个对象，而把路由的字符串作为了 <code>pathname</code> 属性的值，<code>state</code> 属性则代表了路由跳转传给渲染组件的数据，还记得渲染的组件使用 <code>Route</code> 组件包裹的，会传入 <code>history</code>、<code>loacltion</code> 和 <code>match</code> 三个属性，同样的，通过点击 <code>Link</code> 传递的路由参数和数据都可以在 <code>props</code> 上获取到，前者通过 <code>location.state</code> 或者 <code>history.location.state</code> 上获取到，后者可以通过 <code>match.params</code> 上获取到，那么 <code>Detail</code> 组件将传递过来的参数渲染，代码如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Detail.js */
+import React, { Component } from &#39;react&#39;;
+
+export default class Detail extends Component {
+  state = { user: {} }
+
+  componentWillMount() {
+    // 有值说明是点击过来的，否则是地址栏输入的
+    const data = this.props.location.state;
+
+    // 获取路由参数
+    const id = parseInt(this.props.match.params.id);
+
+    // 如果是点击过来的直接将数据设置给 state，否则去 localStorage 取值设置给 state
+    if (data) {
+      this.setState({ user: { id, username: data }});
+    } else {
+      const users = JSON.parse(localStorage.getItem(&#39;lists&#39;)) || [];
+      const user = users.find(item =&gt; item.id === id);
+
+      this.setState({ user: { id, username: user.username }});
+    }
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;span&gt;{this.state.user.id}&lt;/span&gt;
+        &lt;span&gt; ------- &lt;/span&gt;
+        &lt;span&gt;{this.state.user.username}&lt;/span&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><blockquote class="pullquote warning"><p><strong>这里有两点注意点：</strong></p><ul><li><strong>首先通过组件 <code>props.match.params</code> 获取的路由参数都是字符串格式，如果原本类型为数字，使用时应转换成数字类型；</strong></li><li><strong>其次是传递的数据，也就是组件通过 <code>props.location.state</code> 获取的数据，只有在通过 <code>Link</code>组件点击过去才会存在，在地址栏输入为 <code>undefined</code>，所以防止用户刷新页面导致数据丢失，应该在两种情况下处理不同的获取数据的逻辑。</strong></li></ul></blockquote><h2 id="withRouter-函数"><a href="#withRouter-函数" class="headerlink" title="withRouter 函数"></a>withRouter 函数</h2><p>在之前的编程式导航中我们使用了 <code>Route</code> 传递给渲染组件的 <code>props.history.push</code> 方法实现的，现在假设我们要对一个不是路由跳转的组件，通过点击事件来获取 <code>history</code>、<code>location</code> 和 <code>match</code> 属性，并使用 <code>history</code> 上的路由设置方法进行跳转路由，这应该如何实现呢？</p><p>其实 <code>React Route</code> 给我们提供了一个函数 <code>withRouter</code> 方法，在调用该方法时，则会返回一个新的组件，当然其实这是一个高阶组件的应用，<code>withRouter</code> 方法内部帮我们在传入的组件外层包装了一层 <code>Route</code> 组件，并传入了 <code>history</code>、<code>location</code> 和 <code>match</code> 属性作为参数，所以当我们使用返回的组件时可以通过 <code>props</code> 属性获取 <code>history</code>、<code>location</code> 和 <code>match</code>。</p><p>下面针对我们之前的 <code>Index</code> 组件的内的 “管理系统” 的标签抽出一个新的组件，并将这个组件添加点击可以跳转到登录页 <code>Login</code> 组件的功能，<code>Login</code> 组件为一级路由，所以我们应该修改 <code>App</code> 组件，添加一个 <code>/login</code> 的路由，<code>Login</code> 和修改后的 <code>App</code> 组件如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/App.js —— 添加 Login 组件路由 */
+import React, { Component } from &#39;react&#39;;
+import { HashRouter, Route, Switch, Redirect } from &#39;react-router-dom&#39;;
+import Home from &#39;./pages/Home&#39;;
+import User from &#39;./pages/User&#39;;
+import Profile from &#39;./pages/Profile&#39;;
+import Index from &#39;./pages/Index&#39;;
+import Login from &#39;./pages/Login&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;HashRouter&gt;
+        &lt;Index&gt;
+          &lt;Switch&gt;
+            &lt;Route path=&quot;/home&quot; component={Home }/&gt;
+            &lt;Route path=&quot;/user&quot; exact={true} component={User} /&gt;
+            &lt;Route path=&quot;/profile&quot; component={Profile} /&gt;
+            &lt;Route path=&quot;/login&quot; component={Login}/&gt; {/* 添加登录页路由 */}
+            &lt;Redirect to=&quot;/home&quot; /&gt; {/* 无法匹配路由时重定向 */}
+          &lt;/Switch&gt;
+        &lt;/Index&gt;
+      &lt;/HashRouter&gt;
+    )
+  }
+}
+</code></pre><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Login.js —— 添加登录和退出功能 */
+import React, { Component } from &#39;react&#39;;
+
+export default class Login extends Component {
+  login = () =&gt; {
+    localStorage.setItem(&#39;login&#39;, &#39;ok&#39;);
+  }
+
+  exit = () =&gt; {
+    localStorage.removeItem(&#39;login&#39;);
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;button onClick={this.login}&gt;登录&lt;/button&gt;
+        &lt;button onClick={this.exit}&gt;退出&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>在 <code>Login</code> 中顺便添加了两个按钮来模拟 “登录” 和 “退出”，并给按钮添加了事件，在登录时向 <code>localStorage</code> 中添加 <code>login</code> 属性，在退出时清除这个属性，以模拟登录状态。</p><p>抽取出 <code>Logo</code> 后的 <code>Index</code> 组件也应该添加一个新的导航为 “登录”，<code>Login</code> 组件和修改后的 <code>Index</code> 组件如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Index.js —— 抽出 Logo 组件并添加登录导航 */
+import React, { Component } from &#39;react&#39;;
+import { Link } from &#39;react-router-dom&#39;;
+import Logo from &#39;./Logo&#39;;
+
+export default class Index extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;Logo /&gt;
+      &lt;/div&gt;
+      &lt;ul className=&quot;nav&quot;&gt;
+        &lt;li&gt;
+          &lt;Link to=&quot;/home&quot;&gt;首页&lt;/Link&gt;
+        &lt;/li&gt;
+        &lt;li&gt;
+          &lt;Link to=&quot;/user&quot;&gt;用户&lt;/Link&gt;
+        &lt;/li&gt;
+        &lt;li&gt;
+          &lt;Link to=&quot;/profile&quot;&gt;个人中心&lt;/Link&gt;
+        &lt;/li&gt;
+        &lt;li&gt;
+          &lt;Link to=&quot;/login&quot;&gt;登录&lt;/Link&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;div className=&quot;container&quot;&gt;
+        {this.props.children}
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Logo.js */
+import React, { Component } from &#39;react&#39;;
+import { withRouter } from &#39;react-router-dom&#39;;
+
+class Logo extends Component {
+  change = () =&gt; {
+    console.log(this.props);
+    this.props.history.push(&#39;/login&#39;);
+  }
+
+  render() {
+    return (
+      &lt;div className=&quot;navbar-brand&quot; onClick={this.change}&gt;管理系统&lt;/div&gt;
+    )
+  }
+}
+
+export default withRouter(Logo);
+</code></pre><p>通过 <code>Logo</code> 案例的代码我们可以看出，其实最后导出的并不是 <code>Logo</code> 组件，而是使用 <code>withRouter</code> 函数包装后返回的高阶组件，<code>withRouter</code> 方法内部帮我们搞定了 <code>Logo</code> 组件的 <code>props</code> 没有 <code>history</code>、<code>location</code> 和 <code>match</code> 属性的问题。</p><h2 id="受保护的路由"><a href="#受保护的路由" class="headerlink" title="受保护的路由"></a>受保护的路由</h2><p>以前在点击个人中心时会直接渲染 <code>Profile</code> 组件，在给 <code>Login</code> 组件添加 “登录” 和 “退出” 之后，再次点击个人中心时，应该先对登录状态进行验证，如果 <code>localStorage</code> 中存在 <code>login</code> 属性，则渲染 <code>Profile</code> 的 <code>Route</code> 组件，否则重定向到登录页，如果在登录页点击登录后再重新跳回个人中心（从哪来回哪去）。</p><p>这就需要我对 <code>App</code> 组件路由部分的代码进行修改，使用高阶组件来添加登录验证逻辑，当然，这个高阶组件不是 <code>React Router</code> 提供的，需要我们自己来实现，这种做法被官方称作 “受保护的路由”。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/App.js —— 添加受保护的路由 */
+import React, { Component } from &#39;react&#39;;
+import { HashRouter, Route, Switch, Redirect } from &#39;react-router-dom&#39;;
+import Home from &#39;./pages/Home&#39;;
+import User from &#39;./pages/User&#39;;
+import Profile from &#39;./pages/Profile&#39;;
+import Index from &#39;./pages/Index&#39;;
+import Login from &#39;./pages/Login&#39;;
+import Protected from &#39;./pages/Protected&#39;;
+
+export default class App extends Component {
+  render() {
+    return (
+      &lt;HashRouter&gt;
+        &lt;Index&gt;
+          &lt;Switch&gt;
+            &lt;Route path=&quot;/home&quot; component={Home} /&gt;
+            &lt;Route path=&quot;/user&quot; exact component={User} /&gt;
+            {/* 添加受保护的路由 */}
+            &lt;Protected path=&quot;/profile&quot; component={Profile} /&gt;
+            &lt;Route path=&quot;/login&quot; component={Login} /&gt;
+            {/* 无法匹配路由时重定向 */}
+            &lt;Redirect to=&quot;/home&quot; /&gt;
+          &lt;/Switch&gt;
+        &lt;/Index&gt;
+      &lt;/HashRouter&gt;
+    )
+  }
+}
+</code></pre><p>我们重写了 <code>App</code> 组件中个人中心对应的路由，将原来的 <code>Route</code> 组件用高阶组件 <code>Protected</code> 代替，也就等于是将原本传入的参数 <code>path</code> 和 <code>component</code> 传入了高阶组件 <code>Protected</code>，下面来看一下高阶组件 <code>Protected</code> 的实现。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Protected.js —— 添加受保护的路由 */
+import React, { Component } from &#39;react&#39;;
+import { Route, Redirect } from &#39;react-router-dom&#39;;
+
+export default class Protected extends Component {
+  render() {
+    const login = localStorage.getItem(&#39;login&#39;);
+    return login ? (
+      &lt;Route {...this.props} /&gt;
+    ) : (
+      &lt;Redirect to={{ pathname: '/login', state: { 'from': '/profile' }}} /&gt;
+    )
+  }
+}
+</code></pre><p>在 <code>Protected</code> 获取登录状态，存在时直接渲染了 <code>Route</code> 组件，并将 <code>path</code> 和 <code>component</code> 参数传入，如果不存在则渲染 <code>Redirect</code> 组件重定向到登录页，传入的参数同 <code>Link</code> 组件的规则相同，<code>pathname</code> 代表重定向的路径，<code>state</code> 代表带过去的数据，我们这里添加了一个 <code>from</code> 属性，用来记录渲染登录页的来源，即个人中心。</p><p>接下来就是 <code>Login</code> 组件中在点击登录后验证是否存在 <code>state</code>，如果存在则返回存储的 <code>from</code> 对应的路由，即个人中心，不存在则跳回首页，<code>Login</code> 修改如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Login.js —— 完善登录功能 */
+import React, { Component } from &#39;react&#39;;
+
+export default class Login extends Component {
+  login = () =&gt; {
+    localStorage.setItem(&#39;login&#39;, &#39;ok&#39;);
+
+    // 获取上一个路由传递的 state
+    const prevPathDate = this.props.location.state;
+
+    // 存在 state 则返回来源对应的页面，否则回主页
+    if (prevPathDate) {
+      this.props.history.push(prevPathDate.from);
+    } else {
+      this.props.history.push(&#39;/home&#39;);
+    }
+  }
+
+  exit = () =&gt; {
+    localStorage.removeItem(&#39;login&#39;);
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;button onClick={this.login}&gt;登录&lt;/button&gt;
+        &lt;button onClick={this.exit}&gt;退出&lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>这样 “受保护的路由” 功能就实现了，其实就是在跳转路由之前起到了一个 “拦截” 的作用，经常的使用场景是权限管理，这是一个路由的应用，也是一个高阶组件的应用，这样的应用在大型复杂的 <code>React</code> 中会频繁使用，还是比较重要的。</p><h2 id="NavLink-组件"><a href="#NavLink-组件" class="headerlink" title="NavLink 组件"></a>NavLink 组件</h2><p>在实际项目开发中，我们经常遇到导航标签被选中时被添加一个代表 “激活” 的类名，用于添加与其他导航选项不同的样式，<code>React Router</code> 已经给我们提供了 <code>NavLink</code> 组件用于实现这个功能，<code>NavLink</code> 组件具备 <code>Link</code> 组件所有的功能，唯一不同的就是 <code>NavLink</code> 组件在被选中时不止发生路由跳转，还会给渲染后的 <code>a</code> 标签添加一个名为 <code>active</code> 的 <code>class</code> 属性，而我们只需要通过 <code>css</code> 去给类名 <code>active</code> 设置样式即可。</p><pre><code class="lang-css">/* 路径：~react-router/src/index.css —— 激活样式 */
+a.active {
+  color: skyblue !important;
+}
+</code></pre><p>设置好激活样式以后，我们只需要在 <code>Index</code> 组件中引入激活样式的 <code>css</code> 文件并将 <code>Link</code> 组件替换成 <code>NavLink</code> 组件即可。</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Index.js —— 将 Link 修改为 NavLink */
+import React, { Component } from &#39;react&#39;;
+import { NavLink } from &#39;react-router-dom&#39;;
+import Logo from &#39;./Logo&#39;;
+
+// 引入激活样式
+import &#39;../index.css&#39;;
+
+export default class Index extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;Logo /&gt;
+      &lt;/div&gt;
+      &lt;ul className=&quot;nav&quot;&gt;
+        &lt;li&gt;
+          &lt;NavLink to=&quot;/home&quot;&gt;首页&lt;/NavLink&gt;
+        &lt;/li&gt;
+        &lt;li&gt;
+          &lt;NavLink to=&quot;/user&quot;&gt;用户&lt;/NavLink&gt;
+        &lt;/li&gt;
+        &lt;li&gt;
+          &lt;NavLink to=&quot;/profile&quot;&gt;个人中心&lt;/NavLink&gt;
+        &lt;/li&gt;
+        &lt;li&gt;
+          &lt;NavLink to=&quot;/login&quot;&gt;登录&lt;/NavLink&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;div className=&quot;container&quot;&gt;
+        {this.props.children}
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><h2 id="自定义导航组件实现激活"><a href="#自定义导航组件实现激活" class="headerlink" title="自定义导航组件实现激活"></a>自定义导航组件实现激活</h2><p><code>React Router</code> 在给我们提供的导航组件 <code>NavLink</code> 功能有限，只会给内部的 <code>a</code> 标签在选中时添加 <code>active</code> 类名，如果我们想实现给一个 <code>li</code> 标签添加 <code>active</code> 就需要我们自己封装一个组件来实现这个功能，其实还是通过高阶组件来实现的，首先我们定义这个高阶组件的名字为 <code>MenuLink</code>，将 <code>Index</code> 组件中的 <code>li</code> 标签和 <code>NavLink</code> 组件统一替换成 <code>MenuLink</code> 组件，代码如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/Index.js —— 将 Link 修改为 NavLink */
+import React, { Component } from &#39;react&#39;;
+import { NavLink } from &#39;react-router-dom&#39;;
+import Logo from &#39;./Logo&#39;;
+import MenuLink from &#39;./MenuLink&#39;
+
+export default class Index extends Component {
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;Logo /&gt;
+      &lt;/div&gt;
+      &lt;ul className=&quot;nav&quot;&gt;
+        &lt;MenuLink to=&quot;/home&quot;&gt;首页&lt;/MenuLink&gt;
+        &lt;MenuLink to=&quot;/user&quot;&gt;用户&lt;/MenuLink&gt;
+        &lt;MenuLink to=&quot;/profile&quot;&gt;个人中心&lt;/MenuLink&gt;
+        &lt;MenuLink to=&quot;/login&quot;&gt;登录&lt;/MenuLink&gt;
+      &lt;/ul&gt;
+      &lt;div className=&quot;container&quot;&gt;
+        {this.props.children}
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre><p>在实现 <code>MenuLink</code> 组件之前我们分析一下实现思路，首先我们依然模拟 <code>NavLink</code> 的方式给 <code>MenuLink</code> 传入了 <code>to</code> 属性，值为将要跳转的路由，所以我们应该在 <code>MenuLink</code> 组件中来接收这个路由，而 <code>MenuLink</code> 内部一定是包含 <code>li</code> 和 <code>Link</code> 组件的，我们可以将这个 <code>to</code> 属性传递给 <code>Link</code> 组件，如果想要通过激活状态给外层的 <code>li</code> 标签设置状态我们需要知道是否匹配了路由，并可以通过 <code>match</code> 属性获得，所以在 <code>li</code> 的外层应该有 <code>Route</code> 组件配合，因为只有 <code>Route</code> 组件才会将 <code>history</code>、<code>location</code> 和 <code>match</code> 作为参数传递给其内部渲染的组件。</p><p>这就要说到 <code>Route</code> 组件的渲染模式，在传入 <code>component</code> 属性时，只有匹配组件才会渲染内部组件，我们显然是需要时时刻刻都渲染内部的 <code>li</code> 和 <code>Link</code>，并通过点击 <code>Link</code> 渲染真正的路由组件，所以我们需要用到第二种渲染方式，就是通过 <code>children</code> 属性指定时刻需要渲染的组件，实现代码如下：</p><pre><code class="lang-jsx">/* 路径：~react-router/src/pages/MenuLink.js */
+import React, { Component } from &#39;react&#39;;
+import { Route, Link } from &#39;react-router-dom&#39;;
+import &#39;../index.css&#39;;
+
+export default class MenuLink extends Component {
+  render() {
+    return (
+      &lt;Route
+        path={this.props.to}
+        children={({ match }) =&gt; (
+          &lt;li className={match ? &#39;active&#39; : &#39;&#39;}&gt;
+            &lt;Link to={this.props.to}&gt;{this.props.children}&lt;/Link&gt;
+          &lt;/li&gt;
+        )}
+      /&gt;
+    )
+  }
+}
+</code></pre><p>上面代码中由于 <code>children</code> 组件并不需要操作状态和使用生命周期 “钩子”，所以我们直接使用了函数组件实现，因为 <code>active</code> 类名添加给了 <code>li</code>，所以我们需要在 <code>MenuLink</code> 组件中引入样式文件 <code>index.css</code> 并将修改，代码如下：</p><pre><code class="lang-css">/* 路径：~react-router/src/index.css —— 激活样式修改后 */
+li.active a {
+  color: skyblue !important;
+}
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>本篇通过一个简单的案例使用了由 <code>React Router</code> 所提供的、开发中常用的功能，但美中不足的是并没有使用一些 <code>UI</code> 库或者 <code>CSS</code> 样式来美化，为了更明显的看到 <code>React Router</code> 各个功能使用后的效果，建议大家在实现上面代码的同时自己添加一些 <code>CSS</code> 样式。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180921182754/" target="_blank" rel="external">https://www.overtaking.top/20180921182754/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/" rel="tag">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Router/" rel="tag">Router</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180921182754/&title=《React 基础篇 —— Router 4.0 的基本使用》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180921182754/&title=《React 基础篇 —— Router 4.0 的基本使用》 — Shen's Blog&source=React 路由简介在 Web 应用中，路由系统是不可或缺的一部分，尤其是单页面应用，在浏览器 URL 发生变化时，路由系统会做出一些响应，来控制组件的加..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180921182754/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《React 基础篇 —— Router 4.0 的基本使用》 — Shen's Blog&url=https://www.overtaking.top/20180921182754/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180921182754/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180925190503/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">设计模式 JS 表现 —— 工厂模式</h4></a></div><div class="waves-block waves-effect next"><a href="/20180919002629/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">React 基础篇 —— 组件间的参数传递</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180921182754/&title=《React 基础篇 —— Router 4.0 的基本使用》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180921182754/&title=《React 基础篇 —— Router 4.0 的基本使用》 — Shen's Blog&source=React 路由简介在 Web 应用中，路由系统是不可或缺的一部分，尤其是单页面应用，在浏览器 URL 发生变化时，路由系统会做出一些响应，来控制组件的加..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180921182754/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《React 基础篇 —— Router 4.0 的基本使用》 — Shen's Blog&url=https://www.overtaking.top/20180921182754/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180921182754/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAAByUlEQVR42u3aS3KEMAwFQO5/abJNFmae5E8xqfaKGsBuz0KFJF9XPO5fY3S3+vzo7oKBi4s7zb0fx/MCyTOju6N3RwZcXNzz3OfwNLoeLVYNf3mIxMXFfTM3CW1JuMTFxf1P3OTzJd8YLi7uO7l5oKkGsmpytSxXw8XFneDmVcp911vqu7i4uC3uXRx5UlQtoUar4+LiHuHmASX/BMlTqeq6uLi4Z7gzBYu8LDJ/vuKqdnpxcXGnuUmxI4qIxeCVl0X+BDJcXNyD3OoUvVZKr7mCi4t7nrtsulbyU/gjcHFxj3BXHZ7IQfMHv3BxcXdzZ9oeeSJUbb18iLu4uLibuUlJNP+UybeRrDhcCxcX9yC3Oul8IXUqkOHi4h7h5kcu5o9kJRse2nBxcQ9y8/Qmr7hUtxRtGxcX9zi3GjH2tVqbyQ8uLu5Sbt4m6TVZ84TqwzO4uLibuXdx5GXTfJ5CmoSLi3uE2yuD5lP3mjTV8isuLu4ObjV4TR2eKJZaytEXFxd3Kbd38CIvdmzM1XBxcV/A7SVOvXCJi4v7XdxektPLwAoHs3BxcZdyq8XN6lvV4kjUE8bFxd3G7ZU+k19mWq0L6ru4uLgd7g+bzJp5v/xF7gAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>

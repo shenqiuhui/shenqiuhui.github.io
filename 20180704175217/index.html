@@ -1,0 +1,648 @@
+<!DOCTYPE html><html><head><script>var _hmt=_hmt||[]</script><script async src="//hm.baidu.com/hm.js?HIpscSc60YSz75aC"></script><meta charset="utf-8"><title>Node.js —— 流的原理分析与简易实现 | Shen&#39;s Blog</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#3F51B5"><meta name="keywords" content="Node.js,源码分析,Stream"><meta name="description" content="前言在之前的文章中有一篇讲解了流的基本用法，本篇的重点在于根据可读流的用法对可读流的原理进行分析，实现简易版的 Stream，而并非流的使用，下面代码中依赖了 fs 的很多基本操作和流的基本使用知识，可以看下面两篇：Node.js 文件操作 —— fs 基本使用。Node.js —— Stream 的基本使用。"><meta property="og:type" content="article"><meta property="og:title" content="Node.js —— 流的原理分析与简易实现"><meta property="og:url" content="https://www.overtaking.top/20180704175217/index.html"><meta property="og:site_name" content="Shen&#39;s Blog"><meta property="og:description" content="前言在之前的文章中有一篇讲解了流的基本用法，本篇的重点在于根据可读流的用法对可读流的原理进行分析，实现简易版的 Stream，而并非流的使用，下面代码中依赖了 fs 的很多基本操作和流的基本使用知识，可以看下面两篇：Node.js 文件操作 —— fs 基本使用。Node.js —— Stream 的基本使用。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://static.overtaking.top/images/Node.js/20180704175217/stream.png"><meta property="article:published_time" content="2018-07-04T09:52:17.000Z"><meta property="article:modified_time" content="2020-08-30T19:51:52.000Z"><meta property="article:author" content="Panda Shen"><meta property="article:tag" content="Node.js"><meta property="article:tag" content="源码分析"><meta property="article:tag" content="Stream"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://static.overtaking.top/images/Node.js/20180704175217/stream.png"><link rel="alternate" type="application/atom+xml" title="Shen&#39;s Blog" href="/rss2.xml"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" type="image/png" sizes="16x16" href="/function%20small()%20%7B%20%5Bnative%20code%5D%20%7D"><link rel="stylesheet" href="/css/style.css?v=1.7.2"><link rel="stylesheet" href="/css/prism/prism-atom-dark.css?v=1.7.2"><script>window.lazyScripts=[]</script><meta name="generator" content="Hexo 4.2.1"></head><body><div id="loading" class="active"></div><aside id="menu" class="hide"><div class="inner flex-row-vertical"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off"><i class="icon icon-lg icon-close"></i></a><div class="brand-wrap" style="background-image:url(/img/brand-bg.jpg)"><div class="brand"><a href="/" class="avatar waves-effect waves-circle waves-light"><img src="/img/avatar.jpeg"></a><hgroup class="introduce"><h5 class="nickname">Panda Shen</h5><a href="mailto:pandashen821@163.com" title="pandashen821@163.com" class="mail">pandashen821@163.com</a></hgroup></div></div><div class="scroll-wrap flex-col"><ul class="nav"><li class="waves-block waves-effect"><a href="/"><i class="icon icon-lg icon-home"></i> Home</a></li><li class="waves-block waves-effect"><a href="/tags"><i class="icon icon-lg icon-tags"></i> Tags</a></li><li class="waves-block waves-effect"><a href="/categories"><i class="icon icon-lg icon-th-list"></i> Categories</a></li><li class="waves-block waves-effect"><a href="/archives"><i class="icon icon-lg icon-archives"></i> Archives</a></li><li class="waves-block waves-effect"><a href="/link"><i class="icon icon-lg icon-link"></i> Links</a></li><li class="waves-block waves-effect"><a href="/about"><i class="icon icon-lg icon-user"></i> About</a></li><li class="waves-block waves-effect"><a href="https://github.com/shenqiuhui" target="_blank"><i class="icon icon-lg icon-github"></i> Github</a></li></ul></div></div></aside><main id="main"><header class="top-header" id="header"><div class="flex-row"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle"><i class="icon icon-lg icon-navicon"></i></a><div class="flex-col header-title ellipsis">Node.js —— 流的原理分析与简易实现</div><div class="search-wrap" id="search-wrap"><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back"><i class="icon icon-lg icon-chevron-left"></i> </a><input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字"> <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search"><i class="icon icon-lg icon-search"></i></a></div><a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare"><i class="icon icon-lg icon-share-alt"></i></a></div></header><header class="content-header post-header"><div class="container fade-scale"><h1 class="title">Node.js —— 流的原理分析与简易实现</h1><h5 class="subtitle"><time datetime="2018-07-04T09:52:17.000Z" itemprop="datePublished" class="page-time">2018-07-04</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul></h5></div></header><div class="container body-wrap"><aside class="post-widget"><nav class="post-toc-wrap post-toc-shrink" id="post-toc"><h4>文章目录</h4><ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#前言"><span class="post-toc-number">1.</span> <span class="post-toc-text">前言</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#可读流的实现（流动模式）"><span class="post-toc-number">2.</span> <span class="post-toc-text">可读流的实现（流动模式）</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#ReadStream-类创建"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">ReadStream 类创建</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#打开文件方法-open-的实现"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">打开文件方法 open 的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#关闭文件方法-destroy-的实现"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">关闭文件方法 destroy 的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#读取文件方法-read-的实现"><span class="post-toc-number">2.4.</span> <span class="post-toc-text">读取文件方法 read 的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#暂停、恢复读取-pause-和-resume"><span class="post-toc-number">2.5.</span> <span class="post-toc-text">暂停、恢复读取 pause 和 resume</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#验证可读流（流动模式）ReadStream"><span class="post-toc-number">3.</span> <span class="post-toc-text">验证可读流（流动模式）ReadStream</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#可读流的实现（暂停模式）"><span class="post-toc-number">4.</span> <span class="post-toc-text">可读流的实现（暂停模式）</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#在-fs-中的暂停模式的真正用法"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">在 fs 中的暂停模式的真正用法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#ReadableStream-类的实现"><span class="post-toc-number">4.2.</span> <span class="post-toc-text">ReadableStream 类的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#打开、关闭文件-open-和-detroy"><span class="post-toc-number">4.3.</span> <span class="post-toc-text">打开、关闭文件 open 和 detroy</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#从-“容器”-中读取-read-方法的实现"><span class="post-toc-number">4.4.</span> <span class="post-toc-text">从 “容器” 中读取 read 方法的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#真正读取文件的-read"><span class="post-toc-number">4.5.</span> <span class="post-toc-text">真正读取文件的 _read</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#验证可读流（暂停模式）ReadableStream"><span class="post-toc-number">5.</span> <span class="post-toc-text">验证可读流（暂停模式）ReadableStream</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#可写流的实现"><span class="post-toc-number">6.</span> <span class="post-toc-text">可写流的实现</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#WriteStream-类创建"><span class="post-toc-number">6.1.</span> <span class="post-toc-text">WriteStream 类创建</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#打开、关闭文件-open-和-detroy-1"><span class="post-toc-number">6.2.</span> <span class="post-toc-text">打开、关闭文件 open 和 detroy</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#写入文件方法-write-的实现"><span class="post-toc-number">6.3.</span> <span class="post-toc-text">写入文件方法 write 的实现</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#真正的文件操作-write"><span class="post-toc-number">6.4.</span> <span class="post-toc-text">真正的文件操作 _write</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#清空缓存操作-clearBuffer"><span class="post-toc-number">6.5.</span> <span class="post-toc-text">清空缓存操作 clearBuffer</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#验证可写流-WriteStream"><span class="post-toc-number">7.</span> <span class="post-toc-text">验证可写流 WriteStream</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#可读流和可写流的桥梁-pipe"><span class="post-toc-number">8.</span> <span class="post-toc-text">可读流和可写流的桥梁 pipe</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#总结"><span class="post-toc-number">9.</span> <span class="post-toc-text">总结</span></a></li></ol></nav></aside><article id="post-Node.js/20180704175217" class="post-article article-type-post fade" itemprop="blogPost"><div class="post-card"><h1 class="post-card-title">Node.js —— 流的原理分析与简易实现</h1><div class="post-meta"><time class="post-time" title="2018-07-04 17:52:17" datetime="2018-07-04T09:52:17.000Z" itemprop="datePublished">2018-07-04</time><ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/Node-js/">Node.js</a></li></ul><span id="/20180704175217/" class="leancloud-visitors" title="文章总阅读量" data-flag-title="Node.js —— 流的原理分析与简易实现"><i class="icon icon-eye icon-pr post-meta-item-text"></i><span class="leancloud-visitors-count"></span></span></div><div class="post-content" id="post-content" itemprop="postContent"><img loading="lazy" src="//static.overtaking.top/images/Node.js/20180704175217/stream.png" title="流的实现原理"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote warning"><p><strong>在之前的文章中有一篇讲解了流的基本用法，本篇的重点在于根据可读流的用法对可读流的原理进行分析，实现简易版的 <code>Stream</code>，而并非流的使用，下面代码中依赖了 <code>fs</code> 的很多基本操作和流的基本使用知识，可以看下面两篇：</strong></p><ul><li><a href="/20180630172601/" target="_blank">Node.js 文件操作 —— fs 基本使用</a>。</li><li><a href="/20180703231032/" target="_blank">Node.js —— Stream 的基本使用</a>。</li></ul></blockquote><a id="more"></a><h2 id="可读流的实现（流动模式）"><a href="#可读流的实现（流动模式）" class="headerlink" title="可读流的实现（流动模式）"></a>可读流的实现（流动模式）</h2><h3 id="ReadStream-类创建"><a href="#ReadStream-类创建" class="headerlink" title="ReadStream 类创建"></a>ReadStream 类创建</h3><p>在使用 <code>fs</code> 的 <code>createReadStream</code> 创建可读流时，返回了 <code>ReadStream</code> 对象，上面存在着一些事件和方法，其实我们在创建这个可读流的时候创建了某一个类的实例，这个实例可以调用类原型上的方法，我们这里将这个类命名为 <code>ReadStream</code>。</p><p>类的原型方法内部可能会创建一些事件，在 <code>Node.js</code> 中，事件是依赖 <code>events</code> 模块的，即 <code>EventEmitter</code> 类，同时类的方法可能会操作文件，会用到 <code>fs</code> 模块，所以也提前引入 <code>fs</code>。</p><pre><code class="lang-js">/* 创建 ReadStream 类 */
+// 引入依赖模块
+const EventEmitter = require(&#39;events&#39;);
+const fs = require(&#39;fs&#39;);
+
+// 创建 ReadStream 类
+class ReadStream extends EventEmitter {
+  constructor(path, options = {}) {
+    super();
+    // 创建可读流参数传入的属性
+    this.path = path; // 读取文件的路径
+    this.flags = options.flags || &#39;r&#39;; // 文件标识位
+    this.encoding = options.encoding || null; // 字符编码
+    this.fd = options.fd || null; // 文件描述符
+    this.mode = options.mode || 0o666; // 权限位
+    this.autoClose = options.autoClose || true; // 是否自动关闭
+    this.start = options.start || 0; // 读取文件的起始位置
+    this.end = options.end || null; // 读取文件的结束位置（包含）
+
+    // 每次读取文件的字节数
+    this.highWaterMark = options.highWaterMark || 64 * 1024;
+    this.flowing = false; // 控制当前是否是流动状态，默认为暂停状态
+
+    // 存储读取内容的 Buffer
+    this.buffer = Buffer.alloc(this.highWaterMark);
+    this.pos = this.start; // 下次读取文件的位置（变化的）
+
+    // 创建可读流要打开文件
+    this.open();
+
+    // 如果监听了 data 事件，切换为流动状态
+    this.on(&#39;newListener&#39;, type =&gt; {
+      if (type === &#39;data&#39;) {
+        this.flowing = true;
+
+        // 开始读取文件
+        this.read();
+      }
+    });
+  }
+}
+
+// 导出模块
+module.exports = ReadStream;
+</code></pre><p>使用 <code>fs.createReadStream</code> 时传入了两个参数，读取文件的路径和一个 <code>options</code> 选项，<code>options</code> 上有 <code>8</code> 个参数，我们在创建 <code>ReadStream</code> 类的时候将这些参数初始化到了 <code>this</code> 上。</p><p>创建可读流的时候有两种状态，流动状态和暂停状态，默认创建可读流是暂停状态，只有在触发 <code>data</code> 事件时才会变为流动状态，所以在 <code>this</code> 上挂载了 <code>flowing</code> 存储当前的状态是否为流动状态，值默认为 <code>false</code>。</p><blockquote class="pullquote warning"><p><em><strong>注意：这里说的暂停状态不是暂停模式，暂停模式是 <code>readable</code>，是可读流的另一种模式，我们这小节讨论的可读流为流动模式。</strong></em></p></blockquote><p>在读取文件时其实是操作 <code>Buffer</code> 进行读取的，需要有一个 <code>Buffer</code> 实例用来存储每次读取的数据，所以在 <code>this</code> 上挂载了一个新创建的 <code>Buffer</code>，长度等于 <code>highWaterMark</code>。</p><p>当从 <code>start</code> 值的位置开始读取文件，下一次读取文件的位置会发生变化，所以在 <code>this</code> 上挂载了 <code>pos</code> 属性，用于存储下次读取文件的位置。</p><p>在创建 <code>ReadStream</code> 的实例（可读流）时，应该打开文件并进行其他操作，所以在 <code>this</code> 上挂载了 <code>open</code> 方法并执行。</p><p>创建实例的同时监听了 <code>newListener</code> 事件，回调在每次使用 <code>on</code> 监听事件时触发，回调内部逻辑是为了将默认的暂停状态切换为流动状态，因为在使用时，流动状态是通过监听 <code>data</code> 事件触发的，在 <code>newListener</code> 的回调中判断事件类型为 <code>data</code> 的时候将 <code>flowing</code> 标识的值更改为 <code>true</code>，并调用读取文件的 <code>read</code> 方法。</p><blockquote class="pullquote info"><p><strong>在使用 <code>ES6</code> 的类编程时，原型上的方法都是写在 <code>class</code> 内部，我们下面为了把原型上的方法拆分出来成为单独的代码块，都使用 <code>ReadStream.prototype.open = function...</code> 直接给原型添加属性的方式，但这样的方式和直接写在 <code>class</code> 内有一点区别，就是 <code>class</code> 内部的书写的原型方法都是不可遍历的，添加属性的方式创建的方法都是可遍历的，但是这点区别对我们代码的执行没有任何影响。</strong></p></blockquote><h3 id="打开文件方法-open-的实现"><a href="#打开文件方法-open-的实现" class="headerlink" title="打开文件方法 open 的实现"></a>打开文件方法 open 的实现</h3><p>在使用可读流时，打开时默认是暂停状态，会触发 <code>open</code> 事件，如果打开文件出错会触发 <code>error</code> 事件。</p><pre><code class="lang-js">/* open 方法 */
+// 打开文件
+ReadStream.prototype.open = function () {
+  fs.open(this.path, this.flags, this.mode, (err, fd) =&gt; {
+    if (err) {
+      this.emit(&#39;error&#39;, err);
+
+      // 如果文件打开了出错，并配置自动关闭，则关掉文件
+      if (this.autoClose) {
+        // 关闭文件（触发 close 事件）
+        this.destroy();
+
+        // 不再继续执行
+        return;
+      }
+    }
+    // 存储文件描述符
+    this.fd = fd;
+
+    // 成功打开文件后触发 open 事件
+    this.emit(&#39;open&#39;);
+  });
+}
+</code></pre><p><code>open</code> 方法的逻辑就是在打开文件的时候，将文件描述符存储在实例上方便后面使用，并使用 <code>EventEmitter</code> 的原型方法 <code>emit</code> 触发 <code>open</code> 事件，如果出错就使用 <code>emit</code> 触发 <code>error</code> 事件，如果配置 <code>autoClose</code> 参数为 <code>true</code>，就关闭文件并触发 <code>close</code>。</p><p>我们将关闭文件的逻辑抽取出来封装在了 <code>ReadStream</code> 类的 <code>destroy</code> 方法中，下面来实现 <code>destroy</code>。</p><h3 id="关闭文件方法-destroy-的实现"><a href="#关闭文件方法-destroy-的实现" class="headerlink" title="关闭文件方法 destroy 的实现"></a>关闭文件方法 destroy 的实现</h3><p>文件出错分为两种，第一种文件打开出错，第二种是文件不存在出错（没打开文件，系统不会分配文件描述符 <code>fd</code>）。</p><pre><code class="lang-js">/* detroy 方法 */
+// 关闭文件
+ReadStream.prototype.detroy = function () {
+  // 判断是否存在文件描述符
+  if (typeof this.fd === &#39;number&#39;) {
+    // 存在则关闭文件并触发 close 事件
+    fs.close(fd, () =&gt; {
+      this.emit(&#39;close&#39;);
+    });
+    return;
+  }
+
+  // 不存在文件描述符直接触发 close 事件
+  this.emit(&#39;close&#39;);
+}
+</code></pre><p>如果是打开文件后出错需要关闭文件，并触发 <code>close</code> 事件，如果是没打开文件，则直接触发 <code>close</code> 事件，所以上面通过文件描述符来判断该如何处理。</p><h3 id="读取文件方法-read-的实现"><a href="#读取文件方法-read-的实现" class="headerlink" title="读取文件方法 read 的实现"></a>读取文件方法 read 的实现</h3><p>还记得在 <code>ReadStream</code> 类中，监听的 <code>newListener</code> 事件的回调中如果监听了 <code>data</code> 事件则会执行 <code>read</code> 读取文件，接下来就实现读取文件的核心逻辑。</p><pre><code class="lang-js">/* read 方法 */
+// 读取文件
+ReadStream.prototype.read = function () {
+  // 由于 open 异步执行，read 是在创建实例时同步执行，read 执行可能早于 open，此时不存在文件描述符
+  if (typeof this.fd !== &#39;number&#39;) {
+    // 因为 open 用 emit 触发了 open 事件，所以在这是重新执行 read
+    return this.once(&#39;open&#39;, () =&gt; this.read());
+  }
+
+  // 如过设置了结束位置，读到结束为止就不能再读了，最后一次读取真实读取数应该小于 highWaterMark
+  // 所以每次读取的字节数应该和 highWaterMark 取最小值
+  const howMuchToRead = this.end ?
+    Math.min(this.highWaterMark, this.end - this.pos + 1) :
+    this.highWaterMark;
+
+  // 读取文件
+  fs.read(this.fd, this.buffer, 0, howMuchToRead, this.pos, (err, bytesRead) =&gt; {
+    // 如果读到内容执行下面代码，读不到则触发 end 事件并关闭文件
+    if (bytesRead &gt; 0) {
+      // 维护下次读取文件位置
+      this.pos += bytesRead;
+
+      // 保留有效的 Buffer
+      let realBuf = this.buffer.slice(0, bytesRead);
+
+      // 根据编码处理 data 回调返回的数据
+      realBuf = this.encoding ? realBuf.toString(this.encoding) : realBuf;
+
+      // 触发 data 事件并传递数据
+      this.emit(&#39;data&#39;, realBuf);
+
+      // 递归读取
+      if (this.flowing) {
+        this.read();
+      }
+    } else {
+      this.isEnd = true;
+      this.emit(&#39;end&#39;); // 触发 end 事件
+      this.detroy(); // 关闭文件
+    }
+  });
+}
+</code></pre><p>创建 <code>ReadStream</code> 的实例时，执行的 <code>open</code> 方法内部是使用 <code>fs.open</code> 打开文件的，是异步操作，而读取文件方法 <code>read</code> 是在 <code>newListener</code> 回调中同步执行的，这样很可能触发 <code>read</code> 的时候文件还没有被打开（不存在文件描述符），所以在 <code>read</code> 方法中判断了文件描述符是否存在，并在不存在时候使用 <code>once</code> 添加了 <code>open</code> 事件，回调中重新执行了 <code>read</code>。</p><p>由于在 <code>open</code> 方法中使用 <code>emit</code> 触发了 <code>open</code> 事件，所以 <code>read</code> 内用 <code>once</code> 添加的 <code>open</code> 事件的回调也会跟着执行一次，并在回调中重新调用了 <code>read</code> 方法，保证了 <code>read</code> 读取文件的逻辑在文件真正打开后才执行，为了文件打开前执行 <code>read</code> 而不执行读取文件的逻辑，用 <code>once</code> 添加 <code>open</code> 事件时别忘记 <code>return</code>。</p><p>在使用 <code>fs.read</code> 读取文件的时候有一个参数为本次读取几个字符到 <code>Buffer</code> 中，如果在创建可读流的时候设置了读取文件的结束位置 <code>end</code> 参数，则读到 <code>end</code> 位置就不应该再继续读取了，所以在存在 <code>end</code> 参数的时候每次都计算一下读取个数和 <code>highWaterMark</code> 取最小值，保证读取内容小于 <code>highWaterMark</code> 的时候不会多读，因为读取时是包括 <code>end</code> 值作为 <code>Buffer</code> 的索引这一项的，所以计算时多减去的要 <code>+1</code> 加回来，再一次读取这个读取个数计算结果变成了 <code>0</code>，也就结束了读取。</p><p>因为 <code>end</code> 参数的情况，所以在内部读取逻辑前判断了 <code>bytesRead</code> （实际读取字节数）是否大于 <code>0</code>，如果不满足条件则在实例添加是否读取结束标识 <code>isEnd</code>（后面使用），触发 <code>end</code> 事件并关闭文件，如果满足条件，也是通过 <code>bytesRead</code> 对 <code>Buffer</code> 进行截取，保留了有用的 <code>Buffer</code>，并且通过 <code>encoding</code> 编码对 <code>Buffer</code> 进行处理后，触发 <code>data</code> 事件，并将处理后的数据传递给 <code>data</code> 事件的回调。</p><h3 id="暂停、恢复读取-pause-和-resume"><a href="#暂停、恢复读取-pause-和-resume" class="headerlink" title="暂停、恢复读取 pause 和 resume"></a>暂停、恢复读取 pause 和 resume</h3><p><code>pause</code> 的目的就是暂停读取，其实就是阻止 <code>read</code> 方法在读取时进行递归，所以只需要更改 <code>flowing</code> 的值即可。</p><pre><code class="lang-js">/* pause 方法 */
+// 暂停读取
+ReadStream.prototype.pause = function () {
+  this.flowing = false;
+};
+</code></pre><p><code>resume</code> 的目的是恢复读取，在更改 <code>flowing</code> 值得基础上重新执行 <code>read</code> 方法，由于在 <code>pause</code> 调用时 <code>read</code> 内部还是执行得读取文件得分支，文件并没有关闭，读取文件位置的参数也是通过实例上的当前的属性值进行计算的，所以重新执行 <code>read</code> 会继续上一次的位置读取。</p><pre><code class="lang-js">/* resume 方法 */
+// 恢复读取
+ReadStream.prototype.resume = function () {
+  this.flowing = true;
+  if (!this.isEnd) this.read();
+};
+</code></pre><p>上面在重新执行 <code>read</code> 之前使用 <code>isEnd</code> 标识做了判断，防止在 <code>setInterval</code> 中调用 <code>resume</code> 在读取完成后不断的触发 <code>end</code> 和 <code>close</code> 事件。</p><h2 id="验证可读流（流动模式）ReadStream"><a href="#验证可读流（流动模式）ReadStream" class="headerlink" title="验证可读流（流动模式）ReadStream"></a>验证可读流（流动模式）ReadStream</h2><p>接下来我们使用自己实现的 <code>ReadStream</code> 类来创建可读流，并按照 <code>fs.createReadStream</code> 的用法进行使用并验证。</p><pre><code class="lang-js">/* 验证 ReadStream */
+// 文件 1.txt 内容为 0123456789
+const fs = require(&#39;fs&#39;);
+const ReadStream = require(&#39;./ReadStream&#39;);
+
+// 创建可读流
+const rs = new ReadStream(&#39;1.txt&#39;, {
+  encoding: &#39;utf8&#39;,
+  start: 0,
+  end: 5,
+  highWaterMark: 2
+});
+
+rs.on(&#39;open&#39;, () =&gt; console.log(&#39;open&#39;));
+
+rs.on(&#39;data&#39;, data =&gt; {
+  console.log(data, new Date());
+  rs.pause();
+});
+
+rs.on(&#39;end&#39;, () =&gt; console.log(&#39;end&#39;));
+rs.on(&#39;close&#39;, () =&gt; console.log(&#39;close&#39;));
+rs.on(&#39;error&#39;, err =&gt; console.log(err));
+
+setInterval(() =&gt; rs.resume(), 1000);
+
+// open
+// 01 2018-07-04T10:44:20.384Z
+// 23 2018-07-04T10:44:21.384Z
+// 45 2018-07-04T10:44:22.384Z
+// end
+// close
+</code></pre><p>执行上面的代码正常的执行逻辑是先触发 <code>open</code> 事件，然后触发 <code>data</code> 事件，读取一次后暂停，每隔一秒恢复读取一次，再读取完成后触发 <code>end</code> 和 <code>close</code> 事件，通过运行代码结果和我们希望的一样。</p><h2 id="可读流的实现（暂停模式）"><a href="#可读流的实现（暂停模式）" class="headerlink" title="可读流的实现（暂停模式）"></a>可读流的实现（暂停模式）</h2><h3 id="在-fs-中的暂停模式的真正用法"><a href="#在-fs-中的暂停模式的真正用法" class="headerlink" title="在 fs 中的暂停模式的真正用法"></a>在 fs 中的暂停模式的真正用法</h3><p>在 <code>fs</code> 模块中用 <code>createReadStream</code> 创建的可读流中通过监听 <code>readable</code> 事件触发暂停模式（监听 <code>data</code> 事件触发流动模式），通过下面例子感受暂停模式与流动模式的不同，现在读取文件 <code>1.txt</code>，内容为 <code>0~9</code> 十个数字。</p><pre><code class="lang-js">/* 暂停模式的用法 */
+// 文件 1.txt 内容为 0123456789
+const fs = require(&#39;fs&#39;);
+
+// 创建可读流
+const rs = fs.createReadStream(&#39;1.txt&#39;, {
+  encoding: &#39;utf8&#39;,
+  start: 0,
+  highWaterMark: 3
+});
+
+rs.on(&#39;readable&#39;, () =&gt; {
+  // read 参数为本次读取的个数
+  const r = rs.read(3);
+  // 打印读取的数据
+  console.log(&#39;data:&#39;, r);
+  // 打印容器剩余空间
+  console.log(rs._readableState.length);
+});
+
+// data:012
+// 0
+// data:345
+// 0
+// data:678
+// 0
+// data:null
+// 1
+// data:9
+// 0
+</code></pre><p>通俗的解释，暂停模式的 <code>readable</code> 事件默认会触发一次，监听 <code>readable</code> 事件后就像创建了一个 “容器”，容量为 <code>highWaterMark</code>，文件中的数据会自动把容器注满，调用可读流的 <code>read</code> 方法读取时，会从容器中取出数据，如果 <code>read</code> 方法读取的数据小于 <code>highWaterMark</code>，则直接暂停，不再继续读取，如果大于等于 <code>highWaterMark</code> ，说明 “容器” 空了，则会触发 <code>readable</code> 事件，无论读取字节数与 <code>highWaterMark</code> 关系如何，只要 “容器” 内容量剩余小于 <code>highWaterMark</code> 就会进行 “续杯”，再次向 “容器” 中填入 <code>highWaterMark</code> 个，所以有些时候真实的容量会大于 <code>highWaterMark</code>。</p><p><code>read</code> 方法读取的内容会返回 <code>null</code> 是因为容器内真实的数据数小于了读取数，如果不是最后一次读取，会在多次读取后将值一并返回，如果是最后一次读取，会把剩余不足的数据返回。</p><blockquote class="pullquote success"><p><strong>可读流暂停模式的特点：</strong></p><ul><li><em><strong><code>readable</code> 事件的触发条件：“容器” 空了；</strong></em></li><li><em><strong>“续杯” 条件：读取后 “容器” 内剩余量小于 <code>highWaterMark</code>；</strong></em></li><li><em><strong><code>read</code> 返回 <code>null</code>：“容器” 容器内可悲读取数据无法满足一次读取字节数。</strong></em></li></ul></blockquote><h3 id="ReadableStream-类的实现"><a href="#ReadableStream-类的实现" class="headerlink" title="ReadableStream 类的实现"></a>ReadableStream 类的实现</h3><p>同为可读流，暂停模式与流动模式相同，都依赖 <code>fs</code> 模块和 <code>events</code> 模块的 <code>EventEmitter</code> 类，参数依然为读取文件的路径和 <code>options</code>。</p><pre><code class="lang-js">/* 创建 ReadableStream 类 */
+// 引入依赖
+const EventEmitter = require(&#39;events&#39;);
+const fs = require(&#39;fs&#39;);
+
+class ReadableStream extends EventEmitter {
+  constructor(path, options = {}) {
+    super();
+    this.path = path; // 读取文件的路径
+    this.flags = options.flags || &#39;r&#39;; // 文件标识位
+    this.encoding = options.encoding || null; // 字符编码
+    this.fd = options.fd || null; // 文件描述符
+    this.mode = options.mode || 0o666; // 权限位
+    this.autoClose = options.autoClose || true; // 是否自动关闭
+    this.start = options.start || 0; // 读取文件的起始位置
+
+    // 每次读取文件的字节数
+    this.highWaterMark = options.highWaterMark || 64 * 1024;
+    this.reading = false; // 如果正在读取，则不再读取
+
+    // 当缓存区的长度等于 0 的时候， 触发 readable
+    this.emitReadable = false;
+    this.cache = []; // 缓存区
+    this.len = 0; // 缓存区的长度
+    this.pos = this.start; // 下次读取文件的位置（变化的）
+
+    // 创建可读流要打开文件
+    this.open();
+
+    this.on(&#39;newListener&#39;, type =&gt; {
+      if (type === &#39;readable&#39;) {
+        this.read(); // 监听readable就开始读取
+      }
+    });
+  }
+}
+
+// 导出模块
+module.exports = ReadableStream;
+</code></pre><p>在类的添加了 <code>newListener</code> 事件，在回调中判断是否监听了 <code>readable</code> 事件，如果监听了开始从 “容器” 中读取。</p><h3 id="打开、关闭文件-open-和-detroy"><a href="#打开、关闭文件-open-和-detroy" class="headerlink" title="打开、关闭文件 open 和 detroy"></a>打开、关闭文件 open 和 detroy</h3><p>打开和关闭文件的方法和流动模式的套路基本相似。</p><pre><code class="lang-js">/* open 方法 */
+// 打开文件
+ReadableStream.prototype.open = function () {
+  fs.open(this.path, this.flags, this.mode, (err, fd) =&gt; {
+    if (err) {
+      this.emit(&#39;error&#39;, err);
+
+      // 如果文件打开了出错，并配置自动关闭，则关掉文件
+      if (this.autoClose) {
+        // 关闭文件（触发 close 事件）
+        this.destroy();
+
+        // 不再继续执行
+        return;
+      }
+    }
+    // 存储文件描述符
+    this.fd = fd;
+
+    // 成功打开文件后触发 open 事件
+    this.emit(&#39;open&#39;);
+  });
+}
+</code></pre><pre><code class="lang-js">/* detroy 方法 */
+// 关闭文件
+ReadableStream.prototype.detroy = function () {
+  // 判断是否存在文件描述符
+  if (typeof this.fd === &#39;number&#39;) {
+    // 存在则关闭文件并触发 close 事件
+    fs.close(fd, () =&gt; {
+      this.emit(&#39;close&#39;);
+    });
+    return;
+  }
+
+  // 不存在文件描述符直接触发 close 事件
+  this.emit(&#39;close&#39;);
+}
+</code></pre><h3 id="从-“容器”-中读取-read-方法的实现"><a href="#从-“容器”-中读取-read-方法的实现" class="headerlink" title="从 “容器” 中读取 read 方法的实现"></a>从 “容器” 中读取 read 方法的实现</h3><p><code>read</code> 方法的参数不传时就相当于从 “容器” 读取 <code>highWaterMart</code> 个字节，如果传参表示读取参数数量的字节数。</p><pre><code class="lang-js">/* read 方法 */
+ReadableStream.prototype.read = function (n) {
+  // 如果读取大于了 highWaterMark，重新计算 highWaterMark，并重新读取
+  if (n &gt; this.len) {
+    // 计算新的 highWaterMark，方法摘自 Node.js 源码
+    this.highWaterMark = computeNewHighWaterMark(n);
+    this.reading = true;
+    this._read();
+  }
+
+  // 将要返回的数据
+  let buffer;
+
+  // 如果读取的字节数大于 0 小于等于当前缓存 Buffer 的总长度
+  if (n &gt; 0 &amp;&amp; n &lt;= this.len) {
+    // 则从缓存中取出
+    buffer = Buffer.alloc(n);
+
+    let current; // 存储每次从缓存区读出的第一个 Buffer
+    let index = 0; // 每次读取缓存 Buffer 的索引
+    let flag = true; // 是否结束整个 while 循环的标识
+
+    // 开始读取
+    while ((current = this.cache.shift()) &amp;&amp; flag) {
+      for (let i = 0; i &lt; current.length; i++) {
+        // 将缓存中取到的 Buffer 的内容读到自己定义的 Buffer 中
+        buffer[index++] = current[i];
+
+        // 如果当前索引值已经等于了读取个数，结束 for 循环
+        if (index === n) {
+          flag = false;
+
+          // 取出当前 Buffer 没有消耗的
+          const residue = current.slice(i + 1);
+
+          // 在读取后维护缓存的长度
+          this.len -= n;
+
+          // 如果 BUffer 真的有剩下的就给塞回到缓存中
+          if (residue.length) {
+            this.cache.unshift(residue);
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  // 如果当前 读取的 Buffer 为 0，将触发 readable 事件
+  if (this.len === 0) {
+    this.emitReadable = true;
+  }
+
+  // 如果当前的缓存区大小小于 highWaterMark，就要读取
+  if (this.len &lt; this.highWaterMark) {
+    // 如果不是正在读取才开始读取
+    if (!this.read) {
+      this.reading = true;
+      this._read(); // 正真读取的方法
+    }
+  }
+
+  // 将 buffer 转回创建可读流设置成的编码格式
+  if (buffer) {
+    buffer = this.encoding ? buffer.toString(this.encoding) : buffer;
+  }
+
+  return buffer;
+}
+</code></pre><p>上面的 <code>read</code> 方法的参数大小对比缓存区中取出的 <code>Buffer</code> 长度有两种情况，一种是小于当前缓存区内取出 <code>Buffer</code> 的长度，一种是大于了整个缓存区的 <code>len</code> 的长度。</p><p>小于当前缓存区总长度通过循环取出需要的 <code>Buffer</code> 存储了我们要返回创建的 <code>Buffer</code> 中，剩余的 <code>Buffer</code> 会丢失，所以我们做了一个小小的处理，将剩下的 <code>Buffer</code> 作为第一个 <code>Buffer</code> 塞回到了缓存区中，在处理这个问题时与流动模式不相同，流动模式处理后直接跳出了，而暂停模式相当于从 “容器” 中读取，如果第一次读取后还有剩余还要接着从容器中继续读取。</p><p>大于 <code>len</code> 属性时，规定需要重新计算 <code>highWaterMark</code>，遵循的原则是将当前 <code>highWaterMark</code> 设定为当前读取字节个数距离最接近的 <code>2</code> 的 <code>n</code> 次方的数值，<code>Node.js</code> 源码中方法名称为 <code>computeNewHighWaterMark</code>，为了提高性能是使用位运算的方式进行计算的，源码如下。</p><pre><code class="lang-js">/* 重新计算 highWaterMark */
+function computeNewHighWaterMark(n) {
+  n--;
+  n |= n &gt;&gt;&gt; 1;
+  n |= n &gt;&gt;&gt; 2;
+  n |= n &gt;&gt;&gt; 4;
+  n |= n &gt;&gt;&gt; 8;
+  n |= n &gt;&gt;&gt; 16;
+  n++;
+  return n;
+}
+</code></pre><p>在调用该方法重新计算 <code>highWaterMark</code> 后更改正在读取状态，重新读取，由于读取逻辑的重复，所以真正读取文件的逻辑抽取成一个 <code>_read</code> 方法来实现，下面呢就来看看 <code>_read</code> 内部都做了什么。</p><h3 id="真正读取文件的-read"><a href="#真正读取文件的-read" class="headerlink" title="真正读取文件的 _read"></a>真正读取文件的 _read</h3><p>对比可读流（流动模式）的 <code>read</code> 方法，在调用 <code>_read</code> 方法读取时，是在 <code>newListener</code> 中同步执行 <code>_read</code>，所以为了保证 <code>_read</code> 的逻辑是在 <code>open</code> 方法打开文件以后执行，使用了与 <code>read</code> 相同的处理方式。</p><pre><code class="lang-js">/* _read 方法 */
+ReadableStream.prototype._read = function () {
+  if (typeof this.fd !== &#39;number&#39;) {
+    return this.once(&#39;open&#39;, () =&gt; _read());
+  }
+
+  // 创建本次读取的 Buffer
+  let buffer = Buffer.alloc(this.highWaterMark);
+
+  // 读取文件
+  fs.read(this.fd, buffer, 0, this.highWaterMark, this.pos, (err, bytesRead) =&gt; {
+    if (bytesRead &gt; 0) {
+      this.cache.push(buffer); // 缓存
+      this.len += bytesRead; // 维护缓存区长度
+      this.pos += bytesRead; // 维护下一次读取位置
+      this.reading = false; // 读取完毕
+
+      // 触发 readable 事件
+      if (this.emitReadable) {
+        // 触发后更改触发状态为 false
+        this.emitReadable = false;
+        this.emit(&#39;readable&#39;);
+      }
+    } else {
+      // 如果读完触发结束事件
+      this.emit(&#39;end&#39;);
+    }
+  });
+}
+</code></pre><p>由于缓存区是一个数组，存储的每一个 <code>Buffer</code> 是独立存在的，所以不能挂载在实例上共用，如果挂在实例上则引用相同，一动全动，这不是我们想要的，所以每一次执行 <code>_read</code> 方法时都创建新的 <code>Buffer</code> 实例存入读取的数据后存储在缓存区中，如果读取完成 <code>bytesRead</code> 为 <code>0</code>，则触发 <code>end</code> 事件。</p><blockquote class="pullquote warning"><p><em><strong>注意：在 <code>Node.js</code> 源码中，可读流两种模式代码都是通过一个类 <code>ReadStream</code> 实现的，使用 <code>fs.createReadStream</code> 创建一个可读流就具备两种模式，通过监听 <code>data</code> 和 <code>readable</code> 两种不同的事件来触发两种不同的模式，而我们为了更清晰的模拟两种模式的实现，把两种模式拆开成了两个类来实现的，在测试时需要创建不同类的实例。</strong></em></p></blockquote><h2 id="验证可读流（暂停模式）ReadableStream"><a href="#验证可读流（暂停模式）ReadableStream" class="headerlink" title="验证可读流（暂停模式）ReadableStream"></a>验证可读流（暂停模式）ReadableStream</h2><p>为了统一我们依然读取真正用法中 <code>1.txt</code> 文件，内容为 <code>0~9</code> 十个数字。</p><pre><code class="lang-js">/* 验证 ReadableStream */
+// 引入依赖
+const fs = require(&#39;fs&#39;);
+const ReadableStream = require(&#39;./ReadableStream&#39;);
+
+const rs = new ReadableStream(&#39;1.txt&#39;, {
+  encoding: &#39;utf8&#39;,
+  start: 0,
+  highWaterMark: 3
+});
+
+rs.on(&#39;readable&#39;, () =&gt; {
+  let r = rs.read(3);
+  console.log(r);
+  console.log(rs.len);
+});
+</code></pre><p>在打印 “容器” 剩余容量时，我们使用在 <code>ReadableStream</code> 上构造的 <code>len</code> 属性，源码中的属性是 <code>_readableState.length</code>。</p><blockquote class="pullquote info"><p><strong>流动模式和暂停模式分别有不同的应用场景：</strong></p><ul><li><strong>如果只是希望读取一个文件，并最快的获得结果使用流动模式是很好的选择；</strong></li><li><strong>如果希望了解读取文件的具体内容，并进行精细的处理，使用暂停模式更好一些。</strong></li></ul></blockquote><h2 id="可写流的实现"><a href="#可写流的实现" class="headerlink" title="可写流的实现"></a>可写流的实现</h2><h3 id="WriteStream-类创建"><a href="#WriteStream-类创建" class="headerlink" title="WriteStream 类创建"></a>WriteStream 类创建</h3><p>在使用 <code>fs</code> 的 <code>createWriteStream</code> 创建可写流时，返回了 <code>WriteStream</code> 对象，上面也存在事件和方法，创建可写流的时也是创建类的实例，我们将这个类命名为 <code>WriteStream</code>，事件同样依赖 <code>events</code> 模块的 <code>EventEmitter</code> 类，文件操作同样依赖 <code>fs</code> 模块，所以需提前引入。</p><pre><code class="lang-js">/* 创建 WriteStream 类 */
+// 引入依赖模块
+const EventEmitter = require(&#39;events&#39;);
+const fs = require(&#39;fs&#39;);
+
+// 创建 WriteStream 类
+class WriteStream extends EventEmitter {
+  constructor(path, options = {}) {
+    super();
+    // 创建可写流参数传入的属性
+    this.path = path; // 写入文件的路径
+    this.flags = options.flags || &#39;w&#39;; // 文件标识位
+    this.encoding = options.encoding || &#39;utf8&#39;; // 字符编码
+    this.fd = options.fd || null; // 文件描述符
+    this.mode = options.mode || 0o666; // 权限位
+    this.autoClose = options.autoClose || true; // 是否自动关闭
+    this.start = options.start || 0; // 写入文件的起始位置
+
+    // 对比写入字节数的标识
+    this.highWaterMark = options.highWaterMark || 16 * 1024;
+    this.writing = false; // 是否正在写入
+    this.needDrain = false; // 是否需要触发 drain 事件
+    this.buffer = []; // 缓存，正在写入就存入缓存中
+    this.len = 0; // 当前缓存的个数
+    this.pos = this.start; // 下次写入文件的位置（变化的）
+
+    // 创建可写流要打开文件
+    this.open();
+  }
+}
+
+// 导出模块
+module.exports = WriteStream;
+</code></pre><p>使用 <code>fs.createWriteStream</code> 创建可写流时传入了两个参数，写入的文件路径和一个 <code>options</code> 选项，<code>options</code> 上有 <code>7</code> 个参数，我们在创建 <code>WriteStream</code> 类的时候将这些参数初始化到了 <code>this</code> 上。</p><p>创建可写流后需要使用 <code>write</code> 方法进行写入，写入时第一次会真的通过内存写入到文件中，而再次写入则会将内容写到缓存中，注意这里的 “内存” 和 “缓存”，内存是写入文件是的系统内存，缓存是我们自己创建的数组，第一次写入以后要写入文件的 <code>Buffer</code> 都会先存入这个数组中，这个数组名为 <code>buffer</code>，挂载在实例上，实例上同时挂载了 <code>len</code> 属性用来存储当前缓存中 <code>Buffer</code> 总共的字节数（长度）。</p><p>我们在可读流上挂载了是否正在写入的状态 <code>writing</code> 属性，只要缓存区中存在未写入的 <code>Buffer</code>，<code>writing</code> 的状态就是正在写入，当写入的字节数大于了 <code>highWaterMark</code> 需要触发 <code>drain</code> 事件，所以又挂载了是否需要触发 <code>drain</code> 事件的标识 <code>needDrain</code> 属性。</p><p>当从文件的 <code>start</code> 值对应的位置开始写入，下一次写入文件的位置会发生变化，所以在 <code>this</code> 上挂载了 <code>pos</code> 属性，用于存储下次写入文件的位置。</p><blockquote class="pullquote primary"><p><strong>在 <code>Node.js</code> 流的源码中缓存是用链表实现的，通过指针来操作缓存中的 <code>Buffer</code>，而我们为了简化逻辑就使用数组来作为缓存，虽然性能相对链表要差，但更容易理解整个可读流的写入机制。</strong></p></blockquote><h3 id="打开、关闭文件-open-和-detroy-1"><a href="#打开、关闭文件-open-和-detroy-1" class="headerlink" title="打开、关闭文件 open 和 detroy"></a>打开、关闭文件 open 和 detroy</h3><p>在 <code>WriteStream</code> 中，写入文件之前也应该打开文件，在打开文件过程中出错时也应该触发 <code>error</code> 事件并关闭文件，打开和关闭文件的方法 <code>open</code> 和 <code>detroy</code> 与 <code>ReadStream</code> 的 <code>open</code> 和 <code>detroy</code> 方法的逻辑如出一辙，所以这里为了方便查看直接贴在下面。</p><pre><code class="lang-js">/* open 方法 */
+// 打开文件
+WriteStream.prototype.open = function () {
+  fs.open(this.path, this.flags, this.mode, (err, fd) =&gt; {
+    if (err) {
+      this.emit(&#39;error&#39;, err);
+
+      // 如果文件打开了出错，并配置自动关闭，则关掉文件
+      if (this.autoClose) {
+        // 关闭文件（触发 close 事件）
+        this.destroy();
+
+        // 不再继续执行
+        return;
+      }
+    }
+    // 存储文件描述符
+    this.fd = fd;
+
+    // 成功打开文件后触发 open 事件
+    this.emit(&#39;open&#39;);
+  });
+}
+</code></pre><pre><code class="lang-js">/* detroy 方法 */
+// 关闭文件
+WriteStream.prototype.detroy = function () {
+  // 判断是否存在文件描述符
+  if (typeof this.fd === &#39;number&#39;) {
+    // 存在则关闭文件并触发 close 事件
+    fs.close(fd, () =&gt; {
+      this.emit(&#39;close&#39;);
+    });
+    return;
+  }
+
+  // 不存在文件描述符直接触发 close 事件
+  this.emit(&#39;close&#39;);
+}
+</code></pre><h3 id="写入文件方法-write-的实现"><a href="#写入文件方法-write-的实现" class="headerlink" title="写入文件方法 write 的实现"></a>写入文件方法 write 的实现</h3><blockquote class="pullquote default"><p><strong><code>write</code> 方法默认支持传入三个参数：</strong></p><ul><li><strong><code>chunk</code>：写入文件的内容；</strong></li><li><strong><code>encoding</code>：写入文件的编码格式；</strong></li><li><strong><code>callback</code>：写入成功后执行的回调。</strong></li></ul></blockquote><pre><code class="lang-js">/* write 方法 */
+// 写入文件的方法，只要逻辑为写入前的处理
+WriteStream.prototype.write = function (chunk, encoding = this.encoding, callback) {
+  // 为了方便操作将要写入的数据转换成 Buffer
+  chunk = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+
+  // 维护缓存的长度
+  this.len += chunk.lenth;
+
+  // 维护是否触发 drain 事件的标识
+  this.needDrain = this.highWaterMark &lt;= this.len;
+
+  // 如果正在写入
+  if (this.writing) {
+    this.buffer.push({
+      chunk,
+      encoding,
+      callback
+    });
+  } else {
+    // 更改标识为正在写入，再次写入的时候走缓存
+    this.writing = true;
+    // 如果已经写入清空缓存区的内容
+    this._write(chunk, encoding, () =&gt; this.clearBuffer());
+  }
+
+  return !this.needDrain;
+}
+</code></pre><p>与可写流的 <code>read</code> 一样，我们在使用 <code>write</code> 方法将数据写入文件时，也是操作 Buffer，在 <code>write</code> 方法中，首先将接收到的要写入的数据转换成了 <code>Buffer</code>，因为是多次写入，要知道缓存中 <code>Buffer</code> 字节数的总长度，所以维护了 <code>len</code> 变量。</p><p>我们的 <code>WriteStream</code> 构造函数中，<code>this</code> 挂载了 <code>needDrain</code> 属性，在使用 <code>fs.createWriteStream</code> 创建的可读流时，是写入的字节长度超过 <code>highWaterMark</code> 才会触发 <code>drain</code> 事件，而 <code>needDrain</code> 与 <code>write</code> 的返回值正好相反，所以我们用 <code>needDrain</code> 取反来作为 <code>write</code> 方法的返回值。</p><p>在写入的逻辑中第一次是直接通过内存写入到文件，但是再次写入就需要将数据存入缓存，将数据写入到文件中写入状态 <code>writing</code> 默认为 <code>false</code>，通过缓存再写入证明应该正在写入中，所以在第一次写入后应更改 <code>writing</code> 的状态为 <code>true</code>，写入缓存其实就是把转换的 <code>Buffer</code>、编码以及写入成功后要执行的回调挂在一个对象上存入缓存的数组 <code>buffer</code> 中。</p><p>我们把真正写入文件的逻辑抽取成一个单独的方法 <code>_write</code>，并传入 <code>chunk</code>（要写入的内容，已经处理成 Buffer）、<code>encoding</code>（字符编码）、回调函数，在回调函数中执行了原型方法 <code>clearBuffer</code>，接下来就来实现 <code>_write</code> 和 <code>clearBuffer</code>。</p><blockquote class="pullquote warning"><p><strong>注意：方法使用 <code>_</code> 开头代表私有方法，轻易不要在外部调用或修改，这是一个开发者之间约定俗成的不成文规定。</strong></p></blockquote><h3 id="真正的文件操作-write"><a href="#真正的文件操作-write" class="headerlink" title="真正的文件操作 _write"></a>真正的文件操作 _write</h3><p>对比可读流（流动模式）的 <code>read</code> 方法，在调用 <code>_write</code> 方法写入时，是在创建可写流之后的同步代码中执行的，与可读流在 <code>newListener</code> 中同步执行 <code>read</code> 的情况类似，所以为了保证 <code>_write</code> 的逻辑是在 <code>open</code> 方法打开文件以后执行，使用了与 <code>read</code> 相同的处理方式。</p><pre><code class="lang-js">/* _write 方法 */
+// 真正的写入文件操作的方法
+WriteStream.prototype._write = function (chunk, encoding, callback) {
+  // 由于 open 异步执行，write 是在创建实例时同步执行，write 执行可能早于 open，此时不存在文件描述符
+  if (typeof this.fd !== &#39;number&#39;) {
+    // 因为 open 用 emit 触发了 open 事件，所以在这是重新执行 write
+    return this.once(&#39;open&#39;, () =&gt; this._write(chunk, encoding, callback));
+  }
+
+  // 读取文件
+  fs.write(this.fd, chunk, 0, chunk.length, this.pos, (err, bytesWritten) =&gt; {
+    // 维护下次写入的位置和缓存区 Buffer 的总字节数
+    this.pos += bytesWritten;
+    this.len -= bytesWritten;
+    callback();
+  });
+}
+</code></pre><p>在打开文件并写入的时候需要维护两个变量，下次写入的位置 <code>pos</code> 和当前缓存区内 <code>Buffer</code> 所占总字节数 <code>len</code>，本次写入了多少个字节，下次写入需要在写入位置的基础上加多少个字节，而 <code>len</code> 恰恰相反，本次写入了多少个字节，缓存区中的总长度应该对应的减少多少个字节。</p><p>在维护两个变量的值以后调用 <code>callback</code>，其实 <code>callback</code> 内执行的是 <code>clearBuffer</code> 方法，就如方法名，译为 “清空缓存”，其实就是一次一次的将数据写入文件并从缓存中移除，很明显需要递归调用 <code>_write</code> 方法，我们将这个递归的逻辑统一放在 <code>clearBuffer</code> 方法中实现。</p><h3 id="清空缓存操作-clearBuffer"><a href="#清空缓存操作-clearBuffer" class="headerlink" title="清空缓存操作 clearBuffer"></a>清空缓存操作 clearBuffer</h3><pre><code class="lang-js">/* clearBuffer 方法 */
+// 清空缓存方法
+WriteStream.prototype.clearBuffer = function () {
+  // 先写入的在数组前面，从前面取出缓存中的 Buffer
+  const buf = this.buffer.shift();
+
+  // 如果存在 buf，证明缓存还有 Buffer 需要写入
+  if (buf) {
+    // 递归 _write 按照编码将数据写入文件
+    this._write(buf.chunk, buf.encoding, () =&gt; this.clearBuffer);
+  } else {
+    // 如果没有 buf，说明缓存内的内容已经完全写入文件并清空，需要触发 drain 事件
+    this.emit(&#39;drain&#39;);
+
+    // 更改正在写入状态
+    this.writing = false;
+
+    // 更改是否需要触发 drain 事件状态
+    this.needDrain = false;
+  }
+}
+</code></pre><p><code>clearBuffer</code> 方法中获取了缓存区数组的最前面的 <code>Buffer</code>（最前面的是先写入缓存的，也应该先取出来写入文件），存在这个 <code>Buffer</code> 时，递归 <code>_write</code> 方法按照编码将数据写入文件，如果不存在说明缓存区已经清空了，代表内容完全写入文件中，所以触发 <code>drain</code> 事件，最后更改了 <code>writing</code> 和 <code>needDrain</code> 的状态。</p><p>更正 <code>writing</code> 是为了 <code>WriteStream</code> 创建的可读流在下次调用 <code>write</code> 方法时默认第一次真正写入文件，而更正 <code>needDrain</code> 的状态是在缓存区要清空的最后一个 <code>Buffer</code> 的长度小于了 <code>highWaterMark</code> 时，保证 <code>write</code> 方法的返回值是正确的。</p><blockquote class="pullquote info"><p><strong>第一次通过内存真正写入文件，其他的都写入缓存，再一个一个的将缓存中存储的 <code>Buffer</code> 写入并从缓存清空，之所以这样设计是为了把写入的内容排成一个队列，假如有 <code>3</code> 个人同时操作一个文件写入内容，只有第一个人是真的写入，其他的人都写在缓存中，再按照写入缓存的顺序依次写入文件，避免冲突和写入顺序出错。</strong></p></blockquote><h2 id="验证可写流-WriteStream"><a href="#验证可写流-WriteStream" class="headerlink" title="验证可写流 WriteStream"></a>验证可写流 WriteStream</h2><p>接下来我们使用自己实现的 <code>WriteStream</code> 类来创建可写流，并按照 <code>fs.createWriteStream</code> 的用法进行使用并验证。</p><pre><code class="lang-js">/* 验证 WriteStream */
+// 向 2.txt 文件中写入 012345
+const fs = require(&#39;fs&#39;);
+const WriteStream = require(&#39;./WriteStream&#39;);
+
+// 创建可写流
+const ws = new WriteStream(&#39;2.txt&#39;, {
+  highWaterMark: 3
+});
+
+let i = 0;
+
+function write() {
+  let flag = true;
+  while (i &lt;= 6 &amp;&amp; flag) {
+    i++;
+    flag = ws.write(i + &#39;&#39;, &#39;utf8&#39;);
+  }
+}
+
+ws.on(&#39;drain&#39;, function () {
+  console.log(&#39;写入成功&#39;);
+  write();
+});
+write();
+
+// true
+// true
+// false
+// 写入成功
+// true
+// true
+// false
+// 写入成功
+</code></pre><p>可以使用 <code>fs.createWriteStream</code> 和 <code>WriteStream</code> 类分别执行上面的代码，对比结果，看看是否相同。</p><h2 id="可读流和可写流的桥梁-pipe"><a href="#可读流和可写流的桥梁-pipe" class="headerlink" title="可读流和可写流的桥梁 pipe"></a>可读流和可写流的桥梁 pipe</h2><p>可写流和可读流一般是通过 <code>pipe</code> 配合来使用的，<code>pipe</code> 方法是可读流 <code>ReadStream</code> 的原型方法，参数为一个可写流。</p><pre><code class="lang-js">/* pipe 方法 */
+// 连接可读流和可写流的方法 pipe
+ReadStream.prototype.pipe = function (dest) {
+  // 开始读取
+  this.on(&#39;data&#39;, data =&gt; {
+    // 如果超出可写流的 highWaterMark，暂停读取
+    const flag = dest.write(data);
+    if (!flag) this.pause();
+  });
+
+  dest.on(&#39;drain&#39;, () =&gt; {
+    // 当可写流清空内存时恢复读取
+    this.resume();
+  });
+
+  this.on(&#39;end&#39;, () =&gt; {
+    // 在读取完毕后关闭文件
+    this.destroy();
+  });
+}
+</code></pre><p><code>pipe</code> 方法其实就是通过可读流的 <code>data</code> 事件触发流动状态，并用可写流接收读出的数据进行写入，当写入数据超出 <code>highWaterMark</code>，则暂停可读流的读取，直到可写流的缓存被清空并把内容写进文件后，恢复可读流的读取，当读取结束后关闭文件。</p><p>下面我们实现一个将 <code>1.txt</code> 的内容拷贝 <code>2.txt</code> 中的例子。</p><pre><code class="lang-js">/* 验证 pipe */
+// pipe 的使用
+const fs = require(&#39;fs&#39;);
+
+// 引入自己的 ReadStream 类和 WriteStream 类
+const ReadStream = rquire(&#39;./ReadStream&#39;);
+const WriteStream = rquire(&#39;./WriteStream&#39;);
+
+// 创建可读流和可写流
+const rs = new ReadStream(&#39;1.txt&#39;, {
+  highWaterMark: 3
+});
+const ws = new WriteStream(&#39;2.txt&#39;, {
+  highWaterMark: 2
+});
+
+// 使用 pipe 实现文件内容复制
+rs.pipe(ws);
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote class="pullquote success"><p><strong>在 <code>Node.js</code> 源码中，可读流和可写流的内容要比本篇内容多很多，本篇是将源码精简，抽出核心逻辑并针对流的使用方式进行实现，主要目的是帮助理解流的原理和使用，争取做到 “知其然知其所以然”，了解了一些流的底层机制再使用也能游刃有余。</strong></p></blockquote></div><div class="read-end"><span class="read-end-lg">--------------------</span> <span class="read-end-md">---------------</span> <span class="read-end-sm">----------</span> 本文结束 <i class="icon icon-paw"></i> 感谢您的阅读 <span class="read-end-sm">----------</span> <span class="read-end-md">---------------</span> <span class="read-end-lg">--------------------</span></div><blockquote class="post-copyright"><div class="content"><span class="post-time">更新时间：<time datetime="2020-08-30T19:51:52.000Z" itemprop="dateUpdated">2020-08-31 03:51:52</time></span><br><span class="permalink">本文链接：<a href="/20180704175217/" target="_blank" rel="external">https://www.overtaking.top/20180704175217/</a></span><br><span class="post-message">版权声明：本博客所有文章除特别声明外，均采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0 </a>许可协议，转载请注明出处！</span></div><footer><a href="https://www.overtaking.top"><img src="/img/avatar.jpeg" alt="Panda Shen"> Panda Shen</a></footer></blockquote><div class="page-reward"><a id="rewardBtn" href="javascript:;" class="page-reward-btn waves-effect waves-circle waves-light">赏</a></div><div class="post-footer"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js/" rel="tag">Node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Stream/" rel="tag">Stream</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag">源码分析</a></li></ul><div class="page-share-wrap"><div class="page-share" id="pageShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180704175217/&title=《Node.js —— 流的原理分析与简易实现》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180704175217/&title=《Node.js —— 流的原理分析与简易实现》 — Shen's Blog&source=前言在之前的文章中有一篇讲解了流的基本用法，本篇的重点在于根据可读流的用法对可读流的原理进行分析，实现简易版的 Stream，而并非流的使用，下面代码中依..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180704175217/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js —— 流的原理分析与简易实现》 — Shen's Blog&url=https://www.overtaking.top/20180704175217/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180704175217/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle"><i class="icon icon-share-alt icon-lg"></i></a></div></div></div><nav class="post-nav flex-row flex-justify-between"><div class="waves-block waves-effect prev"><a href="/20180705125501/" id="post-prev" class="post-nav-link"><div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> 上一篇</div><h4 class="title">Node.js —— 自定义流的实现</h4></a></div><div class="waves-block waves-effect next"><a href="/20180703231032/" id="post-next" class="post-nav-link"><div class="tips">下一篇 <i class="icon icon-angle-right icon-lg icon-pl"></i></div><h4 class="title">Node.js —— Stream 的基本使用</h4></a></div></nav><div class="comments vcomment" id="comments"></div></article><div id="reward" class="page-modal reward-lay"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><h3 class="reward-title"><i class="icon icon-quote-left"></i> 大爷，赏口饭吃吧~ <i class="icon icon-quote-right"></i></h3><div class="reward-content"><div class="reward-code"><img id="rewardCode" src="/img/wechatpay.jpg" alt="打赏二维码"></div><label class="reward-toggle"><input id="rewardToggle" type="checkbox" class="reward-toggle-check" data-wechat="/img/wechatpay.jpg" data-alipay="/img/alipay.jpg"><div class="reward-toggle-ctrol"><span class="reward-toggle-item wechat">微信</span> <span class="reward-toggle-item switch">切换</span> <span class="reward-toggle-item alipay">支付宝</span></div></label></div></div></div><footer class="footer"><div class="top"><p><span id="busuanzi_container_site_uv" style="display:none">站点总访客数：<span id="busuanzi_value_site_uv"></span> </span><span id="busuanzi_container_site_pv" style="display:none">站点总访问量：<span id="busuanzi_value_site_pv"></span></span></p><p><span><a href="/rss2.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span> <span>博客内容遵循 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span></p></div><div class="bottom"><p><span>Panda Shen &copy; 2017 - 2022</span> <span>Hosted by <a href="https://dev.tencent.com/production" target="_blank">Github Pages</a></span></p></div></footer></main><div class="mask" id="mask"></div><a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a> <a href="javascript:;" id="gobottom" class="waves-effect waves-circle waves-light"><span class="icon icon-lg"></span></a><div class="global-share" id="globalShare"><ul class="reset share-icons"><li><a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://www.overtaking.top/20180704175217/&title=《Node.js —— 流的原理分析与简易实现》 — Shen's Blog&pic=https://www.overtaking.top/img/avatar.jpeg" data-title="微博"><i class="icon icon-weibo"></i></a></li><li><a class="weixin share-sns wxFab" href="javascript:;" data-title="微信"><i class="icon icon-weixin"></i></a></li><li><a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://www.overtaking.top/20180704175217/&title=《Node.js —— 流的原理分析与简易实现》 — Shen's Blog&source=前言在之前的文章中有一篇讲解了流的基本用法，本篇的重点在于根据可读流的用法对可读流的原理进行分析，实现简易版的 Stream，而并非流的使用，下面代码中依..." data-title=" QQ"><i class="icon icon-qq"></i></a></li><li><a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://www.overtaking.top/20180704175217/" data-title=" Facebook"><i class="icon icon-facebook"></i></a></li><li><a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Node.js —— 流的原理分析与简易实现》 — Shen's Blog&url=https://www.overtaking.top/20180704175217/&via=https://www.overtaking.top" data-title=" Twitter"><i class="icon icon-twitter"></i></a></li><li><a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://www.overtaking.top/20180704175217/" data-title=" Google+"><i class="icon icon-google-plus"></i></a></li></ul></div><div class="page-modal wx-share" id="wxShare"><a class="close" href="javascript:;"><i class="icon icon-close"></i></a><p>扫一扫，分享到微信</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK4AAACuCAAAAACKZ2kyAAABw0lEQVR42u3aS47DIBAFwNz/0p4DRMavm088UrGKogTKXqDmNZ9PPK6b8f2b79+PZ/vsGLi4uNPcazjGC+QL382ZG3Bxcc9z7xZIPvce5m7OBxsuLu6LuYUFgiIJFxf3v3Pz8qV6WMLFxX0bt7fRjKe+grHxrIaLizvBzVPKfZ+35Lu4uLgt7lUcy6KN3uq4uLhHuNXyJSk78gfrNWBwcXF3c8dTVA8hPVDh1eDi4h7hVmOOPCrNX0c1QMHFxX0DN5+iGoPmzRVcXNzz3PHfkuKjGo7MvAJcXNyT3JnyYu31i6meMC4u7jR3PvJIopDeceg2MMXFxd3MzcuXpATJi56kGfNQNuHi4m7j5u3SvAyaadlG+y4uLu5mblKa5Li1TdZox8XFxd3MnT/YVC9k9L7BxcU9ya2i84dZ1azFxcX9FbfXOs0PP9VwtnlywsXFneBexdFrkfaiWFxc3F9xq1FF71pGM/6YiVdwcXGnuTPB6Bg3frDqUQoXF/c8t7rR5FcxtpzVcHFxX8atXtVae3UDFxf3ndy8jdorfR6EuLi4B7m9cDMpg3rhSKHJiouLu4Fb3Up6oUn1CLQg38XFxe1w/wCEm8NCT0mftAAAAABJRU5ErkJggg==" alt="微信分享二维码"></div><script>window.addEventListener("DOMContentLoaded",function(o){var t=window.location.pathname,e=document.querySelector("#gobottom"),n=document.querySelector("#gobottom span");/^\/(\d+?)\//.test(t)||-1!==["/about/"].indexOf(t)?n.classList.add("icon-comments"):n.classList.add("icon-chevron-down"),e.classList.add("waves-toggle")})</script><script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script><script>var BLOG={ROOT:"/",SHARE:!0,REWARD:!0}</script><script src="/js/main.min.js?v=1.7.2"></script><div class="search-panel" id="search-panel"><ul class="search-result" id="search-result"></ul></div><template id="search-tpl"><li class="item"><a href="{path}" class="waves-block waves-effect"><div class="title ellipsis" title="{tip}">{title}</div><div class="flex-row flex-middle"><div class="tags ellipsis">{tags}</div><time class="flex-col time">{date}</time></div></a></li></template><script src="/js/search.min.js?v=1.7.2" async></script><script src="/js/cursor.min.js?v=1.7.2" async></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script src="//unpkg.com/valine@latest/dist/Valine.min.js"></script><script>var META=["nick","mail","link"],meta="nick,mail".split(",").filter(function(e){return-1<META.indexOf(e)});new Valine({el:"#comments",appId:"RqIV72rdY61eUlDassFQDxPG-gzGzoHsz",appKey:"Mvo4cTDcS9hw0l03mINzvdNk",placeholder:"欢迎交流、指正！",avatar:"mm",meta:0===meta.length?META:meta,pageSize:"10",visitor:!0,highlight:!0,recordIP:!1,enableQQ:!0,requiredFields:0===meta.length?META:meta})</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script>!function(){var t,e=document.title;document.addEventListener("visibilitychange",function(){document.hidden?(document.title="愿风指引你前进的道路！",clearTimeout(t)):(document.title="真正重要的，只是当下！",t=setTimeout(function(){document.title=e},2e3))})}()</script><script>window.addEventListener('DOMContentLoaded', function (event) {
+        document.querySelectorAll('pre[class*=language-]').forEach(function(node) {
+            var classList = Array.prototype.slice.call(node.classList);
+            var ingnoreClassList = ['language-treeview', 'language-bash', 'language-git'];
+
+            if (ingnoreClassList.every(name => classList.indexOf(name) === -1)) {
+                node.classList.add('line-numbers');
+                node.classList.add('match-braces');
+                node.classList.add('rainbow-braces');
+                node.classList.add('diff-highlight');
+            }
+        });
+
+        Prism.highlightAll();
+    });</script><script src="/js/prism.min.js?v=1.7.2"></script><script src="/js/prism-vim.min.js?v=1.7.2"></script><script>
+    if(!('loading' in HTMLImageElement.prototype)) {
+        const srp = document.createElement('script');
+        srp.src = 'https://cdn.jsdelivr.net/npm/lazysizes@5.1.1/lazysizes.min.js';
+        document.body.append(srp);
+        const imgs = document.querySelectorAll('img');
+        imgs.forEach(el => {
+            el.setAttribute('data-src', el.getAttribute('src'));
+            el.removeAttribute('src');
+            el.classList.add('lazyload');
+    })
+}
+</script></body></html>
