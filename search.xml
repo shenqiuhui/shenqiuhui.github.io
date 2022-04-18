@@ -522,8 +522,8 @@ const Koa = require(&#39;./koa&#39;);
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>源码分析</tag>
         <tag>Node.js</tag>
+        <tag>源码分析</tag>
         <tag>async/await</tag>
         <tag>Koa</tag>
       </tags>
@@ -1896,8 +1896,8 @@ app.compose = function() {
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>源码分析</tag>
         <tag>Node.js</tag>
+        <tag>源码分析</tag>
         <tag>async/await</tag>
         <tag>Koa</tag>
       </tags>
@@ -3136,6 +3136,51 @@ let p: P = {
       </tags>
   </entry>
   <entry>
+    <title>LeetCode 724, 1991 —— 寻找数组中心下标</title>
+    <url>/20220418200850/</url>
+    <content><![CDATA[<h2 id="题目链接"><a href="#题目链接" class="headerlink" title="题目链接"></a>题目链接</h2><blockquote class="pullquote info"><ul><li><a href="https://leetcode-cn.com/problems/find-pivot-index/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/find-pivot-index/</a></li><li><a href="https://leetcode-cn.com/problems/find-the-middle-index-in-array/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/find-the-middle-index-in-array/</a></li></ul></blockquote><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给你一个下标从 <code>0</code> 开始的整数数组 <code>nums</code>，请你找到 <strong>最左边</strong> 的中间位置 <code>middleIndex</code>（也就是所有可能中间位置下标最小的一个）。</p><p><strong>中间位置 <code>middleIndex</code> 的数组下标满足：</strong></p><blockquote class="pullquote warning"><p><code>nums[0]</code> + <code>nums[1]</code> + <code>...</code> + <code>nums[middleIndex - 1]</code> === <code>nums[middleIndex + 1]</code> + <code>nums[middleIndex + 2]</code> + <code>...</code> + <code>nums[nums.length - 1]</code></p></blockquote><p>如果 <code>middleIndex === 0</code>，左边部分的和定义为 <code>0</code>，如果 <code>middleIndex === nums.length - 1</code> ，右边部分的和定义为 <code>0</code>。</p><p>请你返回满足上述条件 <strong>最左边</strong> 的 <code>middleIndex</code>，如果不存在这样的中间位置，请你返回 <code>-1</code>。</p><h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p><strong>示例 1：</strong></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>nums = [2, 3, -1, 8, 4]</code><br><strong>输出：</strong> <code>3</code><br><strong>解释：</strong><br>下标 <code>3</code> 之前的数字和为：<code>2 + 3 + -1 = 4</code><br>下标 <code>3</code> 之后的数字和为：<code>4 = 4</code></p></blockquote><p><strong>示例 2：</strong></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>nums = [1, -1, 4]</code><br><strong>输出：</strong> <code>2</code><br><strong>解释：</strong><br>下标 <code>2</code> 之前的数字和为：<code>1 + -1 = 0</code><br>下标 <code>2</code> 之后的数字和为：<code>0</code></p></blockquote><p><strong>示例 3：</strong></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>nums = [2, 5]</code><br><strong>输出：</strong> <code>-1</code><br><strong>解释：</strong><br>不存在符合要求的 <code>middleIndex</code>。</p></blockquote><p><strong>示例 4：</strong></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>nums = [1]</code><br><strong>输出：</strong> <code>0</code><br><strong>解释：</strong><br>下标 <code>0</code> 之前的数字和为：<code>0</code><br>下标 <code>0</code> 之后的数字和为：<code>0</code></p></blockquote><h2 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h2><h3 id="暴力破解"><a href="#暴力破解" class="headerlink" title="暴力破解"></a>暴力破解</h3><p>暴力破解就是一边遍历一边通过累加求左侧的和，此时右侧的和未知，再嵌套循环求右侧的总和，如果左右和相等则结束循环直接返回索引，全部遍历完没有找到 <code>middleIndex</code> 则返回 <code>-1</code>。</p><pre><code class="lang-js">const findMiddleIndex = (nums) =&gt; {
+  let leftSum = 0;
+
+  for (let i = 0; i &lt; nums.length; i++) {
+    let rightSum = 0;
+
+    for (let j = i + 1; j &lt; nums.length; j++) {
+      rightSum += nums[j];
+    }
+
+    if (leftSum === rightSum) {
+      return i;
+    }
+
+    leftSum += nums[i];
+  }
+
+  return -1;
+}
+</code></pre><p><strong>复杂度分析：</strong></p><ul><li>时间复杂度：<code>O(n²)</code></li><li>空间复杂度：<code>O(1)</code></li></ul><h3 id="前缀和"><a href="#前缀和" class="headerlink" title="前缀和"></a>前缀和</h3><p>在暴力破解时，之所以会在每一次循环中再次嵌套循环是因为右侧的和未知，如果已知总和为 <code>sum</code>，遍历到当前项的值为 <code>num</code>，遍历累加求出的左侧总和为 <code>leftSum</code>，则可以求出右侧总和 <code>rightSum</code> 得：</p><blockquote class="pullquote success"><p><code>rightSum</code> = <code>sum</code> - <code>leftSum</code> - <code>num</code></p></blockquote><p>若 <code>leftSum</code> 与 <code>rightSum</code> 相等，则：</p><blockquote class="pullquote info"><p><code>leftSum</code> = <code>sum</code> - <code>leftSum</code> - <code>num</code><br><code>2</code> * <code>leftSum</code> + <code>num</code> = <code>sum</code></p></blockquote><p>所以先求出 <code>sum</code>，就可以在遍历过程中通过公式计算的结果判断是否左侧和右侧的总和相等。</p><pre><code class="lang-js">const findMiddleIndex = (nums) =&gt; {
+  const sum = nums.reduce((sum, cur) =&gt; sum + cur, 0);
+  let leftSum = 0;
+
+  for (let i = 0; i &lt; nums.length; i++) {
+    if (2 * leftSum + nums[i] === sum) {
+      return i;
+    }
+
+    leftSum += nums[i];
+  }
+
+  return -1;
+}
+</code></pre><p><strong>复杂度分析：</strong></p><ul><li>时间复杂度：<code>O(n)</code></li><li>空间复杂度：<code>O(1)</code></li></ul>]]></content>
+      <categories>
+        <category>算法</category>
+      </categories>
+      <tags>
+        <tag>JavaScript</tag>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JavaScript 获取对象属性名的方法和区别</title>
     <url>/20190417112536/</url>
     <content><![CDATA[<img loading="lazy" src="//static.overtaking.top/images/JavaScript/20190417112536/get-object-key.png" title="JavaScript 获取对象属性名的方法和区别"><p><br></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote class="pullquote warning"><p><strong>在 <code>JavaScript</code> 中想获取某一个对象的属性名，有多种方法可供选择：</strong></p><ul><li><strong><code>for in</code></strong></li><li><strong><code>Object.keys</code></strong></li><li><strong><code>Object.getOwnPropertyNames</code></strong></li><li><strong><code>Object.getOwnPropertySymbols</code></strong></li><li><strong><code>Reflect.ownKeys</code></strong></li></ul></blockquote><p>在获取对象属性名的众多方法中，其实有各自的区别和用途，但经常容易被混淆，本篇文章会将这些方法的区别介绍清楚。</p><a id="more"></a><h2 id="创建对象案例"><a href="#创建对象案例" class="headerlink" title="创建对象案例"></a>创建对象案例</h2><p>下面来创建一个对象的案例让这些方法来获取属性，再通过结果来看区别。</p><pre><code class="lang-js">/* 父类，继承自 Object.prototype */
@@ -3442,8 +3487,8 @@ commitChecker.checkStart();
         <tag>Node.js</tag>
         <tag>Hooks</tag>
         <tag>Git</tag>
-        <tag>命令行</tag>
         <tag>代码管理/版本控制</tag>
+        <tag>命令行</tag>
       </tags>
   </entry>
   <entry>
@@ -3665,8 +3710,8 @@ $ git rebase 地址别名/分支名
       </categories>
       <tags>
         <tag>Git</tag>
-        <tag>命令行</tag>
         <tag>代码管理/版本控制</tag>
+        <tag>命令行</tag>
       </tags>
   </entry>
   <entry>
@@ -3724,8 +3769,8 @@ pre-rebase.sample # 变基前执行
       </categories>
       <tags>
         <tag>Git</tag>
-        <tag>命令行</tag>
         <tag>代码管理/版本控制</tag>
+        <tag>命令行</tag>
       </tags>
   </entry>
   <entry>
@@ -9870,8 +9915,8 @@ function json() {
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>源码分析</tag>
         <tag>Node.js</tag>
+        <tag>源码分析</tag>
         <tag>中间件</tag>
         <tag>Express</tag>
       </tags>
@@ -11407,8 +11452,8 @@ module.exports = createApplication;
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>源码分析</tag>
         <tag>Node.js</tag>
+        <tag>源码分析</tag>
         <tag>中间件</tag>
         <tag>Express</tag>
       </tags>
@@ -13380,8 +13425,8 @@ class AsyncSeriesHook {
         <category>Webpack</category>
       </categories>
       <tags>
-        <tag>源码分析</tag>
         <tag>Node.js</tag>
+        <tag>源码分析</tag>
         <tag>Webpack</tag>
         <tag>tapable</tag>
         <tag>Hooks</tag>
@@ -13922,8 +13967,8 @@ module.exports = {
         <category>Webpack</category>
       </categories>
       <tags>
-        <tag>源码分析</tag>
         <tag>Node.js</tag>
+        <tag>源码分析</tag>
         <tag>Babel</tag>
         <tag>Webpack</tag>
         <tag>AST</tag>
@@ -16697,8 +16742,8 @@ rs.pipe(ws);
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>源码分析</tag>
         <tag>Node.js</tag>
+        <tag>源码分析</tag>
         <tag>Stream</tag>
       </tags>
   </entry>
@@ -17328,10 +17373,10 @@ rmDirBreAsync(&#39;a&#39;).then(() =&gt; {
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>ES6</tag>
-        <tag>Promise</tag>
         <tag>异步</tag>
+        <tag>Promise</tag>
         <tag>Node.js</tag>
+        <tag>ES6</tag>
         <tag>ES7</tag>
         <tag>async/await</tag>
         <tag>fs</tag>
@@ -18275,8 +18320,8 @@ console.log(girl._events);
         <category>Node.js</category>
       </categories>
       <tags>
-        <tag>源码分析</tag>
         <tag>Node.js</tag>
+        <tag>源码分析</tag>
         <tag>EventEmitter</tag>
       </tags>
   </entry>
@@ -18473,8 +18518,8 @@ console.log(a); // Hello world
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>源码分析</tag>
         <tag>Node.js</tag>
+        <tag>源码分析</tag>
         <tag>CommonJS</tag>
       </tags>
   </entry>
@@ -19595,8 +19640,8 @@ fn([p1, p2, p3]); // 正常执行
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>Promise</tag>
         <tag>异步</tag>
+        <tag>Promise</tag>
         <tag>Node.js</tag>
         <tag>ES7</tag>
         <tag>async/await</tag>
@@ -19865,10 +19910,10 @@ myCo(gen()).then(data =&gt; {
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>ES6</tag>
-        <tag>Promise</tag>
         <tag>异步</tag>
+        <tag>Promise</tag>
         <tag>Node.js</tag>
+        <tag>ES6</tag>
         <tag>Generators</tag>
       </tags>
   </entry>
@@ -20383,9 +20428,9 @@ Promise.derfer = Promise.deferred = function () {
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>ES6</tag>
-        <tag>Promise</tag>
         <tag>异步</tag>
+        <tag>Promise</tag>
+        <tag>ES6</tag>
         <tag>源码分析</tag>
       </tags>
   </entry>
@@ -20664,9 +20709,9 @@ Promise.reject(&#39;出错了&#39;).then(null, err =&gt; {
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>ES6</tag>
-        <tag>Promise</tag>
         <tag>异步</tag>
+        <tag>Promise</tag>
+        <tag>ES6</tag>
       </tags>
   </entry>
   <entry>
@@ -21794,8 +21839,8 @@ process.nextTick(() =&gt; console.log(&#39;nextTick&#39;));
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>Promise</tag>
         <tag>异步</tag>
+        <tag>Promise</tag>
         <tag>Node.js</tag>
       </tags>
   </entry>
@@ -22004,8 +22049,8 @@ $ git push origin gh-pages
       </categories>
       <tags>
         <tag>Git</tag>
-        <tag>命令行</tag>
         <tag>代码管理/版本控制</tag>
+        <tag>命令行</tag>
         <tag>Linux</tag>
       </tags>
   </entry>
