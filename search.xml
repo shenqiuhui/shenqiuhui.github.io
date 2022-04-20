@@ -3567,8 +3567,8 @@ commitChecker.checkStart();
         <tag>Node.js</tag>
         <tag>Hooks</tag>
         <tag>Git</tag>
-        <tag>代码管理/版本控制</tag>
         <tag>命令行</tag>
+        <tag>代码管理/版本控制</tag>
       </tags>
   </entry>
   <entry>
@@ -3790,8 +3790,8 @@ $ git rebase 地址别名/分支名
       </categories>
       <tags>
         <tag>Git</tag>
-        <tag>代码管理/版本控制</tag>
         <tag>命令行</tag>
+        <tag>代码管理/版本控制</tag>
       </tags>
   </entry>
   <entry>
@@ -3849,8 +3849,8 @@ pre-rebase.sample # 变基前执行
       </categories>
       <tags>
         <tag>Git</tag>
-        <tag>代码管理/版本控制</tag>
         <tag>命令行</tag>
+        <tag>代码管理/版本控制</tag>
       </tags>
   </entry>
   <entry>
@@ -22129,8 +22129,8 @@ $ git push origin gh-pages
       </categories>
       <tags>
         <tag>Git</tag>
-        <tag>代码管理/版本控制</tag>
         <tag>命令行</tag>
+        <tag>代码管理/版本控制</tag>
         <tag>Linux</tag>
       </tags>
   </entry>
