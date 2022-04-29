@@ -3136,9 +3136,102 @@ let p: P = {
       </tags>
   </entry>
   <entry>
+    <title>LeetCode 14 —— 最长公共前缀</title>
+    <url>/20220428135918/</url>
+    <content><![CDATA[<h2 id="题目链接"><a href="#题目链接" class="headerlink" title="题目链接"></a>题目链接</h2><p><a href="https://leetcode-cn.com/problems/longest-common-prefix/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/longest-common-prefix/</a></p><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>编写一个函数来查找字符串数组中的最长公共前缀，如果不存在公共前缀，返回空字符串 <code>&quot;&quot;</code>。</p><h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p><strong>示例 1：</strong></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>strs = [&quot;flower&quot;, &quot;flow&quot;, &quot;flight&quot;]</code><br><strong>输出：</strong> <code>&quot;fl&quot;</code></p></blockquote><p><strong>示例 2：</strong></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>strs = [&quot;dog&quot;, &quot;racecar&quot;, &quot;car&quot;]</code><br><strong>输出：</strong> <code>&quot;&quot;</code><br><strong>解释：</strong> 输入不存在公共前缀。</p></blockquote><h2 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h2><h3 id="横向扫描"><a href="#横向扫描" class="headerlink" title="横向扫描"></a>横向扫描</h3><p>横向比较的思路就是我们每次传入两个字符串对比，得到这两项的公共前缀，再拿得到的结果和下一个字符串对比，直到所有字符串都对比完得到最大公共前缀。</p><blockquote class="pullquote info"><p><strong>$LCP(S_1…S_n) = LCP(LCP(LCP(LCP(S_1, S_2), S_3), S_4), …S_n)$</strong></p></blockquote><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220428135918/horizontal.png" alt="横向扫描示意图"></div><div class="image-caption">横向扫描示意图</div></figure><p><br></p><p>根据示意图可以知道，我们首先应该用一个变量存储 <code>LCP</code> 过程的结果，默认为字符串数组的第一项，并遍历字符串数组，用当前的公共前缀去和每一项字符串对比得出新的公共前缀。</p><p>在获取两个字符串公共前缀的过程中需要遍历字符串，所以当遍历次数达到较短的字符串长度时，或者出现某次遍历字符串对应位置上两个字符不相等时，则可以停止遍历得出当前的公共前缀，当所字符串数组遍历完可以得出最终的公共前缀并返回。</p><pre><code class="lang-js">const longestCommonPrefix = (strs) =&gt; {
+  if (strs.length === 0) return &#39;&#39;;
+
+  const lcp = (str1, str2) =&gt; {
+    const length = Math.min(str1.length, str2.length);
+    let index = 0;
+
+    while (index &lt; length &amp;&amp; str1[index] === str2[index]) {
+      index++;
+    }
+
+    return str1.slice(0, index);
+  }
+
+  return strs.reduce((prev, next) =&gt; lcp(prev, next));
+}
+</code></pre><p><strong>复杂度分析：</strong></p><ul><li>时间复杂度：<code>n</code> 为字符串数组的规模，<code>m</code> 为 <code>lcp</code> 函数遍历的平均次数，故为 <strong>$O(m * n)$</strong></li><li>空间复杂度：<strong>$O(1)$</strong></li></ul><h3 id="纵向扫描"><a href="#纵向扫描" class="headerlink" title="纵向扫描"></a>纵向扫描</h3><p>相比于横向扫描，整个字符串为维度两两求公共前缀，纵向扫描是以每一个字符为维度的遍历，最后得到公共前缀，我们也可以把字符串的看做一个不规则的表格，每个字符代表一个单元格。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220428135918/vertical.png" alt="纵向扫描示意图"></div><div class="image-caption">纵向扫描示意图</div></figure><p><br></p><p>在每次一个字符一个字符的比对时，当有内层遍历一个字符串对应位置的字符与其他不符合，或者外层遍历到最短的那个字符串时结束。</p><pre><code class="lang-js">const longestCommonPrefix = (strs) =&gt; {
+  if (strs.length === 0) return &#39;&#39;;
+
+  const len = strs.length;
+  const count = strs[0].length;
+
+  for (let i = 0; i &lt; count; i++) {
+    for (let j = 0; j &lt; len; j++) {
+      if (i === strs[j].length || strs[0][i] !== strs[j][i]) {
+        return strs[0].slice(0, i);
+      }
+    }
+  }
+
+  return strs[0];
+}
+</code></pre><p><strong>复杂度分析：</strong></p><ul><li>时间复杂度：<code>n</code> 为字符串数组的规模，<code>m</code> 字符串的平均长度，故为 <strong>$O(m * n)$</strong></li><li>空间复杂度：<strong>$O(1)$</strong></li></ul><h3 id="分治策略"><a href="#分治策略" class="headerlink" title="分治策略"></a>分治策略</h3><p>分治算法满足的条件：</p><ul><li>分解：将要解决的问题划分成规模更小的问题；</li><li>求解：将划分的足够小的子问题用相对简单的方法解决；</li><li>合并：按照原问题的要求将子问题的解逐层合并为原问题的解。</li></ul><p>通过横向扫描法我们可以知道两个字符串可以求解公共前缀，<strong>$n = 2$</strong> 这个规模就是我们要求解的子问题，而通过结合律有以下结论：</p><blockquote class="pullquote info"><p><strong><script type="math/tex">LCP(S_1...S_n) = LCP(LCP(S_1...S_K), LCP(S_{k + 1}...S_n))</script></strong></p></blockquote><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220428135918/divide-conquer.png" alt="分治策略示意图"></div><div class="image-caption">分治策略示意图</div></figure><p><br></p><p>每一个大问题都可以通过求解的中间值 <code>mid</code> 范围划分为两个子问题 <strong>$LCP(S_1…S_mid)$</strong> 和 <strong>$LCP(S_{mid + 1}…S_n)$</strong>，子问题继续划分为两个子问题，依次类推，划分到最小颗粒度为止（范围内不大于两个字符串求解），再通过子问题得到的结果逐级合并，所以使用递归回溯更适合解决分治的问题。</p><pre><code class="lang-js">const longestCommonPrefix = (strs) =&gt; {
+  if (strs.length === 0) return &#39;&#39;;
+
+  const commonPrefix = (lcpLeft, lcpRight) =&gt; {
+    const len = Math.min(lcpLeft.length, lcpRight.length);
+
+    for (let i = 0; i &lt; len; i++) {
+      if (lcpLeft[i] !== lcpRight[i]) {
+        return lcpLeft.slice(0, i);
+      }
+    }
+
+    return lcpLeft.slice(0, len);
+  }
+
+  const lcp = (start, end) =&gt; {
+    if (start === end) return strs[start];
+
+    const mid = Math.floor((start + end) / 2);
+    return commonPrefix(lcp(start, mid), lcp(mid + 1, end));
+  }
+
+  return lcp(0, strs.length - 1);
+}
+</code></pre><p><strong>复杂度分析：</strong></p><ul><li>时间复杂度：通过分治策略的递推公式 <strong>$T(n) = k * T(n / k) + O(n - 1)$</strong><ul><li>其中每个问题每次分治的子问题数为 <code>2</code></li><li>分治 <strong>$logn$</strong> 次得：<strong><script type="math/tex">k = 2 ^ {logn} = n</script></strong></li><li>推导得：<strong>$T(n) = n * T(1) + O(n - 1) = O(n) + O(n - 1) = O(n)$</strong></li><li>因每次子问题执行复杂度为 <strong>$O(m)$</strong>，<code>m</code> 为字符串平均长度，最终可推出时间复杂度为 <strong>$O(m * n)$</strong></li></ul></li><li>空间复杂度：主要取决于递归调用的次数，故为 <strong>$O(logn)$</strong></li></ul><h3 id="二分查找"><a href="#二分查找" class="headerlink" title="二分查找"></a>二分查找</h3><p>寻找最大公共前缀的过程中有一点在其他的实现方式中也有应用，就是最大前缀的长度一定不会超过最短的字符串的长度，那是不是可以高效的在 <strong>$[0, minLength]$</strong> 范围中尝试寻找最大前缀长度的范围？</p><p>我们粗略的把最短的字符串不断的分成两个范围，一个是已经确定是公共前缀的范围，一个是未确定公共前缀的范围，然后不断的去在未确定公共前缀的范围中寻找边界，不断的缩短未知的范围直到找到最大公共前缀。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220428135918/binary.png" alt="二分查找示意图"></div><div class="image-caption">二分查找示意图</div></figure><p><br></p><p>此时我们就可以通过二分查找法来实现，设置变量 <code>low</code> 和 <code>high</code> 指向未知范围的起点和终点，通过起点终点求出中间点 <code>mid</code>，此时两个范围 <strong>$[low, mid)$</strong> 和 <strong>$[mid, high)$</strong></p><ul><li>被确定为公共前缀，则让 <code>low</code> 指定到 <code>mid</code> 所在的位置缩小未知范围；</li><li>被确定不是公共前缀，则让 <code>high</code> 指定到 <code>mid - 1</code> 的位置缩小未知范围；</li><li>直到 <code>low</code> 和 <code>hight</code> 重叠或相交，数组中任何一个字符串的 <strong>$[0, low)$</strong> 就是最大公共前缀。</li></ul><pre><code class="lang-js">const longestCommonPrefix = (strs) =&gt; {
+  if (strs.length === 0) return &#39;&#39;;
+
+  const isCommonPrefix = (strs, len) =&gt; {
+    const [first, ...other] = strs;
+    return other.every((str) =&gt; first.slice(0, len) === str.slice(0, len));
+  }
+
+  let low = 0;
+  let high = strs.reduce((min, str) =&gt; Math.min(min, str.length), Infinity);
+
+  while (low &lt; high) {
+    const mid = Math.ceil((low + high) / 2);
+
+    if (isCommonPrefix(strs, mid)) {
+      low = mid;
+    } else {
+      high = mid - 1;
+    }
+  }
+
+  return strs[0].slice(0, low);
+}
+</code></pre><p><strong>复杂度分析：</strong></p><ul><li>时间复杂度：<code>n</code> 为字符串数组的规模，<code>m</code> 字符串的平均长度，二分查找迭代次数为 <strong>$O(logm)$</strong>，每次判断是否是公共前缀需要执行 <strong>$O(m * n)$</strong> 次，故为 <strong>$O(mnlogm)$</strong></li><li>空间复杂度：<strong>$O(1)$</strong></li></ul>]]></content>
+      <categories>
+        <category>算法</category>
+      </categories>
+      <tags>
+        <tag>JavaScript</tag>
+        <tag>LeetCode</tag>
+        <tag>算法</tag>
+        <tag>字符串</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LeetCode 48 —— 旋转图像</title>
     <url>/20220422115115/</url>
-    <content><![CDATA[<h2 id="题目链接"><a href="#题目链接" class="headerlink" title="题目链接"></a>题目链接</h2><ul><li><a href="https://leetcode-cn.com/problems/rotate-image/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/rotate-image/</a></li><li><a href="https://leetcode-cn.com/problems/rotate-matrix-lcci/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/rotate-matrix-lcci/</a></li></ul><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个 <code>n × n</code> 的二维矩阵 <code>matrix</code> 表示一个图像，请你将图像顺时针旋转 <code>90</code> 度。你必须在 <strong>原地</strong> 旋转图像，这意味着你需要直接修改输入的二维矩阵，请不要使用另一个矩阵来旋转图像。</p><h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p><strong>示例 1：</strong></p><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220422115115/mat3x3.jpeg" title="示例 1"><p><br></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]</code><br><strong>输出：</strong> <code>[[7, 4, 1], [8, 5, 2], [9, 6, 3]]</code></p></blockquote><p><strong>示例 2：</strong></p><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220422115115/mat4x4.jpeg" title="示例 1"><p><br></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>matrix = [[5, 1, 9, 11], [2, 4, 8, 10], [13, 3, 6, 7], [15, 14, 12, 16]]</code><br><strong>输出：</strong> <code>[[15, 13, 2, 5], [14, 3, 4, 1], [12, 6, 8, 9], [16, 7, 10, 11]]</code></p></blockquote><h2 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h2><h3 id="使用辅助矩阵"><a href="#使用辅助矩阵" class="headerlink" title="使用辅助矩阵"></a>使用辅助矩阵</h3><p>虽然题目要求 <strong>原地</strong> 算法，不能使用辅助矩阵，我们为了更好的理解元素旋转前和旋转后的关系，先使用辅助矩阵实现旋转。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220422115115/rotate.png" alt="旋转示意图"></div><div class="image-caption">旋转示意图</div></figure><p><br></p><p>其实我们主要理解的是当前行 <code>i</code> 和当前列 <code>j</code> 在旋转后的变化关系，如上图，第一行旋转完后变成了倒数第一列，第二行旋转后变成了倒数第二列，依次类推。</p><p>对于 <code>n x n</code> 矩阵的一个元素 <strong>$matrix[i][j]$</strong> 而言，旋转后列的值 <code>j</code> 转换成了行的值，旋转后列的值变成了倒数第 <code>i</code> 列，即 <code>n - 1 - i</code> 列。</p><blockquote class="pullquote success"><p><strong>我们假设 <code>row</code> 代表行，<code>col</code> 代表列，则可以总结出公式：</strong></p><ul><li><strong><script type="math/tex">row_{旋转后} = col_{旋转前}</script></strong></li><li><strong><script type="math/tex">col_{旋转后} = n - row_{旋转前} - 1</script></strong></li></ul><p><strong>推出：$matrix[i][j] → matrix[j][n - i - 1]$</strong></p></blockquote><pre><code class="lang-js">const rotate = (matrix) =&gt; {
+    <content><![CDATA[<h2 id="题目链接"><a href="#题目链接" class="headerlink" title="题目链接"></a>题目链接</h2><ul><li><a href="https://leetcode-cn.com/problems/rotate-image/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/rotate-image/</a></li><li><a href="https://leetcode-cn.com/problems/rotate-matrix-lcci/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/rotate-matrix-lcci/</a></li></ul><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个 <code>n × n</code> 的二维矩阵 <code>matrix</code> 表示一个图像，请你将图像顺时针旋转 <code>90</code> 度。你必须在 <strong>原地</strong> 旋转图像，这意味着你需要直接修改输入的二维矩阵，请不要使用另一个矩阵来旋转图像。</p><h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p><strong>示例 1：</strong></p><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220422115115/mat3x3.jpeg" title="示例 1"><p><br></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]</code><br><strong>输出：</strong> <code>[[7, 4, 1], [8, 5, 2], [9, 6, 3]]</code></p></blockquote><p><strong>示例 2：</strong></p><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220422115115/mat4x4.jpeg" title="示例 2"><p><br></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>matrix = [[5, 1, 9, 11], [2, 4, 8, 10], [13, 3, 6, 7], [15, 14, 12, 16]]</code><br><strong>输出：</strong> <code>[[15, 13, 2, 5], [14, 3, 4, 1], [12, 6, 8, 9], [16, 7, 10, 11]]</code></p></blockquote><h2 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h2><h3 id="使用辅助矩阵"><a href="#使用辅助矩阵" class="headerlink" title="使用辅助矩阵"></a>使用辅助矩阵</h3><p>虽然题目要求 <strong>原地</strong> 算法，不能使用辅助矩阵，我们为了更好的理解元素旋转前和旋转后的关系，先使用辅助矩阵实现旋转。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220422115115/rotate.png" alt="旋转示意图"></div><div class="image-caption">旋转示意图</div></figure><p><br></p><p>其实我们主要理解的是当前行 <code>i</code> 和当前列 <code>j</code> 在旋转后的变化关系，如上图，第一行旋转完后变成了倒数第一列，第二行旋转后变成了倒数第二列，依次类推。</p><p>对于 <code>n x n</code> 矩阵的一个元素 <strong>$matrix[i][j]$</strong> 而言，旋转后列的值 <code>j</code> 转换成了行的值，旋转后列的值变成了倒数第 <code>i</code> 列，即 <code>n - 1 - i</code> 列。</p><blockquote class="pullquote success"><p><strong>我们假设 <code>row</code> 代表行，<code>col</code> 代表列，则可以总结出公式：</strong></p><ul><li><strong><script type="math/tex">row_{旋转后} = col_{旋转前}</script></strong></li><li><strong><script type="math/tex">col_{旋转后} = n - row_{旋转前} - 1</script></strong></li></ul><p><strong>推出：$matrix[i][j] → matrix[j][n - i - 1]$</strong></p></blockquote><pre><code class="lang-js">const rotate = (matrix) =&gt; {
   const n = matrix.length;
   const newMatrix = Array(n).fill(0).map(() =&gt; Array(n).fill(0));
 
@@ -3193,7 +3286,7 @@ let p: P = {
   <entry>
     <title>LeetCode 73 —— 矩阵置零</title>
     <url>/20220421115308/</url>
-    <content><![CDATA[<h2 id="题目链接"><a href="#题目链接" class="headerlink" title="题目链接"></a>题目链接</h2><ul><li><a href="https://leetcode-cn.com/problems/set-matrix-zeroes/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/set-matrix-zeroes/</a></li><li><a href="https://leetcode-cn.com/problems/zero-matrix-lcci/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/zero-matrix-lcci/</a></li></ul><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个 <code>m x n</code> 的矩阵，如果一个元素为 <code>0</code> ，则将其所在行和列的所有元素都设为 <code>0</code> 。请使用 <strong>原地</strong> 算法。</p><h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p><strong>示例 1：</strong></p><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220421115308/mat3x3.jpeg" title="示例 1"><p><br></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>matrix = [[1, 1, 1], [1, 0, 1], [1, 1, 1]]</code><br><strong>输出：</strong> <code>[[1, 0, 1], [0, 0, 0], [1, 0, 1]]</code></p></blockquote><p><strong>示例 2：</strong></p><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220421115308/mat4x3.jpeg" title="示例 1"><p><br></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>matrix = [[0, 1, 2, 0], [3, 4, 5, 2], [1, 3, 1, 5]]</code><br><strong>输出：</strong> <code>[[0, 0, 0, 0], [0, 4, 5, 0], [0, 3, 1, 0]]</code></p></blockquote><h2 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h2><h3 id="辅助行和列"><a href="#辅助行和列" class="headerlink" title="辅助行和列"></a>辅助行和列</h3><p>通过上图案例，其实我们可以把矩阵看做一个表格，整个矩阵是表格的内容，那我们其实可以通过给为 <code>0</code> 的元素所在的行和列进行标记，可以给表格横向和纵向分别增加一行和一列来存储标记。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220421115308/add-row-col.png" alt="辅助行和列示意图"></div><div class="image-caption">辅助行和列示意图</div></figure><p><br></p><p>我们定义行或列存在值为 <code>0</code> 的元素，标记为 <code>true</code>，否则为 <code>false</code>，我们假设矩阵中不包含 <code>0</code>，存储标记行和列的默认值都为 <code>false</code>，只需要遍历矩阵的每一个元素，如果值 <code>0</code>，则将该元素的行标记和列标记都改为 <code>true</code>。</p><p>根据题目要求，只要元素所在行或列存在 <code>0</code>，即行或列的标记有存在 <code>true</code> 标记，我们就将这一项设置为 <code>0</code>，所以只需再次遍历矩阵根据条件将值设置一遍即可。</p><pre><code class="lang-js">const setZeroes = (matrix) =&gt; {
+    <content><![CDATA[<h2 id="题目链接"><a href="#题目链接" class="headerlink" title="题目链接"></a>题目链接</h2><ul><li><a href="https://leetcode-cn.com/problems/set-matrix-zeroes/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/set-matrix-zeroes/</a></li><li><a href="https://leetcode-cn.com/problems/zero-matrix-lcci/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/zero-matrix-lcci/</a></li></ul><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><p>给定一个 <code>m x n</code> 的矩阵，如果一个元素为 <code>0</code> ，则将其所在行和列的所有元素都设为 <code>0</code> 。请使用 <strong>原地</strong> 算法。</p><h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p><strong>示例 1：</strong></p><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220421115308/mat3x3.jpeg" title="示例 1"><p><br></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>matrix = [[1, 1, 1], [1, 0, 1], [1, 1, 1]]</code><br><strong>输出：</strong> <code>[[1, 0, 1], [0, 0, 0], [1, 0, 1]]</code></p></blockquote><p><strong>示例 2：</strong></p><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220421115308/mat4x3.jpeg" title="示例 2"><p><br></p><blockquote class="pullquote default"><p><strong>输入：</strong> <code>matrix = [[0, 1, 2, 0], [3, 4, 5, 2], [1, 3, 1, 5]]</code><br><strong>输出：</strong> <code>[[0, 0, 0, 0], [0, 4, 5, 0], [0, 3, 1, 0]]</code></p></blockquote><h2 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h2><h3 id="辅助行和列"><a href="#辅助行和列" class="headerlink" title="辅助行和列"></a>辅助行和列</h3><p>通过上图案例，其实我们可以把矩阵看做一个表格，整个矩阵是表格的内容，那我们其实可以通过给为 <code>0</code> 的元素所在的行和列进行标记，可以给表格横向和纵向分别增加一行和一列来存储标记。</p><p><br></p><figure class="image-bubble"><div class="img-lightbox"><div class="overlay"></div><img loading="lazy" src="//static.overtaking.top/images/Algorithm/20220421115308/add-row-col.png" alt="辅助行和列示意图"></div><div class="image-caption">辅助行和列示意图</div></figure><p><br></p><p>我们定义行或列存在值为 <code>0</code> 的元素，标记为 <code>true</code>，否则为 <code>false</code>，我们假设矩阵中不包含 <code>0</code>，存储标记行和列的默认值都为 <code>false</code>，只需要遍历矩阵的每一个元素，如果值 <code>0</code>，则将该元素的行标记和列标记都改为 <code>true</code>。</p><p>根据题目要求，只要元素所在行或列存在 <code>0</code>，即行或列的标记有存在 <code>true</code> 标记，我们就将这一项设置为 <code>0</code>，所以只需再次遍历矩阵根据条件将值设置一遍即可。</p><pre><code class="lang-js">const setZeroes = (matrix) =&gt; {
   const m = matrix.length;
   const n = matrix[0].length;
   const row = new Array(m).fill(false);
@@ -3301,9 +3394,9 @@ let p: P = {
       <tags>
         <tag>JavaScript</tag>
         <tag>LeetCode</tag>
+        <tag>二分查找</tag>
         <tag>数组</tag>
         <tag>算法</tag>
-        <tag>二分查找</tag>
       </tags>
   </entry>
   <entry>
@@ -12694,9 +12787,9 @@ function decode(token, secret) {
       <tags>
         <tag>源码分析</tag>
         <tag>HTTP</tag>
+        <tag>cookie/session</tag>
         <tag>JWT</tag>
         <tag>Vue</tag>
-        <tag>cookie/session</tag>
       </tags>
   </entry>
   <entry>
@@ -22620,8 +22713,8 @@ p.__proto__.job; // qianduan
       </categories>
       <tags>
         <tag>JavaScript</tag>
-        <tag>原型链</tag>
         <tag>面向对象</tag>
+        <tag>原型链</tag>
       </tags>
   </entry>
   <entry>
